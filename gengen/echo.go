@@ -2,9 +2,6 @@ package gengen
 
 import (
 	"fmt"
-	"go/ast"
-	"go/format"
-	"go/token"
 	"strconv"
 	"strings"
 
@@ -43,15 +40,6 @@ func (mux *EchoStye) CtxName() string {
 
 func (mux *EchoStye) CtxType() string {
 	return `ctx`
-}
-
-func typePrint(typ ast.Node) string {
-	fset := token.NewFileSet()
-	var buf strings.Builder
-	if err := format.Node(&buf, fset, typ); err != nil {
-		panic(err)
-	}
-	return buf.String()
 }
 
 func (mux *EchoStye) IsSkipped(method Method) SkippedResult {

@@ -5,7 +5,8 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	// "strings"
+	"go/format"
+	"strings"
 	"strconv"
 	"io"
 	"os"
@@ -410,4 +411,13 @@ func ParseFile(filename string) (*SourceContext, error) {
 	}
 	defer file.Close()
 	return Parse(filename, file)
+}
+
+func typePrint(typ ast.Node) string {
+	fset := token.NewFileSet()
+	var buf strings.Builder
+	if err := format.Node(&buf, fset, typ); err != nil {
+		panic(err)
+	}
+	return buf.String()
 }
