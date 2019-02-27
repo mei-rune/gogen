@@ -5,6 +5,8 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	// "strings"
+	"strconv"
 	"io"
 	"os"
 
@@ -15,7 +17,7 @@ type (
 	SourceContext struct {
 		Pkg        *ast.Ident
 		Imports    []*ast.ImportSpec
-		Interfaces []Interface
+		Interfaces []Class
 		Types      []*ast.TypeSpec
 	}
 
@@ -26,14 +28,16 @@ type (
 	typeSpecVisitor struct {
 		src   *SourceContext
 		node  *ast.TypeSpec
-		iface *Interface
+		isInterface bool
+		iface *Class
 		name  *ast.Ident
 	}
 
-	Interface struct {
+	Class struct {
 		ctx  *SourceContext `json:"-"`
 		Node *ast.TypeSpec
 		Name *ast.Ident
+		IsInterface bool
 
 		Methods []Method
 	}
@@ -44,8 +48,14 @@ type (
 		methods []Method
 	}
 
+	structVisitor struct {
+		node    *ast.TypeSpec
+		ts      *typeSpecVisitor
+		methods []Method
+	}
+
 	Method struct {
-		Itf         *Interface `json:"-"`
+		Itf         *Class `json:"-"`
 		Node        *ast.Field
 		Name        *ast.Ident
 		Comments    []string
@@ -123,10 +133,35 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 			v.src.Types = append(v.src.Types, rn)
 		}
 		return &typeSpecVisitor{src: v.src, node: rn}
+	case *ast.FuncDecl:
+		var name string
+		if star, ok := rn.Recv.List[0].Type.(*ast.StarExpr); ok {
+			name = star.X.(*ast.Ident).Name
+		} else if ident, ok := rn.Recv.List[0].Type.(*ast.Ident); ok{
+			name = ident.Name
+		} else {
+			panic(errors.Errorf("func.recv is unknown type - %T", rn.Recv.List[0].Type))
+		}
+		var class *Class
+		for idx := range v.src.Interfaces {
+			if name == v.src.Interfaces[idx].Name.Name {
+				class = &v.src.Interfaces[idx]
+				break
+			}
+		}
+
+		if class == nil {
+			panic(errors.New(strconv.Itoa(int(rn.Pos())) + ": 请先定义类型，后定义 方法"))
+		}
+		
+		mv := &methodVisitor{node: &ast.Field{Doc: rn.Doc, Names: []*ast.Ident{rn.Name}, Type: rn.Type}, list: &class.Methods}
+		ast.Walk(mv, mv.node)
+		return nil
 	default:
 		return v
 	}
 }
+
 
 /*
 package foo
@@ -143,10 +178,15 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 			v.name = rn
 		}
 		return v
+	case *ast.StructType:
+		v.isInterface = false
+		return &structVisitor{ts: v, methods: []Method{}}
 	case *ast.InterfaceType:
+		v.isInterface = true
 		return &interfaceTypeVisitor{ts: v, methods: []Method{}}
 	case nil:
 		if v.iface != nil {
+			v.iface.IsInterface = v.isInterface
 			v.iface.ctx = v.src
 			v.iface.Node = v.node
 			v.iface.Name = v.name
@@ -158,6 +198,21 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 	}
 }
 
+func (v *structVisitor) Visit(n ast.Node) ast.Visitor {
+	switch n.(type) {
+	 default:
+		return v
+	case *ast.FieldList:
+		return nil
+	case *ast.Field:
+		return nil
+	case nil:
+		v.ts.iface = &Class{Methods: v.methods}
+		return nil
+	}
+}
+
+
 func (v *interfaceTypeVisitor) Visit(n ast.Node) ast.Visitor {
 	switch rn := n.(type) {
 	default:
@@ -165,19 +220,9 @@ func (v *interfaceTypeVisitor) Visit(n ast.Node) ast.Visitor {
 	case *ast.Field:
 		return &methodVisitor{node: rn, list: &v.methods}
 	case nil:
-		v.ts.iface = &Interface{Methods: v.methods}
+		v.ts.iface = &Class{Methods: v.methods}
 		for idx := range v.ts.iface.Methods {
-			v.ts.iface.Methods[idx].Itf = v.ts.iface
-
-			v.ts.iface.Methods[idx].Params.Method = &v.ts.iface.Methods[idx]
-			for j := range v.ts.iface.Methods[idx].Params.List {
-				v.ts.iface.Methods[idx].Params.List[j].Method = &v.ts.iface.Methods[idx]
-			}
-			v.ts.iface.Methods[idx].Results.Method = &v.ts.iface.Methods[idx]
-
-			for j := range v.ts.iface.Methods[idx].Results.List {
-				v.ts.iface.Methods[idx].Results.List[j].Method = &v.ts.iface.Methods[idx]
-			}
+			v.ts.iface.Methods[idx].init(v.ts.iface)
 		}
 		return nil
 	}
@@ -185,12 +230,16 @@ func (v *interfaceTypeVisitor) Visit(n ast.Node) ast.Visitor {
 
 func (v *methodVisitor) Visit(n ast.Node) ast.Visitor {
 	switch rn := n.(type) {
-	default:
+	default:		
 		v.depth++
 		return v
 	case *ast.Ident:
 		v.name = rn
 		v.depth++
+		return v
+	case *ast.FuncLit:
+		v.depth++
+		fmt.Println("aa")
 		return v
 	case *ast.FuncType:
 		v.depth++
@@ -205,6 +254,8 @@ func (v *methodVisitor) Visit(n ast.Node) ast.Visitor {
 			v.results = &Results{}
 		}
 		return &resultListVisitor{list: v.results}
+	case *ast.BlockStmt:
+		return nil
 	case nil:
 		v.depth--
 		if v.depth == 0 && v.isMethod && v.name != nil {
@@ -300,9 +351,6 @@ func (v *resultVisitor) Visit(n ast.Node) ast.Visitor {
 }
 
 func (sc *SourceContext) validate() error {
-	if len(sc.Interfaces) != 1 {
-		return fmt.Errorf("found %d interfaces, expecting exactly 1", len(sc.Interfaces))
-	}
 	for _, i := range sc.Interfaces {
 		for _, m := range i.Methods {
 			if len(m.Results.List) < 1 {
@@ -311,6 +359,19 @@ func (sc *SourceContext) validate() error {
 		}
 	}
 	return nil
+}
+
+func (method *Method) init(iface *Class) {
+	method.Itf = iface
+	method.Params.Method = method
+	for j := range method.Params.List {
+		method.Params.List[j].Method = method
+	}
+	
+	method.Results.Method = method
+	for j := range method.Results.List {
+		method.Results.List[j].Method = method
+	}
 }
 
 func Parse(filename string, source io.Reader) (*SourceContext, error) {
@@ -323,11 +384,13 @@ func Parse(filename string, source io.Reader) (*SourceContext, error) {
 	visitor := &parseVisitor{src: context}
 	ast.Walk(visitor, f)
 
-	for _, itf := range context.Interfaces {
+	for classIdx, itf := range context.Interfaces {
 		for idx := range itf.Methods {
 			method := &itf.Methods[idx]
+			method.init(&context.Interfaces[classIdx])
 			for _, comment := range method.Comments {
 				ann := parseAnnotation(comment)
+				fmt.Println(itf.Name.Name, method.Name.Name, ann)
 				if ann != nil {
 					method.Annotations = append(method.Annotations, *ann)
 				}

@@ -43,6 +43,9 @@ func TestGenerate(t *testing.T) {
 		if !reflect.DeepEqual(actual, excepted) {
 			results := difflib.Diff(excepted, actual)
 			for _, result := range results {
+				if result.Delta == difflib.Common {
+					continue
+				}
 				t.Error(result)
 			}
 		}

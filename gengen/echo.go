@@ -88,6 +88,7 @@ func (mux *EchoStye) ReadParam(param Param, name string) string {
 
 	anno := mux.GetAnnotation(*param.Method)
 	if anno == nil {
+		fmt.Println(param.Method.Annotations)
 		panic(errors.New(strconv.Itoa(int(param.Method.Node.Pos())) + ": Annotation of method '" + param.Method.Itf.Name.Name + ":" + param.Method.Name.Name + "' is missing"))
 	}
 

@@ -94,8 +94,8 @@ func (cmd *Generator) runFile(filename string) error {
 		return err
 	}
 
-	for _, itf := range file.Interfaces {
-		if err := cmd.generateInterface(out, file, &itf); err != nil {
+	for _, class := range file.Interfaces {
+		if err := cmd.generateInterface(out, file, &class); err != nil {
 			return err
 		}
 	}
@@ -144,11 +144,11 @@ func (cmd *Generator) generateHeader(out io.Writer, file *SourceContext) error {
 	return nil
 }
 
-func (cmd *Generator) generateInterface(out io.Writer, file *SourceContext, itf *Interface) error {
-	args := map[string]interface{}{"mux": cmd.Mux, "itf": itf}
+func (cmd *Generator) generateInterface(out io.Writer, file *SourceContext, class *Class) error {
+	args := map[string]interface{}{"mux": cmd.Mux, "class": class}
 	err := initFunc.Execute(out, args)
 	if err != nil {
-		return errors.New("generate initFunc for '" + itf.Name.Name + "' fail, " + err.Error())
+		return errors.New("generate initFunc for '" + class.Name.Name + "' fail, " + err.Error())
 	}
 	return nil
 }
@@ -220,12 +220,12 @@ var initFunc *template.Template
 
 func init() {
 	initFunc = template.Must(template.New("InitFunc").Funcs(Funcs).Parse(`
-func Init{{.itf.Name}}(mux {{.mux.RoutePartyName}}, svc {{.itf.Name}}) {
-	{{- range $method := .itf.Methods}}
+func Init{{.class.Name}}(mux {{.mux.RoutePartyName}}, svc {{if not .class.IsInterface}}*{{end}}{{.class.Name}}) {
+	{{- range $method := .class.Methods}}
 	{{- $skipResult := $.mux.IsSkipped $method }}
 	{{- if $skipResult.IsSkipped }}
 	{{if $skipResult.Message}} 
-	// {{$skipResult.Message}} 
+	// {{$method.Name.Name}}: {{$skipResult.Message}} 
 	{{end}}
 
 	{{- else}}
