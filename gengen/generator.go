@@ -22,6 +22,8 @@ type SkippedResult struct {
 type MuxStye interface {
 	CtxName() string
 	CtxType() string
+	IsReserved(param Param) bool
+	ToReserved(param Param) string
 	ReadParam(param Param, name string) string
 	FuncSignature() string
 	RouteFunc(method Method) string
@@ -231,7 +233,8 @@ func Init{{.class.Name}}(mux {{.mux.RoutePartyName}}, svc {{if not .class.IsInte
 	{{- else}}
 	mux.{{$.mux.RouteFunc $method}}("{{$.mux.GetPath $method}}", {{$.mux.FuncSignature}}{
 		{{- range $param := $method.Params.List}}
-				{{- if eq $param.Name.Name $.mux.CtxName}}
+				{{- if $.mux.IsReserved $param -}}
+				{{- else if eq $param.Name.Name $.mux.CtxName}}
 					{{- if ne (typePrint $param.Typ) $.mux.CtxType}}
 					var _{{$param.Name.Name}} {{$.mux.ReadParam $param (concat "_" $param.Name.Name)}}
 					{{- end}}
@@ -243,7 +246,9 @@ func Init{{.class.Name}}(mux {{.mux.RoutePartyName}}, svc {{if not .class.IsInte
 		result, err := svc.{{$method.Name}}(
 			{{- range $idx, $param := $method.Params.List -}}
 				{{- if eq $param.Name.Name $.mux.CtxName -}}
-					{{- if eq (typePrint $param.Typ) $.mux.CtxType -}}
+					{{- if $.mux.IsReserved $param -}}
+					{{$.mux.ToReserved $param}}
+					{{- else if eq (typePrint $param.Typ) $.mux.CtxType -}}
 					{{$param.Name.Name}}
 					{{- else -}}
 					_{{$param.Name.Name}}

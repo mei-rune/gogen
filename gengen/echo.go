@@ -22,7 +22,7 @@ type EchoStye struct {
 	QueryParam        string
 	ReadBody          string
 	BadArgumentFormat string
-
+	Reserved 		  map[string]string
 	ParseURL func(rawurl string) (string, []string, map[string]string)
 }
 
@@ -32,6 +32,7 @@ func (mux *EchoStye) Init() {
 	mux.QueryParam = "QueryParam"
 	mux.ReadBody = "Bind"
 	mux.BadArgumentFormat = "errors.New(\"argument %%q is invalid - %%q\", %s, %s, %s)"
+	mux.Reserved = map[string]string{}
 }
 
 func (mux *EchoStye) CtxName() string {
@@ -40,6 +41,19 @@ func (mux *EchoStye) CtxName() string {
 
 func (mux *EchoStye) CtxType() string {
 	return `ctx`
+}
+
+
+func (mux *EchoStye) IsReserved(param Param) bool {
+	typeStr := typePrint(param.Typ)
+	_, ok := mux.Reserved[typeStr]
+	return ok
+}
+
+func (mux *EchoStye) ToReserved(param Param) string {
+	typeStr := typePrint(param.Typ)
+	s := mux.Reserved[typeStr]
+	return s
 }
 
 func (mux *EchoStye) IsSkipped(method Method) SkippedResult {

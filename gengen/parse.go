@@ -240,7 +240,6 @@ func (v *methodVisitor) Visit(n ast.Node) ast.Visitor {
 		return v
 	case *ast.FuncLit:
 		v.depth++
-		fmt.Println("aa")
 		return v
 	case *ast.FuncType:
 		v.depth++
@@ -391,7 +390,7 @@ func Parse(filename string, source io.Reader) (*SourceContext, error) {
 			method.init(&context.Interfaces[classIdx])
 			for _, comment := range method.Comments {
 				ann := parseAnnotation(comment)
-				fmt.Println(itf.Name.Name, method.Name.Name, ann)
+				// fmt.Println(itf.Name.Name, method.Name.Name, ann)
 				if ann != nil {
 					method.Annotations = append(method.Annotations, *ann)
 				}
