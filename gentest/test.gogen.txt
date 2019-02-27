@@ -1,0 +1,38 @@
+// Please don't edit this file!
+package gentest
+
+import (
+	"errors"
+	"strconv"
+
+	"github.com/labstack/echo"
+)
+
+func InitStringSvc(mux *echo.Group, svc StringSvc) {
+	mux.GET(func(ctx echo.Context) error {
+		var a = ctx.QueryParam("a")
+		var b = ctx.QueryParam("b")
+
+		result, err := Concat(a, b)
+		if err != nil {
+			return ctx.Error(err)
+		}
+		return ctx.JSON(result)
+	})
+	mux.GET(func(ctx echo.Context) error {
+		var a = ctx.QueryParam("a")
+		var start int64
+		if s := ctx.QueryParam("start"); s != "" {
+			if v64, err := strconv.ParseInt(s, 10, 64); err != nil {
+				return ctx.Error(errors.New("argument %q is invalid - %q", start, s, err))
+			}
+			start = v64
+		}
+
+		result, err := Sub(a, start)
+		if err != nil {
+			return ctx.Error(err)
+		}
+		return ctx.JSON(result)
+	})
+}
