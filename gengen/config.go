@@ -10,6 +10,11 @@ import (
 )
 
 func readConfig(filename string) (map[string]interface{}, error) {
+	switch filename {
+	case "@beego", "@bee", "@beego.json", "@bee.json":
+		return beeConfig, nil
+	}
+
 	bs, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -34,6 +39,31 @@ func readStyleConfig(filename string) (*DefaultStye, error) {
 
 	style.reinit(values)
 	return style, nil
+}
+
+func readImports(row map[string]interface{}) map[string]string {
+	if row == nil {
+		return nil
+	}
+	o := row["imports"]
+	if o == nil {
+		return nil
+	}
+
+	switch v := o.(type) {
+	case map[string]string:
+		return v
+	case map[string]interface{}:
+		result := map[string]string{}
+		for key, value := range v {
+			if s, ok := value.(string); ok && s != "" {
+				result[key] = s
+			}
+		}
+		return result
+	default:
+		return nil
+	}
 }
 
 func decodeHook(from reflect.Kind, to reflect.Kind, v interface{}) (interface{}, error) {

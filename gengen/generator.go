@@ -31,8 +31,8 @@ type MuxStye interface {
 
 	FuncSignature() string
 	RouteFunc(method Method) string
-	BadArgumentFunc(method Method, args ...string) string
-	ErrorFunc(method Method, args ...string) string
+	BadArgumentFunc(method Method, err string, args ...string) string
+	ErrorFunc(method Method, err string, args ...string) string
 	// OkCode(method Method) int
 	OkFunc(method Method, args ...string) string
 	GetPath(method Method) string
@@ -40,14 +40,18 @@ type MuxStye interface {
 }
 
 type Generator struct {
-	ext    string
-	config string
-	Mux    MuxStye
+	ext                string
+	config             string
+	enableHttpCodeWith bool
+	Mux                MuxStye
+
+	imports map[string]string
 }
 
 func (cmd *Generator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.ext, "ext", ".gogen.go", "文件后缀名")
 	fs.StringVar(&cmd.config, "config", "", "配置文件名")
+	fs.BoolVar(&cmd.enableHttpCodeWith, "httpCodeWith", false, "生成 enableHttpCodeWith 函数")
 	return fs
 }
 
@@ -70,6 +74,9 @@ func (cmd *Generator) Run(args []string) error {
 		if mux := cmd.Mux.(*DefaultStye); mux != nil {
 			mux.reinit(cfg)
 		}
+
+		cmd.enableHttpCodeWith = boolWith(cfg, "features.httpCodeWith", cmd.enableHttpCodeWith)
+		cmd.imports = readImports(cfg)
 	}
 
 	if cmd.ext == "" {
@@ -164,7 +171,32 @@ func (cmd *Generator) generateHeader(out io.Writer, file *SourceContext) error {
 		io.WriteString(out, "\r\n\t")
 		io.WriteString(out, pa.Path.Value)
 	}
+	for pa, alias := range cmd.imports {
+		io.WriteString(out, "\r\n\t")
+		if alias != "" {
+			io.WriteString(out, alias)
+			io.WriteString(out, " ")
+		}
+
+		io.WriteString(out, "\"")
+		io.WriteString(out, pa)
+		io.WriteString(out, "\"")
+	}
+
 	io.WriteString(out, "\r\n)\r\n")
+
+	if cmd.enableHttpCodeWith {
+		io.WriteString(out, `func httpCodeWith(err error) int {
+	if herr, ok := err.(interface{
+		HTTPCode() int
+		}); ok {
+			return herr.HTTPCode()
+		}
+	return http.StatusInternalServerError
+}
+`)
+	}
+
 	return nil
 }
 

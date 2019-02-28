@@ -29,11 +29,18 @@ type DefaultStye struct {
 	RoutePartyName    string            `json:"route_party_name"`
 	PathParam         string            `json:"path_param_format"`
 	QueryParam        string            `json:"query_param_format"`
-	ReadBody          string            `json:"read_body_format"`
+	ReadBodyFormat    string            `json:"read_body_format"`
 	BadArgumentFormat string            `json:"bad_argument_format"`
-	Reserved          map[string]string `json:"bad_argument_format"`
+	OkFuncFormat      string            `json:"ok_func_format"`
+	ErrorFuncFormat   string            `json:"err_func_format"`
+	Reserved          map[string]string `json:"reserved"`
+	MethodMapping     map[string]string `json:"method_mapping"`
 	bodyReader        string
 	ParseURL          func(rawurl string) (string, []string, map[string]string) `json:"-"`
+
+	bindTemplate *template.Template
+	errTemplate  *template.Template
+	okTemplate   *template.Template
 }
 
 func (mux *DefaultStye) Init() {
@@ -43,7 +50,7 @@ func (mux *DefaultStye) Init() {
 	mux.RoutePartyName = "*echo.Group"
 	mux.PathParam = "Param"
 	mux.QueryParam = "QueryParam"
-	mux.ReadBody = "Bind"
+	mux.ReadBodyFormat = "{{.ctx}}.Bind(&{{.name}})"
 	mux.BadArgumentFormat = "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)"
 	mux.Reserved = map[string]string{
 		"*http.Request":       mux.CtxNameStr + ".Request()",
@@ -58,14 +65,24 @@ func (mux *DefaultStye) Init() {
 	if mux.ParseURL == nil {
 		mux.ParseURL = parseURL
 	}
+	mux.OkFuncFormat = "return ctx.JSON({{.statusCode}}, {{.data}})"
+	mux.ErrorFuncFormat = "ctx.Error({{.err}})\r\n     return nil"
+
+	mux.bindTemplate = template.Must(template.New("bindTemplate").Parse(mux.ReadBodyFormat))
+	mux.errTemplate = template.Must(template.New("errTemplate").Parse(mux.ErrorFuncFormat))
+	mux.okTemplate = template.Must(template.New("okTemplate").Parse(mux.OkFuncFormat))
 }
 
 func (mux *DefaultStye) reinit(values map[string]interface{}) {
-	mux.bodyReader = mux.CtxNameStr + ".Request().Body"
-
 	if mux.ParseURL == nil {
 		mux.ParseURL = parseURL
 	}
+
+	mux.bodyReader = mux.Reserved["*http.Request"] + ".Body"
+
+	mux.bindTemplate = template.Must(template.New("bindTemplate").Parse(mux.ReadBodyFormat))
+	mux.errTemplate = template.Must(template.New("errTemplate").Parse(mux.ErrorFuncFormat))
+	mux.okTemplate = template.Must(template.New("okTemplate").Parse(mux.OkFuncFormat))
 }
 
 func stringWith(values map[string]interface{}, key, defValue string) string {
@@ -90,6 +107,21 @@ func intWith(values map[string]interface{}, key string, defValue int) int {
 	}
 	return defValue
 }
+func boolWith(values map[string]interface{}, key string, defValue bool) bool {
+	o := values[key]
+	if o == nil {
+		return defValue
+	}
+	if b, ok := o.(bool); ok {
+		return b
+	}
+	s := fmt.Sprint(o)
+	if s == "" {
+		return defValue
+	}
+	s = strings.ToLower(s)
+	return s == "true" || s == "on" || s == "yes" || s == "enabled"
+}
 
 func (mux *DefaultStye) FuncSignature() string {
 	return mux.FuncSignatureStr
@@ -103,18 +135,6 @@ func (mux *DefaultStye) CtxType() string {
 	return mux.CtxTypeStr
 }
 
-func (mux *DefaultStye) IsReserved(param Param) bool {
-	typeStr := typePrint(param.Typ)
-	_, ok := mux.Reserved[typeStr]
-	return ok
-}
-
-func (mux *DefaultStye) ToReserved(param Param) string {
-	typeStr := typePrint(param.Typ)
-	s := mux.Reserved[typeStr]
-	return s
-}
-
 func (mux *DefaultStye) IsSkipped(method Method) SkippedResult {
 	anno := mux.GetAnnotation(method, true)
 	res := SkippedResult{
@@ -124,6 +144,12 @@ func (mux *DefaultStye) IsSkipped(method Method) SkippedResult {
 		res.Message = "annotation is missing"
 	}
 	return res
+}
+
+func (mux *DefaultStye) ReadBody(param Param, ctxName, paramName string) string {
+	var sb strings.Builder
+	renderText(mux.bindTemplate, &sb, map[string]interface{}{"ctx": ctxName, "name": paramName})
+	return sb.String()
 }
 
 func (mux *DefaultStye) GetPath(method Method) string {
@@ -216,6 +242,9 @@ func (mux *DefaultStye) InitParam(param Param) string {
 		"badArgument": func(paramName, valueName, errName string) string {
 			return mux.BadArgumentFunc(*param.Method, fmt.Sprintf(mux.BadArgumentFormat, paramName, valueName, errName))
 		},
+		"readBody": func(ctxName, paramName string) string {
+			return mux.ReadBody(param, ctxName, paramName)
+		},
 	}
 
 	var sb strings.Builder
@@ -223,7 +252,7 @@ func (mux *DefaultStye) InitParam(param Param) string {
 
 		bindTxt := template.Must(template.New("bindTxt").Funcs(funcs).Parse(`
 		var {{.name}} {{.type}}
-		if err := {{.ctx}}.{{.readParam}}(&{{.name}}); err != nil {
+		if err := {{readBody .ctx .name}}; err != nil {
 			{{badArgument .name "\"<no value>\"" "err"}}
 		}
 		`))
@@ -396,7 +425,14 @@ func (mux *DefaultStye) InitParam(param Param) string {
 
 func (mux *DefaultStye) RouteFunc(method Method) string {
 	ann := mux.GetAnnotation(method, false)
-	return strings.TrimPrefix(ann.Name, "http.")
+	name := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
+	if mux.MethodMapping != nil {
+		methodName := mux.MethodMapping[name]
+		if methodName != "" {
+			name = methodName
+		}
+	}
+	return name
 }
 
 func (mux *DefaultStye) GetAnnotation(method Method, nilIfNotExists bool) *Annotation {
@@ -420,24 +456,34 @@ func (mux *DefaultStye) GetAnnotation(method Method, nilIfNotExists bool) *Annot
 	return annotation
 }
 
-func (mux *DefaultStye) BadArgumentFunc(method Method, args ...string) string {
-	return mux.ErrorFunc(method, args...)
+func (mux *DefaultStye) BadArgumentFunc(method Method, err string, args ...string) string {
+	return mux.ErrorFunc(method, err, args...)
 }
 
-func (mux *DefaultStye) ErrorFunc(method Method, args ...string) string {
-	return "" + mux.CtxName() + ".Error(" + strings.Join(args, ",") + ")\r\n    return nil"
+func (mux *DefaultStye) ErrorFunc(method Method, err string, addArgs ...string) string {
+	var sb strings.Builder
+	renderText(mux.errTemplate, &sb, map[string]interface{}{
+		"err":     err,
+		"addArgs": addArgs,
+	})
+	return sb.String()
 }
 
 func (mux *DefaultStye) OkFunc(method Method, args ...string) string {
-	return "return " + mux.CtxName() + ".JSON(" + mux.okCode(method) + ", " + strings.Join(args, ",") + ")"
+	var sb strings.Builder
+	renderText(mux.okTemplate, &sb, map[string]interface{}{
+		"statusCode": mux.okCode(method),
+		"data":       strings.Join(args, ","),
+	})
+	return sb.String()
 }
 
 func (mux *DefaultStye) okCode(method Method) string {
 	ann := mux.GetAnnotation(method, false)
-	switch ann.Name {
-	case "http.POST":
+	switch strings.ToUpper(strings.TrimPrefix(ann.Name, "http.")) {
+	case "POST":
 		return "http.StatusCreated"
-	case "http.PUT":
+	case "PUT":
 		return "http.StatusAccepted"
 	}
 	return "http.StatusOK"

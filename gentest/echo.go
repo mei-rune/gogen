@@ -1,3 +1,5 @@
+// +build echo
+
 package main
 
 import (
