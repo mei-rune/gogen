@@ -22,13 +22,18 @@ type SkippedResult struct {
 type MuxStye interface {
 	CtxName() string
 	CtxType() string
-	IsReserved(param Param) bool
-	ToReserved(param Param) string
-	ReadParam(param Param, name string) string
+	// IsReserved(param Param) bool
+	// ToReserved(param Param) string
+	// ReadParam(param Param, name string) string
+
+	InitParam(param Param) string
+	UseParam(param Param) string
+
 	FuncSignature() string
 	RouteFunc(method Method) string
 	BadArgumentFunc(method Method, args ...string) string
 	ErrorFunc(method Method, args ...string) string
+	// OkCode(method Method) int
 	OkFunc(method Method, args ...string) string
 	GetPath(method Method) string
 	IsSkipped(method Method) SkippedResult
@@ -75,7 +80,7 @@ func (cmd *Generator) runFile(filename string) error {
 
 	targetFile := strings.TrimSuffix(pa, ".go") + cmd.Ext
 
-	if len(file.Interfaces) == 0 {
+	if len(file.Classes) == 0 {
 		err = os.Remove(targetFile)
 		if err != nil && !os.IsNotExist(err) {
 			return err
@@ -96,8 +101,8 @@ func (cmd *Generator) runFile(filename string) error {
 		return err
 	}
 
-	for _, class := range file.Interfaces {
-		if err := cmd.generateInterface(out, file, &class); err != nil {
+	for _, class := range file.Classes {
+		if err := cmd.generateClass(out, file, &class); err != nil {
 			return err
 		}
 	}
@@ -138,15 +143,14 @@ func (cmd *Generator) generateHeader(out io.Writer, file *SourceContext) error {
 	io.WriteString(out, "\r\n\r\nimport (")
 	io.WriteString(out, "\r\n\t\"errors\"")
 	for _, pa := range file.Imports {
-		io.WriteString(out, "\r\n\t\"")
+		io.WriteString(out, "\r\n\t")
 		io.WriteString(out, pa.Path.Value)
-		io.WriteString(out, "\"")
 	}
 	io.WriteString(out, "\r\n)\r\n")
 	return nil
 }
 
-func (cmd *Generator) generateInterface(out io.Writer, file *SourceContext, class *Class) error {
+func (cmd *Generator) generateClass(out io.Writer, file *SourceContext, class *Class) error {
 	args := map[string]interface{}{"mux": cmd.Mux, "class": class}
 	err := initFunc.Execute(out, args)
 	if err != nil {
@@ -226,42 +230,49 @@ func Init{{.class.Name}}(mux {{.mux.RoutePartyName}}, svc {{if not .class.IsInte
 	{{- range $method := .class.Methods}}
 	{{- $skipResult := $.mux.IsSkipped $method }}
 	{{- if $skipResult.IsSkipped }}
-	{{if $skipResult.Message}} 
+	{{- if $skipResult.Message}} 
 	// {{$method.Name.Name}}: {{$skipResult.Message}} 
-	{{end}}
-
+	{{- end}}
 	{{- else}}
 	mux.{{$.mux.RouteFunc $method}}("{{$.mux.GetPath $method}}", {{$.mux.FuncSignature}}{
 		{{- range $param := $method.Params.List}}
-				{{- if $.mux.IsReserved $param -}}
-				{{- else if eq $param.Name.Name $.mux.CtxName}}
-					{{- if ne (typePrint $param.Typ) $.mux.CtxType}}
-					var _{{$param.Name.Name}} {{$.mux.ReadParam $param (concat "_" $param.Name.Name)}}
-					{{- end}}
-				{{- else}}
-				var {{$param.Name.Name}} {{$.mux.ReadParam $param  $param.Name.Name}}
-				{{- end}}
+			{{- $initStatment := $.mux.InitParam $param }}
+			{{- if $initStatment}}
+			{{$initStatment}}
+			{{- end}}
 		{{- end}}
 
-		result, err := svc.{{$method.Name}}(
+		{{if eq 1 (len $method.Results.List) }}
+			{{- $arg := index $method.Results.List 0}}
+			{{- if eq "error" (typePrint $arg.Typ)}}
+				resulterr 
+			{{- else -}}
+				result
+			{{- end -}}
+		{{- else -}}
+		result, err
+		{{- end -}} := svc.{{$method.Name}}(
 			{{- range $idx, $param := $method.Params.List -}}
-				{{- if eq $param.Name.Name $.mux.CtxName -}}
-					{{- if $.mux.IsReserved $param -}}
-					{{$.mux.ToReserved $param}}
-					{{- else if eq (typePrint $param.Typ) $.mux.CtxType -}}
-					{{$param.Name.Name}}
-					{{- else -}}
-					_{{$param.Name.Name}}
-					{{- end -}}
-				{{- else -}}
-				{{$param.Name.Name}}
-				{{- end -}}
+				{{- $.mux.UseParam $param }}
 				{{- if isLast $method.Params.List $idx | not -}},{{- end -}}
 			{{- end -}})
+
+		{{- if eq 1 (len $method.Results.List) }}
+			{{- $arg := index $method.Results.List 0}}
+			{{- if eq "error" (typePrint $arg.Typ)}}
+					if err != nil {
+						{{$.mux.ErrorFunc $method "resulterr"}}
+					}
+					{{$.mux.OkFunc $method "\"OK\""}}				 
+			{{- else}}
+					{{$.mux.OkFunc $method "result"}}
+			{{- end}}
+		{{- else}}
 		if err != nil {
 			{{$.mux.ErrorFunc $method "err"}}
 		}
 		{{$.mux.OkFunc $method "result"}}
+		{{- end}}
 	})
 	{{- end}} {{/* isSkipped */}}
 	{{- end}}

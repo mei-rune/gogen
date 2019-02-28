@@ -3,23 +3,23 @@ package gengen
 import (
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/parser"
 	"go/token"
-	"go/format"
-	"strings"
-	"strconv"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 )
 
 type (
 	SourceContext struct {
-		Pkg        *ast.Ident
-		Imports    []*ast.ImportSpec
-		Interfaces []Class
-		Types      []*ast.TypeSpec
+		Pkg     *ast.Ident
+		Imports []*ast.ImportSpec
+		Classes []Class
+		Types   []*ast.TypeSpec
 	}
 
 	parseVisitor struct {
@@ -27,17 +27,17 @@ type (
 	}
 
 	typeSpecVisitor struct {
-		src   *SourceContext
-		node  *ast.TypeSpec
+		src         *SourceContext
+		node        *ast.TypeSpec
 		isInterface bool
-		iface *Class
-		name  *ast.Ident
+		iface       *Class
+		name        *ast.Ident
 	}
 
 	Class struct {
-		ctx  *SourceContext `json:"-"`
-		Node *ast.TypeSpec
-		Name *ast.Ident
+		ctx         *SourceContext `json:"-"`
+		Node        *ast.TypeSpec
+		Name        *ast.Ident
 		IsInterface bool
 
 		Methods []Method
@@ -135,18 +135,22 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 		}
 		return &typeSpecVisitor{src: v.src, node: rn}
 	case *ast.FuncDecl:
+		if rn.Recv == nil || len(rn.Recv.List) == 0 {
+			return nil
+		}
+
 		var name string
 		if star, ok := rn.Recv.List[0].Type.(*ast.StarExpr); ok {
 			name = star.X.(*ast.Ident).Name
-		} else if ident, ok := rn.Recv.List[0].Type.(*ast.Ident); ok{
+		} else if ident, ok := rn.Recv.List[0].Type.(*ast.Ident); ok {
 			name = ident.Name
 		} else {
 			panic(errors.Errorf("func.recv is unknown type - %T", rn.Recv.List[0].Type))
 		}
 		var class *Class
-		for idx := range v.src.Interfaces {
-			if name == v.src.Interfaces[idx].Name.Name {
-				class = &v.src.Interfaces[idx]
+		for idx := range v.src.Classes {
+			if name == v.src.Classes[idx].Name.Name {
+				class = &v.src.Classes[idx]
 				break
 			}
 		}
@@ -154,7 +158,7 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 		if class == nil {
 			panic(errors.New(strconv.Itoa(int(rn.Pos())) + ": 请先定义类型，后定义 方法"))
 		}
-		
+
 		mv := &methodVisitor{node: &ast.Field{Doc: rn.Doc, Names: []*ast.Ident{rn.Name}, Type: rn.Type}, list: &class.Methods}
 		ast.Walk(mv, mv.node)
 		return nil
@@ -162,7 +166,6 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 		return v
 	}
 }
-
 
 /*
 package foo
@@ -191,7 +194,7 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 			v.iface.ctx = v.src
 			v.iface.Node = v.node
 			v.iface.Name = v.name
-			v.src.Interfaces = append(v.src.Interfaces, *v.iface)
+			v.src.Classes = append(v.src.Classes, *v.iface)
 		}
 		return nil
 	default:
@@ -201,7 +204,7 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 
 func (v *structVisitor) Visit(n ast.Node) ast.Visitor {
 	switch n.(type) {
-	 default:
+	default:
 		return v
 	case *ast.FieldList:
 		return nil
@@ -212,7 +215,6 @@ func (v *structVisitor) Visit(n ast.Node) ast.Visitor {
 		return nil
 	}
 }
-
 
 func (v *interfaceTypeVisitor) Visit(n ast.Node) ast.Visitor {
 	switch rn := n.(type) {
@@ -231,7 +233,7 @@ func (v *interfaceTypeVisitor) Visit(n ast.Node) ast.Visitor {
 
 func (v *methodVisitor) Visit(n ast.Node) ast.Visitor {
 	switch rn := n.(type) {
-	default:		
+	default:
 		v.depth++
 		return v
 	case *ast.Ident:
@@ -351,7 +353,7 @@ func (v *resultVisitor) Visit(n ast.Node) ast.Visitor {
 }
 
 func (sc *SourceContext) validate() error {
-	for _, i := range sc.Interfaces {
+	for _, i := range sc.Classes {
 		for _, m := range i.Methods {
 			if len(m.Results.List) < 1 {
 				return fmt.Errorf("method %q of interface %q has no result types", m.Name, i.Name)
@@ -367,7 +369,7 @@ func (method *Method) init(iface *Class) {
 	for j := range method.Params.List {
 		method.Params.List[j].Method = method
 	}
-	
+
 	method.Results.Method = method
 	for j := range method.Results.List {
 		method.Results.List[j].Method = method
@@ -384,10 +386,10 @@ func Parse(filename string, source io.Reader) (*SourceContext, error) {
 	visitor := &parseVisitor{src: context}
 	ast.Walk(visitor, f)
 
-	for classIdx, itf := range context.Interfaces {
+	for classIdx, itf := range context.Classes {
 		for idx := range itf.Methods {
 			method := &itf.Methods[idx]
-			method.init(&context.Interfaces[classIdx])
+			method.init(&context.Classes[classIdx])
 			for _, comment := range method.Comments {
 				ann := parseAnnotation(comment)
 				// fmt.Println(itf.Name.Name, method.Name.Name, ann)
