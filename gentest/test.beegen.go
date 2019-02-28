@@ -1,3 +1,5 @@
+// +build beego
+
 // Please don't edit this file!
 package main
 

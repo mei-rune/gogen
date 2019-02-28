@@ -6,7 +6,7 @@ var ginConfig = map[string]interface{}{
 		"github.com/gin-gonic/gin": "",
 	},
 
-	"func_signature":      "func(c *gin.Context) ",
+	"func_signature":      "func(ctx *gin.Context) ",
 	"ctx_name":            "ctx",
 	"ctx_type":            "*gin.Context",
 	"route_party_name":    "gin.IRouter",
@@ -16,7 +16,7 @@ var ginConfig = map[string]interface{}{
 	"bad_argument_format": "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)",
 
 	"ok_func_format":  "ctx.JSON({{.statusCode}}, {{.data}})\r\n    return",
-	"err_func_format": "ctx.String({{.err}}.Error())\r\n    return",
+	"err_func_format": "ctx.String(httpCodeWith({{.err}}), {{.err}}.Error())\r\n    return",
 
 	"reserved": map[string]string{
 		"*http.Request":       "ctx.Request",

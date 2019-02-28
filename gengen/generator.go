@@ -43,6 +43,7 @@ type Generator struct {
 	ext                string
 	config             string
 	enableHttpCodeWith bool
+	buildTag           string
 	Mux                MuxStye
 
 	imports map[string]string
@@ -52,6 +53,7 @@ func (cmd *Generator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.ext, "ext", ".gogen.go", "文件后缀名")
 	fs.StringVar(&cmd.config, "config", "", "配置文件名")
 	fs.BoolVar(&cmd.enableHttpCodeWith, "httpCodeWith", false, "生成 enableHttpCodeWith 函数")
+	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 	return fs
 }
 
@@ -76,6 +78,9 @@ func (cmd *Generator) Run(args []string) error {
 		}
 
 		cmd.enableHttpCodeWith = boolWith(cfg, "features.httpCodeWith", cmd.enableHttpCodeWith)
+		if cmd.buildTag == "" {
+			cmd.buildTag = stringWith(cfg, "features.buildTag", cmd.buildTag)
+		}
 		cmd.imports = readImports(cfg)
 	}
 
@@ -163,6 +168,12 @@ func goImports(src string) error {
 }
 
 func (cmd *Generator) generateHeader(out io.Writer, file *SourceContext) error {
+	if cmd.buildTag != "" {
+		io.WriteString(out, "// +build ")
+		io.WriteString(out, cmd.buildTag)
+		io.WriteString(out, "\r\n")
+		io.WriteString(out, "\r\n")
+	}
 	io.WriteString(out, "// Please don't edit this file!\r\npackage ")
 	io.WriteString(out, file.Pkg.Name)
 	io.WriteString(out, "\r\n\r\nimport (")
