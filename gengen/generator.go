@@ -40,12 +40,14 @@ type MuxStye interface {
 }
 
 type Generator struct {
-	Ext string
-	Mux MuxStye
+	ext    string
+	config string
+	Mux    MuxStye
 }
 
 func (cmd *Generator) Flags(fs *flag.FlagSet) *flag.FlagSet {
-	fs.StringVar(&cmd.Ext, "ext", ".gogen.go", "文件后缀名")
+	fs.StringVar(&cmd.ext, "ext", ".gogen.go", "文件后缀名")
+	fs.StringVar(&cmd.config, "config", "", "配置文件名")
 	return fs
 }
 
@@ -54,8 +56,24 @@ func (cmd *Generator) Run(args []string) error {
 		cmd.Mux = NewEchoStye()
 	}
 
-	if cmd.Ext == "" {
-		cmd.Ext = ".gogen.go"
+	if cmd.config != "" {
+		cfg, err := readConfig(cmd.config)
+		if err != nil {
+			log.Fatalln(err)
+			return err
+		}
+
+		if err := toStruct(cmd.Mux, cfg); err != nil {
+			log.Fatalln(err)
+			return err
+		}
+		if mux := cmd.Mux.(*DefaultStye); mux != nil {
+			mux.reinit(cfg)
+		}
+	}
+
+	if cmd.ext == "" {
+		cmd.ext = ".gogen.go"
 	}
 
 	for _, file := range args {
@@ -78,7 +96,7 @@ func (cmd *Generator) runFile(filename string) error {
 		return err
 	}
 
-	targetFile := strings.TrimSuffix(pa, ".go") + cmd.Ext
+	targetFile := strings.TrimSuffix(pa, ".go") + cmd.ext
 
 	if len(file.Classes) == 0 {
 		err = os.Remove(targetFile)
