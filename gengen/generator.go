@@ -20,12 +20,13 @@ type SkippedResult struct {
 }
 
 type MuxStye interface {
-	CtxName() string
-	CtxType() string
+	// CtxName() string
+	// CtxType() string
 	// IsReserved(param Param) bool
 	// ToReserved(param Param) string
 	// ReadParam(param Param, name string) string
 
+	RouteParty() string
 	InitParam(param Param) string
 	UseParam(param Param) string
 
@@ -73,15 +74,16 @@ func (cmd *Generator) Run(args []string) error {
 			log.Fatalln(err)
 			return err
 		}
-		if mux := cmd.Mux.(*DefaultStye); mux != nil {
-			mux.reinit(cfg)
-		}
 
 		cmd.enableHttpCodeWith = boolWith(cfg, "features.httpCodeWith", cmd.enableHttpCodeWith)
 		if cmd.buildTag == "" {
 			cmd.buildTag = stringWith(cfg, "features.buildTag", cmd.buildTag)
 		}
 		cmd.imports = readImports(cfg)
+	}
+
+	if mux := cmd.Mux.(*DefaultStye); mux != nil {
+		mux.reinit(nil)
 	}
 
 	if cmd.ext == "" {
@@ -287,7 +289,7 @@ var initFunc *template.Template
 
 func init() {
 	initFunc = template.Must(template.New("InitFunc").Funcs(Funcs).Parse(`
-func Init{{.class.Name}}(mux {{.mux.RoutePartyName}}, svc {{if not .class.IsInterface}}*{{end}}{{.class.Name}}) {
+func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterface}}*{{end}}{{.class.Name}}) {
 	{{- range $method := .class.Methods}}
 	{{- $skipResult := $.mux.IsSkipped $method }}
 	{{- if $skipResult.IsSkipped }}

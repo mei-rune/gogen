@@ -36,4 +36,8 @@ var beeConfig = map[string]interface{}{
 		"PATCH":   "Patch",
 		"ANY":     "Any",
 	},
+	"types": map[string]interface{}{
+		"required": map[string]interface{}{},
+		"optional": map[string]interface{}{},
+	},
 }
