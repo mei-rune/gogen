@@ -1,17 +1,17 @@
 package gengen
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/format"
 	"go/parser"
 	"go/token"
 	"io"
+	"log"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 type (
@@ -145,7 +145,7 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 		} else if ident, ok := rn.Recv.List[0].Type.(*ast.Ident); ok {
 			name = ident.Name
 		} else {
-			panic(errors.Errorf("func.recv is unknown type - %T", rn.Recv.List[0].Type))
+			log.Fatalln(fmt.Errorf("func.recv is unknown type - %T", rn.Recv.List[0].Type))
 		}
 		var class *Class
 		for idx := range v.src.Classes {
@@ -156,7 +156,7 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 		}
 
 		if class == nil {
-			panic(errors.New(strconv.Itoa(int(rn.Pos())) + ": 请先定义类型，后定义 方法"))
+			log.Fatalln(errors.New(strconv.Itoa(int(rn.Pos())) + ": 请先定义类型，后定义 方法"))
 		}
 
 		mv := &methodVisitor{node: &ast.Field{Doc: rn.Doc, Names: []*ast.Ident{rn.Name}, Type: rn.Type}, list: &class.Methods}
@@ -418,7 +418,7 @@ func typePrint(typ ast.Node) string {
 	fset := token.NewFileSet()
 	var buf strings.Builder
 	if err := format.Node(&buf, fset, typ); err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	return buf.String()
 }

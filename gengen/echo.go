@@ -1,14 +1,13 @@
 package gengen
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
 	"strconv"
 	"strings"
 	"text/template"
-
-	"github.com/pkg/errors"
 )
 
 func NewEchoStye() *DefaultStye {
