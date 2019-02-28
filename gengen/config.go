@@ -13,6 +13,8 @@ func readConfig(filename string) (map[string]interface{}, error) {
 	switch filename {
 	case "@beego", "@bee", "@beego.json", "@bee.json":
 		return beeConfig, nil
+	case "@gin", "@gin.json":
+		return ginConfig, nil
 	}
 
 	bs, err := ioutil.ReadFile(filename)
