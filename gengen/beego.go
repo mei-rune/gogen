@@ -2,6 +2,8 @@ package gengen
 
 var beeConfig = map[string]interface{}{
 	"features.httpCodeWith": true,
+	// "features.boolConvert":     "toBool({{.name}})",
+	// "features.datetimeConvert": "toDatetime({{.name}})",
 	"imports": map[string]string{
 		"github.com/astaxie/beego":         "beego",
 		"github.com/astaxie/beego/context": "beecontext",
@@ -37,11 +39,7 @@ var beeConfig = map[string]interface{}{
 		"ANY":     "Any",
 	},
 	"types": map[string]interface{}{
-		"required": map[string]interface{}{
-			// "time.Time": map[string]interface{}{
-			// 	"name":
-			// },
-		},
+		"required": map[string]interface{}{},
 		"optional": map[string]interface{}{},
 	},
 }

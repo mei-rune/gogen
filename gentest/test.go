@@ -4,7 +4,18 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
+	"strings"
+	"time"
 )
+
+func toBool(s string) bool {
+	s = strings.ToLower(s)
+	return s == "true"
+}
+
+func toDatetime(s string) (time.Time, error) {
+	return time.Parse(time.RFC3339Nano, s)
+}
 
 type StringSvc interface {
 	// @http.GET(path="/echo")
@@ -42,6 +53,15 @@ type StringSvc interface {
 
 	// @http.GET(path="/add3")
 	Add3(a, b *int) (int, error)
+
+	// @http.GET(path="/query1")
+	Query1(a string, beginAt, endAt time.Time, isRaw bool) string
+
+	// @http.GET(path="/query2/:isRaw")
+	Query2(a string, beginAt, endAt time.Time, isRaw bool) string
+
+	// @http.GET(path="/query3/:isRaw")
+	Query3(a string, beginAt, endAt time.Time, isRaw *bool) string
 
 	Misc() string
 }
@@ -110,6 +130,21 @@ func (svc *StringSvcImpl) Add2(a, b *int) (int, error) {
 // @http.GET(path="/add3")
 func (svc *StringSvcImpl) Add3(a, b *int) (int, error) {
 	return *a + *b, nil
+}
+
+// @http.GET(path="/query1")
+func (svc *StringSvcImpl) Query1(a string, beginAt, endAt time.Time, isRaw bool) string {
+	return "queue"
+}
+
+// @http.GET(path="/query2/:isRaw")
+func (svc *StringSvcImpl) Query2(a string, beginAt, endAt time.Time, isRaw bool) string {
+	return "queue"
+}
+
+// @http.GET(path="/query3/:isRaw")
+func (svc *StringSvcImpl) Query3(a string, beginAt, endAt time.Time, isRaw *bool) string {
+	return "queue"
 }
 
 func (svc *StringSvcImpl) Misc() string {

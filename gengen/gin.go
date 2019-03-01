@@ -2,6 +2,8 @@ package gengen
 
 var ginConfig = map[string]interface{}{
 	"features.httpCodeWith": true,
+	// "features.boolConvert":     "toBool({{.name}})",
+	// "features.datetimeConvert": "toDatetime({{.name}})",
 	"imports": map[string]string{
 		"github.com/gin-gonic/gin": "",
 	},

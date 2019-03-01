@@ -100,6 +100,9 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		mux.Converts = map[string]ConvertArgs{}
 	}
 	for _, t := range []string{"int", "int8", "int16", "int32", "int64"} {
+		if _, ok := mux.Converts[t]; ok {
+			continue
+		}
 		conv := ConvertArgs{Format: "strconv.ParseInt({{.name}}, 10, 64)", HasError: true}
 		if !strings.HasSuffix(t, "64") {
 			conv.NeedTransform = true
@@ -107,11 +110,23 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		mux.Converts[t] = conv
 	}
 	for _, t := range []string{"uint", "uint8", "uint16", "uint32", "uint64"} {
+		if _, ok := mux.Converts[t]; ok {
+			continue
+		}
 		conv := ConvertArgs{Format: "strconv.ParseUint({{.name}}, 10, 64)", HasError: true}
 		if !strings.HasSuffix(t, "64") {
 			conv.NeedTransform = true
 		}
 		mux.Converts[t] = conv
+	}
+
+	if _, ok := mux.Converts["bool"]; !ok {
+		funcName := stringWith(values, "features.boolConvert", "toBool({{.name}})")
+		mux.Converts["bool"] = ConvertArgs{Format: funcName, HasError: false}
+	}
+	if _, ok := mux.Converts["time.Time"]; !ok {
+		funcName := stringWith(values, "features.datetimeConvert", "toDatetime({{.name}})")
+		mux.Converts["time.Time"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 
 	mux.bodyReader = mux.Reserved["*http.Request"] + ".Body"
@@ -268,11 +283,25 @@ func (mux *DefaultStye) UseParam(param Param) string {
 		return s
 	}
 
-	if typeStr == "*string" {
+	if strings.HasPrefix(typeStr, "*") {
+
 		_, pathNames, _ := mux.ParseURL(anno.Attributes["path"])
 		for _, name := range pathNames {
 			if name == param.Name.Name {
-				return "&" + name
+
+				if typeStr == "*string" {
+					return "&" + name
+				}
+
+				if mux.Converts != nil {
+					convertArgs, ok := mux.Converts[strings.TrimPrefix(typeStr, "*")]
+					if ok {
+						if !convertArgs.HasError {
+							return "&" + name
+						}
+					}
+				}
+
 			}
 		}
 	}
@@ -428,64 +457,97 @@ func (mux *DefaultStye) InitParam(param Param) string {
 	} else {
 
 		requiredTxt := template.Must(template.New("requiredTxt").Funcs(funcs).Parse(`
-		var {{.name}} {{.type}}
 		{{- $s := concat .ctx "." .readParam "(\"" .rname "\")"}}
-		if v64, err := {{convert .ctx $s}}; err != nil {
+		{{- if not .hasConvertError}}
+			{{- if .needTransform}}
+			var {{.name}} = {{.type}}({{convert .ctx $s}})
+			{{- else}}
+			var {{.name}} = {{convert .ctx $s}}
+			{{- end}}
+		{{- else}}
+		var {{.name}} {{.type}}
+		if {{.name}}Value, err := {{convert .ctx $s}}; err != nil {
 			s := {{$s}}
 			{{badArgument .rname "s" "err"}}
 		} else {
 			{{- if .needTransform}}
-			{{.name}} = {{.type}}(v64)
+			{{.name}} = {{.type}}({{.name}}Value)
 			{{- else}}
-			{{.name}} = v64
+			{{.name}} = {{.name}}Value
 			{{- end}}
 		}
+		{{- end}}
 		`))
 
 		optionalTxt := template.Must(template.New("optionalTxt").Funcs(funcs).Parse(`
 		var {{.name}} {{.type}}
 		if s := {{.ctx}}.{{.readParam}}("{{.rname}}"); s != "" {
-			v64, err := {{convert .ctx "s"}}
+		{{- if not .hasConvertError}}
+			{{- if .needTransform}}
+			{{.name}} = {{.type}}({{convert .ctx "s"}})
+			{{- else}}
+			{{.name}} = {{convert .ctx "s"}}
+			{{- end}}
+		{{- else}}
+			{{.name}}Value, err := {{convert .ctx "s"}}
 			if err != nil {
 				{{badArgument .rname "s" "err"}}
 			}
 			{{- if .needTransform}}
-			{{.name}} = {{.type}}(v64)
+			{{.name}} = {{.type}}({{.name}}Value)
 			{{- else}}
-			{{.name}} = v64
+			{{.name}} = {{.name}}Value
 			{{- end}}
+		{{- end}}
 		}
 		`))
 
 		requiredTxtWithStar := template.Must(template.New("requiredTxtWithStar").Funcs(funcs).Parse(`
-		var {{.name}} *{{.type}}
 		{{- $s := concat .ctx "." .readParam "(\"" .rname "\")"}}
-		if v64, err := {{convert .ctx $s}}; err != nil {
+		{{- if not .hasConvertError}}
+			{{- if .needTransform}}
+			var {{.name}} = {{.type}}({{convert .ctx $s}})
+			{{- else}}
+			var {{.name}} = {{convert .ctx $s}}
+			{{- end}}
+		{{- else}}
+		var {{.name}} *{{.type}}
+		if {{.name}}Value, err := {{convert .ctx $s}}; err != nil {
 			s := {{$s}}
 			{{badArgument .rname "s" "err"}}
 		} else {
 			{{.name}} = new({{.type}})
 			{{- if .needTransform}}
-			*{{.name}} = {{.type}}(v64)
+			*{{.name}} = {{.type}}({{.name}}Value)
 			{{- else}}
-			*{{.name}} = v64
+			*{{.name}} = {{.name}}Value
 			{{- end}}
 		}
+		{{- end}}
 		`))
 
 		optionalTxtWithStar := template.Must(template.New("optionalTxtWithStar").Funcs(funcs).Parse(`
 		var {{.name}} *{{.type}}
 		if s := {{.ctx}}.{{.readParam}}("{{.rname}}"); s != "" {
-			v64, err := {{convert .ctx "s"}}
+		{{- if not .hasConvertError}}
+			{{- if .needTransform}}
+			var {{.name}}Value = {{.type}}({{convert .ctx "s"}})
+			{{- else}}
+			var {{.name}}Value = {{convert .ctx "s"}}
+			{{- end}}
+			{{.name}} = &{{.name}}Value
+		{{- else}}
+			{{.name}}Value, err := {{convert .ctx "s"}}
 			if err != nil {
 				{{badArgument .rname "s" "err"}}
 			}
 			{{.name}} = new({{.type}})
 			{{- if .needTransform}}
-			*{{.name}} = {{.type}}(v64)
+			*{{.name}} = {{.type}}({{.name}}Value)
 			{{- else}}
-			*{{.name}} = v64
+			*{{.name}} = {{.name}}Value
 			{{- end}}
+		{{- end}}
 		}
 		`))
 
@@ -500,8 +562,9 @@ func (mux *DefaultStye) InitParam(param Param) string {
 			"name":  name,
 			"rname": paramName,
 			//"conv":          conv,
-			"readParam":     readParam,
-			"needTransform": convertArgs.NeedTransform,
+			"readParam":       readParam,
+			"needTransform":   convertArgs.NeedTransform,
+			"hasConvertError": convertArgs.HasError,
 		}
 
 		if !hasStar {

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo"
 )
@@ -19,7 +20,6 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		return ctx.JSON(http.StatusOK, result)
 	})
 	mux.GET("/echo", func(ctx echo.Context) error {
-
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
 			ctx.Error(err)
@@ -81,12 +81,12 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var start int64
 		if s := ctx.QueryParam("start"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", start, s, err))
 				return nil
 			}
-			start = v64
+			start = startValue
 		}
 
 		result, err := svc.Sub(a, start)
@@ -128,20 +128,20 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 	})
 	mux.GET("/add/:a/:b", func(ctx echo.Context) error {
 		var a int
-		if v64, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 			return nil
 		} else {
-			a = int(v64)
+			a = int(aValue)
 		}
 		var b int
-		if v64, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 			return nil
 		} else {
-			b = int(v64)
+			b = int(bValue)
 		}
 
 		result, err := svc.Add(a, b)
@@ -153,22 +153,22 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 	})
 	mux.GET("/add2/:a/:b", func(ctx echo.Context) error {
 		var a *int
-		if v64, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 			return nil
 		} else {
 			a = new(int)
-			*a = int(v64)
+			*a = int(aValue)
 		}
 		var b *int
-		if v64, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 			return nil
 		} else {
 			b = new(int)
-			*b = int(v64)
+			*b = int(bValue)
 		}
 
 		result, err := svc.Add2(a, b)
@@ -181,23 +181,23 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 	mux.GET("/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 				return nil
 			}
 			a = new(int)
-			*a = int(v64)
+			*a = int(aValue)
 		}
 		var b *int
 		if s := ctx.QueryParam("b"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 				return nil
 			}
 			b = new(int)
-			*b = int(v64)
+			*b = int(bValue)
 		}
 
 		result, err := svc.Add3(a, b)
@@ -205,6 +205,84 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.GET("/query1", func(ctx echo.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw bool
+		if s := ctx.QueryParam("isRaw"); s != "" {
+			isRaw = toBool(s)
+		}
+
+		result := svc.Query1(a, beginAt, endAt, isRaw)
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.GET("/query2/:isRaw", func(ctx echo.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query2(a, beginAt, endAt, isRaw)
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.GET("/query3/:isRaw", func(ctx echo.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
 	})
 	// Misc: annotation is missing
@@ -218,7 +296,6 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		return ctx.JSON(http.StatusOK, result)
 	})
 	mux.GET("/echo_body", func(ctx echo.Context) error {
-
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
 			ctx.Error(err)
@@ -280,12 +357,12 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var start int64
 		if s := ctx.QueryParam("start"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", start, s, err))
 				return nil
 			}
-			start = v64
+			start = startValue
 		}
 
 		result, err := svc.Sub(a, start)
@@ -327,20 +404,20 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 	})
 	mux.GET("/add/:a/:b", func(ctx echo.Context) error {
 		var a int
-		if v64, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 			return nil
 		} else {
-			a = int(v64)
+			a = int(aValue)
 		}
 		var b int
-		if v64, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 			return nil
 		} else {
-			b = int(v64)
+			b = int(bValue)
 		}
 
 		result, err := svc.Add(a, b)
@@ -352,22 +429,22 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 	})
 	mux.GET("/add2/:a/:b", func(ctx echo.Context) error {
 		var a *int
-		if v64, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 			return nil
 		} else {
 			a = new(int)
-			*a = int(v64)
+			*a = int(aValue)
 		}
 		var b *int
-		if v64, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 			return nil
 		} else {
 			b = new(int)
-			*b = int(v64)
+			*b = int(bValue)
 		}
 
 		result, err := svc.Add2(a, b)
@@ -380,23 +457,23 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 	mux.GET("/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 				return nil
 			}
 			a = new(int)
-			*a = int(v64)
+			*a = int(aValue)
 		}
 		var b *int
 		if s := ctx.QueryParam("b"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 				return nil
 			}
 			b = new(int)
-			*b = int(v64)
+			*b = int(bValue)
 		}
 
 		result, err := svc.Add3(a, b)
@@ -404,6 +481,84 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.GET("/query1", func(ctx echo.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw bool
+		if s := ctx.QueryParam("isRaw"); s != "" {
+			isRaw = toBool(s)
+		}
+
+		result := svc.Query1(a, beginAt, endAt, isRaw)
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.GET("/query2/:isRaw", func(ctx echo.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query2(a, beginAt, endAt, isRaw)
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.GET("/query3/:isRaw", func(ctx echo.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
 	})
 	// Misc: annotation is missing
@@ -417,7 +572,6 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 		return ctx.JSON(http.StatusOK, result)
 	})
 	mux.GET("/echo", func(ctx echo.Context) error {
-
 		result, err := svc.EchoBody(ctx.Request().Context(), ctx.Request().Body)
 		if err != nil {
 			ctx.Error(err)
@@ -479,12 +633,12 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 		var a = ctx.QueryParam("a")
 		var start int64
 		if s := ctx.QueryParam("start"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", start, s, err))
 				return nil
 			}
-			start = v64
+			start = startValue
 		}
 
 		result, err := svc.Sub(ctx.Request().Context(), a, start)
@@ -526,20 +680,20 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 	})
 	mux.GET("/add/:a/:b", func(ctx echo.Context) error {
 		var a int
-		if v64, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 			return nil
 		} else {
-			a = int(v64)
+			a = int(aValue)
 		}
 		var b int
-		if v64, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 			return nil
 		} else {
-			b = int(v64)
+			b = int(bValue)
 		}
 
 		result, err := svc.Add(ctx.Request().Context(), a, b)
@@ -551,22 +705,22 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 	})
 	mux.GET("/add2/:a/:b", func(ctx echo.Context) error {
 		var a *int
-		if v64, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 			return nil
 		} else {
 			a = new(int)
-			*a = int(v64)
+			*a = int(aValue)
 		}
 		var b *int
-		if v64, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 			return nil
 		} else {
 			b = new(int)
-			*b = int(v64)
+			*b = int(bValue)
 		}
 
 		result, err := svc.Add2(ctx.Request().Context(), a, b)
@@ -579,23 +733,23 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 	mux.GET("/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", a, s, err))
 				return nil
 			}
 			a = new(int)
-			*a = int(v64)
+			*a = int(aValue)
 		}
 		var b *int
 		if s := ctx.QueryParam("b"); s != "" {
-			v64, err := strconv.ParseInt(s, 10, 64)
+			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", b, s, err))
 				return nil
 			}
 			b = new(int)
-			*b = int(v64)
+			*b = int(bValue)
 		}
 
 		result, err := svc.Add3(ctx.Request().Context(), a, b)
