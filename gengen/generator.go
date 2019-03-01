@@ -298,14 +298,18 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
 	{{- end}}
 	{{- else}}
 	mux.{{$.mux.RouteFunc $method}}("{{$.mux.GetPath $method}}", {{$.mux.FuncSignature}}{
+		{{- $hasInitParam := false}}
 		{{- range $param := $method.Params.List}}
 			{{- $initStatment := $.mux.InitParam $param }}
 			{{- if $initStatment}}
 			{{$initStatment}}
+			{{- $hasInitParam = true}}
 			{{- end}}
 		{{- end}}
-
-		{{if eq 1 (len $method.Results.List) }}
+		{{- if $hasInitParam }}
+		
+		{{end}}
+		{{- if eq 1 (len $method.Results.List) }}
 			{{- $arg := index $method.Results.List 0}}
 			{{- if eq "error" (typePrint $arg.Typ)}}
 				resulterr 

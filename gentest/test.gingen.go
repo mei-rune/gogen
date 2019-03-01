@@ -29,7 +29,6 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		return
 	})
 	mux.GET("/echo", func(ctx *gin.Context) {
-
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
@@ -240,7 +239,6 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		return
 	})
 	mux.GET("/echo_body", func(ctx *gin.Context) {
-
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
@@ -451,7 +449,6 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		return
 	})
 	mux.GET("/echo", func(ctx *gin.Context) {
-
 		result, err := svc.EchoBody(ctx.Request.Context(), ctx.Request.Body)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())

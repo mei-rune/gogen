@@ -32,7 +32,6 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		return
 	})
 	mux.Get("/echo", func(ctx *beecontext.Context) {
-
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
@@ -275,7 +274,6 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		return
 	})
 	mux.Get("/echo_body", func(ctx *beecontext.Context) {
-
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
@@ -518,7 +516,6 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		return
 	})
 	mux.Get("/echo", func(ctx *beecontext.Context) {
-
 		result, err := svc.EchoBody(ctx.Request.Context(), ctx.Request.Body)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))

@@ -13,6 +13,9 @@
 # Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
 .glide/
 *.gogen.go
+*.gingen.go
+*.beegen.go
+*.echogen.go
 *.log
 tmp
 
