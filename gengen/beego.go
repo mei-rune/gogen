@@ -37,7 +37,11 @@ var beeConfig = map[string]interface{}{
 		"ANY":     "Any",
 	},
 	"types": map[string]interface{}{
-		"required": map[string]interface{}{},
+		"required": map[string]interface{}{
+			// "time.Time": map[string]interface{}{
+			// 	"name":
+			// },
+		},
 		"optional": map[string]interface{}{},
 	},
 }

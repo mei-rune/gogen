@@ -14,6 +14,12 @@ type ReadArgs struct {
 	Name string   `json:"name"`
 	Args []string `json:"args"`
 }
+
+type ConvertArgs struct {
+	Format        string `json:"format"`
+	NeedTransform bool   `json:"needTransform"`
+}
+
 type DefaultStye struct {
 	FuncSignatureStr  string            `json:"func_signature"`
 	CtxNameStr        string            `json:"ctx_name"`
@@ -32,6 +38,7 @@ type DefaultStye struct {
 		Required map[string]ReadArgs `json:"required"`
 		Optional map[string]ReadArgs `json:"optional"`
 	} `json:"types"`
+	Converts map[string]ConvertArgs                                    `json:"converts"`
 	ParseURL func(rawurl string) (string, []string, map[string]string) `json:"-"`
 
 	bodyReader   string
@@ -186,6 +193,22 @@ func (mux *DefaultStye) ReadOptional(param Param, typeName, ctxName, paramName s
 	return sb.String()
 }
 
+func (mux *DefaultStye) TypeConvert(param Param, typeName, ctxName, paramName string) string {
+	var sb strings.Builder
+
+	format, ok := mux.Converts[typeName]
+	if !ok {
+		log.Fatalln(fmt.Errorf("%d: unsupport type - %s", param.Method.Node.Pos(), typeName))
+	}
+
+	tpl := template.Must(template.New("convertTemplate").Parse(format))
+	renderText(tpl, &sb, map[string]interface{}{
+		"ctx":  ctxName,
+		"name": paramName,
+	})
+	return sb.String()
+}
+
 func (mux *DefaultStye) ReadBody(param Param, ctxName, paramName string) string {
 	var sb strings.Builder
 	renderText(mux.bindTemplate, &sb, map[string]interface{}{"ctx": ctxName, "name": paramName})
@@ -291,6 +314,9 @@ func (mux *DefaultStye) InitParam(param Param) string {
 		"readRequired": func(ctxName, paramName string) string {
 			return mux.ReadRequired(param, strings.TrimPrefix(typeStr, "*"), ctxName, paramName)
 		},
+		"convert": func(ctxName, paramName string) string {
+			return mux.TypeConvert(param, strings.TrimPrefix(typeStr, "*"), ctxName, paramName)
+		},
 	}
 
 	var sb strings.Builder
@@ -372,55 +398,14 @@ func (mux *DefaultStye) InitParam(param Param) string {
 
 		}
 	} else {
+		convertArgs, ok := mux.Converts[strings.TrimPrefix(typeStr, "*")]
+		if !ok {
+			log.Fatalln(param.Method.Node.Pos(), ": argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+		}
+
 		switch typeStr {
-		// case "string":
-		// 	requiredTxt := template.Must(template.New("requiredTxt").Funcs(funcs).Parse(`
-		// 	var {{.name}} = {{readRequired .ctx .rname}}
-		// 	`))
-
-		// 	optionalTxt := template.Must(template.New("optionalTxt").Funcs(funcs).Parse(`
-		// 	var {{.name}} = {{readOptional .ctx .rname}}
-		// 	`))
-
-		// 	renderArgs := map[string]interface{}{
-		// 		"ctx":       mux.CtxName(),
-		// 		"type":      strings.TrimPrefix(typeStr, "*"),
-		// 		"name":      name,
-		// 		"rname":     paramName,
-		// 		"readParam": readParam,
-		// 	}
-
-		// 	if optional {
-		// 		renderText(optionalTxt, &sb, renderArgs)
-		// 	} else {
-		// 		renderText(requiredTxt, &sb, renderArgs)
-		// 	}
-		// case "*string":
-		// 	requiredTxt := template.Must(template.New("requiredTxt").Funcs(funcs).Parse(`
-		// 	var {{.name}} = {{readRequired .ctx .rname}}
-		// 	`))
-
-		// 	optionalTxt := template.Must(template.New("optionalTxt").Funcs(funcs).Parse(`
-		// 	var {{.name}} *{{.type}}
-		// 	if s := {{readOptional .ctx .rname}}; s != "" {
-		// 		{{.name}} = &s
-		// 	}
-		// 	`))
-
-		// 	renderArgs := map[string]interface{}{
-		// 		"ctx":       mux.CtxName(),
-		// 		"type":      strings.TrimPrefix(typeStr, "*"),
-		// 		"name":      name,
-		// 		"rname":     paramName,
-		// 		"readParam": readParam,
-		// 	}
-
-		// 	if optional {
-		// 		renderText(optionalTxt, &sb, renderArgs)
-		// 	} else {
-		// 		renderText(requiredTxt, &sb, renderArgs)
-		// 	}
 		case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
+
 			conv := "strconv.ParseInt"
 			if strings.HasPrefix(typeStr, "u") {
 				conv = "strconv.ParseUint"
