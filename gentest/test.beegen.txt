@@ -32,14 +32,14 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/echo", func(ctx *beecontext.Context) {
+	mux.Post("/echo", func(ctx *beecontext.Context) {
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
 			return
 		}
-		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.SetStatus(http.StatusCreated)
 		ctx.Output.JSON(result, false, false)
 		return
 	})

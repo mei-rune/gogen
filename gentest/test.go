@@ -17,11 +17,12 @@ func toDatetime(s string) (time.Time, error) {
 	return time.Parse(time.RFC3339Nano, s)
 }
 
+// 	@Client(name="TestClient", ref="true")
 type StringSvc interface {
 	// @http.GET(path="/echo")
 	Echo(a string) string
 
-	// @http.GET(path="/echo", data="body")
+	// @http.POST(path="/echo", data="body")
 	EchoBody(body io.Reader) (string, error)
 
 	// @http.GET(path="/concat")

@@ -3,7 +3,6 @@ package gengen
 import (
 	"errors"
 	"fmt"
-	"io"
 	"log"
 	"strconv"
 	"strings"
@@ -649,13 +648,6 @@ func (mux *DefaultStye) okCode(method Method) string {
 		return "http.StatusAccepted"
 	}
 	return "http.StatusOK"
-}
-
-func renderText(txt *template.Template, out io.Writer, renderArgs interface{}) {
-	err := txt.Execute(out, renderArgs)
-	if err != nil {
-		log.Fatalln(err)
-	}
 }
 
 func NewEchoStye() *DefaultStye {

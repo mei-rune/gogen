@@ -9,7 +9,9 @@ import (
 )
 
 func usage() {
-	fmt.Printf("Usage: %s <filename> (try -h)", os.Args[0])
+	fmt.Printf(`使用方法: %s 子命令 <filename> (try -h)
+	有如下子命令: server, client`, os.Args[0])
+	os.Exit(1)
 }
 
 func main() {
@@ -19,20 +21,29 @@ func main() {
 	// )
 
 	flag.Usage = usage
-
-	gen := &gengen.Generator{}
-	gen.Flags(flag.CommandLine)
 	flag.Parse()
-
 	args := flag.Args()
-	gen.Run(args)
+	if len(args) == 0 {
+		usage()
+		return
+	}
 
-	// for _, filename := range args {
-	// 	log.Println("#", filename)
-	// 	_, err := gengen.ParseFile(filename)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 		return
-	// 	}
-	// }
+	var gen Generator
+	switch args[0] {
+	case "server":
+		gen = &gengen.WebServerGenerator{}
+	case "client":
+		gen = &gengen.WebClientGenerator{}
+	default:
+		usage()
+		return
+	}
+
+	fset := flag.NewFlagSet(name, flag.ExitOnError)
+	gen.Flags(fset)
+	args = fset.Parse(args)
+	if err := gen.Run(args); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

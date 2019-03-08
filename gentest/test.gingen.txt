@@ -29,13 +29,13 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/echo", func(ctx *gin.Context) {
+	mux.POST("/echo", func(ctx *gin.Context) {
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
 		}
-		ctx.JSON(http.StatusOK, result)
+		ctx.JSON(http.StatusCreated, result)
 		return
 	})
 	mux.GET("/concat", func(ctx *gin.Context) {

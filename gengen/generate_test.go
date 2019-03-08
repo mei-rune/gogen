@@ -31,8 +31,12 @@ func TestGenerate(t *testing.T) {
 		os.Remove(filepath.Join(wd, "gentest", name+".gogen.go"))
 		// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-		var gen = Generator{
-			buildTag: "echo",
+		var gen = WebServerGenerator{
+			GeneratorBase: GeneratorBase{
+				//ext:      ".echogen.go",
+				buildTag: "echo",
+			},
+			//config: "@echo",
 		}
 		if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 			fmt.Println(err)
@@ -58,10 +62,12 @@ func TestGenerate(t *testing.T) {
 		os.Remove(filepath.Join(wd, "gentest", name+".beegen.go"))
 		// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-		var gen = Generator{
-			ext:      ".beegen.go",
-			config:   "@beego",
-			buildTag: "beego",
+		var gen = WebServerGenerator{
+			GeneratorBase: GeneratorBase{
+				ext:      ".beegen.go",
+				buildTag: "beego",
+			},
+			config: "@beego",
 		}
 		if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 			fmt.Println(err)
@@ -87,10 +93,12 @@ func TestGenerate(t *testing.T) {
 		os.Remove(filepath.Join(wd, "gentest", name+".gingen.go"))
 		// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-		var gen = Generator{
-			ext:      ".gingen.go",
-			config:   "@gin",
-			buildTag: "gin",
+		var gen = WebServerGenerator{
+			GeneratorBase: GeneratorBase{
+				ext:      ".gingen.go",
+				buildTag: "gin",
+			},
+			config: "@gin",
 		}
 		if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 			fmt.Println(err)
