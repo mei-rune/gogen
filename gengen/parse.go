@@ -38,9 +38,11 @@ type (
 		ctx         *SourceContext `json:"-"`
 		Node        *ast.TypeSpec
 		Name        *ast.Ident
+		Comments    []string
 		IsInterface bool
 
-		Methods []Method
+		Annotations []Annotation
+		Methods     []Method
 	}
 
 	interfaceTypeVisitor struct {
@@ -194,6 +196,19 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 			v.iface.ctx = v.src
 			v.iface.Node = v.node
 			v.iface.Name = v.name
+
+			if v.node.Comment != nil {
+				for _, a := range v.node.Comment.List {
+					v.iface.Comments = append(v.iface.Comments, a.Text)
+				}
+			}
+
+			if v.node.Doc != nil {
+				for _, a := range v.node.Doc.List {
+					v.iface.Comments = append(v.iface.Comments, a.Text)
+				}
+			}
+
 			v.src.Classes = append(v.src.Classes, *v.iface)
 		}
 		return nil
@@ -387,12 +402,18 @@ func Parse(filename string, source io.Reader) (*SourceContext, error) {
 	ast.Walk(visitor, f)
 
 	for classIdx, itf := range context.Classes {
+		for _, comment := range context.Classes[classIdx].Comments {
+			ann := parseAnnotation(comment)
+			if ann != nil {
+				context.Classes[classIdx].Annotations = append(context.Classes[classIdx].Annotations, *ann)
+			}
+		}
+
 		for idx := range itf.Methods {
 			method := &itf.Methods[idx]
 			method.init(&context.Classes[classIdx])
 			for _, comment := range method.Comments {
 				ann := parseAnnotation(comment)
-				// fmt.Println(itf.Name.Name, method.Name.Name, ann)
 				if ann != nil {
 					method.Annotations = append(method.Annotations, *ann)
 				}

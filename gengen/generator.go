@@ -1,10 +1,12 @@
 package gengen
 
 import (
+	"errors"
 	"flag"
 	"io"
 	"log"
 	"reflect"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -60,6 +62,44 @@ func (cmd *GeneratorBase) generateHeader(out io.Writer, file *SourceContext, cb 
 		return cb(out)
 	}
 	return nil
+}
+
+var ErrDuplicated = errors.New("annotation is duplicated")
+
+func findAnnotation(annotations []Annotation, name string) (*Annotation, error) {
+	var annotation *Annotation
+	for idx := range annotations {
+		if annotations[idx].Name != name {
+			continue
+		}
+
+		if annotation != nil {
+			return nil, ErrDuplicated
+		}
+		annotation = &annotations[idx]
+	}
+	return annotation, nil
+}
+
+func getAnnotation(method Method, nilIfNotExists bool) *Annotation {
+	var annotation *Annotation
+	for idx := range method.Annotations {
+		if !strings.HasPrefix(method.Annotations[idx].Name, "http.") {
+			continue
+		}
+
+		if annotation != nil {
+			log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": Annotation of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is duplicated"))
+		}
+		annotation = &method.Annotations[idx]
+	}
+	if nilIfNotExists {
+		return annotation
+	}
+	if annotation == nil {
+		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": Annotation of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is missing"))
+	}
+	return annotation
 }
 
 func renderText(txt *template.Template, out io.Writer, renderArgs interface{}) {

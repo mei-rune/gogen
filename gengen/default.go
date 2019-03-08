@@ -39,6 +39,7 @@ type DefaultStye struct {
 		Optional map[string]ReadArgs `json:"optional"`
 	} `json:"types"`
 	Converts map[string]ConvertArgs                                    `json:"converts"`
+	UrlStyle string                                                    `json:"url_style"`
 	ParseURL func(rawurl string) (string, []string, map[string]string) `json:"-"`
 
 	bodyReader   string
@@ -73,7 +74,20 @@ func (mux *DefaultStye) Init() {
 
 func (mux *DefaultStye) reinit(values map[string]interface{}) {
 	if mux.ParseURL == nil {
-		mux.ParseURL = parseURL
+		var replace ReplaceFunc
+		switch mux.UrlStyle {
+		case "colon", "":
+			replace = colonReplace
+		case "brace":
+			replace = braceReplace
+		default:
+			log.Fatalln(errors.New("url_style '" + mux.UrlStyle + "' is invalid"))
+		}
+
+		mux.ParseURL = func(rawurl string) (string, []string, map[string]string) {
+			segements, names, query := parseURL(rawurl)
+			return JoinPathSegments(segements, replace), names, query
+		}
 	}
 
 	if mux.Types.Required == nil {
@@ -190,7 +204,7 @@ func (mux *DefaultStye) CtxType() string {
 }
 
 func (mux *DefaultStye) IsSkipped(method Method) SkippedResult {
-	anno := mux.GetAnnotation(method, true)
+	anno := getAnnotation(method, true)
 	res := SkippedResult{
 		IsSkipped: anno == nil,
 	}
@@ -249,7 +263,7 @@ func (mux *DefaultStye) ReadBody(param Param, ctxName, paramName string) string 
 }
 
 func (mux *DefaultStye) GetPath(method Method) string {
-	anno := mux.GetAnnotation(method, false)
+	anno := getAnnotation(method, false)
 
 	rawurl := anno.Attributes["path"]
 	if rawurl == "" {
@@ -266,7 +280,7 @@ func (mux *DefaultStye) UseParam(param Param) string {
 	}
 
 	typeStr := typePrint(param.Typ)
-	anno := mux.GetAnnotation(*param.Method, false)
+	anno := getAnnotation(*param.Method, false)
 	if anno.Attributes["data"] == param.Name.Name {
 		if typeStr == "io.Reader" {
 			return mux.bodyReader
@@ -313,7 +327,7 @@ func (mux *DefaultStye) InitParam(param Param) string {
 	elmType := strings.TrimPrefix(typeStr, "*")
 	hasStar := typeStr != elmType
 
-	anno := mux.GetAnnotation(*param.Method, false)
+	anno := getAnnotation(*param.Method, false)
 	inBody := anno.Attributes["data"] == param.Name.Name
 	if inBody {
 		if typeStr == "io.Reader" {
@@ -585,7 +599,7 @@ func (mux *DefaultStye) InitParam(param Param) string {
 }
 
 func (mux *DefaultStye) RouteFunc(method Method) string {
-	ann := mux.GetAnnotation(method, false)
+	ann := getAnnotation(method, false)
 	name := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
 	if mux.MethodMapping != nil {
 		methodName := mux.MethodMapping[name]
@@ -594,27 +608,6 @@ func (mux *DefaultStye) RouteFunc(method Method) string {
 		}
 	}
 	return name
-}
-
-func (mux *DefaultStye) GetAnnotation(method Method, nilIfNotExists bool) *Annotation {
-	var annotation *Annotation
-	for idx := range method.Annotations {
-		if !strings.HasPrefix(method.Annotations[idx].Name, "http.") {
-			continue
-		}
-
-		if annotation != nil {
-			log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": Annotation of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is duplicated"))
-		}
-		annotation = &method.Annotations[idx]
-	}
-	if nilIfNotExists {
-		return annotation
-	}
-	if annotation == nil {
-		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": Annotation of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is missing"))
-	}
-	return annotation
 }
 
 func (mux *DefaultStye) BadArgumentFunc(method Method, err string, args ...string) string {
@@ -640,7 +633,7 @@ func (mux *DefaultStye) OkFunc(method Method, args ...string) string {
 }
 
 func (mux *DefaultStye) okCode(method Method) string {
-	ann := mux.GetAnnotation(method, false)
+	ann := getAnnotation(method, false)
 	switch strings.ToUpper(strings.TrimPrefix(ann.Name, "http.")) {
 	case "POST":
 		return "http.StatusCreated"

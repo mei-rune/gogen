@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"text/template"
 )
@@ -97,8 +98,33 @@ func (cmd *WebClientGenerator) runFile(filename string) error {
 }
 
 func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext, class *Class) error {
-	args := map[string]interface{}{"config": cmd.config, "class": class}
-	err := clientTpl.Execute(out, args)
+
+	config := cmd.config
+
+	config.ClassName = class.Name.Name + "Client"
+	config.RecvClassName = config.ClassName
+	ann, err := findAnnotation(class.Annotations, "http.Client")
+	if err != nil {
+		if ErrDuplicated == err {
+			log.Fatalln(errors.New(strconv.Itoa(int(class.Node.Pos())) + ": annotations of class '" + class.Name.Name + "' is duplicated"))
+		} else {
+			log.Fatalln(err)
+		}
+		return err
+	}
+	if ann != nil {
+		if name := ann.Attributes["name"]; name != "" {
+			config.ClassName = name
+			config.RecvClassName = config.ClassName
+		}
+
+		if reference := ann.Attributes["reference"]; reference == "true" {
+			config.RecvClassName = "*" + config.ClassName
+		}
+	}
+
+	args := map[string]interface{}{"config": config, "class": class}
+	err = clientTpl.Execute(out, args)
 	if err != nil {
 		return errors.New("generate classTpl for '" + class.Name.Name + "' fail, " + err.Error())
 	}
@@ -107,9 +133,9 @@ func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext,
 
 type ClientConfig struct {
 	RestyName        string
+	ContextClassName string
 	ClassName        string
 	RecvClassName    string
-	ContextClassName string
 
 	newRequest     string
 	releaseRequest string
@@ -129,7 +155,24 @@ func (c *ClientConfig) ReleaseRequest(proxy, request string) string {
 }
 
 func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
-	return "notimplemented"
+	anno := getAnnotation(method, false)
+
+	rawurl := anno.Attributes["path"]
+	if rawurl == "" {
+		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is missing"))
+	}
+	var replace = ReplaceFunc(func(segement PathSegement) string {
+		for idx := range paramList {
+			if paramList[idx].Name.Name == segement.Value {
+				return "\" + " + convertToStringLiteral(paramList[idx].Param) + " + \""
+			}
+		}
+		err := errors.New("path param '" + segement.Value + "' isnot found")
+		log.Fatalln(err)
+		panic(err)
+	})
+	segements, _, _ := parseURL(rawurl)
+	return "\"" + JoinPathSegments(segements, replace) + "\""
 }
 
 type ParamConfig struct {
@@ -143,7 +186,46 @@ type ParamConfig struct {
 }
 
 func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
-	panic("notimplemented")
+	anno := getAnnotation(method, false)
+	rawurl := anno.Attributes["path"]
+	if rawurl == "" {
+		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is missing"))
+	}
+
+	data := anno.Attributes["data"]
+	_, pathNames, queryNames := parseURL(rawurl)
+
+	paramList := make([]ParamConfig, 0, len(method.Params.List))
+	for _, param := range method.Params.List {
+		cp := ParamConfig{
+			Param:          param,
+			QueryParamName: param.Name.Name,
+		}
+
+		typ := typePrint(param.Typ)
+		if strings.HasSuffix(typ, ".Context") {
+			cp.IsSkipped = true
+			paramList = append(paramList, cp)
+			continue
+		}
+
+		for _, pname := range pathNames {
+			if param.Name.Name == pname {
+				cp.IsPathParam = true
+				break
+			}
+		}
+		if !cp.IsPathParam {
+			if data != "" && data == param.Name.Name {
+				cp.IsBodyParam = true
+			} else if newName, ok := queryNames[param.Name.Name]; ok && newName != "" {
+				cp.QueryParamName = newName
+			}
+		}
+
+		paramList = append(paramList, cp)
+	}
+	return paramList
 }
 
 type ResultConfig struct {
@@ -154,7 +236,21 @@ type ResultConfig struct {
 }
 
 func (c *ClientConfig) ToResultList(method Method) []ResultConfig {
-	panic("notimplemented")
+	resultList := make([]ResultConfig, 0, len(method.Results.List))
+	for _, result := range method.Results.List {
+		typ := typePrint(result.Typ)
+		if typ == "error" {
+			continue
+		}
+
+		cp := ResultConfig{
+			Result:    result,
+			FieldName: "E" + result.Name.Name,
+			JSONName:  result.Name.Name,
+		}
+		resultList = append(resultList, cp)
+	}
+	return resultList
 }
 
 var clientTpl *template.Template
@@ -192,7 +288,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
       }
   {{- end}}
 
-  request := {{$.config.NewRequest "client.proxy" (concat "\"" ($.config.GetPath $method $paramList) "\"") }})
+  request := {{$.config.NewRequest "client.proxy" ($.config.GetPath $method $paramList) }})
   {{- if eq 0 (len $resultList) }}
   defer {{$.config.ReleaseRequest "client.proxy" "request"}}
   return {{else}}err := {{end}} request.
