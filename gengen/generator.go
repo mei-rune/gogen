@@ -24,7 +24,11 @@ type GeneratorBase struct {
 }
 
 func (cmd *GeneratorBase) Flags(fs *flag.FlagSet) *flag.FlagSet {
-	fs.StringVar(&cmd.ext, "ext", ".gogen.go", "文件后缀名")
+	ext := cmd.ext
+	if ext == "" {
+		ext = ".gogen.go"
+	}
+	fs.StringVar(&cmd.ext, "ext", ext, "文件后缀名")
 	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 	return fs
 }
@@ -178,5 +182,6 @@ var Funcs = template.FuncMap{
 		}
 		return false
 	},
-	"typePrint": typePrint,
+	"typePrint":              typePrint,
+	"convertToStringLiteral": convertToStringLiteral,
 }

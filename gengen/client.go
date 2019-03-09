@@ -87,6 +87,7 @@ func (cmd *WebClientGenerator) runFile(filename string) error {
 		os.Remove(targetFile + ".tmp")
 		return err
 	}
+
 	err = os.Rename(targetFile+".tmp", targetFile)
 	if err != nil {
 		return err
@@ -123,7 +124,7 @@ func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext,
 		}
 	}
 
-	args := map[string]interface{}{"config": config, "class": class}
+	args := map[string]interface{}{"config": &config, "class": class}
 	err = clientTpl.Execute(out, args)
 	if err != nil {
 		return errors.New("generate classTpl for '" + class.Name.Name + "' fail, " + err.Error())
@@ -148,10 +149,26 @@ func (c *ClientConfig) NewRequest(proxy, url string) string {
 	})
 }
 func (c *ClientConfig) ReleaseRequest(proxy, request string) string {
-	return renderString(c.newRequest, map[string]interface{}{
+	return renderString(c.releaseRequest, map[string]interface{}{
 		"proxy":   proxy,
 		"request": request,
 	})
+}
+
+func (c *ClientConfig) IsSkipped(method Method) SkippedResult {
+	anno := getAnnotation(method, true)
+	res := SkippedResult{
+		IsSkipped: anno == nil,
+	}
+	if res.IsSkipped {
+		res.Message = "annotation is missing"
+	}
+	return res
+}
+
+func (c *ClientConfig) RouteFunc(method Method) string {
+	ann := getAnnotation(method, false)
+	return strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
 }
 
 func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
@@ -223,6 +240,10 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			}
 		}
 
+		if !cp.IsPathParam && !cp.IsBodyParam {
+			cp.IsQueryParam = true
+		}
+
 		paramList = append(paramList, cp)
 	}
 	return paramList
@@ -237,6 +258,7 @@ type ResultConfig struct {
 
 func (c *ClientConfig) ToResultList(method Method) []ResultConfig {
 	resultList := make([]ResultConfig, 0, len(method.Results.List))
+	hasAnonymous := false
 	for _, result := range method.Results.List {
 		typ := typePrint(result.Typ)
 		if typ == "error" {
@@ -244,11 +266,20 @@ func (c *ClientConfig) ToResultList(method Method) []ResultConfig {
 		}
 
 		cp := ResultConfig{
-			Result:    result,
-			FieldName: "E" + result.Name.Name,
-			JSONName:  result.Name.Name,
+			Result: result,
+		}
+		if result.Name != nil {
+			cp.FieldName = "E" + result.Name.Name
+			cp.JSONName = result.Name.Name
+			hasAnonymous = true
 		}
 		resultList = append(resultList, cp)
+	}
+
+	if hasAnonymous && len(resultList) > 1 {
+		err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": method '" +
+			method.Itf.Name.Name + ":" + method.Name.Name + "' is anonymous")
+		log.Fatalln(err)
 	}
 	return resultList
 }
@@ -263,6 +294,13 @@ type {{.config.ClassName}} struct {
 }
 
 {{range $method := .class.Methods}}
+  {{- $skipResult := $.config.IsSkipped $method }}
+  {{- if $skipResult.IsSkipped }}
+  {{- if $skipResult.Message}} 
+  // {{$method.Name.Name}}: {{$skipResult.Message}} 
+  {{- end}}
+  {{- else}}
+
 {{$paramList := ($.config.ToParamList $method) }}
 {{$resultList := ($.config.ToResultList $method) }}
 func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.ContextClassName}}{{- range $param := $paramList -}}
@@ -288,21 +326,48 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
       }
   {{- end}}
 
-  request := {{$.config.NewRequest "client.proxy" ($.config.GetPath $method $paramList) }})
-  {{- if eq 0 (len $resultList) }}
-  defer {{$.config.ReleaseRequest "client.proxy" "request"}}
-  return {{else}}err := {{end}} request.
-  {{- range $param := $method.Params.List -}}
+  request := {{$.config.NewRequest "client.proxy" ($.config.GetPath $method $paramList) }}
+  {{- $needAssignment := false -}}
+  {{- range $param := $paramList -}}
     {{- if $param.IsBodyParam -}}
-    SetBody({{$param.Name}}).
+    {{- if $needAssignment}}
+    request = request.
+    {{- else -}}
+    .
+    {{end -}}
+    SetBody({{$param.Name}})
+    {{- $needAssignment = false -}}
     {{- else if $param.IsQueryParam -}}
-    SetParam("{{$param.QueryParamName}}", {{$param.Name}}).
-    {{- end}}
+    {{- $typeName := typePrint $param.Param.Typ -}}
+    {{- if startWith $typeName "*"}}
+    if {{$param.Name.Name}} != nil {
+    	request = request.SetParam("{{$param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+    }
+    {{- $needAssignment = true -}}
+    {{- else -}}
+    {{- if $needAssignment}}
+    request = request.
+    {{- else -}}
+    .
+    {{end -}}
+    SetParam("{{$param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+    {{- $needAssignment = false -}}
+    {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if $needAssignment}}
+  request = request.Result(&result)
+  {{- else -}}
+  	.
+  	Result(&result)
   {{- end}}
-    Result(&result).
-    GET(ctx)
-  {{- if eq 0 (len $resultList) }}
-  {{- else if eq 1 (len $resultList) }}
+
+  {{if eq 0 (len $resultList) }}
+  defer {{$.config.ReleaseRequest "client.proxy" "request"}}
+  return {{else}}err := {{end}} request.{{$.config.RouteFunc $method}}(ctx)
+  {{if eq 0 (len $resultList) }}
+  {{else if eq 1 (len $resultList) }}
   {{$.config.ReleaseRequest "client.proxy" "request"}}
     {{- range $result := $resultList}}
   return {{if startWith (typePrint $result.Typ) "*"}}&{{end}}result, err
@@ -314,7 +379,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
         {{- end -}}, err
   {{- end}}
 }
+	{{end}}{{/* if $skipResult.IsSkipped */}}
 {{end}}
-
 `))
 }

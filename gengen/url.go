@@ -99,18 +99,35 @@ func convertToStringLiteral(param Param) string {
 	switch typ {
 	case "string":
 		return param.Name.Name
+	case "*string":
+		return "*" + param.Name.Name
 	case "int", "int8", "int16", "int32":
 		return "strconv.FormatInt(int64(" + param.Name.Name + "), 10)"
+	case "*int", "*int8", "*int16", "*int32":
+		return "strconv.FormatInt(int64(*" + param.Name.Name + "), 10)"
 	case "int64":
 		return "strconv.FormatInt(" + param.Name.Name + ", 10)"
+	case "*int64":
+		return "strconv.FormatInt(*" + param.Name.Name + ", 10)"
 	case "uint", "uint8", "uint16", "uint32":
 		return "strconv.FormatUint(uint64(" + param.Name.Name + "), 10)"
+	case "*uint", "*uint8", "*uint16", "*uint32":
+		return "strconv.FormatUint(uint64(*" + param.Name.Name + "), 10)"
 	case "uint64":
 		return "strconv.FormatUint(" + param.Name.Name + ", 10)"
-	case "boolean":
+	case "*uint64":
+		return "strconv.FormatUint(*" + param.Name.Name + ", 10)"
+	case "bool":
 		return "BoolToString(" + param.Name.Name + ", 10)"
+	case "*bool":
+		return "BoolToString(*" + param.Name.Name + ", 10)"
+	case "time.Time", "*time.Time":
+		return param.Name.Name + ".Format(TimeFormat)"
+	case "net.IP", "*net.IP":
+		return param.Name.Name + ".String()"
 	default:
-		log.Fatalln(errors.New("path param '" + param.Name.Name + "' is unsupport type - " + typ))
-		panic("")
+		err := errors.New("path param '" + param.Name.Name + "' is unsupport type - " + typ)
+		log.Fatalln(err)
+		panic(err)
 	}
 }

@@ -3,6 +3,7 @@ package gengen
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -108,6 +109,37 @@ func TestGenerate(t *testing.T) {
 
 		actual := readFile(filepath.Join(wd, "gentest", name+".gingen.go"))
 		excepted := readFile(filepath.Join(wd, "gentest", name+".gingen.txt"))
+		if !reflect.DeepEqual(actual, excepted) {
+			results := difflib.Diff(excepted, actual)
+			for _, result := range results {
+				if result.Delta == difflib.Common {
+					continue
+				}
+				t.Error(result)
+			}
+		}
+	}
+
+	for _, name := range []string{"test"} {
+		t.Log("=====================", name)
+		os.Remove(filepath.Join(wd, "gentest", name+".clientgen.go"))
+		// fmt.Println(filepath.Join(wd, "gentest", name+".clientgen.go"))
+
+		var gen = WebClientGenerator{
+			GeneratorBase: GeneratorBase{
+				ext: ".clientgen.go",
+			},
+			//config: "@echo",
+		}
+		gen.Flags(flag.NewFlagSet("", flag.PanicOnError))
+		if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+			fmt.Println(err)
+			t.Error(err)
+			continue
+		}
+
+		actual := readFile(filepath.Join(wd, "gentest", name+".clientgen.go"))
+		excepted := readFile(filepath.Join(wd, "gentest", name+".clientgen.txt"))
 		if !reflect.DeepEqual(actual, excepted) {
 			results := difflib.Diff(excepted, actual)
 			for _, result := range results {

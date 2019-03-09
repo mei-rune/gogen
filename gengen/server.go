@@ -210,7 +210,7 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
       {{- end}}
     {{- end}}
     {{- if $hasInitParam }}
-    
+    {{/* generate a empty line*/}}
     {{end}}
     {{- if eq 1 (len $method.Results.List) }}
       {{- $arg := index $method.Results.List 0}}
