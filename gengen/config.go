@@ -15,6 +15,10 @@ func readConfig(filename string) (map[string]interface{}, error) {
 		return beeConfig, nil
 	case "@gin", "@gin.json":
 		return ginConfig, nil
+	case "@echo", "@echo.json":
+		return echoConfig, nil
+	case "@loong", "@loong.json":
+		return echoConfig, nil
 	}
 
 	bs, err := ioutil.ReadFile(filename)

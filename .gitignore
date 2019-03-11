@@ -16,6 +16,8 @@
 *.gingen.go
 *.beegen.go
 *.echogen.go
+*.loonggen.go
+*.clientgen.go
 *.log
 tmp
 
