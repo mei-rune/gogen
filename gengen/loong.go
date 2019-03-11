@@ -8,9 +8,9 @@ var loongConfig = map[string]interface{}{
 		"github.com/runner-mei/loong": "",
 	},
 
-	"func_signature":      "func(ctx loong.Context) error ",
+	"func_signature":      "func(ctx *loong.Context) error ",
 	"ctx_name":            "ctx",
-	"ctx_type":            "loong.Context",
+	"ctx_type":            "*loong.Context",
 	"route_party_name":    "loong.Party",
 	"path_param_format":   "Param",
 	"query_param_format":  "QueryParam",
@@ -23,6 +23,7 @@ var loongConfig = map[string]interface{}{
 	"reserved": map[string]string{
 		"*http.Request":       "ctx.Request()",
 		"http.ResponseWriter": "ctx.Response().Writer",
-		"context.Context":     "ctx.Request().Context()",
+		"context.Context":     "ctx.StdContext",
+		"*loong.Context":      "ctx",
 	},
 }

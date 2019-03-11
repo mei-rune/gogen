@@ -1,0 +1,771 @@
+// +build loong
+
+// Please don't edit this file!
+package main
+
+import (
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/runner-mei/loong"
+)
+
+func httpCodeWith(err error) int {
+	if herr, ok := err.(interface {
+		HTTPCode() int
+	}); ok {
+		return herr.HTTPCode()
+	}
+	return http.StatusInternalServerError
+}
+
+func InitStringSvc(mux loong.Party, svc StringSvc) {
+	mux.GET("/echo", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+
+		result := svc.Echo(a)
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.POST("/echo", func(ctx *loong.Context) error {
+		result, err := svc.EchoBody(ctx.Request().Body)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusCreated, result)
+	})
+	mux.GET("/concat", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var b = ctx.QueryParam("b")
+
+		result, err := svc.Concat(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat1", func(ctx *loong.Context) error {
+		var a *string
+		if s := ctx.QueryParam("a"); s != "" {
+			a = &s
+		}
+		var b *string
+		if s := ctx.QueryParam("b"); s != "" {
+			b = &s
+		}
+
+		result, err := svc.Concat1(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat2/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+
+		result, err := svc.Concat2(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat3/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+
+		result, err := svc.Concat3(&a, &b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/sub", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var start int64
+		if s := ctx.QueryParam("start"); s != "" {
+			startValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(start, s, err))
+				return nil
+			}
+			start = startValue
+		}
+
+		result, err := svc.Sub(a, start)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.POST("/save/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b string
+		if err := ctx.Bind(&b); err != nil {
+			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			return nil
+		}
+
+		result, err := svc.Save(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusCreated, result)
+	})
+	mux.POST("/save2/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b string
+		if err := ctx.Bind(&b); err != nil {
+			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			return nil
+		}
+
+		result, err := svc.Save2(&a, &b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusCreated, result)
+	})
+	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
+		var a int
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+			s := ctx.Param("a")
+			ctx.Error(loong.ErrBadArgument(a, s, err))
+			return nil
+		} else {
+			a = int(aValue)
+		}
+		var b int
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+			s := ctx.Param("b")
+			ctx.Error(loong.ErrBadArgument(b, s, err))
+			return nil
+		} else {
+			b = int(bValue)
+		}
+
+		result, err := svc.Add(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/add2/:a/:b", func(ctx *loong.Context) error {
+		var a *int
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+			s := ctx.Param("a")
+			ctx.Error(loong.ErrBadArgument(a, s, err))
+			return nil
+		} else {
+			a = new(int)
+			*a = int(aValue)
+		}
+		var b *int
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+			s := ctx.Param("b")
+			ctx.Error(loong.ErrBadArgument(b, s, err))
+			return nil
+		} else {
+			b = new(int)
+			*b = int(bValue)
+		}
+
+		result, err := svc.Add2(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/add3", func(ctx *loong.Context) error {
+		var a *int
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(a, s, err))
+				return nil
+			}
+			a = new(int)
+			*a = int(aValue)
+		}
+		var b *int
+		if s := ctx.QueryParam("b"); s != "" {
+			bValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(b, s, err))
+				return nil
+			}
+			b = new(int)
+			*b = int(bValue)
+		}
+
+		result, err := svc.Add3(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/query1", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw bool
+		if s := ctx.QueryParam("isRaw"); s != "" {
+			isRaw = toBool(s)
+		}
+
+		result := svc.Query1(a, beginAt, endAt, isRaw)
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/query2/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query2(a, beginAt, endAt, isRaw)
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/query3/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		return ctx.Object(http.StatusOK, result)
+	})
+	// Misc: annotation is missing
+}
+
+func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
+	mux.GET("/echo", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+
+		result := svc.Echo(a)
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/echo_body", func(ctx *loong.Context) error {
+		result, err := svc.EchoBody(ctx.Request().Body)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var b = ctx.QueryParam("b")
+
+		result, err := svc.Concat(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat1", func(ctx *loong.Context) error {
+		var a *string
+		if s := ctx.QueryParam("a"); s != "" {
+			a = &s
+		}
+		var b *string
+		if s := ctx.QueryParam("b"); s != "" {
+			b = &s
+		}
+
+		result, err := svc.Concat1(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat2/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+
+		result, err := svc.Concat2(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat3/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+
+		result, err := svc.Concat3(&a, &b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/sub", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var start int64
+		if s := ctx.QueryParam("start"); s != "" {
+			startValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(start, s, err))
+				return nil
+			}
+			start = startValue
+		}
+
+		result, err := svc.Sub(a, start)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.POST("/save/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b string
+		if err := ctx.Bind(&b); err != nil {
+			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			return nil
+		}
+
+		result, err := svc.Save(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusCreated, result)
+	})
+	mux.POST("/save2/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b string
+		if err := ctx.Bind(&b); err != nil {
+			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			return nil
+		}
+
+		result, err := svc.Save2(&a, &b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusCreated, result)
+	})
+	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
+		var a int
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+			s := ctx.Param("a")
+			ctx.Error(loong.ErrBadArgument(a, s, err))
+			return nil
+		} else {
+			a = int(aValue)
+		}
+		var b int
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+			s := ctx.Param("b")
+			ctx.Error(loong.ErrBadArgument(b, s, err))
+			return nil
+		} else {
+			b = int(bValue)
+		}
+
+		result, err := svc.Add(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/add2/:a/:b", func(ctx *loong.Context) error {
+		var a *int
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+			s := ctx.Param("a")
+			ctx.Error(loong.ErrBadArgument(a, s, err))
+			return nil
+		} else {
+			a = new(int)
+			*a = int(aValue)
+		}
+		var b *int
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+			s := ctx.Param("b")
+			ctx.Error(loong.ErrBadArgument(b, s, err))
+			return nil
+		} else {
+			b = new(int)
+			*b = int(bValue)
+		}
+
+		result, err := svc.Add2(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/add3", func(ctx *loong.Context) error {
+		var a *int
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(a, s, err))
+				return nil
+			}
+			a = new(int)
+			*a = int(aValue)
+		}
+		var b *int
+		if s := ctx.QueryParam("b"); s != "" {
+			bValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(b, s, err))
+				return nil
+			}
+			b = new(int)
+			*b = int(bValue)
+		}
+
+		result, err := svc.Add3(a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/query1", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw bool
+		if s := ctx.QueryParam("isRaw"); s != "" {
+			isRaw = toBool(s)
+		}
+
+		result := svc.Query1(a, beginAt, endAt, isRaw)
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/query2/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query2(a, beginAt, endAt, isRaw)
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/query3/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("beginAt"); s != "" {
+			beginAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				return nil
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("endAt"); s != "" {
+			endAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				return nil
+			}
+			endAt = endAtValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		return ctx.Object(http.StatusOK, result)
+	})
+	// Misc: annotation is missing
+}
+
+func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
+	mux.GET("/echo", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+
+		result := svc.Echo(ctx.StdContext, a)
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/echo", func(ctx *loong.Context) error {
+		result, err := svc.EchoBody(ctx.StdContext, ctx.Request().Body)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var b = ctx.QueryParam("b")
+
+		result, err := svc.Concat(ctx.StdContext, a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat1", func(ctx *loong.Context) error {
+		var a *string
+		if s := ctx.QueryParam("a"); s != "" {
+			a = &s
+		}
+		var b *string
+		if s := ctx.QueryParam("b"); s != "" {
+			b = &s
+		}
+
+		result, err := svc.Concat1(ctx.StdContext, a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat2/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+
+		result, err := svc.Concat2(ctx.StdContext, a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/concat3/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+
+		result, err := svc.Concat3(ctx.StdContext, &a, &b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/sub", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var start int64
+		if s := ctx.QueryParam("start"); s != "" {
+			startValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(start, s, err))
+				return nil
+			}
+			start = startValue
+		}
+
+		result, err := svc.Sub(ctx.StdContext, a, start)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.POST("/save/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b string
+		if err := ctx.Bind(&b); err != nil {
+			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			return nil
+		}
+
+		result, err := svc.Save(ctx.StdContext, a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusCreated, result)
+	})
+	mux.POST("/save2/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b string
+		if err := ctx.Bind(&b); err != nil {
+			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			return nil
+		}
+
+		result, err := svc.Save2(ctx.StdContext, &a, &b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusCreated, result)
+	})
+	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
+		var a int
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+			s := ctx.Param("a")
+			ctx.Error(loong.ErrBadArgument(a, s, err))
+			return nil
+		} else {
+			a = int(aValue)
+		}
+		var b int
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+			s := ctx.Param("b")
+			ctx.Error(loong.ErrBadArgument(b, s, err))
+			return nil
+		} else {
+			b = int(bValue)
+		}
+
+		result, err := svc.Add(ctx.StdContext, a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/add2/:a/:b", func(ctx *loong.Context) error {
+		var a *int
+		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
+			s := ctx.Param("a")
+			ctx.Error(loong.ErrBadArgument(a, s, err))
+			return nil
+		} else {
+			a = new(int)
+			*a = int(aValue)
+		}
+		var b *int
+		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
+			s := ctx.Param("b")
+			ctx.Error(loong.ErrBadArgument(b, s, err))
+			return nil
+		} else {
+			b = new(int)
+			*b = int(bValue)
+		}
+
+		result, err := svc.Add2(ctx.StdContext, a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	mux.GET("/add3", func(ctx *loong.Context) error {
+		var a *int
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(a, s, err))
+				return nil
+			}
+			a = new(int)
+			*a = int(aValue)
+		}
+		var b *int
+		if s := ctx.QueryParam("b"); s != "" {
+			bValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument(b, s, err))
+				return nil
+			}
+			b = new(int)
+			*b = int(bValue)
+		}
+
+		result, err := svc.Add3(ctx.StdContext, a, b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Object(http.StatusOK, result)
+	})
+	// Misc: annotation is missing
+}
