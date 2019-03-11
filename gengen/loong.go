@@ -17,7 +17,7 @@ var loongConfig = map[string]interface{}{
 	"read_body_format":    "{{.ctx}}.Bind(&{{.name}})",
 	"bad_argument_format": "loong.ErrBadArgument(%s, %s, %s)",
 	"read_format":         "{{.ctx}}.{{.readMethodName}}(\"{{.name}}\")",
-	"ok_func_format":      "return ctx.Object({{.statusCode}}, {{.data}})",
+	"ok_func_format":      "return ctx.Return({{.statusCode}}, {{.data}})",
 	"err_func_format":     "ctx.Error({{.err}})\r\n     return nil",
 
 	"reserved": map[string]string{

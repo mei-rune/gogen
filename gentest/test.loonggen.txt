@@ -25,7 +25,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 
 		result := svc.Echo(a)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.POST("/echo", func(ctx *loong.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
@@ -33,7 +33,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusCreated, result)
+		return ctx.Return(http.StatusCreated, result)
 	})
 	mux.GET("/concat", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -44,7 +44,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat1", func(ctx *loong.Context) error {
 		var a *string
@@ -61,7 +61,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat2/:a/:b", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -72,7 +72,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat3/:a/:b", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -83,7 +83,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/sub", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -102,7 +102,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.POST("/save/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -117,7 +117,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusCreated, result)
+		return ctx.Return(http.StatusCreated, result)
 	})
 	mux.POST("/save2/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -132,7 +132,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusCreated, result)
+		return ctx.Return(http.StatusCreated, result)
 	})
 	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
 		var a int
@@ -157,7 +157,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/add2/:a/:b", func(ctx *loong.Context) error {
 		var a *int
@@ -184,7 +184,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/add3", func(ctx *loong.Context) error {
 		var a *int
@@ -213,7 +213,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/query1", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -241,7 +241,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/query2/:isRaw", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -266,7 +266,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var isRaw = toBool(ctx.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/query3/:isRaw", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -291,7 +291,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var isRaw = toBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	// Misc: annotation is missing
 }
@@ -301,7 +301,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 
 		result := svc.Echo(a)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/echo_body", func(ctx *loong.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
@@ -309,7 +309,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -320,7 +320,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat1", func(ctx *loong.Context) error {
 		var a *string
@@ -337,7 +337,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat2/:a/:b", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -348,7 +348,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat3/:a/:b", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -359,7 +359,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/sub", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -378,7 +378,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.POST("/save/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -393,7 +393,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusCreated, result)
+		return ctx.Return(http.StatusCreated, result)
 	})
 	mux.POST("/save2/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -408,7 +408,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusCreated, result)
+		return ctx.Return(http.StatusCreated, result)
 	})
 	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
 		var a int
@@ -433,7 +433,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/add2/:a/:b", func(ctx *loong.Context) error {
 		var a *int
@@ -460,7 +460,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/add3", func(ctx *loong.Context) error {
 		var a *int
@@ -489,7 +489,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/query1", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -517,7 +517,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/query2/:isRaw", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -542,7 +542,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var isRaw = toBool(ctx.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/query3/:isRaw", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -567,7 +567,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var isRaw = toBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	// Misc: annotation is missing
 }
@@ -577,7 +577,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var a = ctx.QueryParam("a")
 
 		result := svc.Echo(ctx.StdContext, a)
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/echo", func(ctx *loong.Context) error {
 		result, err := svc.EchoBody(ctx.StdContext, ctx.Request().Body)
@@ -585,7 +585,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -596,7 +596,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat1", func(ctx *loong.Context) error {
 		var a *string
@@ -613,7 +613,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat2/:a/:b", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -624,7 +624,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/concat3/:a/:b", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -635,7 +635,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/sub", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -654,7 +654,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.POST("/save/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -669,7 +669,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusCreated, result)
+		return ctx.Return(http.StatusCreated, result)
 	})
 	mux.POST("/save2/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
@@ -684,7 +684,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusCreated, result)
+		return ctx.Return(http.StatusCreated, result)
 	})
 	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
 		var a int
@@ -709,7 +709,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/add2/:a/:b", func(ctx *loong.Context) error {
 		var a *int
@@ -736,7 +736,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	mux.GET("/add3", func(ctx *loong.Context) error {
 		var a *int
@@ -765,7 +765,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.Object(http.StatusOK, result)
+		return ctx.Return(http.StatusOK, result)
 	})
 	// Misc: annotation is missing
 }
