@@ -1,6 +1,7 @@
 package gengen
 
 var beeConfig = map[string]interface{}{
+	// "features.buildTag":     "bee-gen",
 	"features.httpCodeWith": true,
 	// "features.boolConvert":     "toBool({{.name}})",
 	// "features.datetimeConvert": "toDatetime({{.name}})",

@@ -144,6 +144,18 @@ func (cmd *WebServerGenerator) runFile(filename string) error {
 	}
 
 	for _, class := range file.Classes {
+
+		count := 0
+		for _, method := range class.Methods {
+			if ann := getAnnotation(method, true); ann != nil {
+				count++
+			}
+		}
+		if count == 0 {
+			out.WriteString("// " + class.Name.Name + " is skipped\r\n")
+			continue
+		}
+
 		if err := cmd.generateClass(out, file, &class); err != nil {
 			return err
 		}

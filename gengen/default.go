@@ -322,6 +322,18 @@ func (mux *DefaultStye) UseParam(param Param) string {
 	return name
 }
 
+// type ServerParam struct {
+// 	Param
+
+// 	IsSkipped  bool
+// 	ParamName  string
+// 	InitString string
+// }
+
+// func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
+
+// }
+
 func (mux *DefaultStye) InitParam(param Param) string {
 	typeStr := typePrint(param.Typ)
 	elmType := strings.TrimPrefix(typeStr, "*")

@@ -11,15 +11,6 @@ import (
 	"github.com/runner-mei/loong"
 )
 
-func httpCodeWith(err error) int {
-	if herr, ok := err.(interface {
-		HTTPCode() int
-	}); ok {
-		return herr.HTTPCode()
-	}
-	return http.StatusInternalServerError
-}
-
 func InitStringSvc(mux loong.Party, svc StringSvc) {
 	mux.GET("/echo", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -91,7 +82,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(start, s, err))
+				ctx.Error(loong.ErrBadArgument("start", s, err))
 				return nil
 			}
 			start = startValue
@@ -108,7 +99,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			ctx.Error(loong.ErrBadArgument("b", "<no value>", err))
 			return nil
 		}
 
@@ -123,7 +114,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			ctx.Error(loong.ErrBadArgument("b", "<no value>", err))
 			return nil
 		}
 
@@ -138,7 +129,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.Error(loong.ErrBadArgument(a, s, err))
+			ctx.Error(loong.ErrBadArgument("a", s, err))
 			return nil
 		} else {
 			a = int(aValue)
@@ -146,7 +137,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.Error(loong.ErrBadArgument(b, s, err))
+			ctx.Error(loong.ErrBadArgument("b", s, err))
 			return nil
 		} else {
 			b = int(bValue)
@@ -163,7 +154,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.Error(loong.ErrBadArgument(a, s, err))
+			ctx.Error(loong.ErrBadArgument("a", s, err))
 			return nil
 		} else {
 			a = new(int)
@@ -172,7 +163,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.Error(loong.ErrBadArgument(b, s, err))
+			ctx.Error(loong.ErrBadArgument("b", s, err))
 			return nil
 		} else {
 			b = new(int)
@@ -191,7 +182,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("a"); s != "" {
 			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(a, s, err))
+				ctx.Error(loong.ErrBadArgument("a", s, err))
 				return nil
 			}
 			a = new(int)
@@ -201,7 +192,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("b"); s != "" {
 			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(b, s, err))
+				ctx.Error(loong.ErrBadArgument("b", s, err))
 				return nil
 			}
 			b = new(int)
@@ -221,7 +212,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("beginAt"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				ctx.Error(loong.ErrBadArgument("beginAt", s, err))
 				return nil
 			}
 			beginAt = beginAtValue
@@ -230,7 +221,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("endAt"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				ctx.Error(loong.ErrBadArgument("endAt", s, err))
 				return nil
 			}
 			endAt = endAtValue
@@ -249,7 +240,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("beginAt"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				ctx.Error(loong.ErrBadArgument("beginAt", s, err))
 				return nil
 			}
 			beginAt = beginAtValue
@@ -258,7 +249,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("endAt"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				ctx.Error(loong.ErrBadArgument("endAt", s, err))
 				return nil
 			}
 			endAt = endAtValue
@@ -274,7 +265,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("beginAt"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				ctx.Error(loong.ErrBadArgument("beginAt", s, err))
 				return nil
 			}
 			beginAt = beginAtValue
@@ -283,7 +274,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("endAt"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				ctx.Error(loong.ErrBadArgument("endAt", s, err))
 				return nil
 			}
 			endAt = endAtValue
@@ -367,7 +358,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(start, s, err))
+				ctx.Error(loong.ErrBadArgument("start", s, err))
 				return nil
 			}
 			start = startValue
@@ -384,7 +375,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			ctx.Error(loong.ErrBadArgument("b", "<no value>", err))
 			return nil
 		}
 
@@ -399,7 +390,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			ctx.Error(loong.ErrBadArgument("b", "<no value>", err))
 			return nil
 		}
 
@@ -414,7 +405,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.Error(loong.ErrBadArgument(a, s, err))
+			ctx.Error(loong.ErrBadArgument("a", s, err))
 			return nil
 		} else {
 			a = int(aValue)
@@ -422,7 +413,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.Error(loong.ErrBadArgument(b, s, err))
+			ctx.Error(loong.ErrBadArgument("b", s, err))
 			return nil
 		} else {
 			b = int(bValue)
@@ -439,7 +430,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.Error(loong.ErrBadArgument(a, s, err))
+			ctx.Error(loong.ErrBadArgument("a", s, err))
 			return nil
 		} else {
 			a = new(int)
@@ -448,7 +439,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.Error(loong.ErrBadArgument(b, s, err))
+			ctx.Error(loong.ErrBadArgument("b", s, err))
 			return nil
 		} else {
 			b = new(int)
@@ -467,7 +458,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("a"); s != "" {
 			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(a, s, err))
+				ctx.Error(loong.ErrBadArgument("a", s, err))
 				return nil
 			}
 			a = new(int)
@@ -477,7 +468,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("b"); s != "" {
 			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(b, s, err))
+				ctx.Error(loong.ErrBadArgument("b", s, err))
 				return nil
 			}
 			b = new(int)
@@ -497,7 +488,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("beginAt"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				ctx.Error(loong.ErrBadArgument("beginAt", s, err))
 				return nil
 			}
 			beginAt = beginAtValue
@@ -506,7 +497,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("endAt"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				ctx.Error(loong.ErrBadArgument("endAt", s, err))
 				return nil
 			}
 			endAt = endAtValue
@@ -525,7 +516,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("beginAt"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				ctx.Error(loong.ErrBadArgument("beginAt", s, err))
 				return nil
 			}
 			beginAt = beginAtValue
@@ -534,7 +525,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("endAt"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				ctx.Error(loong.ErrBadArgument("endAt", s, err))
 				return nil
 			}
 			endAt = endAtValue
@@ -550,7 +541,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("beginAt"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(beginAt, s, err))
+				ctx.Error(loong.ErrBadArgument("beginAt", s, err))
 				return nil
 			}
 			beginAt = beginAtValue
@@ -559,7 +550,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("endAt"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(endAt, s, err))
+				ctx.Error(loong.ErrBadArgument("endAt", s, err))
 				return nil
 			}
 			endAt = endAtValue
@@ -643,7 +634,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		if s := ctx.QueryParam("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(start, s, err))
+				ctx.Error(loong.ErrBadArgument("start", s, err))
 				return nil
 			}
 			start = startValue
@@ -660,7 +651,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			ctx.Error(loong.ErrBadArgument("b", "<no value>", err))
 			return nil
 		}
 
@@ -675,7 +666,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.Error(loong.ErrBadArgument(b, "<no value>", err))
+			ctx.Error(loong.ErrBadArgument("b", "<no value>", err))
 			return nil
 		}
 
@@ -690,7 +681,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.Error(loong.ErrBadArgument(a, s, err))
+			ctx.Error(loong.ErrBadArgument("a", s, err))
 			return nil
 		} else {
 			a = int(aValue)
@@ -698,7 +689,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.Error(loong.ErrBadArgument(b, s, err))
+			ctx.Error(loong.ErrBadArgument("b", s, err))
 			return nil
 		} else {
 			b = int(bValue)
@@ -715,7 +706,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.Error(loong.ErrBadArgument(a, s, err))
+			ctx.Error(loong.ErrBadArgument("a", s, err))
 			return nil
 		} else {
 			a = new(int)
@@ -724,7 +715,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.Error(loong.ErrBadArgument(b, s, err))
+			ctx.Error(loong.ErrBadArgument("b", s, err))
 			return nil
 		} else {
 			b = new(int)
@@ -743,7 +734,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		if s := ctx.QueryParam("a"); s != "" {
 			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(a, s, err))
+				ctx.Error(loong.ErrBadArgument("a", s, err))
 				return nil
 			}
 			a = new(int)
@@ -753,7 +744,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		if s := ctx.QueryParam("b"); s != "" {
 			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.Error(loong.ErrBadArgument(b, s, err))
+				ctx.Error(loong.ErrBadArgument("b", s, err))
 				return nil
 			}
 			b = new(int)

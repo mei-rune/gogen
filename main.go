@@ -28,7 +28,7 @@ func main() {
 		return
 	}
 
-	var gen Generator
+	var gen gengen.Generator
 	switch args[0] {
 	case "server":
 		gen = &gengen.WebServerGenerator{}
@@ -39,10 +39,14 @@ func main() {
 		return
 	}
 
-	fset := flag.NewFlagSet(name, flag.ExitOnError)
+	fset := flag.NewFlagSet(args[0], flag.ExitOnError)
 	gen.Flags(fset)
-	args = fset.Parse(args)
-	if err := gen.Run(args); err != nil {
+	err := fset.Parse(args[1:])
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if err := gen.Run(fset.Args()); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}

@@ -1,6 +1,7 @@
 package gengen
 
 var ginConfig = map[string]interface{}{
+	// "features.buildTag":     "gin",
 	"features.httpCodeWith": true,
 	// "features.boolConvert":     "toBool({{.name}})",
 	// "features.datetimeConvert": "toDatetime({{.name}})",

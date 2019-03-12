@@ -1,6 +1,7 @@
 package gengen
 
 var echoConfig = map[string]interface{}{
+	"features.buildTag":     "echo-gen",
 	"features.httpCodeWith": true,
 	// "features.boolConvert":     "toBool({{.name}})",
 	// "features.datetimeConvert": "toDatetime({{.name}})",

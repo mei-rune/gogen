@@ -16,20 +16,48 @@ import (
 type WebClientGenerator struct {
 	GeneratorBase
 	config ClientConfig
+	file   string
 }
 
 func (cmd *WebClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
+	if cmd.ext == "" {
+		cmd.ext = ".client-gen.go"
+	}
+
 	fs = cmd.GeneratorBase.Flags(fs)
-	fs.StringVar(&cmd.config.RestyName, "resty", "Proxy", "")
+	fs.StringVar(&cmd.file, "config", "", "配置文件名")
+	fs.StringVar(&cmd.config.RestyName, "resty", "*resty.Proxy", "")
 	fs.StringVar(&cmd.config.ContextClassName, "context", "context.Context", "")
-	fs.StringVar(&cmd.config.newRequest, "new-request", "NewRequest({{.proxy}},{{.url}})", "")
-	fs.StringVar(&cmd.config.releaseRequest, "free-request", "ReleaseRequest({{.proxy}},{{.request}})", "")
+	fs.StringVar(&cmd.config.newRequest, "new-request", "resty.NewRequest({{.proxy}},{{.url}})", "")
+	fs.StringVar(&cmd.config.releaseRequest, "free-request", "resty.ReleaseRequest({{.proxy}},{{.request}})", "")
 	return fs
 }
 
 func (cmd *WebClientGenerator) Run(args []string) error {
 	if cmd.ext == "" {
-		cmd.ext = ".clientgen.go"
+		cmd.ext = ".client-gen.go"
+	}
+
+	if cmd.file != "" {
+		cfg, err := readConfig(cmd.file)
+		if err != nil {
+			log.Fatalln(err)
+			return err
+		}
+
+		if err := toStruct(cmd.config, cfg); err != nil {
+			log.Fatalln(err)
+			return err
+		}
+
+		if cmd.buildTag == "" {
+			cmd.buildTag = stringWith(cfg, "features.buildTag", cmd.buildTag)
+		}
+		cmd.imports = readImports(cfg)
+	} else {
+		cmd.imports = map[string]string{
+			"github.com/runner-mei/loong/resty": "",
+		}
 	}
 
 	var e error
@@ -78,6 +106,16 @@ func (cmd *WebClientGenerator) runFile(filename string) error {
 	}
 
 	for _, class := range file.Classes {
+		count := 0
+		for _, method := range class.Methods {
+			if ann := getAnnotation(method, true); ann != nil {
+				count++
+			}
+		}
+		if count == 0 {
+			out.WriteString("// " + class.Name.Name + " is skipped\r\n")
+			continue
+		}
 		if err := cmd.generateClass(out, file, &class); err != nil {
 			return err
 		}
