@@ -37,8 +37,16 @@ var ginConfig = map[string]interface{}{
 		// "PATCH":   "Patch",
 		"ANY": "Any",
 	},
-	// "types": map[string]interface{}{
-	// 	"required": map[string]interface{}{},
-	// 	"optional": map[string]interface{}{},
-	// },
+	"types": map[string]interface{}{
+		// "required": map[string]interface{}{
+		// 	"int": map[string]interface{}{
+		//     "name": "IntParam",
+		//   },
+		// },
+		// "optional": map[string]interface{}{
+		// 	"int": map[string]interface{}{
+		//     "name": "QueryIntParam",
+		//   },
+		// },
+	},
 }

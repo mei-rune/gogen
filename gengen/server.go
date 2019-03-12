@@ -240,9 +240,13 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{- else -}}
     result, err
     {{- end -}} := svc.{{$method.Name}}(
+      {{- $isFirst := true}}
       {{- range $idx, $param := $paramList}}
+        {{- if $param.IsSkippedUse -}}
+        {{- else -}}
+        {{- if $isFirst -}}{{- $isFirst = false -}}{{- else -}},{{- end -}}
         {{- $param.ParamName }}
-        {{- if isLast $method.Params.List $idx | not -}},{{- end -}}
+        {{- end -}}
       {{- end -}})
 
     {{- if eq 1 (len $method.Results.List) }}

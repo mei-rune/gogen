@@ -21,6 +21,7 @@ type ConvertArgs struct {
 }
 
 type DefaultStye struct {
+	classes           []Class
 	FuncSignatureStr  string            `json:"func_signature"`
 	CtxNameStr        string            `json:"ctx_name"`
 	CtxTypeStr        string            `json:"ctx_type"`
@@ -276,10 +277,11 @@ func (mux *DefaultStye) GetPath(method Method) string {
 type ServerParam struct {
 	Param
 
-	IsSkipped  bool
-	InBody     bool
-	ParamName  string
-	InitString string
+	IsSkipped    bool
+	IsSkippedUse bool
+	InBody       bool
+	ParamName    string
+	InitString   string
 }
 
 func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) string {
@@ -355,6 +357,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) ServerP
 	typeStr := typePrint(param.Typ)
 	elmType := strings.TrimPrefix(typeStr, "*")
 	hasStar := typeStr != elmType
+
 	funcs := template.FuncMap{
 		"badArgument": func(paramName, valueName, errName string) string {
 			return mux.BadArgumentFunc(method, fmt.Sprintf(mux.BadArgumentFormat, paramName, valueName, errName))
@@ -401,7 +404,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) ServerP
 			return serverParam
 		}
 
-		if strings.HasPrefix(typeStr, "*") {
+		if hasStar {
 			serverParam.ParamName = "&" + serverParam.ParamName
 		}
 
@@ -452,7 +455,8 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) ServerP
 			serverParam.ParamName = "bindArgs." + Goify(serverParam.Param.Name.Name, true)
 			return serverParam
 		}
-	} else if strings.HasPrefix(typeStr, "*") {
+
+	} else if hasStar {
 		if typeStr == "*string" {
 			serverParam.ParamName = "&" + name
 		} else if mux.Converts != nil {
@@ -465,7 +469,13 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) ServerP
 		}
 	}
 
-	var sb strings.Builder
+	serverParam.InitString = strings.TrimSpace(mux.initString(method, param, funcs, optional, typeStr, elmType, name, paramName, readParam))
+	return serverParam
+}
+
+func (mux *DefaultStye) initString(method Method, param Param, funcs template.FuncMap, optional bool, typeStr, elmType, name, paramName, readParam string) string {
+	var hasStar = typeStr != elmType
+
 	var immediate bool
 	if optional {
 		_, immediate = mux.Types.Optional[elmType]
@@ -473,8 +483,9 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) ServerP
 		_, immediate = mux.Types.Required[elmType]
 	}
 
+	var sb strings.Builder
 	if immediate {
-		if !strings.HasPrefix(typeStr, "*") {
+		if !hasStar {
 			requiredTxt := template.Must(template.New("requiredTxt").Funcs(funcs).Parse(`
 		var {{.name}} = {{readRequired .ctx .rname}}
 		`))
@@ -649,9 +660,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) ServerP
 		}
 	}
 
-	serverParam.InitString = strings.TrimSpace(sb.String())
-
-	return serverParam
+	return sb.String()
 }
 
 func (mux *DefaultStye) RouteFunc(method Method) string {

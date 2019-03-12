@@ -43,6 +43,15 @@ type (
 
 		Annotations []Annotation
 		Methods     []Method
+		Fields      []Field
+	}
+
+	Field struct {
+		Clazz *Class `json:"-"`
+		Node  *ast.Field
+		Name  *ast.Ident
+		Typ   ast.Expr      // field/method/parameter type
+		Tag   *ast.BasicLit // field tag; or nil
 	}
 
 	interfaceTypeVisitor struct {
@@ -55,6 +64,7 @@ type (
 		node    *ast.TypeSpec
 		ts      *typeSpecVisitor
 		methods []Method
+		fields  []Field
 	}
 
 	Method struct {
@@ -218,15 +228,18 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 }
 
 func (v *structVisitor) Visit(n ast.Node) ast.Visitor {
-	switch n.(type) {
+	switch rn := n.(type) {
 	default:
 		return v
 	case *ast.FieldList:
 		return nil
 	case *ast.Field:
+		for _, name := range rn.Names {
+			v.fields = append(v.fields, Field{Node: rn, Name: name, Typ: rn.Type, Tag: rn.Tag})
+		}
 		return nil
 	case nil:
-		v.ts.iface = &Class{Methods: v.methods}
+		v.ts.iface = &Class{Methods: v.methods, Fields: v.fields}
 		return nil
 	}
 }
@@ -442,4 +455,49 @@ func typePrint(typ ast.Node) string {
 		log.Fatalln(err)
 	}
 	return buf.String()
+}
+
+var RangeDefineds = []string{}
+
+func IsRange(classes []Class, typ ast.Expr) bool {
+	name := strings.TrimPrefix(typePrint(typ), "*")
+	for _, a := range RangeDefineds {
+		if a == name {
+			return true
+		}
+	}
+
+	var cls *Class
+	for idx := range classes {
+		if classes[idx].Name.Name == name {
+			cls = &classes[idx]
+			break
+		}
+	}
+	if cls == nil {
+		return false
+	}
+
+	if len(cls.Fields) != 2 {
+		return false
+	}
+
+	var hasStart, hasEnd bool
+	for _, field := range cls.Fields {
+		if field.Name.Name == "Start" {
+			hasStart = true
+		} else if field.Name.Name == "End" {
+			hasEnd = true
+		}
+	}
+	if !hasStart || !hasEnd {
+		return false
+	}
+
+	aType := strings.TrimPrefix(typePrint(cls.Fields[0].Typ), "*")
+	bType := strings.TrimPrefix(typePrint(cls.Fields[1].Typ), "*")
+	if aType != bType {
+		return false
+	}
+	return true
 }
