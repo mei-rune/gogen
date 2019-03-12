@@ -273,109 +273,26 @@ func (mux *DefaultStye) GetPath(method Method) string {
 	return pa
 }
 
-func (mux *DefaultStye) UseParam(param Param) string {
-	name := param.Name.Name
-	if name == "result" {
-		name = "result_"
-	}
+type ServerParam struct {
+	Param
 
-	typeStr := typePrint(param.Typ)
-	anno := getAnnotation(*param.Method, false)
-	if anno.Attributes["data"] == param.Name.Name {
-		if typeStr == "io.Reader" {
-			return mux.bodyReader
-		}
-
-		if strings.HasPrefix(typeStr, "*") {
-			return "&" + name
-		}
-		return name
-	}
-
-	if s, ok := mux.Reserved[typeStr]; ok {
-		return s
-	}
-
-	if strings.HasPrefix(typeStr, "*") {
-
-		_, pathNames, _ := mux.ParseURL(anno.Attributes["path"])
-		for _, name := range pathNames {
-			if name == param.Name.Name {
-
-				if typeStr == "*string" {
-					return "&" + name
-				}
-
-				if mux.Converts != nil {
-					convertArgs, ok := mux.Converts[strings.TrimPrefix(typeStr, "*")]
-					if ok {
-						if !convertArgs.HasError {
-							return "&" + name
-						}
-					}
-				}
-
-			}
-		}
-	}
-
-	return name
+	IsSkipped  bool
+	ParamName  string
+	InitString string
 }
 
-// type ServerParam struct {
-// 	Param
+func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
+	var results []ServerParam
+	for idx := range method.Params.List {
+		results = append(results, mux.ToParam(method, method.Params.List[idx]))
+	}
+	return results
+}
 
-// 	IsSkipped  bool
-// 	ParamName  string
-// 	InitString string
-// }
-
-// func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
-
-// }
-
-func (mux *DefaultStye) InitParam(param Param) string {
+func (mux *DefaultStye) ToParam(method Method, param Param) ServerParam {
 	typeStr := typePrint(param.Typ)
 	elmType := strings.TrimPrefix(typeStr, "*")
 	hasStar := typeStr != elmType
-
-	anno := getAnnotation(*param.Method, false)
-	inBody := anno.Attributes["data"] == param.Name.Name
-	if inBody {
-		if typeStr == "io.Reader" {
-			return ""
-		}
-	} else if _, ok := mux.Reserved[typeStr]; ok {
-		return ""
-	}
-
-	name := param.Name.Name
-	if name == "result" {
-		name = "result_"
-	}
-
-	_, pathNames, queryNames := mux.ParseURL(anno.Attributes["path"])
-
-	var optional = true
-	var readParam = mux.PathParam
-	var paramName = param.Name.Name
-
-	isPath := false
-	for _, name := range pathNames {
-		if name == param.Name.Name {
-			isPath = true
-			optional = false
-			break
-		}
-	}
-	if !isPath {
-		optional = true
-		readParam = mux.QueryParam
-		if s, ok := queryNames[param.Name.Name]; ok && s != "" {
-			paramName = s
-		}
-	}
-
 	funcs := template.FuncMap{
 		"badArgument": func(paramName, valueName, errName string) string {
 			return mux.BadArgumentFunc(*param.Method, fmt.Sprintf(mux.BadArgumentFormat, paramName, valueName, errName))
@@ -401,8 +318,31 @@ func (mux *DefaultStye) InitParam(param Param) string {
 		},
 	}
 
-	var sb strings.Builder
+	serverParam := ServerParam{
+		Param:     param,
+		ParamName: param.Name.Name,
+	}
+
+	var readParam = mux.PathParam
+	var paramName = param.Name.Name
+	var name = serverParam.ParamName
+	if name == "result" {
+		name = "result_"
+	}
+
+	anno := getAnnotation(*param.Method, false)
+	inBody := anno.Attributes["data"] == param.Name.Name
 	if inBody {
+
+		if typeStr == "io.Reader" {
+			serverParam.ParamName = mux.bodyReader
+			return serverParam
+		}
+
+		if strings.HasPrefix(typeStr, "*") {
+			serverParam.ParamName = "&" + serverParam.ParamName
+		}
+
 		bindTxt := template.Must(template.New("bindTxt").Funcs(funcs).Parse(`
 		var {{.name}} {{.type}}
 		if err := {{readBody .ctx .name}}; err != nil {
@@ -418,10 +358,47 @@ func (mux *DefaultStye) InitParam(param Param) string {
 			"readParam": mux.ReadBody,
 		}
 
+		var sb strings.Builder
 		renderText(bindTxt, &sb, renderArgs)
-		return strings.TrimSpace(sb.String())
+		serverParam.InitString = strings.TrimSpace(sb.String())
+		return serverParam
+	} else if s, ok := mux.Reserved[typeStr]; ok {
+		serverParam.ParamName = s
+		return serverParam
 	}
 
+	_, pathNames, queryNames := mux.ParseURL(anno.Attributes["path"])
+
+	var optional = true
+
+	isPath := false
+	for _, name := range pathNames {
+		if name == param.Name.Name {
+			isPath = true
+			optional = false
+			break
+		}
+	}
+	if !isPath {
+		optional = true
+		readParam = mux.QueryParam
+		if s, ok := queryNames[param.Name.Name]; ok && s != "" {
+			paramName = s
+		}
+	} else if strings.HasPrefix(typeStr, "*") {
+		if typeStr == "*string" {
+			serverParam.ParamName = "&" + name
+		} else if mux.Converts != nil {
+			convertArgs, ok := mux.Converts[strings.TrimPrefix(typeStr, "*")]
+			if ok {
+				if !convertArgs.HasError {
+					serverParam.ParamName = "&" + name
+				}
+			}
+		}
+	}
+
+	var sb strings.Builder
 	var immediate bool
 	if optional {
 		_, immediate = mux.Types.Optional[elmType]
@@ -607,7 +584,9 @@ func (mux *DefaultStye) InitParam(param Param) string {
 		}
 	}
 
-	return strings.TrimSpace(sb.String())
+	serverParam.InitString = strings.TrimSpace(sb.String())
+
+	return serverParam
 }
 
 func (mux *DefaultStye) RouteFunc(method Method) string {

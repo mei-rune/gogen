@@ -26,8 +26,7 @@ type MuxStye interface {
 	// ReadParam(param Param, name string) string
 
 	RouteParty() string
-	InitParam(param Param) string
-	UseParam(param Param) string
+	ToParamList(method Method) []ServerParam
 
 	FuncSignature() string
 	RouteFunc(method Method) string
@@ -212,12 +211,12 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
   // {{$method.Name.Name}}: {{$skipResult.Message}} 
   {{- end}}
   {{- else}}
+  {{- $paramList := $.mux.ToParamList $method }}
   mux.{{$.mux.RouteFunc $method}}("{{$.mux.GetPath $method}}", {{$.mux.FuncSignature}}{
     {{- $hasInitParam := false}}
-    {{- range $param := $method.Params.List}}
-      {{- $initStatment := $.mux.InitParam $param }}
-      {{- if $initStatment}}
-      {{$initStatment}}
+    {{- range $param := $paramList}}
+      {{- if $param.InitString}}
+      {{$param.InitString}}
       {{- $hasInitParam = true}}
       {{- end}}
     {{- end}}
@@ -234,8 +233,8 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{- else -}}
     result, err
     {{- end -}} := svc.{{$method.Name}}(
-      {{- range $idx, $param := $method.Params.List -}}
-        {{- $.mux.UseParam $param }}
+      {{- range $idx, $param := $paramList}}
+        {{- $param.ParamName }}
         {{- if isLast $method.Params.List $idx | not -}},{{- end -}}
       {{- end -}})
 
