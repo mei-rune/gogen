@@ -234,10 +234,12 @@ type ParamConfig struct {
 	Param
 
 	QueryParamName string
-	IsSkipped      bool
+	IsSkipDeclared bool
+	IsSkipUse      bool
 	IsQueryParam   bool
 	IsPathParam    bool
 	IsBodyParam    bool
+	Values         []Param
 }
 
 func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
@@ -250,8 +252,14 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	data := anno.Attributes["data"]
 	_, pathNames, queryNames := parseURL(rawurl)
 
+	methodStr := strings.ToUpper(strings.TrimPrefix(anno.Name, "http."))
+	isEdit := methodStr == "PUT" || methodStr == "POST"
+
+	var inBody []Param
+	var bodyExists bool
+
 	paramList := make([]ParamConfig, 0, len(method.Params.List))
-	for _, param := range method.Params.List {
+	for idx, param := range method.Params.List {
 		cp := ParamConfig{
 			Param:          param,
 			QueryParamName: param.Name.Name,
@@ -259,7 +267,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 		typ := typePrint(param.Typ)
 		if strings.HasSuffix(typ, ".Context") {
-			cp.IsSkipped = true
+			cp.IsSkipDeclared = true
 			paramList = append(paramList, cp)
 			continue
 		}
@@ -273,8 +281,13 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		if !cp.IsPathParam {
 			if data != "" && data == param.Name.Name {
 				cp.IsBodyParam = true
+				bodyExists = true
 			} else if newName, ok := queryNames[param.Name.Name]; ok && newName != "" {
 				cp.QueryParamName = newName
+			} else if isEdit {
+				inBody = append(inBody, method.Params.List[idx])
+				cp.IsSkipUse = true
+				cp.IsBodyParam = true
 			}
 		}
 
@@ -283,6 +296,23 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		}
 
 		paramList = append(paramList, cp)
+	}
+
+	if len(inBody) > 0 {
+		if bodyExists {
+			var names []string
+			for _, a := range inBody {
+				names = append(names, a.Name.Name)
+			}
+			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": params '" + strings.Join(names, ",") + "' method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is invalid - ")
+			log.Fatalln(err)
+		}
+
+		paramList = append(paramList, ParamConfig{
+			IsSkipDeclared: true,
+			IsBodyParam:    true,
+			Values:         inBody,
+		})
 	}
 	return paramList
 }
@@ -342,9 +372,9 @@ type {{.config.ClassName}} struct {
 {{$paramList := ($.config.ToParamList $method) }}
 {{$resultList := ($.config.ToResultList $method) }}
 func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.ContextClassName}}{{- range $param := $paramList -}}
-    {{$typeName := typePrint $param.Typ}}
-    {{- if $param.IsSkipped -}}
+    {{- if $param.IsSkipDeclared -}}
     {{- else -}}
+    {{- $typeName := typePrint $param.Typ -}}
     , {{$param.Name}} {{$typeName}}
     {{- end}}
   {{- end}}) ({{- range $result := $resultList -}}
@@ -367,13 +397,22 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   request := {{$.config.NewRequest "client.proxy" ($.config.GetPath $method $paramList) }}
   {{- $needAssignment := false -}}
   {{- range $param := $paramList -}}
-    {{- if $param.IsBodyParam -}}
+    {{- if $param.IsSkipUse -}}
+    {{- else if $param.IsBodyParam -}}
     {{- if $needAssignment}}
     request = request.
     {{- else -}}
     .
     {{end -}}
+    {{- if $param.Values -}}
+    SetBody(map[string]interface{}{
+      {{- range $a := $param.Values}}
+      "{{$a.Name.Name}}": {{$a.Name.Name}},
+      {{- end}}
+    })
+    {{- else -}}
     SetBody({{$param.Name}})
+    {{- end}}
     {{- $needAssignment = false -}}
     {{- else if $param.IsQueryParam -}}
     {{- $typeName := typePrint $param.Param.Typ -}}

@@ -166,6 +166,48 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
+	mux.Post("/save3", func(ctx *beecontext.Context) {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &bindArgs); err != nil {
+			ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err)))
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Post("/save4", func(ctx *beecontext.Context) {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &bindArgs); err != nil {
+			ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err)))
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Save4(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
 	mux.Get("/add/:a/:b", func(ctx *beecontext.Context) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Input.Param("a"), 10, 64); err != nil {
@@ -489,6 +531,48 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		}
 
 		result, err := svc.Save2(&a, &b)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Post("/save3", func(ctx *beecontext.Context) {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &bindArgs); err != nil {
+			ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err)))
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Post("/save4", func(ctx *beecontext.Context) {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &bindArgs); err != nil {
+			ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err)))
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Save4(bindArgs.A, bindArgs.B)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())

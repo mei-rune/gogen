@@ -125,6 +125,40 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		return ctx.Return(http.StatusCreated, result)
 	})
+	mux.POST("/save3", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(loong.ErrBadArgument("bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Return(http.StatusCreated, result)
+	})
+	mux.POST("/save4", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(loong.ErrBadArgument("bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Save4(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Return(http.StatusCreated, result)
+	})
 	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
@@ -395,6 +429,40 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 
 		result, err := svc.Save2(&a, &b)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Return(http.StatusCreated, result)
+	})
+	mux.POST("/save3", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(loong.ErrBadArgument("bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.Return(http.StatusCreated, result)
+	})
+	mux.POST("/save4", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(loong.ErrBadArgument("bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Save4(bindArgs.A, bindArgs.B)
 		if err != nil {
 			ctx.Error(err)
 			return nil

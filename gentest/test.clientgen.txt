@@ -136,6 +136,38 @@ func (client StringSvcClient) Save2(ctx context.Context, a *string, b *string) (
 	return result, err
 }
 
+func (client StringSvcClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/save3").
+		SetBody(map[string]interface{}{
+			"a": a,
+			"b": b,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcClient) Save4(ctx context.Context, a string, b string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/save4").
+		SetBody(map[string]interface{}{
+			"a": a,
+			"b": b,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
 func (client StringSvcClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
@@ -185,7 +217,7 @@ func (client StringSvcClient) Query1(ctx context.Context, a string, beginAt time
 		SetParam("a", a).
 		SetParam("beginAt", beginAt.Format(TimeFormat)).
 		SetParam("endAt", endAt.Format(TimeFormat)).
-		SetParam("isRaw", BoolToString(isRaw, 10)).
+		SetParam("isRaw", BoolToString(isRaw)).
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -197,7 +229,7 @@ func (client StringSvcClient) Query1(ctx context.Context, a string, beginAt time
 func (client StringSvcClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw, 10)+"").
+	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw)+"").
 		SetParam("a", a).
 		SetParam("beginAt", beginAt.Format(TimeFormat)).
 		SetParam("endAt", endAt.Format(TimeFormat)).
@@ -212,7 +244,7 @@ func (client StringSvcClient) Query2(ctx context.Context, a string, beginAt time
 func (client StringSvcClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw, 10)+"").
+	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
 		SetParam("beginAt", beginAt.Format(TimeFormat)).
 		SetParam("endAt", endAt.Format(TimeFormat)).
@@ -352,6 +384,38 @@ func (client StringSvcImplClient) Save2(ctx context.Context, a *string, b *strin
 	return result, err
 }
 
+func (client StringSvcImplClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/save3").
+		SetBody(map[string]interface{}{
+			"a": a,
+			"b": b,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/save4").
+		SetBody(map[string]interface{}{
+			"a": a,
+			"b": b,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
 func (client StringSvcImplClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
@@ -401,7 +465,7 @@ func (client StringSvcImplClient) Query1(ctx context.Context, a string, beginAt 
 		SetParam("a", a).
 		SetParam("beginAt", beginAt.Format(TimeFormat)).
 		SetParam("endAt", endAt.Format(TimeFormat)).
-		SetParam("isRaw", BoolToString(isRaw, 10)).
+		SetParam("isRaw", BoolToString(isRaw)).
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -413,7 +477,7 @@ func (client StringSvcImplClient) Query1(ctx context.Context, a string, beginAt 
 func (client StringSvcImplClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw, 10)+"").
+	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw)+"").
 		SetParam("a", a).
 		SetParam("beginAt", beginAt.Format(TimeFormat)).
 		SetParam("endAt", endAt.Format(TimeFormat)).
@@ -428,7 +492,7 @@ func (client StringSvcImplClient) Query2(ctx context.Context, a string, beginAt 
 func (client StringSvcImplClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw, 10)+"").
+	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
 		SetParam("beginAt", beginAt.Format(TimeFormat)).
 		SetParam("endAt", endAt.Format(TimeFormat)).

@@ -26,6 +26,8 @@ type MuxStye interface {
 	// ReadParam(param Param, name string) string
 
 	RouteParty() string
+
+	ToBindString(method Method, results []ServerParam) string
 	ToParamList(method Method) []ServerParam
 
 	FuncSignature() string
@@ -219,6 +221,11 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
       {{$param.InitString}}
       {{- $hasInitParam = true}}
       {{- end}}
+    {{- end}}
+    {{- $bindParams := $.mux.ToBindString $method $paramList}}
+    {{- if $bindParams}}
+      {{$bindParams}}
+      {{- $hasInitParam = true}}
     {{- end}}
     {{- if $hasInitParam }}
     {{/* generate a empty line*/}}

@@ -118,9 +118,9 @@ func convertToStringLiteral(param Param) string {
 	case "*uint64":
 		return "strconv.FormatUint(*" + param.Name.Name + ", 10)"
 	case "bool":
-		return "BoolToString(" + param.Name.Name + ", 10)"
+		return "BoolToString(" + param.Name.Name + ")"
 	case "*bool":
-		return "BoolToString(*" + param.Name.Name + ", 10)"
+		return "BoolToString(*" + param.Name.Name + ")"
 	case "time.Time", "*time.Time":
 		return param.Name.Name + ".Format(TimeFormat)"
 	case "net.IP", "*net.IP":

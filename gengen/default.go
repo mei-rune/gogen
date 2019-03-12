@@ -277,25 +277,87 @@ type ServerParam struct {
 	Param
 
 	IsSkipped  bool
+	InBody     bool
 	ParamName  string
 	InitString string
 }
 
+func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) string {
+
+	has := false
+	for idx := range results {
+		if results[idx].InBody {
+			has = true
+			break
+		}
+	}
+
+	if !has {
+		return ""
+	}
+
+	funcs := template.FuncMap{
+		"badArgument": func(paramName, valueName, errName string) string {
+			return mux.BadArgumentFunc(method, fmt.Sprintf(mux.BadArgumentFormat, paramName, valueName, errName))
+		},
+		"readBody": func(ctxName, paramName string) string {
+			var sb strings.Builder
+			renderText(mux.bindTemplate, &sb, map[string]interface{}{"ctx": ctxName, "name": paramName})
+			return sb.String()
+		},
+		"concat": func(args ...string) string {
+			var sb strings.Builder
+			for _, s := range args {
+				sb.WriteString(s)
+			}
+			return sb.String()
+		},
+		"goify": Goify,
+	}
+
+	bindTxt := template.Must(template.New("bindTxt").Funcs(Funcs).Funcs(funcs).Parse(`
+			var bindArgs struct {
+				{{- range $param := .params}}
+				{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{$param.Param.Name.Name}},omitempty\"`" + `
+				{{- end}}
+			}
+			if err := {{readBody .ctx "bindArgs"}}; err != nil {
+				{{badArgument "bindArgs" "\"body\"" "err"}}
+			}
+		`))
+
+	// serverParam.InBody = true
+	// serverParam.InitString = ""
+	// serverParam.ParamName = "bindArgs." + Goify(serverParam.Param.Name.Name, true)
+	var sb strings.Builder
+	renderText(bindTxt, &sb, map[string]interface{}{
+		"ctx":    mux.CtxName(),
+		"params": results,
+	})
+	return strings.TrimSpace(sb.String())
+}
+
 func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
 	var results []ServerParam
+
+	ann := getAnnotation(method, false)
+	methodStr := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
+	isEdit := methodStr == "PUT" || methodStr == "POST"
+
 	for idx := range method.Params.List {
-		results = append(results, mux.ToParam(method, method.Params.List[idx]))
+		results = append(results, mux.ToParam(method, method.Params.List[idx], isEdit))
 	}
+
 	return results
 }
 
-func (mux *DefaultStye) ToParam(method Method, param Param) ServerParam {
+func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) ServerParam {
 	typeStr := typePrint(param.Typ)
 	elmType := strings.TrimPrefix(typeStr, "*")
 	hasStar := typeStr != elmType
 	funcs := template.FuncMap{
 		"badArgument": func(paramName, valueName, errName string) string {
-			return mux.BadArgumentFunc(*param.Method, fmt.Sprintf(mux.BadArgumentFormat, paramName, valueName, errName))
+			return mux.BadArgumentFunc(method, fmt.Sprintf(mux.BadArgumentFormat, paramName, valueName, errName))
 		},
 		"readBody": func(ctxName, paramName string) string {
 			return mux.ReadBody(param, ctxName, paramName)
@@ -328,12 +390,12 @@ func (mux *DefaultStye) ToParam(method Method, param Param) ServerParam {
 	var name = serverParam.ParamName
 	if name == "result" {
 		name = "result_"
+		serverParam.ParamName = "result_"
 	}
 
 	anno := getAnnotation(*param.Method, false)
 	inBody := anno.Attributes["data"] == param.Name.Name
 	if inBody {
-
 		if typeStr == "io.Reader" {
 			serverParam.ParamName = mux.bodyReader
 			return serverParam
@@ -372,8 +434,8 @@ func (mux *DefaultStye) ToParam(method Method, param Param) ServerParam {
 	var optional = true
 
 	isPath := false
-	for _, name := range pathNames {
-		if name == param.Name.Name {
+	for _, pa := range pathNames {
+		if pa == param.Name.Name {
 			isPath = true
 			optional = false
 			break
@@ -384,6 +446,11 @@ func (mux *DefaultStye) ToParam(method Method, param Param) ServerParam {
 		readParam = mux.QueryParam
 		if s, ok := queryNames[param.Name.Name]; ok && s != "" {
 			paramName = s
+		} else if isEdit {
+			serverParam.InBody = true
+			serverParam.InitString = ""
+			serverParam.ParamName = "bindArgs." + Goify(serverParam.Param.Name.Name, true)
+			return serverParam
 		}
 	} else if strings.HasPrefix(typeStr, "*") {
 		if typeStr == "*string" {
@@ -454,10 +521,8 @@ func (mux *DefaultStye) ToParam(method Method, param Param) ServerParam {
 			} else {
 				renderText(requiredTxt, &sb, renderArgs)
 			}
-
 		}
 	} else {
-
 		requiredTxt := template.Must(template.New("requiredTxt").Funcs(funcs).Parse(`
 		{{- $s := concat .ctx "." .readParam "(\"" .rname "\")"}}
 		{{- if not .hasConvertError}}

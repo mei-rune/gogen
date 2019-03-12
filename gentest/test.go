@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+const TimeFormat = time.RFC3339
+
+func BoolToString(value bool) string {
+	if value {
+		return "true"
+	}
+	return "false"
+}
+
 func toBool(s string) bool {
 	s = strings.ToLower(s)
 	return s == "true"
@@ -45,6 +54,12 @@ type StringSvc interface {
 
 	// @http.POST(path="/save2/:a", data="b")
 	Save2(a, b *string) (string, error)
+
+	// @http.POST(path="/save3")
+	Save3(a, b *string) (string, error)
+
+	// @http.POST(path="/save4")
+	Save4(a, b string) (string, error)
 
 	// @http.GET(path="/add/:a/:b")
 	Add(a, b int) (int, error)
@@ -116,6 +131,16 @@ func (svc *StringSvcImpl) Save(a, b string) (string, error) {
 // @http.POST(path="/save2/:a", data="b")
 func (svc *StringSvcImpl) Save2(a, b *string) (string, error) {
 	return *a + *b, nil
+}
+
+// @http.POST(path="/save3")
+func (svc *StringSvcImpl) Save3(a, b *string) (string, error) {
+	return *a + *b, nil
+}
+
+// @http.POST(path="/save4")
+func (svc *StringSvcImpl) Save4(a, b string) (string, error) {
+	return a + b, nil
 }
 
 // @http.GET(path="/add/:a/:b")
