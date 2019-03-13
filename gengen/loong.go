@@ -18,8 +18,18 @@ var loongConfig = map[string]interface{}{
 	"read_body_format":    "{{.ctx}}.Bind(&{{.name}})",
 	"bad_argument_format": "loong.ErrBadArgument(\"%s\", %s, %s)",
 	"read_format":         "{{.ctx}}.{{.readMethodName}}(\"{{.name}}\")",
-	"ok_func_format":      "return ctx.ReturnResult({{.statusCode}}, {{.data}})",
-	"err_func_format":     "return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})",
+	"ok_func_format": `{{- if eq .method "POST" -}} 
+	return ctx.ReturnCreatedResult({{.data}})
+	{{- else if eq .method "PUT" -}}
+	return ctx.ReturnUpdatedResult({{.data}})
+	{{- else if eq .method "DELETE" -}}
+	return ctx.ReturnDeletedResult({{.data}})
+	{{- else if eq .method "GET" -}}
+	return ctx.ReturnQueryResult({{.data}})
+	{{- else -}}
+	return ctx.ReturnResult({{.statusCode}}, {{.data}})
+	{{end}}`,
+	"err_func_format": "return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})",
 
 	"reserved": map[string]string{
 		"*http.Request":       "ctx.Request()",

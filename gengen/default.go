@@ -756,23 +756,24 @@ func (mux *DefaultStye) ErrorFunc(method Method, hasRealErrorCode bool, errCode,
 }
 
 func (mux *DefaultStye) OkFunc(method Method, args ...string) string {
+	ann := getAnnotation(method, false)
+
+	okCode := "http.StatusOK"
+	methodName := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
+	switch methodName {
+	case "POST":
+		okCode = "http.StatusCreated"
+	case "PUT":
+		okCode = "http.StatusAccepted"
+	}
+
 	var sb strings.Builder
 	renderText(mux.okTemplate, &sb, map[string]interface{}{
-		"statusCode": mux.okCode(method),
+		"method":     methodName,
+		"statusCode": okCode,
 		"data":       strings.Join(args, ","),
 	})
 	return sb.String()
-}
-
-func (mux *DefaultStye) okCode(method Method) string {
-	ann := getAnnotation(method, false)
-	switch strings.ToUpper(strings.TrimPrefix(ann.Name, "http.")) {
-	case "POST":
-		return "http.StatusCreated"
-	case "PUT":
-		return "http.StatusAccepted"
-	}
-	return "http.StatusOK"
 }
 
 func NewEchoStye() *DefaultStye {
