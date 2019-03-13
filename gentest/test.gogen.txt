@@ -383,8 +383,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
 			}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -392,8 +391,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -410,8 +408,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				return nil
 			}
 			createdAt = &TimeRange2{}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -422,8 +419,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -801,8 +797,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
 			}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -810,8 +805,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -828,8 +822,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				return nil
 			}
 			createdAt = &TimeRange2{}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -840,8 +833,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 

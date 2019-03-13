@@ -347,16 +347,14 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -372,8 +370,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
 			createdAt = &TimeRange2{}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -383,8 +380,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -727,16 +723,14 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -752,8 +746,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
 			createdAt = &TimeRange2{}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -763,8 +756,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 

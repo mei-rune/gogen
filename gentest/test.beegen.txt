@@ -467,8 +467,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -477,8 +476,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Input.Param("isRaw"))
 
@@ -498,8 +496,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				return
 			}
 			createdAt = &TimeRange2{}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -511,8 +508,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Input.Param("isRaw"))
 
@@ -965,8 +961,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -975,8 +970,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Input.Param("isRaw"))
 
@@ -996,8 +990,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				return
 			}
 			createdAt = &TimeRange2{}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -1009,8 +1002,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Input.Param("isRaw"))
 

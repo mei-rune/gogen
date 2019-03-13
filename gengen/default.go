@@ -654,11 +654,11 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 			{{badArgument .rname "s" "err"}}
 		} else {
 			{{- .initRootValue}}
-			{{.name}} = new({{.type}})
 			{{- if .needTransform}}
+			{{.name}} = new({{.type}})
 			*{{.name}} = {{.type}}({{goify .name false}}Value)
 			{{- else}}
-			*{{.name}} = {{goify .name false}}Value
+			{{.name}} = &{{goify .name false}}Value
 			{{- end}}
 		}
 		{{- end}}
@@ -681,11 +681,11 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 				{{badArgument .rname "s" "err"}}
 			}
 			{{- .initRootValue}}
-			{{.name}} = new({{.type}})
 			{{- if .needTransform}}
+			{{.name}} = new({{.type}})
 			*{{.name}} = {{.type}}({{goify .name false}}Value)
 			{{- else}}
-			*{{.name}} = {{goify .name false}}Value
+			{{.name}} = &{{goify .name false}}Value
 			{{- end}}
 		{{- end}}
 		}

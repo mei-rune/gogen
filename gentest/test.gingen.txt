@@ -411,8 +411,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -420,8 +419,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -439,8 +437,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				return
 			}
 			createdAt = &TimeRange2{}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -451,8 +448,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -850,8 +846,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -859,8 +854,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
@@ -878,8 +872,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				return
 			}
 			createdAt = &TimeRange2{}
-			createdAt.Start = new(time.Time)
-			*createdAt.Start = createdAtStartValue
+			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
@@ -890,8 +883,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
 			}
-			createdAt.End = new(time.Time)
-			*createdAt.End = createdAtEndValue
+			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = toBool(ctx.Param("isRaw"))
 
