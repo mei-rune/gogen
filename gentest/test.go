@@ -26,6 +26,14 @@ func toDatetime(s string) (time.Time, error) {
 	return time.Parse(time.RFC3339Nano, s)
 }
 
+type TimeRange struct {
+	Start, End time.Time
+}
+
+type TimeRange2 struct {
+	Start, End *time.Time
+}
+
 // 	@Client(name="TestClient", ref="true")
 type StringSvc interface {
 	// @http.GET(path="/echo")
@@ -78,6 +86,18 @@ type StringSvc interface {
 
 	// @http.GET(path="/query3/:isRaw")
 	Query3(a string, beginAt, endAt time.Time, isRaw *bool) string
+
+	// @http.GET(path="/query4/:isRaw")
+	Query4(a string, createdAt TimeRange, isRaw *bool) string
+
+	// @http.GET(path="/query5/:isRaw")
+	Query5(a string, createdAt *TimeRange, isRaw *bool) string
+
+	// @http.GET(path="/query6/:isRaw")
+	Query6(a string, createdAt TimeRange2, isRaw *bool) string
+
+	// @http.GET(path="/query7/:isRaw")
+	Query7(a string, createdAt *TimeRange2, isRaw *bool) string
 
 	Misc() string
 }
@@ -171,6 +191,26 @@ func (svc *StringSvcImpl) Query2(a string, beginAt, endAt time.Time, isRaw bool)
 // @http.GET(path="/query3/:isRaw")
 func (svc *StringSvcImpl) Query3(a string, beginAt, endAt time.Time, isRaw *bool) string {
 	return "queue"
+}
+
+// @http.GET(path="/query4/:isRaw")
+func (svc *StringSvcImpl) Query4(a string, createdAt TimeRange, isRaw *bool) string {
+	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
+}
+
+// @http.GET(path="/query5/:isRaw")
+func (svc *StringSvcImpl) Query5(a string, createdAt *TimeRange, isRaw *bool) string {
+	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
+}
+
+// @http.GET(path="/query6/:isRaw")
+func (svc *StringSvcImpl) Query6(a string, createdAt TimeRange2, isRaw *bool) string {
+	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
+}
+
+// @http.GET(path="/query7/:isRaw")
+func (svc *StringSvcImpl) Query7(a string, createdAt *TimeRange2, isRaw *bool) string {
+	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
 }
 
 func (svc *StringSvcImpl) Misc() string {

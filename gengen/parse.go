@@ -232,7 +232,7 @@ func (v *structVisitor) Visit(n ast.Node) ast.Visitor {
 	default:
 		return v
 	case *ast.FieldList:
-		return nil
+		return v
 	case *ast.Field:
 		for _, name := range rn.Names {
 			v.fields = append(v.fields, Field{Node: rn, Name: name, Typ: rn.Type, Tag: rn.Tag})
@@ -457,14 +457,34 @@ func typePrint(typ ast.Node) string {
 	return buf.String()
 }
 
-var RangeDefineds = []string{}
+var RangeDefineds = map[string]struct {
+	Start ast.Expr
+	End   ast.Expr
+}{}
 
-func IsRange(classes []Class, typ ast.Expr) bool {
+func AddRangeDefined(typ, start, end string) {
+	var s ast.Expr = &ast.Ident{Name: strings.TrimPrefix(start, "*")}
+	var e ast.Expr = &ast.Ident{Name: strings.TrimPrefix(end, "*")}
+
+	if strings.HasPrefix(start, "*") {
+		s = &ast.StarExpr{X: s}
+	}
+
+	if strings.HasPrefix(end, "*") {
+		e = &ast.StarExpr{X: e}
+	}
+
+	RangeDefineds[typ] = struct {
+		Start ast.Expr
+		End   ast.Expr
+	}{s, e}
+}
+
+func IsRange(classes []Class, typ ast.Expr) (bool, ast.Expr, ast.Expr) {
 	name := strings.TrimPrefix(typePrint(typ), "*")
-	for _, a := range RangeDefineds {
-		if a == name {
-			return true
-		}
+
+	if value, ok := RangeDefineds[name]; ok {
+		return true, value.Start, value.End
 	}
 
 	var cls *Class
@@ -475,29 +495,29 @@ func IsRange(classes []Class, typ ast.Expr) bool {
 		}
 	}
 	if cls == nil {
-		return false
+		return false, nil, nil
 	}
 
 	if len(cls.Fields) != 2 {
-		return false
+		return false, nil, nil
 	}
 
-	var hasStart, hasEnd bool
+	var startType, endType ast.Expr
 	for _, field := range cls.Fields {
 		if field.Name.Name == "Start" {
-			hasStart = true
+			startType = field.Typ
 		} else if field.Name.Name == "End" {
-			hasEnd = true
+			endType = field.Typ
 		}
 	}
-	if !hasStart || !hasEnd {
-		return false
+	if startType == nil || endType == nil {
+		return false, nil, nil
 	}
 
-	aType := strings.TrimPrefix(typePrint(cls.Fields[0].Typ), "*")
-	bType := strings.TrimPrefix(typePrint(cls.Fields[1].Typ), "*")
+	aType := strings.TrimPrefix(typePrint(startType), "*")
+	bType := strings.TrimPrefix(typePrint(endType), "*")
 	if aType != bType {
-		return false
+		return false, nil, nil
 	}
-	return true
+	return true, startType, endType
 }

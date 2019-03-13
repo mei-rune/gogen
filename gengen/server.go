@@ -144,6 +144,10 @@ func (cmd *WebServerGenerator) runFile(filename string) error {
 		return err
 	}
 
+	if mux := cmd.Mux.(*DefaultStye); mux != nil {
+		mux.classes = file.Classes
+	}
+
 	for _, class := range file.Classes {
 
 		count := 0
@@ -242,7 +246,7 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{- end -}} := svc.{{$method.Name}}(
       {{- $isFirst := true}}
       {{- range $idx, $param := $paramList}}
-        {{- if $param.IsSkippedUse -}}
+        {{- if $param.IsSkipUse -}}
         {{- else -}}
         {{- if $isFirst -}}{{- $isFirst = false -}}{{- else -}},{{- end -}}
         {{- $param.ParamName }}

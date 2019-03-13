@@ -123,7 +123,13 @@ func renderString(txt string, renderArgs interface{}) string {
 }
 
 var Funcs = template.FuncMap{
-	"concat":        strings.Join,
+	"concat": func(args ...string) string {
+		var sb strings.Builder
+		for _, s := range args {
+			sb.WriteString(s)
+		}
+		return sb.String()
+	},
 	"containSubstr": strings.Contains,
 	"startWith":     strings.HasPrefix,
 	"endWith":       strings.HasSuffix,
@@ -184,4 +190,5 @@ var Funcs = template.FuncMap{
 	},
 	"typePrint":              typePrint,
 	"convertToStringLiteral": convertToStringLiteral,
+	"goify":                  Goify,
 }

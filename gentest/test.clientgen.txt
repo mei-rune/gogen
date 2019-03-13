@@ -10,6 +10,9 @@ import (
 	"github.com/runner-mei/loong/resty"
 )
 
+// TimeRange is skipped
+// TimeRange2 is skipped
+
 type StringSvcClient struct {
 	proxy *resty.Proxy
 }
@@ -249,6 +252,82 @@ func (client StringSvcClient) Query3(ctx context.Context, a string, beginAt time
 		SetParam("beginAt", beginAt.Format(TimeFormat)).
 		SetParam("endAt", endAt.Format(TimeFormat)).
 		Result(&result)
+
+	err := request.GET(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/query4/"+BoolToString(*isRaw)+"").
+		SetParam("a", a)
+	if createdAt != nil {
+		request = request.SetParam("createdAt.Start", createdAt.Start.Format(TimeFormat)).
+			SetParam("createdAt.End", createdAt.End.Format(TimeFormat))
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/query5/"+BoolToString(*isRaw)+"").
+		SetParam("a", a)
+	if createdAt != nil {
+		request = request.SetParam("createdAt.Start", createdAt.Start.Format(TimeFormat)).
+			SetParam("createdAt.End", createdAt.End.Format(TimeFormat))
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/query6/"+BoolToString(*isRaw)+"").
+		SetParam("a", a)
+	if createdAt != nil {
+		if createdAt.Start != nil {
+			request = request.SetParam("createdAt.Start", createdAt.Start.Format(TimeFormat))
+		}
+		if createdAt.End != nil {
+			request = request.SetParam("createdAt.End", createdAt.End.Format(TimeFormat))
+		}
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/query7/"+BoolToString(*isRaw)+"").
+		SetParam("a", a)
+	if createdAt != nil {
+		if createdAt.Start != nil {
+			request = request.SetParam("createdAt.Start", createdAt.Start.Format(TimeFormat))
+		}
+		if createdAt.End != nil {
+			request = request.SetParam("createdAt.End", createdAt.End.Format(TimeFormat))
+		}
+	}
+	request = request.Result(&result)
 
 	err := request.GET(ctx)
 
@@ -497,6 +576,82 @@ func (client StringSvcImplClient) Query3(ctx context.Context, a string, beginAt 
 		SetParam("beginAt", beginAt.Format(TimeFormat)).
 		SetParam("endAt", endAt.Format(TimeFormat)).
 		Result(&result)
+
+	err := request.GET(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/query4/"+BoolToString(*isRaw)+"").
+		SetParam("a", a)
+	if createdAt != nil {
+		request = request.SetParam("createdAt.Start", createdAt.Start.Format(TimeFormat)).
+			SetParam("createdAt.End", createdAt.End.Format(TimeFormat))
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/query5/"+BoolToString(*isRaw)+"").
+		SetParam("a", a)
+	if createdAt != nil {
+		request = request.SetParam("createdAt.Start", createdAt.Start.Format(TimeFormat)).
+			SetParam("createdAt.End", createdAt.End.Format(TimeFormat))
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/query6/"+BoolToString(*isRaw)+"").
+		SetParam("a", a)
+	if createdAt != nil {
+		if createdAt.Start != nil {
+			request = request.SetParam("createdAt.Start", createdAt.Start.Format(TimeFormat))
+		}
+		if createdAt.End != nil {
+			request = request.SetParam("createdAt.End", createdAt.End.Format(TimeFormat))
+		}
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/query7/"+BoolToString(*isRaw)+"").
+		SetParam("a", a)
+	if createdAt != nil {
+		if createdAt.Start != nil {
+			request = request.SetParam("createdAt.Start", createdAt.Start.Format(TimeFormat))
+		}
+		if createdAt.End != nil {
+			request = request.SetParam("createdAt.End", createdAt.End.Format(TimeFormat))
+		}
+	}
+	request = request.Result(&result)
 
 	err := request.GET(ctx)
 

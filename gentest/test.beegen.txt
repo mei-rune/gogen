@@ -23,6 +23,9 @@ func httpCodeWith(err error) int {
 	return http.StatusInternalServerError
 }
 
+// TimeRange is skipped
+// TimeRange2 is skipped
+
 func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 	mux.Get("/echo", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
@@ -390,6 +393,138 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var isRaw = toBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/query4/:isRaw", func(ctx *beecontext.Context) {
+		var a = ctx.Input.Query("a")
+		var createdAt TimeRange
+		if s := ctx.Input.Query("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				return
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.Input.Query("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Input.Param("isRaw"))
+
+		result := svc.Query4(a, createdAt, &isRaw)
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/query5/:isRaw", func(ctx *beecontext.Context) {
+		var a = ctx.Input.Query("a")
+		var createdAt *TimeRange
+		if s := ctx.Input.Query("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				return
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.Input.Query("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Input.Param("isRaw"))
+
+		result := svc.Query5(a, createdAt, &isRaw)
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/query6/:isRaw", func(ctx *beecontext.Context) {
+		var a = ctx.Input.Query("a")
+		var createdAt TimeRange2
+		if s := ctx.Input.Query("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				return
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = new(time.Time)
+			*createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.Input.Query("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = new(time.Time)
+			*createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Input.Param("isRaw"))
+
+		result := svc.Query6(a, createdAt, &isRaw)
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/query7/:isRaw", func(ctx *beecontext.Context) {
+		var a = ctx.Input.Query("a")
+		var createdAt *TimeRange2
+		if s := ctx.Input.Query("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				return
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = new(time.Time)
+			*createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.Input.Query("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = new(time.Time)
+			*createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Input.Param("isRaw"))
+
+		result := svc.Query7(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
 		ctx.Output.JSON(result, false, false)
 		return
@@ -764,6 +899,138 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var isRaw = toBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/query4/:isRaw", func(ctx *beecontext.Context) {
+		var a = ctx.Input.Query("a")
+		var createdAt TimeRange
+		if s := ctx.Input.Query("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				return
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.Input.Query("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Input.Param("isRaw"))
+
+		result := svc.Query4(a, createdAt, &isRaw)
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/query5/:isRaw", func(ctx *beecontext.Context) {
+		var a = ctx.Input.Query("a")
+		var createdAt *TimeRange
+		if s := ctx.Input.Query("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				return
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.Input.Query("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Input.Param("isRaw"))
+
+		result := svc.Query5(a, createdAt, &isRaw)
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/query6/:isRaw", func(ctx *beecontext.Context) {
+		var a = ctx.Input.Query("a")
+		var createdAt TimeRange2
+		if s := ctx.Input.Query("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				return
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = new(time.Time)
+			*createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.Input.Query("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = new(time.Time)
+			*createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Input.Param("isRaw"))
+
+		result := svc.Query6(a, createdAt, &isRaw)
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/query7/:isRaw", func(ctx *beecontext.Context) {
+		var a = ctx.Input.Query("a")
+		var createdAt *TimeRange2
+		if s := ctx.Input.Query("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				return
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = new(time.Time)
+			*createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.Input.Query("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)))
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = new(time.Time)
+			*createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Input.Param("isRaw"))
+
+		result := svc.Query7(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
 		ctx.Output.JSON(result, false, false)
 		return

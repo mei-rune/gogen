@@ -11,6 +11,9 @@ import (
 	"github.com/runner-mei/loong"
 )
 
+// TimeRange is skipped
+// TimeRange2 is skipped
+
 func InitStringSvc(mux loong.Party, svc StringSvc) {
 	mux.GET("/echo", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
@@ -316,6 +319,122 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var isRaw = toBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		return ctx.Return(http.StatusOK, result)
+	})
+	mux.GET("/query4/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt TimeRange
+		if s := ctx.QueryParam("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.start", s, err))
+				return nil
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.QueryParam("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.end", s, err))
+				return nil
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query4(a, createdAt, &isRaw)
+		return ctx.Return(http.StatusOK, result)
+	})
+	mux.GET("/query5/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt *TimeRange
+		if s := ctx.QueryParam("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.start", s, err))
+				return nil
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.QueryParam("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.end", s, err))
+				return nil
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query5(a, createdAt, &isRaw)
+		return ctx.Return(http.StatusOK, result)
+	})
+	mux.GET("/query6/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt TimeRange2
+		if s := ctx.QueryParam("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.start", s, err))
+				return nil
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = new(time.Time)
+			*createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.QueryParam("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.end", s, err))
+				return nil
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = new(time.Time)
+			*createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query6(a, createdAt, &isRaw)
+		return ctx.Return(http.StatusOK, result)
+	})
+	mux.GET("/query7/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt *TimeRange2
+		if s := ctx.QueryParam("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.start", s, err))
+				return nil
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = new(time.Time)
+			*createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.QueryParam("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.end", s, err))
+				return nil
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = new(time.Time)
+			*createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.Return(http.StatusOK, result)
 	})
 	// Misc: annotation is missing
@@ -626,6 +745,122 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var isRaw = toBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		return ctx.Return(http.StatusOK, result)
+	})
+	mux.GET("/query4/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt TimeRange
+		if s := ctx.QueryParam("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.start", s, err))
+				return nil
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.QueryParam("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.end", s, err))
+				return nil
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query4(a, createdAt, &isRaw)
+		return ctx.Return(http.StatusOK, result)
+	})
+	mux.GET("/query5/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt *TimeRange
+		if s := ctx.QueryParam("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.start", s, err))
+				return nil
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.QueryParam("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.end", s, err))
+				return nil
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query5(a, createdAt, &isRaw)
+		return ctx.Return(http.StatusOK, result)
+	})
+	mux.GET("/query6/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt TimeRange2
+		if s := ctx.QueryParam("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.start", s, err))
+				return nil
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = new(time.Time)
+			*createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.QueryParam("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.end", s, err))
+				return nil
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = new(time.Time)
+			*createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query6(a, createdAt, &isRaw)
+		return ctx.Return(http.StatusOK, result)
+	})
+	mux.GET("/query7/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt *TimeRange2
+		if s := ctx.QueryParam("createdAt.start"); s != "" {
+			createdAtStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.start", s, err))
+				return nil
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = new(time.Time)
+			*createdAt.Start = createdAtStartValue
+		}
+		if s := ctx.QueryParam("createdAt.end"); s != "" {
+			createdAtEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(loong.ErrBadArgument("createdAt.end", s, err))
+				return nil
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = new(time.Time)
+			*createdAt.End = createdAtEndValue
+		}
+		var isRaw = toBool(ctx.Param("isRaw"))
+
+		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.Return(http.StatusOK, result)
 	})
 	// Misc: annotation is missing

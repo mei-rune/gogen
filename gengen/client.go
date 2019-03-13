@@ -3,6 +3,7 @@ package gengen
 import (
 	"errors"
 	"flag"
+	"go/ast"
 	"io"
 	"log"
 	"os"
@@ -140,6 +141,7 @@ func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext,
 
 	config := cmd.config
 
+	config.Classes = file.Classes
 	config.ClassName = class.Name.Name + "Client"
 	config.RecvClassName = config.ClassName
 	ann, err := findAnnotation(class.Annotations, "http.Client")
@@ -171,6 +173,7 @@ func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext,
 }
 
 type ClientConfig struct {
+	Classes          []Class
 	RestyName        string
 	ContextClassName string
 	ClassName        string
@@ -236,6 +239,7 @@ type ParamConfig struct {
 	QueryParamName string
 	IsSkipDeclared bool
 	IsSkipUse      bool
+	IsCodeSegement bool
 	IsQueryParam   bool
 	IsPathParam    bool
 	IsBodyParam    bool
@@ -258,18 +262,18 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	var inBody []Param
 	var bodyExists bool
 
-	paramList := make([]ParamConfig, 0, len(method.Params.List))
-	for idx, param := range method.Params.List {
+	add := func(param Param, isSkipDeclared, isSkipUse bool) ParamConfig {
 		cp := ParamConfig{
 			Param:          param,
 			QueryParamName: param.Name.Name,
+			IsSkipDeclared: isSkipDeclared,
+			IsSkipUse:      isSkipUse,
 		}
 
 		typ := typePrint(param.Typ)
 		if strings.HasSuffix(typ, ".Context") {
 			cp.IsSkipDeclared = true
-			paramList = append(paramList, cp)
-			continue
+			return cp
 		}
 
 		for _, pname := range pathNames {
@@ -285,7 +289,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			} else if newName, ok := queryNames[param.Name.Name]; ok && newName != "" {
 				cp.QueryParamName = newName
 			} else if isEdit {
-				inBody = append(inBody, method.Params.List[idx])
+				inBody = append(inBody, param)
 				cp.IsSkipUse = true
 				cp.IsBodyParam = true
 			}
@@ -294,8 +298,51 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		if !cp.IsPathParam && !cp.IsBodyParam {
 			cp.IsQueryParam = true
 		}
+		return cp
+	}
 
-		paramList = append(paramList, cp)
+	paramList := make([]ParamConfig, 0, len(method.Params.List))
+	for _, param := range method.Params.List {
+		if ok, startType, endType := IsRange(c.Classes, param.Typ); ok {
+
+			paramList = append(paramList, add(param, false, true))
+
+			start := param
+			start.Name = &ast.Ident{}
+			start.Name.Name = "\r\nif " + param.Name.Name + " != nil {"
+			paramList = append(paramList, ParamConfig{
+				Param:          start,
+				IsSkipDeclared: true,
+				IsCodeSegement: true,
+			})
+
+			startParm := param
+			startParm.Name = &ast.Ident{}
+			*startParm.Name = *param.Name
+			startParm.Name.Name = param.Name.Name + ".Start"
+			startParm.Typ = startType
+
+			paramList = append(paramList, add(startParm, true, false))
+
+			endParm := param
+			endParm.Name = &ast.Ident{}
+			*endParm.Name = *param.Name
+			endParm.Name.Name = param.Name.Name + ".End"
+			endParm.Typ = endType
+			paramList = append(paramList, add(endParm, true, false))
+
+			end := param
+			end.Name = &ast.Ident{}
+			end.Name.Name = "\r\n}"
+			paramList = append(paramList, ParamConfig{
+				Param:          end,
+				IsSkipDeclared: true,
+				IsCodeSegement: true,
+			})
+			continue
+		}
+
+		paramList = append(paramList, add(param, false, false))
 	}
 
 	if len(inBody) > 0 {
@@ -398,6 +445,9 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   {{- $needAssignment := false -}}
   {{- range $param := $paramList -}}
     {{- if $param.IsSkipUse -}}
+    {{- else if $param.IsCodeSegement -}}
+    {{$param.Name}}
+    {{- $needAssignment = true -}}    
     {{- else if $param.IsBodyParam -}}
     {{- if $needAssignment}}
     request = request.
