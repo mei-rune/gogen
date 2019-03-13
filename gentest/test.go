@@ -34,7 +34,7 @@ type TimeRange2 struct {
 	Start, End *time.Time
 }
 
-// 	@Client(name="TestClient", ref="true")
+// @http.Client(name="TestClient", ref="true")
 type StringSvc interface {
 	// @http.GET(path="/echo")
 	Echo(a string) string

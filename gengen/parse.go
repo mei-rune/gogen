@@ -26,12 +26,19 @@ type (
 		src *SourceContext
 	}
 
+	genDeclVisitor struct {
+		src      *SourceContext
+		node     *ast.GenDecl
+		Comments []string
+	}
+
 	typeSpecVisitor struct {
 		src         *SourceContext
 		node        *ast.TypeSpec
 		isInterface bool
 		iface       *Class
 		name        *ast.Ident
+		comments    []string
 	}
 
 	Class struct {
@@ -145,6 +152,7 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 		default:
 			v.src.Types = append(v.src.Types, rn)
 		}
+
 		return &typeSpecVisitor{src: v.src, node: rn}
 	case *ast.FuncDecl:
 		if rn.Recv == nil || len(rn.Recv.List) == 0 {
@@ -174,6 +182,33 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 		mv := &methodVisitor{node: &ast.Field{Doc: rn.Doc, Names: []*ast.Ident{rn.Name}, Type: rn.Type}, list: &class.Methods}
 		ast.Walk(mv, mv.node)
 		return nil
+	case *ast.GenDecl:
+		if rn.Tok == token.TYPE {
+			return &genDeclVisitor{src: v.src, node: rn}
+		}
+		return v
+	default:
+		return v
+	}
+}
+
+func (v *genDeclVisitor) Visit(n ast.Node) ast.Visitor {
+	switch rn := n.(type) {
+	case *ast.TypeSpec:
+		switch rn.Type.(type) {
+		case *ast.InterfaceType:
+		default:
+			v.src.Types = append(v.src.Types, rn)
+		}
+
+		var comments []string
+		if v.node.Doc != nil {
+			for _, a := range v.node.Doc.List {
+				comments = append(comments, a.Text)
+			}
+		}
+
+		return &typeSpecVisitor{src: v.src, node: rn, comments: comments}
 	default:
 		return v
 	}
@@ -206,6 +241,7 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 			v.iface.ctx = v.src
 			v.iface.Node = v.node
 			v.iface.Name = v.name
+			v.iface.Comments = v.comments
 
 			if v.node.Comment != nil {
 				for _, a := range v.node.Comment.List {

@@ -13,11 +13,11 @@ import (
 // TimeRange is skipped
 // TimeRange2 is skipped
 
-type StringSvcClient struct {
+type TestClient struct {
 	proxy *resty.Proxy
 }
 
-func (client StringSvcClient) Echo(ctx context.Context, a string) (string, error) {
+func (client TestClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/echo").
@@ -30,7 +30,7 @@ func (client StringSvcClient) Echo(ctx context.Context, a string) (string, error
 	return result, err
 }
 
-func (client StringSvcClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
+func (client TestClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/echo").
@@ -43,7 +43,7 @@ func (client StringSvcClient) EchoBody(ctx context.Context, body io.Reader) (str
 	return result, err
 }
 
-func (client StringSvcClient) Concat(ctx context.Context, a string, b string) (string, error) {
+func (client TestClient) Concat(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/concat").
@@ -57,7 +57,7 @@ func (client StringSvcClient) Concat(ctx context.Context, a string, b string) (s
 	return result, err
 }
 
-func (client StringSvcClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
+func (client TestClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/concat1")
@@ -75,7 +75,7 @@ func (client StringSvcClient) Concat1(ctx context.Context, a *string, b *string)
 	return result, err
 }
 
-func (client StringSvcClient) Concat2(ctx context.Context, a string, b string) (string, error) {
+func (client TestClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/concat2/"+a+"/"+b+"").
@@ -87,7 +87,7 @@ func (client StringSvcClient) Concat2(ctx context.Context, a string, b string) (
 	return result, err
 }
 
-func (client StringSvcClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
+func (client TestClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/concat3/"+*a+"/"+*b+"").
@@ -99,7 +99,7 @@ func (client StringSvcClient) Concat3(ctx context.Context, a *string, b *string)
 	return result, err
 }
 
-func (client StringSvcClient) Sub(ctx context.Context, a string, start int64) (string, error) {
+func (client TestClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/sub").
@@ -113,7 +113,7 @@ func (client StringSvcClient) Sub(ctx context.Context, a string, start int64) (s
 	return result, err
 }
 
-func (client StringSvcClient) Save(ctx context.Context, a string, b string) (string, error) {
+func (client TestClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/save/"+a+"").
@@ -126,7 +126,7 @@ func (client StringSvcClient) Save(ctx context.Context, a string, b string) (str
 	return result, err
 }
 
-func (client StringSvcClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
+func (client TestClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/save2/"+*a+"").
@@ -139,7 +139,7 @@ func (client StringSvcClient) Save2(ctx context.Context, a *string, b *string) (
 	return result, err
 }
 
-func (client StringSvcClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
+func (client TestClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/save3").
@@ -155,7 +155,7 @@ func (client StringSvcClient) Save3(ctx context.Context, a *string, b *string) (
 	return result, err
 }
 
-func (client StringSvcClient) Save4(ctx context.Context, a string, b string) (string, error) {
+func (client TestClient) Save4(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/save4").
@@ -171,7 +171,7 @@ func (client StringSvcClient) Save4(ctx context.Context, a string, b string) (st
 	return result, err
 }
 
-func (client StringSvcClient) Add(ctx context.Context, a int, b int) (int, error) {
+func (client TestClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
 	request := resty.NewRequest(client.proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
@@ -183,7 +183,7 @@ func (client StringSvcClient) Add(ctx context.Context, a int, b int) (int, error
 	return result, err
 }
 
-func (client StringSvcClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
+func (client TestClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
 	request := resty.NewRequest(client.proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
@@ -195,7 +195,7 @@ func (client StringSvcClient) Add2(ctx context.Context, a *int, b *int) (int, er
 	return result, err
 }
 
-func (client StringSvcClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
+func (client TestClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
 	request := resty.NewRequest(client.proxy, "/add3")
@@ -213,7 +213,7 @@ func (client StringSvcClient) Add3(ctx context.Context, a *int, b *int) (int, er
 	return result, err
 }
 
-func (client StringSvcClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
+func (client TestClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/query1").
@@ -229,7 +229,7 @@ func (client StringSvcClient) Query1(ctx context.Context, a string, beginAt time
 	return result, err
 }
 
-func (client StringSvcClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
+func (client TestClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw)+"").
@@ -244,7 +244,7 @@ func (client StringSvcClient) Query2(ctx context.Context, a string, beginAt time
 	return result, err
 }
 
-func (client StringSvcClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
+func (client TestClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw)+"").
@@ -259,7 +259,7 @@ func (client StringSvcClient) Query3(ctx context.Context, a string, beginAt time
 	return result, err
 }
 
-func (client StringSvcClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
+func (client TestClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/query4/"+BoolToString(*isRaw)+"").
@@ -274,7 +274,7 @@ func (client StringSvcClient) Query4(ctx context.Context, a string, createdAt Ti
 	return result, err
 }
 
-func (client StringSvcClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
+func (client TestClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/query5/"+BoolToString(*isRaw)+"").
@@ -291,7 +291,7 @@ func (client StringSvcClient) Query5(ctx context.Context, a string, createdAt *T
 	return result, err
 }
 
-func (client StringSvcClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
+func (client TestClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/query6/"+BoolToString(*isRaw)+"").
@@ -310,7 +310,7 @@ func (client StringSvcClient) Query6(ctx context.Context, a string, createdAt Ti
 	return result, err
 }
 
-func (client StringSvcClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
+func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.proxy, "/query7/"+BoolToString(*isRaw)+"").
