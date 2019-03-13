@@ -207,6 +207,39 @@ func (c *ClientConfig) IsSkipped(method Method) SkippedResult {
 	return res
 }
 
+func (c *ClientConfig) ResultName(method Method) string {
+	resultName := "result"
+	isNameExist := func(name string) bool {
+		if method.Params != nil {
+			for idx := range method.Params.List {
+				if method.Params.List[idx].Name.Name == name {
+					return true
+				}
+			}
+		}
+
+		if method.Results != nil {
+			for idx := range method.Results.List {
+				if method.Results.List[idx].Name == nil {
+					continue
+				}
+				if method.Results.List[idx].Name.Name == name {
+					return true
+				}
+			}
+		}
+		return false
+	}
+
+	for i := 0; i < 100; i++ {
+		if !isNameExist(resultName) {
+			return resultName
+		}
+		resultName = resultName + "_"
+	}
+	panic("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+}
+
 func (c *ClientConfig) RouteFunc(method Method) string {
 	ann := getAnnotation(method, false)
 	return strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
@@ -423,6 +456,7 @@ type {{.config.ClassName}} struct {
 
 {{$paramList := ($.config.ToParamList $method) }}
 {{$resultList := ($.config.ToResultList $method) }}
+{{$resultName := $.config.ResultName $method}}
 func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.ContextClassName}}{{- range $param := $paramList -}}
     {{- if $param.IsSkipDeclared -}}
     {{- else -}}
@@ -436,10 +470,10 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   {{- if eq 0 (len $resultList) }}
   {{- else if eq 1 (len $resultList) }}
     {{- range $result := $resultList}}
-      var result {{trimPrefix (typePrint $result.Typ) "*"}}
+      var {{$resultName}} {{trimPrefix (typePrint $result.Typ) "*"}}
     {{- end}}
   {{- else}}
-      var result struct{
+      var {{$resultName}} struct{
     {{- range $result := $resultList}}
          {{$result.FieldName}} {{typePrint $result.Typ}} ` + "`json:\"{{$result.JSONName}}\"`" + `
     {{- end}}
@@ -492,7 +526,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   request = request.Result(&result)
   {{- else -}}
   	.
-  	Result(&result)
+  	Result(&{{$resultName}})
   {{- end}}
 
   {{if eq 0 (len $resultList) }}
@@ -502,12 +536,12 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   {{else if eq 1 (len $resultList) }}
   {{$.config.ReleaseRequest "client.proxy" "request"}}
     {{- range $result := $resultList}}
-  return {{if startWith (typePrint $result.Typ) "*"}}&{{end}}result, err
+  return {{if startWith (typePrint $result.Typ) "*"}}&{{end}}{{$resultName}}, err
     {{- end}}
   {{- else}}
   {{$.config.ReleaseRequest "client.proxy" "request"}}
   return {{range $result := $resultList -}}
-         result.{{$result.FieldName}},
+         {{$resultName}}.{{$result.FieldName}},
         {{- end -}}, err
   {{- end}}
 }
