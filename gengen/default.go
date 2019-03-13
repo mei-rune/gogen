@@ -59,7 +59,7 @@ func (mux *DefaultStye) Init() {
 	mux.PathParam = "Param"
 	mux.QueryParam = "QueryParam"
 	mux.ReadBodyFormat = "{{.ctx}}.Bind(&{{.name}})"
-	mux.BadArgumentFormat = "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)"
+	mux.BadArgumentFormat = "fmt.Errorf(\"argument %%q is invalid - %%q\", \"%s\", %s, %s)"
 	mux.Reserved = map[string]string{
 		"*http.Request":       mux.CtxNameStr + ".Request()",
 		"http.ResponseWriter": mux.CtxNameStr + ".Response().Writer",
@@ -312,7 +312,7 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 	bindTxt := template.Must(template.New("bindTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 			var bindArgs struct {
 				{{- range $param := .params}}
-				{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{$param.Param.Name.Name}},omitempty\"`" + `
+				{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{ $param.Param.Name.Name}},omitempty\"`" + `
 				{{- end}}
 			}
 			if err := {{readBody .ctx "bindArgs"}}; err != nil {
@@ -447,6 +447,8 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 			serverParam.InitString = ""
 			serverParam.ParamName = "bindArgs." + Goify(serverParam.Param.Name.Name, true)
 			return []ServerParam{serverParam}
+		} else {
+			paramName = Underscore(paramName)
 		}
 	} else if hasStar {
 		if typeStr == "*string" {
@@ -488,7 +490,10 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 		p2.Param.Typ = startType
 		paramName2 := paramName + ".start"
 
-		initRootValue := "\r\n  " + name + " = &" + elmType + "{}"
+		var initRootValue string
+		if hasStar {
+			initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
+		}
 		p2.InitString = strings.TrimSpace(mux.initString(method, p2.Param, funcs, true, optional,
 			typePrint(startType), strings.TrimPrefix(typePrint(startType), "*"), name+".Start", paramName2, readParam, initRootValue))
 
@@ -500,7 +505,9 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 		p3.Param.Typ = endType
 		paramName3 := paramName + ".end"
 
-		initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
+		if hasStar {
+			initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
+		}
 		p3.InitString = strings.TrimSpace(mux.initString(method, p3.Param, funcs, true, optional,
 			typePrint(endType), strings.TrimPrefix(typePrint(endType), "*"), name+".End", paramName3, readParam, initRootValue))
 
@@ -734,14 +741,16 @@ func (mux *DefaultStye) RouteFunc(method Method) string {
 }
 
 func (mux *DefaultStye) BadArgumentFunc(method Method, err string, args ...string) string {
-	return mux.ErrorFunc(method, err, args...)
+	return mux.ErrorFunc(method, true, "http.StatusBadRequest", err, args...)
 }
 
-func (mux *DefaultStye) ErrorFunc(method Method, err string, addArgs ...string) string {
+func (mux *DefaultStye) ErrorFunc(method Method, hasRealErrorCode bool, errCode, err string, addArgs ...string) string {
 	var sb strings.Builder
 	renderText(mux.errTemplate, &sb, map[string]interface{}{
-		"err":     err,
-		"addArgs": addArgs,
+		"hasRealErrorCode": hasRealErrorCode,
+		"errCode":          errCode,
+		"err":              err,
+		"addArgs":          addArgs,
 	})
 	return sb.String()
 }

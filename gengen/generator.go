@@ -191,4 +191,5 @@ var Funcs = template.FuncMap{
 	"typePrint":              typePrint,
 	"convertToStringLiteral": convertToStringLiteral,
 	"goify":                  Goify,
+	"underscore":             Underscore,
 }

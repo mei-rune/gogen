@@ -521,3 +521,7 @@ func IsRange(classes []Class, typ ast.Expr) (bool, ast.Expr, ast.Expr) {
 	}
 	return true, startType, endType
 }
+
+func IsPtr(typ ast.Expr) bool {
+	return strings.HasPrefix(typePrint(typ), "*")
+}

@@ -307,14 +307,17 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 			paramList = append(paramList, add(param, false, true))
 
-			start := param
-			start.Name = &ast.Ident{}
-			start.Name.Name = "\r\nif " + param.Name.Name + " != nil {"
-			paramList = append(paramList, ParamConfig{
-				Param:          start,
-				IsSkipDeclared: true,
-				IsCodeSegement: true,
-			})
+			isPtr := IsPtr(param.Typ)
+			if isPtr {
+				start := param
+				start.Name = &ast.Ident{}
+				start.Name.Name = "\r\nif " + param.Name.Name + " != nil {"
+				paramList = append(paramList, ParamConfig{
+					Param:          start,
+					IsSkipDeclared: true,
+					IsCodeSegement: true,
+				})
+			}
 
 			startParm := param
 			startParm.Name = &ast.Ident{}
@@ -331,14 +334,16 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			endParm.Typ = endType
 			paramList = append(paramList, add(endParm, true, false))
 
-			end := param
-			end.Name = &ast.Ident{}
-			end.Name.Name = "\r\n}"
-			paramList = append(paramList, ParamConfig{
-				Param:          end,
-				IsSkipDeclared: true,
-				IsCodeSegement: true,
-			})
+			if isPtr {
+				end := param
+				end.Name = &ast.Ident{}
+				end.Name.Name = "\r\n}"
+				paramList = append(paramList, ParamConfig{
+					Param:          end,
+					IsSkipDeclared: true,
+					IsCodeSegement: true,
+				})
+			}
 			continue
 		}
 
@@ -385,7 +390,7 @@ func (c *ClientConfig) ToResultList(method Method) []ResultConfig {
 		}
 		if result.Name != nil {
 			cp.FieldName = "E" + result.Name.Name
-			cp.JSONName = result.Name.Name
+			cp.JSONName = Underscore(result.Name.Name)
 			hasAnonymous = true
 		}
 		resultList = append(resultList, cp)
@@ -457,7 +462,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- if $param.Values -}}
     SetBody(map[string]interface{}{
       {{- range $a := $param.Values}}
-      "{{$a.Name.Name}}": {{$a.Name.Name}},
+      "{{underscore $a.Name.Name}}": {{$a.Name.Name}},
       {{- end}}
     })
     {{- else -}}
@@ -468,7 +473,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- $typeName := typePrint $param.Param.Typ -}}
     {{- if startWith $typeName "*"}}
     if {{$param.Name.Name}} != nil {
-    	request = request.SetParam("{{$param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+    	request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
     }
     {{- $needAssignment = true -}}
     {{- else -}}
@@ -477,7 +482,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- else -}}
     .
     {{end -}}
-    SetParam("{{$param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+    SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
     {{- $needAssignment = false -}}
     {{- end -}}
     {{- end -}}

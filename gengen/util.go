@@ -4,6 +4,8 @@ import (
 	"errors"
 	"log"
 	"strings"
+
+	"github.com/grsmv/inflect"
 )
 
 type PathSegement struct {
@@ -130,4 +132,16 @@ func convertToStringLiteral(param Param) string {
 		log.Fatalln(err)
 		panic(err)
 	}
+}
+
+func UnderscoreSimple(name string) string {
+	return strings.Replace(inflect.Underscore(name), "_i_d", "_id", -1)
+}
+
+func Underscore(name string) string {
+	ss := strings.Split(name, ".")
+	for idx := range ss {
+		ss[idx] = UnderscoreSimple(ss[idx])
+	}
+	return strings.Join(ss, ".")
 }

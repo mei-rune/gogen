@@ -16,10 +16,10 @@ var loongConfig = map[string]interface{}{
 	"path_param_format":   "Param",
 	"query_param_format":  "QueryParam",
 	"read_body_format":    "{{.ctx}}.Bind(&{{.name}})",
-	"bad_argument_format": "loong.ErrBadArgument(%q, %s, %s)",
+	"bad_argument_format": "loong.ErrBadArgument(\"%s\", %s, %s)",
 	"read_format":         "{{.ctx}}.{{.readMethodName}}(\"{{.name}}\")",
-	"ok_func_format":      "return ctx.Return({{.statusCode}}, {{.data}})",
-	"err_func_format":     "ctx.Error({{.err}})\r\n     return nil",
+	"ok_func_format":      "return ctx.ReturnResult({{.statusCode}}, {{.data}})",
+	"err_func_format":     "return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})",
 
 	"reserved": map[string]string{
 		"*http.Request":       "ctx.Request()",

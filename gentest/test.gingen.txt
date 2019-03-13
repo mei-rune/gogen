@@ -101,7 +101,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		if s := ctx.Query("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", start, s, err)), fmt.Errorf("argument %q is invalid - %q", start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", start, s, err).Error())
 				return
 			}
 			start = startValue
@@ -119,7 +119,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err)), fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
 			return
 		}
 
@@ -135,7 +135,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err)), fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
 			return
 		}
 
@@ -153,7 +153,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			B *string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err)), fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
 			return
 		}
 
@@ -171,7 +171,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			B string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err)), fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
 			return
 		}
 
@@ -187,7 +187,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 			return
 		} else {
 			a = int(aValue)
@@ -195,7 +195,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 			return
 		} else {
 			b = int(bValue)
@@ -213,7 +213,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 			return
 		} else {
 			a = new(int)
@@ -222,7 +222,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 			return
 		} else {
 			b = new(int)
@@ -242,7 +242,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 				return
 			}
 			a = new(int)
@@ -252,7 +252,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		if s := ctx.Query("b"); s != "" {
 			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 				return
 			}
 			b = new(int)
@@ -270,25 +270,25 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	mux.GET("/query1", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
-		if s := ctx.Query("beginAt"); s != "" {
+		if s := ctx.Query("begin_at"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err)), fmt.Errorf("argument %q is invalid - %q", beginAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
 				return
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
-		if s := ctx.Query("endAt"); s != "" {
+		if s := ctx.Query("end_at"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", endAt, s, err)), fmt.Errorf("argument %q is invalid - %q", endAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
 				return
 			}
 			endAt = endAtValue
 		}
 		var isRaw bool
-		if s := ctx.Query("isRaw"); s != "" {
+		if s := ctx.Query("is_raw"); s != "" {
 			isRaw = toBool(s)
 		}
 
@@ -299,19 +299,19 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	mux.GET("/query2/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
-		if s := ctx.Query("beginAt"); s != "" {
+		if s := ctx.Query("begin_at"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err)), fmt.Errorf("argument %q is invalid - %q", beginAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
 				return
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
-		if s := ctx.Query("endAt"); s != "" {
+		if s := ctx.Query("end_at"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", endAt, s, err)), fmt.Errorf("argument %q is invalid - %q", endAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
 				return
 			}
 			endAt = endAtValue
@@ -325,19 +325,19 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	mux.GET("/query3/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
-		if s := ctx.Query("beginAt"); s != "" {
+		if s := ctx.Query("begin_at"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err)), fmt.Errorf("argument %q is invalid - %q", beginAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
 				return
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
-		if s := ctx.Query("endAt"); s != "" {
+		if s := ctx.Query("end_at"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", endAt, s, err)), fmt.Errorf("argument %q is invalid - %q", endAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
 				return
 			}
 			endAt = endAtValue
@@ -351,23 +351,19 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	mux.GET("/query4/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange
-		if s := ctx.Query("createdAt.start"); s != "" {
+		if s := ctx.Query("created_at.start"); s != "" {
 			createdAtStartValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
-			createdAt = &TimeRange{}
 			createdAt.Start = createdAtStartValue
 		}
-		if s := ctx.Query("createdAt.end"); s != "" {
+		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
-			}
-			if createdAt == nil {
-				createdAt = &TimeRange{}
 			}
 			createdAt.End = createdAtEndValue
 		}
@@ -380,19 +376,19 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	mux.GET("/query5/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange
-		if s := ctx.Query("createdAt.start"); s != "" {
+		if s := ctx.Query("created_at.start"); s != "" {
 			createdAtStartValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
 			createdAt = &TimeRange{}
 			createdAt.Start = createdAtStartValue
 		}
-		if s := ctx.Query("createdAt.end"); s != "" {
+		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
 			}
 			if createdAt == nil {
@@ -409,24 +405,20 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	mux.GET("/query6/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange2
-		if s := ctx.Query("createdAt.start"); s != "" {
+		if s := ctx.Query("created_at.start"); s != "" {
 			createdAtStartValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
-			createdAt = &TimeRange2{}
 			createdAt.Start = new(time.Time)
 			*createdAt.Start = createdAtStartValue
 		}
-		if s := ctx.Query("createdAt.end"); s != "" {
+		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
-			}
-			if createdAt == nil {
-				createdAt = &TimeRange2{}
 			}
 			createdAt.End = new(time.Time)
 			*createdAt.End = createdAtEndValue
@@ -440,20 +432,20 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	mux.GET("/query7/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange2
-		if s := ctx.Query("createdAt.start"); s != "" {
+		if s := ctx.Query("created_at.start"); s != "" {
 			createdAtStartValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
 			createdAt = &TimeRange2{}
 			createdAt.Start = new(time.Time)
 			*createdAt.Start = createdAtStartValue
 		}
-		if s := ctx.Query("createdAt.end"); s != "" {
+		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
 			}
 			if createdAt == nil {
@@ -548,7 +540,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		if s := ctx.Query("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", start, s, err)), fmt.Errorf("argument %q is invalid - %q", start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", start, s, err).Error())
 				return
 			}
 			start = startValue
@@ -566,7 +558,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err)), fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
 			return
 		}
 
@@ -582,7 +574,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err)), fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
 			return
 		}
 
@@ -600,7 +592,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			B *string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err)), fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
 			return
 		}
 
@@ -618,7 +610,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			B string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err)), fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
 			return
 		}
 
@@ -634,7 +626,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 			return
 		} else {
 			a = int(aValue)
@@ -642,7 +634,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 			return
 		} else {
 			b = int(bValue)
@@ -660,7 +652,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 			return
 		} else {
 			a = new(int)
@@ -669,7 +661,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 			return
 		} else {
 			b = new(int)
@@ -689,7 +681,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 				return
 			}
 			a = new(int)
@@ -699,7 +691,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		if s := ctx.Query("b"); s != "" {
 			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 				return
 			}
 			b = new(int)
@@ -717,25 +709,25 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 	mux.GET("/query1", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
-		if s := ctx.Query("beginAt"); s != "" {
+		if s := ctx.Query("begin_at"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err)), fmt.Errorf("argument %q is invalid - %q", beginAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
 				return
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
-		if s := ctx.Query("endAt"); s != "" {
+		if s := ctx.Query("end_at"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", endAt, s, err)), fmt.Errorf("argument %q is invalid - %q", endAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
 				return
 			}
 			endAt = endAtValue
 		}
 		var isRaw bool
-		if s := ctx.Query("isRaw"); s != "" {
+		if s := ctx.Query("is_raw"); s != "" {
 			isRaw = toBool(s)
 		}
 
@@ -746,19 +738,19 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 	mux.GET("/query2/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
-		if s := ctx.Query("beginAt"); s != "" {
+		if s := ctx.Query("begin_at"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err)), fmt.Errorf("argument %q is invalid - %q", beginAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
 				return
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
-		if s := ctx.Query("endAt"); s != "" {
+		if s := ctx.Query("end_at"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", endAt, s, err)), fmt.Errorf("argument %q is invalid - %q", endAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
 				return
 			}
 			endAt = endAtValue
@@ -772,19 +764,19 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 	mux.GET("/query3/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
-		if s := ctx.Query("beginAt"); s != "" {
+		if s := ctx.Query("begin_at"); s != "" {
 			beginAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", beginAt, s, err)), fmt.Errorf("argument %q is invalid - %q", beginAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
 				return
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
-		if s := ctx.Query("endAt"); s != "" {
+		if s := ctx.Query("end_at"); s != "" {
 			endAtValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", endAt, s, err)), fmt.Errorf("argument %q is invalid - %q", endAt, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
 				return
 			}
 			endAt = endAtValue
@@ -798,23 +790,19 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 	mux.GET("/query4/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange
-		if s := ctx.Query("createdAt.start"); s != "" {
+		if s := ctx.Query("created_at.start"); s != "" {
 			createdAtStartValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
-			createdAt = &TimeRange{}
 			createdAt.Start = createdAtStartValue
 		}
-		if s := ctx.Query("createdAt.end"); s != "" {
+		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
-			}
-			if createdAt == nil {
-				createdAt = &TimeRange{}
 			}
 			createdAt.End = createdAtEndValue
 		}
@@ -827,19 +815,19 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 	mux.GET("/query5/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange
-		if s := ctx.Query("createdAt.start"); s != "" {
+		if s := ctx.Query("created_at.start"); s != "" {
 			createdAtStartValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
 			createdAt = &TimeRange{}
 			createdAt.Start = createdAtStartValue
 		}
-		if s := ctx.Query("createdAt.end"); s != "" {
+		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
 			}
 			if createdAt == nil {
@@ -856,24 +844,20 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 	mux.GET("/query6/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange2
-		if s := ctx.Query("createdAt.start"); s != "" {
+		if s := ctx.Query("created_at.start"); s != "" {
 			createdAtStartValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
-			createdAt = &TimeRange2{}
 			createdAt.Start = new(time.Time)
 			*createdAt.Start = createdAtStartValue
 		}
-		if s := ctx.Query("createdAt.end"); s != "" {
+		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
-			}
-			if createdAt == nil {
-				createdAt = &TimeRange2{}
 			}
 			createdAt.End = new(time.Time)
 			*createdAt.End = createdAtEndValue
@@ -887,20 +871,20 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 	mux.GET("/query7/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange2
-		if s := ctx.Query("createdAt.start"); s != "" {
+		if s := ctx.Query("created_at.start"); s != "" {
 			createdAtStartValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
 				return
 			}
 			createdAt = &TimeRange2{}
 			createdAt.Start = new(time.Time)
 			*createdAt.Start = createdAtStartValue
 		}
-		if s := ctx.Query("createdAt.end"); s != "" {
+		if s := ctx.Query("created_at.end"); s != "" {
 			createdAtEndValue, err := toDatetime(s)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err)), fmt.Errorf("argument %q is invalid - %q", createdAt.end, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
 				return
 			}
 			if createdAt == nil {
@@ -995,7 +979,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		if s := ctx.Query("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", start, s, err)), fmt.Errorf("argument %q is invalid - %q", start, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", start, s, err).Error())
 				return
 			}
 			start = startValue
@@ -1013,7 +997,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err)), fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
 			return
 		}
 
@@ -1029,7 +1013,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err)), fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
 			return
 		}
 
@@ -1045,7 +1029,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 			return
 		} else {
 			a = int(aValue)
@@ -1053,7 +1037,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 			return
 		} else {
 			b = int(bValue)
@@ -1071,7 +1055,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
 			s := ctx.Param("a")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 			return
 		} else {
 			a = new(int)
@@ -1080,7 +1064,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Param("b"), 10, 64); err != nil {
 			s := ctx.Param("b")
-			ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 			return
 		} else {
 			b = new(int)
@@ -1100,7 +1084,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", a, s, err)), fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
 				return
 			}
 			a = new(int)
@@ -1110,7 +1094,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		if s := ctx.Query("b"); s != "" {
 			bValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				ctx.String(httpCodeWith(fmt.Errorf("argument %q is invalid - %q", b, s, err)), fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
 				return
 			}
 			b = new(int)

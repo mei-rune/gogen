@@ -20,7 +20,7 @@ var beeConfig = map[string]interface{}{
 	"bad_argument_format": "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)",
 
 	"ok_func_format":  "ctx.Output.SetStatus({{.statusCode}})\r\n    ctx.Output.JSON({{.data}}, false, false)\r\n    return",
-	"err_func_format": "ctx.Output.SetStatus(httpCodeWith({{.err}}))\r\n    ctx.WriteString({{.err}}.Error())\r\n    return",
+	"err_func_format": "ctx.Output.SetStatus({{.errCode}})\r\n    ctx.WriteString({{.err}}.Error())\r\n    return",
 
 	"reserved": map[string]string{
 		"*http.Request":       "ctx.Request",

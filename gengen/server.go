@@ -33,7 +33,7 @@ type MuxStye interface {
 	FuncSignature() string
 	RouteFunc(method Method) string
 	BadArgumentFunc(method Method, err string, args ...string) string
-	ErrorFunc(method Method, err string, args ...string) string
+	ErrorFunc(method Method, hasRealErrorCode bool, errCode, err string, args ...string) string
 	// OkCode(method Method) int
 	OkFunc(method Method, args ...string) string
 	GetPath(method Method) string
@@ -256,8 +256,8 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{- if eq 1 (len $method.Results.List) }}
       {{- $arg := index $method.Results.List 0}}
       {{- if eq "error" (typePrint $arg.Typ)}}
-          if err != nil {
-            {{$.mux.ErrorFunc $method "resulterr"}}
+          if resulterr != nil {
+            {{$.mux.ErrorFunc $method false "httpCodeWith(err)" "resulterr"}}
           }
           {{$.mux.OkFunc $method "\"OK\""}}        
       {{- else}}
@@ -265,7 +265,7 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
       {{- end}}
     {{- else}}
     if err != nil {
-      {{$.mux.ErrorFunc $method "err"}}
+      {{$.mux.ErrorFunc $method false "httpCodeWith(err)" "err"}}
     }
     {{$.mux.OkFunc $method "result"}}
     {{- end}}
