@@ -16,6 +16,14 @@ import (
 // TimeRange2 is skipped
 
 func InitStringSvc(mux *echo.Group, svc StringSvc) {
+	mux.GET("/ping", func(ctx echo.Context) error {
+		resulterr := svc.Ping()
+		if resulterr != nil {
+			ctx.Error(resulterr)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
 	mux.GET("/echo", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 
@@ -430,6 +438,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
+	mux.GET("/ping", func(ctx echo.Context) error {
+		resulterr := svc.Ping()
+		if resulterr != nil {
+			ctx.Error(resulterr)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
 	mux.GET("/echo", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 

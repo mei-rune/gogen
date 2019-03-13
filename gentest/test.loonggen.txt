@@ -15,6 +15,13 @@ import (
 // TimeRange2 is skipped
 
 func InitStringSvc(mux loong.Party, svc StringSvc) {
+	mux.GET("/ping", func(ctx *loong.Context) error {
+		resulterr := svc.Ping()
+		if resulterr != nil {
+			return ctx.ReturnError(resulterr)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
 	mux.GET("/echo", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
 
@@ -391,6 +398,13 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
+	mux.GET("/ping", func(ctx *loong.Context) error {
+		resulterr := svc.Ping()
+		if resulterr != nil {
+			return ctx.ReturnError(resulterr)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
 	mux.GET("/echo", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
 

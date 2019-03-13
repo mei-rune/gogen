@@ -36,6 +36,9 @@ type TimeRange2 struct {
 
 // @http.Client(name="TestClient", ref="true")
 type StringSvc interface {
+	// @http.GET(path="/ping")
+	Ping() error
+
 	// @http.GET(path="/echo")
 	Echo(a string) string
 
@@ -105,6 +108,11 @@ type StringSvc interface {
 var _ StringSvc = &StringSvcImpl{}
 
 type StringSvcImpl struct {
+}
+
+// @http.GET(path="/ping")
+func (svc *StringSvcImpl) Ping() error {
+	return nil
 }
 
 // @http.GET(path="/echo")

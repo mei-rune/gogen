@@ -25,6 +25,15 @@ func httpCodeWith(err error) int {
 // TimeRange2 is skipped
 
 func InitStringSvc(mux gin.IRouter, svc StringSvc) {
+	mux.GET("/ping", func(ctx *gin.Context) {
+		resulterr := svc.Ping()
+		if resulterr != nil {
+			ctx.String(httpCodeWith(err), resulterr.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
 	mux.GET("/echo", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 
@@ -460,6 +469,15 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
+	mux.GET("/ping", func(ctx *gin.Context) {
+		resulterr := svc.Ping()
+		if resulterr != nil {
+			ctx.String(httpCodeWith(err), resulterr.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
 	mux.GET("/echo", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 

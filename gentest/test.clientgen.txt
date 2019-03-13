@@ -17,6 +17,15 @@ type TestClient struct {
 	proxy *resty.Proxy
 }
 
+func (client TestClient) Ping(ctx context.Context) error {
+
+	request := resty.NewRequest(client.proxy, "/ping")
+
+	defer resty.ReleaseRequest(client.proxy, request)
+	return request.GET(ctx)
+
+}
+
 func (client TestClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
 
@@ -335,6 +344,15 @@ func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRa
 
 type StringSvcImplClient struct {
 	proxy *resty.Proxy
+}
+
+func (client StringSvcImplClient) Ping(ctx context.Context) error {
+
+	request := resty.NewRequest(client.proxy, "/ping")
+
+	defer resty.ReleaseRequest(client.proxy, request)
+	return request.GET(ctx)
+
 }
 
 func (client StringSvcImplClient) Echo(ctx context.Context, a string) (string, error) {

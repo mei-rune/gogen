@@ -27,6 +27,17 @@ func httpCodeWith(err error) int {
 // TimeRange2 is skipped
 
 func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
+	mux.Get("/ping", func(ctx *beecontext.Context) {
+		resulterr := svc.Ping()
+		if resulterr != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(resulterr.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
 	mux.Get("/echo", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 
@@ -521,6 +532,17 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
+	mux.Get("/ping", func(ctx *beecontext.Context) {
+		resulterr := svc.Ping()
+		if resulterr != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(resulterr.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
 	mux.Get("/echo", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 

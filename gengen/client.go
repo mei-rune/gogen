@@ -522,11 +522,13 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- end -}}
   {{- end -}}
 
+  {{- if gt (len $resultList) 0 -}}
   {{- if $needAssignment}}
   request = request.Result(&result)
   {{- else -}}
   	.
   	Result(&{{$resultName}})
+  {{- end}}
   {{- end}}
 
   {{if eq 0 (len $resultList) }}
