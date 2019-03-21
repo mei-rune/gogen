@@ -441,7 +441,8 @@ func (method *Method) init(iface *Class) {
 }
 
 func Parse(filename string, source io.Reader) (*SourceContext, error) {
-	f, err := parser.ParseFile(token.NewFileSet(), filename, source, parser.DeclarationErrors|parser.ParseComments)
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, filename, source, parser.DeclarationErrors|parser.ParseComments)
 	if err != nil {
 		return nil, errors.New("parsing input file '" + filename + "': " + err.Error())
 	}
@@ -558,6 +559,59 @@ func IsRange(classes []Class, typ ast.Expr) (bool, ast.Expr, ast.Expr) {
 	return true, startType, endType
 }
 
-func IsPtr(typ ast.Expr) bool {
-	return strings.HasPrefix(typePrint(typ), "*")
+func IsPtrType(typ ast.Expr) bool {
+	_, ok := typ.(*ast.StarExpr)
+	return ok
+}
+
+func IsStructType(typ ast.Expr) bool {
+	_, ok := typ.(*ast.StructType)
+	return ok
+}
+
+func IsSliceType(typ ast.Expr) bool {
+	arrayType, ok := typ.(*ast.ArrayType)
+	if !ok {
+		return false
+	}
+	return arrayType.Len == nil
+}
+
+func IsArrayType(typ ast.Expr) bool {
+	arrayType, ok := typ.(*ast.ArrayType)
+	if !ok {
+		return false
+	}
+	return arrayType.Len != nil
+}
+
+func IsMapType(typ ast.Expr) bool {
+	_, ok := typ.(*ast.MapType)
+	return ok
+}
+
+func KeyType(typ ast.Expr) ast.Expr {
+	m, ok := typ.(*ast.MapType)
+	if ok {
+		return m.Key
+	}
+	return nil
+}
+
+func ValueType(typ ast.Expr) ast.Expr {
+	m, ok := typ.(*ast.MapType)
+	if ok {
+		return m.Value
+	}
+	return nil
+}
+
+func ElemType(typ ast.Expr) ast.Expr {
+	switch t := typ.(type) {
+	case *ast.StarExpr:
+		return t.X
+	case *ast.ArrayType:
+		return t.Elt
+	}
+	return nil
 }

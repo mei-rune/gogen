@@ -340,7 +340,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 			paramList = append(paramList, add(param, false, true))
 
-			isPtr := IsPtr(param.Typ)
+			isPtr := IsPtrType(param.Typ)
 			if isPtr {
 				start := param
 				start.Name = &ast.Ident{}
