@@ -269,7 +269,7 @@ func (mux *DefaultStye) GetPath(method Method) string {
 
 	rawurl := anno.Attributes["path"]
 	if rawurl == "" {
-		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is missing"))
+		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
 	}
 	pa, _, _ := mux.ParseURL(rawurl)
 	return pa
@@ -474,7 +474,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 
 	if ok, startType, endType := IsRange(mux.classes, param.Typ); ok {
 		if isPath {
-			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name + "' of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is invalid")
+			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name + "' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
 			log.Fatalln(err)
 			panic(err)
 		}
@@ -693,7 +693,7 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 
 		convertArgs, ok := mux.Converts[elmType]
 		if !ok {
-			log.Fatalln(param.Method.Node.Pos(), ": argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeStr)
 		}
 
 		renderArgs := map[string]interface{}{

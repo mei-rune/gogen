@@ -61,6 +61,8 @@ func (cmd *WebClientGenerator) Run(args []string) error {
 		}
 	}
 
+	TimeFormat = "client.proxy.TimeFormat"
+
 	var e error
 	for _, file := range args {
 		if err := cmd.runFile(file); err != nil {
@@ -250,7 +252,7 @@ func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
 
 	rawurl := anno.Attributes["path"]
 	if rawurl == "" {
-		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is missing"))
+		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
 	}
 	var replace = ReplaceFunc(func(segement PathSegement) string {
 		for idx := range paramList {
@@ -269,21 +271,22 @@ func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
 type ParamConfig struct {
 	Param
 
-	QueryParamName string
-	IsSkipDeclared bool
-	IsSkipUse      bool
-	IsCodeSegement bool
-	IsQueryParam   bool
-	IsPathParam    bool
-	IsBodyParam    bool
-	Values         []Param
+	QueryParamName   string
+	IsSkipDeclared   bool
+	IsSkipUse        bool
+	IsCodeSegement   bool
+	IsQueryParam     bool
+	IsMultQueryValue bool
+	IsPathParam      bool
+	IsBodyParam      bool
+	Values           []Param
 }
 
 func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	anno := getAnnotation(method, false)
 	rawurl := anno.Attributes["path"]
 	if rawurl == "" {
-		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is missing"))
+		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
 	}
 
 	data := anno.Attributes["data"]
@@ -328,8 +331,12 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			}
 		}
 
-		if !cp.IsPathParam && !cp.IsBodyParam {
+		if cp.IsQueryParam || !cp.IsPathParam && !cp.IsBodyParam {
 			cp.IsQueryParam = true
+
+			if IsSliceType(param.Typ) || IsArrayType(param.Typ) {
+				cp.IsMultQueryValue = true
+			}
 		}
 		return cp
 	}
@@ -389,7 +396,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			for _, a := range inBody {
 				names = append(names, a.Name.Name)
 			}
-			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": params '" + strings.Join(names, ",") + "' method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is invalid - ")
+			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": params '" + strings.Join(names, ",") + "' method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid - ")
 			log.Fatalln(err)
 		}
 
@@ -431,7 +438,7 @@ func (c *ClientConfig) ToResultList(method Method) []ResultConfig {
 
 	if hasAnonymous && len(resultList) > 1 {
 		err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": method '" +
-			method.Itf.Name.Name + ":" + method.Name.Name + "' is anonymous")
+			method.Clazz.Name.Name + ":" + method.Name.Name + "' is anonymous")
 		log.Fatalln(err)
 	}
 	return resultList
@@ -511,13 +518,21 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     }
     {{- $needAssignment = true -}}
     {{- else -}}
-    {{- if $needAssignment}}
-    request = request.
-    {{- else -}}
-    .
-    {{end -}}
-    SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
-    {{- $needAssignment = false -}}
+    
+      {{- if $param.IsMultQueryValue }}
+        for idx := range {{$param.Param.Name.Name}} {
+          request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param true}}[idx])
+        }
+      {{- $needAssignment = true -}}
+      {{- else}}    
+        {{- if $needAssignment}}
+        request = request.
+        {{- else -}}
+        .
+        {{end -}}
+        SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+      {{- $needAssignment = false -}}
+      {{- end -}}
     {{- end -}}
     {{- end -}}
   {{- end -}}

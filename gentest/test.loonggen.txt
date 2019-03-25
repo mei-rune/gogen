@@ -230,7 +230,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
 			}
@@ -238,7 +238,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
 			}
@@ -256,7 +256,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
 			}
@@ -264,7 +264,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
 			}
@@ -279,7 +279,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
 			}
@@ -287,7 +287,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
 			}
@@ -302,14 +302,14 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
@@ -324,7 +324,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
@@ -332,7 +332,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
@@ -350,14 +350,14 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
@@ -372,7 +372,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
@@ -380,7 +380,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
@@ -613,7 +613,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
 			}
@@ -621,7 +621,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
 			}
@@ -639,7 +639,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
 			}
@@ -647,7 +647,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
 			}
@@ -662,7 +662,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
 			}
@@ -670,7 +670,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
 			}
@@ -685,14 +685,14 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
@@ -707,7 +707,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
@@ -715,7 +715,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
@@ -733,14 +733,14 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}
@@ -755,7 +755,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
 			}
@@ -763,7 +763,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := loong.ToDatetime(s)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
 			}

@@ -43,10 +43,10 @@ var ginConfig = map[string]interface{}{
 		//     "name": "IntParam",
 		//   },
 		// },
-		// "optional": map[string]interface{}{
-		// 	"int": map[string]interface{}{
-		//     "name": "QueryIntParam",
-		//   },
-		// },
+		"optional": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"name": "QueryArray",
+			},
+		},
 	},
 }

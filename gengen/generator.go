@@ -93,7 +93,7 @@ func getAnnotation(method Method, nilIfNotExists bool) *Annotation {
 		}
 
 		if annotation != nil {
-			log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": Annotation of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is duplicated"))
+			log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": Annotation of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is duplicated"))
 		}
 		annotation = &method.Annotations[idx]
 	}
@@ -101,7 +101,7 @@ func getAnnotation(method Method, nilIfNotExists bool) *Annotation {
 		return annotation
 	}
 	if annotation == nil {
-		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": Annotation of method '" + method.Itf.Name.Name + ":" + method.Name.Name + "' is missing"))
+		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": Annotation of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
 	}
 	return annotation
 }

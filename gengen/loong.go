@@ -4,7 +4,7 @@ var loongConfig = map[string]interface{}{
 	// "features.buildTag":     "loong-gen",
 	"features.httpCodeWith": false,
 	// "features.boolConvert":     "toBool({{.name}})",
-	// "features.datetimeConvert": "toDatetime({{.name}})",
+	"features.datetimeConvert": "loong.ToDatetime({{.name}})",
 	"imports": map[string]string{
 		"github.com/runner-mei/loong": "",
 	},
@@ -36,6 +36,13 @@ var loongConfig = map[string]interface{}{
 		"http.ResponseWriter": "ctx.Response().Writer",
 		"context.Context":     "ctx.StdContext",
 		"*loong.Context":      "ctx",
+	},
+	"types": map[string]interface{}{
+		"optional": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"name": "QueryParamArray",
+			},
+		},
 	},
 }
 

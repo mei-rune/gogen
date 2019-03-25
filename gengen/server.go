@@ -61,8 +61,10 @@ func (cmd *WebServerGenerator) Run(args []string) error {
 		cmd.Mux = NewEchoStye()
 	}
 
+	var cfg map[string]interface{}
 	if cmd.config != "" {
-		cfg, err := readConfig(cmd.config)
+		var err error
+		cfg, err = readConfig(cmd.config)
 		if err != nil {
 			log.Fatalln(err)
 			return err
@@ -81,7 +83,7 @@ func (cmd *WebServerGenerator) Run(args []string) error {
 	}
 
 	if mux := cmd.Mux.(*DefaultStye); mux != nil {
-		mux.reinit(nil)
+		mux.reinit(cfg)
 	}
 
 	if cmd.ext == "" {

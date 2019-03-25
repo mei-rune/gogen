@@ -8,6 +8,8 @@ import (
 	"github.com/grsmv/inflect"
 )
 
+var TimeFormat = "TimeFormat"
+
 type PathSegement struct {
 	IsArgument bool
 	Value      string
@@ -96,8 +98,13 @@ func parseQuery(query string) map[string]string {
 	return values
 }
 
-func convertToStringLiteral(param Param) string {
-	typ := typePrint(param.Typ)
+func convertToStringLiteral(param Param, isArray ...bool) string {
+	var typ string
+	if len(isArray) > 0 && isArray[0] {
+		typ = typePrint(ElemType(param.Typ))
+	} else {
+		typ = typePrint(param.Typ)
+	}
 	switch typ {
 	case "string":
 		return param.Name.Name
@@ -124,11 +131,11 @@ func convertToStringLiteral(param Param) string {
 	case "*bool":
 		return "BoolToString(*" + param.Name.Name + ")"
 	case "time.Time", "*time.Time":
-		return param.Name.Name + ".Format(TimeFormat)"
+		return param.Name.Name + ".Format(" + TimeFormat + ")"
 	case "net.IP", "*net.IP":
 		return param.Name.Name + ".String()"
 	default:
-		err := errors.New("path param '" + param.Name.Name + "' is unsupport type - " + typ)
+		err := errors.New(param.Method.Ctx.PostionFor(param.Method.Node.Pos()).String() + ": path param '" + param.Name.Name + "' of '" + param.Method.Name.Name + "' is unsupport type - " + typ)
 		log.Fatalln(err)
 		panic(err)
 	}

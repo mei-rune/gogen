@@ -16,6 +16,7 @@ import (
 
 type (
 	SourceContext struct {
+		FileSet *token.FileSet
 		Pkg     *ast.Ident
 		Imports []*ast.ImportSpec
 		Classes []Class
@@ -42,7 +43,7 @@ type (
 	}
 
 	Class struct {
-		ctx         *SourceContext `json:"-"`
+		Ctx         *SourceContext `json:"-"`
 		Node        *ast.TypeSpec
 		Name        *ast.Ident
 		Comments    []string
@@ -54,7 +55,8 @@ type (
 	}
 
 	Field struct {
-		Clazz *Class `json:"-"`
+		Ctx   *SourceContext `json:"-"`
+		Clazz *Class         `json:"-"`
 		Node  *ast.Field
 		Name  *ast.Ident
 		Typ   ast.Expr      // field/method/parameter type
@@ -75,7 +77,8 @@ type (
 	}
 
 	Method struct {
-		Itf         *Class `json:"-"`
+		Ctx         *SourceContext `json:"-"`
+		Clazz       *Class         `json:"-"`
 		Node        *ast.Field
 		Name        *ast.Ident
 		Comments    []string
@@ -146,14 +149,6 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 	case *ast.ImportSpec:
 		v.src.Imports = append(v.src.Imports, rn)
 		return nil
-	case *ast.TypeSpec:
-		switch rn.Type.(type) {
-		case *ast.InterfaceType:
-		default:
-			v.src.Types = append(v.src.Types, rn)
-		}
-
-		return &typeSpecVisitor{src: v.src, node: rn}
 	case *ast.FuncDecl:
 		if rn.Recv == nil || len(rn.Recv.List) == 0 {
 			return nil
@@ -238,7 +233,7 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 	case nil:
 		if v.iface != nil {
 			v.iface.IsInterface = v.isInterface
-			v.iface.ctx = v.src
+			v.iface.Ctx = v.src
 			v.iface.Node = v.node
 			v.iface.Name = v.name
 			v.iface.Comments = v.comments
@@ -416,10 +411,14 @@ func (v *resultVisitor) Visit(n ast.Node) ast.Visitor {
 	return nil
 }
 
+func (sc *SourceContext) PostionFor(pos token.Pos) token.Position {
+	return sc.FileSet.PositionFor(pos, true)
+}
+
 func (sc *SourceContext) validate() error {
 	for _, i := range sc.Classes {
 		for _, m := range i.Methods {
-			if len(m.Results.List) < 1 {
+			if m.Results == nil || len(m.Results.List) < 1 {
 				return fmt.Errorf("method %q of interface %q has no result types", m.Name, i.Name)
 			}
 		}
@@ -428,15 +427,19 @@ func (sc *SourceContext) validate() error {
 }
 
 func (method *Method) init(iface *Class) {
-	method.Itf = iface
-	method.Params.Method = method
-	for j := range method.Params.List {
-		method.Params.List[j].Method = method
+	method.Clazz = iface
+	if method.Params != nil {
+		method.Params.Method = method
+		for j := range method.Params.List {
+			method.Params.List[j].Method = method
+		}
 	}
 
-	method.Results.Method = method
-	for j := range method.Results.List {
-		method.Results.List[j].Method = method
+	if method.Results != nil {
+		method.Results.Method = method
+		for j := range method.Results.List {
+			method.Results.List[j].Method = method
+		}
 	}
 }
 
@@ -447,11 +450,15 @@ func Parse(filename string, source io.Reader) (*SourceContext, error) {
 		return nil, errors.New("parsing input file '" + filename + "': " + err.Error())
 	}
 
-	context := &SourceContext{}
+	context := &SourceContext{
+		FileSet: fset,
+	}
 	visitor := &parseVisitor{src: context}
 	ast.Walk(visitor, f)
 
-	for classIdx, itf := range context.Classes {
+	for classIdx := range context.Classes {
+		context.Classes[classIdx].Ctx = context
+
 		for _, comment := range context.Classes[classIdx].Comments {
 			ann := parseAnnotation(comment)
 			if ann != nil {
@@ -459,8 +466,9 @@ func Parse(filename string, source io.Reader) (*SourceContext, error) {
 			}
 		}
 
-		for idx := range itf.Methods {
-			method := &itf.Methods[idx]
+		for idx := range context.Classes[classIdx].Methods {
+			method := &context.Classes[classIdx].Methods[idx]
+			method.Ctx = context
 			method.init(&context.Classes[classIdx])
 			for _, comment := range method.Comments {
 				ann := parseAnnotation(comment)
@@ -468,6 +476,10 @@ func Parse(filename string, source io.Reader) (*SourceContext, error) {
 					method.Annotations = append(method.Annotations, *ann)
 				}
 			}
+		}
+
+		for idx := range context.Classes[classIdx].Fields {
+			context.Classes[classIdx].Fields[idx].Ctx = context
 		}
 	}
 	if err := context.validate(); err != nil {
