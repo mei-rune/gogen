@@ -269,7 +269,7 @@ func (mux *DefaultStye) GetPath(method Method) string {
 
 	rawurl := anno.Attributes["path"]
 	if rawurl == "" {
-		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
+		log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
 	}
 	pa, _, _ := mux.ParseURL(rawurl)
 	return pa
@@ -312,8 +312,10 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 	bindTxt := template.Must(template.New("bindTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 			var bindArgs struct {
 				{{- range $param := .params}}
-				{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{ $param.Param.Name.Name}},omitempty\"`" + `
-				{{- end}}
+          {{- if $param.InBody }}
+  				{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{ $param.Param.Name.Name}},omitempty\"`" + `
+  				{{- end}}
+        {{- end}}
 			}
 			if err := {{readBody .ctx "bindArgs"}}; err != nil {
 				{{badArgument "bindArgs" "\"body\"" "err"}}
@@ -340,6 +342,16 @@ func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
 
 	for idx := range method.Params.List {
 		results = append(results, mux.ToParam(method, method.Params.List[idx], isEdit)...)
+	}
+
+	_, hasData := ann.Attributes["data"]
+	if hasData {
+		for idx := range results {
+			if results[idx].InBody {
+				err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": param '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
+				log.Fatalln(err)
+			}
+		}
 	}
 
 	return results
@@ -423,6 +435,9 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 	} else if s, ok := mux.Reserved[typeStr]; ok {
 		serverParam.ParamName = s
 		return []ServerParam{serverParam}
+	} else if s, ok := mux.Reserved[elmType]; ok {
+		serverParam.ParamName = s
+		return []ServerParam{serverParam}
 	}
 
 	_, pathNames, queryNames := mux.ParseURL(anno.Attributes["path"])
@@ -443,6 +458,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 		if s, ok := queryNames[param.Name.Name]; ok && s != "" {
 			paramName = s
 		} else if isEdit {
+
 			serverParam.InBody = true
 			serverParam.InitString = ""
 			serverParam.ParamName = "bindArgs." + Goify(serverParam.Param.Name.Name, true)

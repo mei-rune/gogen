@@ -192,6 +192,41 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
+	mux.POST("/save5", func(ctx *gin.Context) {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Save5(ctx.Request.Context(), bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusCreated, result)
+		return
+	})
+	mux.POST("/echo5", func(ctx *gin.Context) {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Echo5(ctx.Request.Context(), bindArgs.A)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusCreated, result)
+		return
+	})
 	mux.GET("/add/:a/:b", func(ctx *gin.Context) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {

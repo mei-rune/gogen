@@ -72,6 +72,12 @@ type StringSvc interface {
 	// @http.POST(path="/save4")
 	Save4(a, b string) (string, error)
 
+	// @http.POST(path="/save5")
+	Save5(context context.Context, a, b string) (string, error)
+
+	// @http.POST(path="/echo5")
+	Echo5(context context.Context, a string) (string, error)
+
 	// @http.GET(path="/add/:a/:b")
 	Add(a, b int) (int, error)
 

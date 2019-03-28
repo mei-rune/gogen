@@ -180,6 +180,37 @@ func (client TestClient) Save4(ctx context.Context, a string, b string) (string,
 	return result, err
 }
 
+func (client TestClient) Save5(ctx context.Context, a string, b string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/save5").
+		SetBody(map[string]interface{}{
+			"a": a,
+			"b": b,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
+func (client TestClient) Echo5(ctx context.Context, a string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.proxy, "/echo5").
+		SetBody(map[string]interface{}{
+			"a": a,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+
+	resty.ReleaseRequest(client.proxy, request)
+	return result, err
+}
+
 func (client TestClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
 

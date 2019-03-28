@@ -154,6 +154,35 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		return ctx.ReturnCreatedResult(result)
 	})
+	mux.POST("/save5", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+
+		result, err := svc.Save5(ctx.StdContext, bindArgs.A, bindArgs.B)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/echo5", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+
+		result, err := svc.Echo5(ctx.StdContext, bindArgs.A)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
 	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Param("a"), 10, 64); err != nil {
