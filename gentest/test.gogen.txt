@@ -12,6 +12,15 @@ import (
 	"github.com/labstack/echo"
 )
 
+func httpCodeWith(err error) int {
+	if herr, ok := err.(interface {
+		HTTPCode() int
+	}); ok {
+		return herr.HTTPCode()
+	}
+	return http.StatusInternalServerError
+}
+
 // TimeRange is skipped
 // TimeRange2 is skipped
 

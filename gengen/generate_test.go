@@ -38,7 +38,7 @@ func TestGenerate(t *testing.T) {
 					//ext:      ".echogen.go",
 					buildTag: "echo",
 				},
-				//config: "@echo",
+				config: "@echo",
 			}
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)

@@ -16,7 +16,7 @@ var echoConfig = map[string]interface{}{
 	"path_param_format":   "Param",
 	"query_param_format":  "QueryParam",
 	"read_body_format":    "{{.ctx}}.Bind(&{{.name}})",
-	"bad_argument_format": "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)",
+	"bad_argument_format": "fmt.Errorf(\"argument %%q is invalid - %%q\", \"%s\", %s, %s)",
 	"read_format":         "{{.ctx}}.{{.readMethodName}}(\"{{.name}}\")",
 	"ok_func_format":      "return ctx.JSON({{.statusCode}}, {{.data}})",
 	"err_func_format":     "ctx.Error({{.err}})\r\n     return nil",
@@ -25,5 +25,6 @@ var echoConfig = map[string]interface{}{
 		"*http.Request":       "ctx.Request()",
 		"http.ResponseWriter": "ctx.Response().Writer",
 		"context.Context":     "ctx.Request().Context()",
+		"echo.Context":        "ctx",
 	},
 }
