@@ -505,7 +505,9 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
 	{{$resultName}}Wrap.Data = &{{$resultName}}
   {{- end}}
   {{- end}}
- 
+  {{- if gt (len $resultList) 0}}
+  {{/* empty line */}}
+  {{- end}}
   request := {{$.config.NewRequest "client.proxy" ($.config.GetPath $method $paramList) }}
   {{- $needAssignment := false -}}
   {{- range $param := $paramList -}}
