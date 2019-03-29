@@ -495,14 +495,17 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- end}}
       }
   {{- end}}
-  {{- if $.config.HasWrapper }}
+  {{- $hasWrapper := $.config.HasWrapper}}
+  {{- if eq 0 (len $resultList) }}
+  {{- $hasWrapper = false}}
+  {{- end}}
+  {{- if $hasWrapper }}
   var {{$resultName}}Wrap {{$.config.WrapperType}}
   {{- if ne (len $resultList) 0}}
 	{{$resultName}}Wrap.Data = &{{$resultName}}
   {{- end}}
   {{- end}}
-  
-
+ 
   request := {{$.config.NewRequest "client.proxy" ($.config.GetPath $method $paramList) }}
   {{- $needAssignment := false -}}
   {{- range $param := $paramList -}}
@@ -558,16 +561,16 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   request = request.Result(&result)
   {{- else -}}
   	.
-  	Result(&{{$resultName}}{{if $.config.HasWrapper }}Wrap{{end}})
+  	Result(&{{$resultName}}{{if $hasWrapper }}Wrap{{end}})
   {{- end}}
   {{- end}}
 
-  {{if and (not $.config.HasWrapper) (eq 0 (len $resultList)) }}
+  {{if and (not $hasWrapper) (eq 0 (len $resultList)) }}
   defer {{$.config.ReleaseRequest "client.proxy" "request"}}
   return {{else}}err := {{end}} request.{{$.config.RouteFunc $method}}(ctx)
   {{- if eq 0 (len $resultList) }}
     
-    {{- if $.config.HasWrapper }}
+    {{- if $hasWrapper }}
       if err != nil {
         return err
       }
@@ -589,7 +592,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
       {{- end}}
     {{- end}}
   
-    {{- if $.config.HasWrapper }}
+    {{- if $hasWrapper }}
       if err != nil {
         return {{if $isPtr}}nil{{else}}{{zeroValue $result.Typ}}{{end}}, err
       }
@@ -609,7 +612,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
            {{- end -}}err
   }
     
-  {{- if $.config.HasWrapper }} 
+  {{- if $hasWrapper }} 
   if !{{$resultName}}Wrap.Success {
     return {{range $result := $resultList -}}
            {{zeroValue $result.Typ}},
