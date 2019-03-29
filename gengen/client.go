@@ -63,6 +63,7 @@ func (cmd *WebClientGenerator) Run(args []string) error {
 	} else {
 		cmd.imports = map[string]string{
 			"github.com/runner-mei/loong/resty": "",
+			"github.com/runner-mei/loong":       "",
 		}
 	}
 
