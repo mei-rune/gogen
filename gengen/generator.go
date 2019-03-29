@@ -3,6 +3,7 @@ package gengen
 import (
 	"errors"
 	"flag"
+	"go/ast"
 	"io"
 	"log"
 	"reflect"
@@ -192,4 +193,25 @@ var Funcs = template.FuncMap{
 	"convertToStringLiteral": convertToStringLiteral,
 	"goify":                  Goify,
 	"underscore":             Underscore,
+	"zeroValue": func(typ ast.Expr) string {
+		switch typ.(type) {
+		case *ast.StarExpr:
+			return "nil"
+		case *ast.ArrayType:
+			return "nil"
+		case *ast.MapType:
+			return "nil"
+		}
+
+		s := typePrint(typ)
+		if lit, ok := zeroLits[s]; ok {
+			return lit
+		}
+		return "0"
+	},
+}
+
+var zeroLits = map[string]string{
+	"time.Time": "time.Time{}",
+	"string":    "\"\"",
 }

@@ -171,7 +171,9 @@ func TestGenerate(t *testing.T) {
 				},
 				//config: "@echo",
 			}
-			gen.Flags(flag.NewFlagSet("", flag.PanicOnError))
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{})
+			gen.config.HasWrapper = false
+
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
@@ -180,6 +182,41 @@ func TestGenerate(t *testing.T) {
 
 			actual := readFile(filepath.Join(wd, "gentest", name+".clientgen.go"))
 			excepted := readFile(filepath.Join(wd, "gentest", name+".clientgen.txt"))
+			if !reflect.DeepEqual(actual, excepted) {
+				results := difflib.Diff(excepted, actual)
+				for _, result := range results {
+					if result.Delta == difflib.Common {
+						continue
+					}
+					t.Error(result)
+				}
+			}
+		}
+	})
+
+	t.Run("loongclient", func(t *testing.T) {
+		for _, name := range []string{"test"} {
+			t.Log("=====================", name)
+			os.Remove(filepath.Join(wd, "gentest", name+".loongclientgen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", name+".clientgen.go"))
+
+			var gen = WebClientGenerator{
+				GeneratorBase: GeneratorBase{
+					ext: ".loongclientgen.go",
+				},
+				//config: "@echo",
+			}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{})
+			gen.config.HasWrapper = false
+
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+				fmt.Println(err)
+				t.Error(err)
+				continue
+			}
+
+			actual := readFile(filepath.Join(wd, "gentest", name+".loongclientgen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", name+".loongclientgen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {

@@ -18,6 +18,8 @@
 *.echogen.go
 *.loonggen.go
 *.clientgen.go
+*.loongclientgen.go
+*.*gen.go
 *.log
 tmp
 

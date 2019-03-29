@@ -31,6 +31,11 @@ func (cmd *WebClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.config.ContextClassName, "context", "context.Context", "")
 	fs.StringVar(&cmd.config.newRequest, "new-request", "resty.NewRequest({{.proxy}},{{.url}})", "")
 	fs.StringVar(&cmd.config.releaseRequest, "free-request", "resty.ReleaseRequest({{.proxy}},{{.request}})", "")
+
+	fs.BoolVar(&cmd.config.HasWrapper, "has-wrapper", true, "")
+	fs.StringVar(&cmd.config.WrapperType, "wrapper-type", "loong.Result", "")
+	fs.StringVar(&cmd.config.WrapperData, "wrapper-data", "Data", "")
+	fs.StringVar(&cmd.config.WrapperError, "wrapper-error", "Error", "")
 	return fs
 }
 
@@ -180,6 +185,10 @@ type ClientConfig struct {
 	ContextClassName string
 	ClassName        string
 	RecvClassName    string
+	HasWrapper       bool
+	WrapperType      string
+	WrapperData      string
+	WrapperError     string
 
 	newRequest     string
 	releaseRequest string
@@ -486,6 +495,13 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- end}}
       }
   {{- end}}
+  {{- if $.config.HasWrapper }}
+  var {{$resultName}}Wrap {{$.config.WrapperType}}
+  {{- if ne (len $resultList) 0}}
+	{{$resultName}}Wrap.Data = &{{$resultName}}
+  {{- end}}
+  {{- end}}
+  
 
   request := {{$.config.NewRequest "client.proxy" ($.config.GetPath $method $paramList) }}
   {{- $needAssignment := false -}}
@@ -542,24 +558,69 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   request = request.Result(&result)
   {{- else -}}
   	.
-  	Result(&{{$resultName}})
+  	Result(&{{$resultName}}{{if $.config.HasWrapper }}Wrap{{end}})
   {{- end}}
   {{- end}}
 
-  {{if eq 0 (len $resultList) }}
+  {{if and (not $.config.HasWrapper) (eq 0 (len $resultList)) }}
   defer {{$.config.ReleaseRequest "client.proxy" "request"}}
   return {{else}}err := {{end}} request.{{$.config.RouteFunc $method}}(ctx)
-  {{if eq 0 (len $resultList) }}
-  {{else if eq 1 (len $resultList) }}
-  {{$.config.ReleaseRequest "client.proxy" "request"}}
-    {{- range $result := $resultList}}
-  return {{if startWith (typePrint $result.Typ) "*"}}&{{end}}{{$resultName}}, err
+  {{- if eq 0 (len $resultList) }}
+    
+    {{- if $.config.HasWrapper }}
+      if err != nil {
+        return err
+      }
+      if !{{$resultName}}Wrap.Success {
+          return {{$resultName}}Wrap.Error
+      }
+      return nil
+    {{- end}}
+  
+  {{- else if eq 1 (len $resultList) }}
+    {{$.config.ReleaseRequest "client.proxy" "request"}}
+  
+    {{- $isPtr := false}}
+    {{- $result := false}}
+    {{- range $resulta := $resultList}}
+      {{- $result = $resulta}}
+      {{- if startWith (typePrint $resulta.Typ) "*"}}
+        {{- $isPtr = true}}
+      {{- end}}
+    {{- end}}
+  
+    {{- if $.config.HasWrapper }}
+      if err != nil {
+        return {{if $isPtr}}nil{{else}}{{zeroValue $result.Typ}}{{end}}, err
+      }
+      if !{{$resultName}}Wrap.Success {
+        return {{if $isPtr}}nil{{else}}{{zeroValue $result.Typ}}{{end}}, {{$resultName}}Wrap.Error
+      }
+      return {{if $isPtr}}&{{end}}{{$resultName}}, nil
+    {{- else}}
+      return {{if $isPtr}}&{{end}}{{$resultName}}, err
     {{- end}}
   {{- else}}
   {{$.config.ReleaseRequest "client.proxy" "request"}}
+
+  if err != nil {
+    return {{range $result := $resultList -}}
+           {{zeroValue $result.Typ}},
+           {{- end -}}err
+  }
+    
+  {{- if $.config.HasWrapper }} 
+  if !{{$resultName}}Wrap.Success {
+    return {{range $result := $resultList -}}
+           {{zeroValue $result.Typ}},
+           {{- end -}} {{$resultName}}Wrap.Error
+  }
+  {{- else}}
   return {{range $result := $resultList -}}
          {{$resultName}}.{{$result.FieldName}},
-        {{- end -}}, err
+        {{- end -}}, nil
+  {{- end}}
+  
   {{- end}}
 }
 	{{end}}{{/* if $skipResult.IsSkipped */}}
