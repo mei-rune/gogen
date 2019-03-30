@@ -18,7 +18,6 @@ type TestClient struct {
 }
 
 func (client TestClient) Ping(ctx context.Context) error {
-
 	request := resty.NewRequest(client.proxy, "/ping")
 
 	defer resty.ReleaseRequest(client.proxy, request)
@@ -354,7 +353,6 @@ type StringSvcImplClient struct {
 }
 
 func (client StringSvcImplClient) Ping(ctx context.Context) error {
-
 	request := resty.NewRequest(client.proxy, "/ping")
 
 	defer resty.ReleaseRequest(client.proxy, request)
