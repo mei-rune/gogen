@@ -415,7 +415,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 		bindTxt := template.Must(template.New("bindTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		var {{.name}} {{.type}}
 		if err := {{readBody .param .ctx .name}}; err != nil {
-			{{badArgument .name "\"<no value>\"" "err"}}
+			{{badArgument .name "\"body\"" "err"}}
 		}
 		`))
 
