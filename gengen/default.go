@@ -247,7 +247,22 @@ func (mux *DefaultStye) TypeConvert(param Param, typeName, ctxName, paramName st
 
 	format, ok := mux.Converts[typeName]
 	if !ok {
-		log.Fatalln(fmt.Errorf("%d: unsupport type - %s", param.Method.Node.Pos(), typeName))
+		underlying := param.Method.Ctx.GetType(typeName)
+		if underlying == nil {
+			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeName)
+		}
+
+		// elmType = typePrint(underlying.Type)
+
+		format, ok = mux.Converts[typePrint(underlying.Type)]
+		if !ok {
+			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeName)
+		}
+
+		format.NeedTransform = true
+
+		// panic(fmt.Errorf("%d: unsupport type - %s", param.Method.Node.Pos(), typeName))
+		//log.Fatalln(fmt.Errorf("%d: unsupport type - %s", param.Method.Node.Pos(), typeName))
 	}
 
 	tpl := template.Must(template.New("convertTemplate").Parse(format.Format))
@@ -713,7 +728,19 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 
 		convertArgs, ok := mux.Converts[elmType]
 		if !ok {
-			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+			underlying := method.Ctx.GetType(elmType)
+			if underlying == nil {
+				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+			}
+
+			// elmType = typePrint(underlying.Type)
+
+			convertArgs, ok = mux.Converts[typePrint(underlying.Type)]
+			if !ok {
+				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+			}
+
+			convertArgs.NeedTransform = true
 		}
 
 		renderArgs := map[string]interface{}{

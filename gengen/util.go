@@ -105,6 +105,10 @@ func convertToStringLiteral(param Param, isArray ...bool) string {
 	} else {
 		typ = typePrint(param.Typ)
 	}
+	isFirst := true
+	needWrap := false
+
+retry:
 	switch typ {
 	case "string":
 		return param.Name.Name
@@ -115,16 +119,28 @@ func convertToStringLiteral(param Param, isArray ...bool) string {
 	case "*int", "*int8", "*int16", "*int32":
 		return "strconv.FormatInt(int64(*" + param.Name.Name + "), 10)"
 	case "int64":
+		if needWrap {
+			return "strconv.FormatInt(int64(" + param.Name.Name + "), 10)"
+		}
 		return "strconv.FormatInt(" + param.Name.Name + ", 10)"
 	case "*int64":
+		if needWrap {
+			return "strconv.FormatInt(int64(*" + param.Name.Name + "), 10)"
+		}
 		return "strconv.FormatInt(*" + param.Name.Name + ", 10)"
 	case "uint", "uint8", "uint16", "uint32":
 		return "strconv.FormatUint(uint64(" + param.Name.Name + "), 10)"
 	case "*uint", "*uint8", "*uint16", "*uint32":
 		return "strconv.FormatUint(uint64(*" + param.Name.Name + "), 10)"
 	case "uint64":
+		if needWrap {
+			return "strconv.FormatUint(uint64(" + param.Name.Name + "), 10)"
+		}
 		return "strconv.FormatUint(" + param.Name.Name + ", 10)"
 	case "*uint64":
+		if needWrap {
+			return "strconv.FormatUint(uint64(*" + param.Name.Name + "), 10)"
+		}
 		return "strconv.FormatUint(*" + param.Name.Name + ", 10)"
 	case "bool":
 		return "BoolToString(" + param.Name.Name + ")"
@@ -135,7 +151,19 @@ func convertToStringLiteral(param Param, isArray ...bool) string {
 	case "net.IP", "*net.IP":
 		return param.Name.Name + ".String()"
 	default:
+
+		underlying := param.Method.Ctx.GetType(typ)
+		if underlying != nil {
+			if isFirst {
+				isFirst = false
+				needWrap = true
+				typ = typePrint(underlying.Type)
+				goto retry
+			}
+		}
+
 		err := errors.New(param.Method.Ctx.PostionFor(param.Method.Node.Pos()).String() + ": path param '" + param.Name.Name + "' of '" + param.Method.Name.Name + "' is unsupport type - " + typ)
+
 		log.Fatalln(err)
 		panic(err)
 	}

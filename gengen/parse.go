@@ -419,6 +419,14 @@ func (v *resultVisitor) Visit(n ast.Node) ast.Visitor {
 func (sc *SourceContext) PostionFor(pos token.Pos) token.Position {
 	return sc.FileSet.PositionFor(pos, true)
 }
+func (sc *SourceContext) GetType(name string) *ast.TypeSpec {
+	for _, typ := range sc.Types {
+		if typ.Name.Name == name {
+			return typ
+		}
+	}
+	return nil
+}
 
 func (sc *SourceContext) validate() error {
 	for _, i := range sc.Classes {

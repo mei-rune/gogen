@@ -26,6 +26,24 @@ func httpCodeWith(err error) int {
 
 func InitStringSvc(mux *echo.Group, svc StringSvc) {
 	mux.GET("/ping", func(ctx echo.Context) error {
+		var key Key
+		if s := ctx.QueryParam("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "key", s, err))
+				return nil
+			}
+			key = Key(keyValue)
+		}
+
+		resulterr := svc.TestByKey(key)
+		if resulterr != nil {
+			ctx.Error(resulterr)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
+	mux.GET("/ping", func(ctx echo.Context) error {
 		resulterr := svc.Ping()
 		if resulterr != nil {
 			ctx.Error(resulterr)

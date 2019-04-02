@@ -44,6 +44,9 @@ type TimeRange2 struct {
 // @http.Client(name="TestClient", ref="true")
 type StringSvc interface {
 	// @http.GET(path="/ping")
+	TestByKey(key Key) error
+
+	// @http.GET(path="/ping")
 	Ping() error
 
 	// @http.GET(path="/echo")

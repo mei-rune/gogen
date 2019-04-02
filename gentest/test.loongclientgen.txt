@@ -17,6 +17,14 @@ type TestClient struct {
 	proxy *resty.Proxy
 }
 
+func (client TestClient) TestByKey(ctx context.Context, key Key) error {
+	request := resty.NewRequest(client.proxy, "/ping").
+		SetParam("key", strconv.FormatInt(int64(key), 10))
+
+	defer resty.ReleaseRequest(client.proxy, request)
+	return request.GET(ctx)
+}
+
 func (client TestClient) Ping(ctx context.Context) error {
 	request := resty.NewRequest(client.proxy, "/ping")
 

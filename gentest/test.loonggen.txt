@@ -16,6 +16,22 @@ import (
 
 func InitStringSvc(mux loong.Party, svc StringSvc) {
 	mux.GET("/ping", func(ctx *loong.Context) error {
+		var key Key
+		if s := ctx.QueryParam("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("key", s, err), http.StatusBadRequest)
+			}
+			key = Key(keyValue)
+		}
+
+		resulterr := svc.TestByKey(key)
+		if resulterr != nil {
+			return ctx.ReturnError(resulterr)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/ping", func(ctx *loong.Context) error {
 		resulterr := svc.Ping()
 		if resulterr != nil {
 			return ctx.ReturnError(resulterr)

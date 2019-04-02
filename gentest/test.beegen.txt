@@ -28,6 +28,28 @@ func httpCodeWith(err error) int {
 
 func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 	mux.Get("/ping", func(ctx *beecontext.Context) {
+		var key Key
+		if s := ctx.Input.Query("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", key, s, err).Error())
+				return
+			}
+			key = Key(keyValue)
+		}
+
+		resulterr := svc.TestByKey(key)
+		if resulterr != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(resulterr.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/ping", func(ctx *beecontext.Context) {
 		resulterr := svc.Ping()
 		if resulterr != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
