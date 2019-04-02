@@ -419,6 +419,10 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 		}
 		`))
 
+		if dataType := anno.Attributes["dataType"]; dataType != "" {
+			elmType = dataType
+		}
+
 		renderArgs := map[string]interface{}{
 			"ctx":       mux.CtxName(),
 			"type":      elmType,

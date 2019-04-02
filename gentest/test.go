@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+// 用于测试 parse() 方法
+type Key int64
+
+func (key Key) String() string {
+	return ""
+}
+
 const TimeFormat = time.RFC3339
 
 func BoolToString(value bool) string {

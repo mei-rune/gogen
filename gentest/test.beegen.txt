@@ -147,7 +147,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var b string
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
@@ -166,7 +166,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var b string
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
@@ -693,7 +693,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var b string
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
@@ -712,7 +712,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var b string
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
@@ -1187,7 +1187,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		var b string
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
@@ -1206,7 +1206,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		var b string
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "<no value>", err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 

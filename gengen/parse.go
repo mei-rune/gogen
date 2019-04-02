@@ -10,7 +10,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -171,7 +170,13 @@ func (v *parseVisitor) Visit(n ast.Node) ast.Visitor {
 		}
 
 		if class == nil {
-			log.Fatalln(errors.New(strconv.Itoa(int(rn.Pos())) + ": 请先定义类型，后定义 方法"))
+			for idx := range v.src.Types {
+				if name == v.src.Types[idx].Name.Name {
+					return nil
+				}
+			}
+
+			log.Fatalln(errors.New(v.src.PostionFor(rn.Pos()).String() + ": 请先定义类型，后定义 方法"))
 		}
 
 		mv := &methodVisitor{node: &ast.Field{Doc: rn.Doc, Names: []*ast.Ident{rn.Name}, Type: rn.Type}, list: &class.Methods}

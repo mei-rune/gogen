@@ -102,7 +102,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "<no value>", err), http.StatusBadRequest)
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
 		result, err := svc.Save(a, b)
@@ -115,7 +115,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "<no value>", err), http.StatusBadRequest)
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
 		result, err := svc.Save2(&a, &b)
@@ -514,7 +514,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "<no value>", err), http.StatusBadRequest)
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
 		result, err := svc.Save(a, b)
@@ -527,7 +527,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "<no value>", err), http.StatusBadRequest)
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
 		result, err := svc.Save2(&a, &b)
@@ -890,7 +890,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "<no value>", err), http.StatusBadRequest)
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
 		result, err := svc.Save(ctx.StdContext, a, b)
@@ -903,7 +903,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		var a = ctx.Param("a")
 		var b string
 		if err := ctx.Bind(&b); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "<no value>", err), http.StatusBadRequest)
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
 		result, err := svc.Save2(ctx.StdContext, &a, &b)
