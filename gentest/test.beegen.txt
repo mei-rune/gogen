@@ -27,6 +27,23 @@ func httpCodeWith(err error) int {
 // TimeRange2 is skipped
 
 func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
+	mux.Get("/allfiles", func(ctx *beecontext.Context) {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
 	mux.Get("/ping", func(ctx *beecontext.Context) {
 		var key Key
 		if s := ctx.Input.Query("key"); s != "" {
@@ -595,6 +612,23 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
+	mux.Get("/allfiles", func(ctx *beecontext.Context) {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
 	mux.Get("/ping", func(ctx *beecontext.Context) {
 		resulterr := svc.Ping()
 		if resulterr != nil {

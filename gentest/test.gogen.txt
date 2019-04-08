@@ -25,6 +25,20 @@ func httpCodeWith(err error) int {
 // TimeRange2 is skipped
 
 func InitStringSvc(mux *echo.Group, svc StringSvc) {
+	mux.GET("/allfiles", func(ctx echo.Context) error {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		return ctx.JSON(http.StatusOK, result)
+	})
 	mux.GET("/ping", func(ctx echo.Context) error {
 		var key Key
 		if s := ctx.QueryParam("key"); s != "" {
@@ -498,6 +512,20 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
+	mux.GET("/allfiles", func(ctx echo.Context) error {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		return ctx.JSON(http.StatusOK, result)
+	})
 	mux.GET("/ping", func(ctx echo.Context) error {
 		resulterr := svc.Ping()
 		if resulterr != nil {

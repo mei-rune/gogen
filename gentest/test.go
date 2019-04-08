@@ -43,6 +43,9 @@ type TimeRange2 struct {
 
 // @http.Client(name="TestClient", ref="true")
 type StringSvc interface {
+	// @http.GET(path="/allfiles")
+	GetAllFiles() (list []string, total int64, err error)
+
 	// @http.GET(path="/ping")
 	TestByKey(key Key) error
 
@@ -124,6 +127,11 @@ type StringSvc interface {
 var _ StringSvc = &StringSvcImpl{}
 
 type StringSvcImpl struct {
+}
+
+// @http.GET(path="/allfiles")
+func (svc *StringSvcImpl) GetAllFiles() (list []string, total int64, err error) {
+	return []string{"abc"}, 1, nil
 }
 
 // @http.GET(path="/ping")

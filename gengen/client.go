@@ -441,13 +441,14 @@ func (c *ClientConfig) ToResultList(method Method) []ResultConfig {
 		if result.Name != nil {
 			cp.FieldName = "E" + result.Name.Name
 			cp.JSONName = Underscore(result.Name.Name)
+		} else {
 			hasAnonymous = true
 		}
 		resultList = append(resultList, cp)
 	}
 
 	if hasAnonymous && len(resultList) > 1 {
-		err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": method '" +
+		err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": method '" +
 			method.Clazz.Name.Name + ":" + method.Name.Name + "' is anonymous")
 		log.Fatalln(err)
 	}
@@ -607,26 +608,25 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
       return {{if $isPtr}}&{{end}}{{$resultName}}, err
     {{- end}}
   {{- else}}
-  {{$.config.ReleaseRequest "client.proxy" "request"}}
-
-  if err != nil {
-    return {{range $result := $resultList -}}
-           {{zeroValue $result.Typ}},
-           {{- end -}}err
-  }
-    
-  {{- if $hasWrapper }} 
-  if !{{$resultName}}Wrap.Success {
-    return {{range $result := $resultList -}}
-           {{zeroValue $result.Typ}},
-           {{- end -}} {{$resultName}}Wrap.Error
-  }
-  {{- else}}
-  return {{range $result := $resultList -}}
-         {{$resultName}}.{{$result.FieldName}},
-        {{- end -}}, nil
-  {{- end}}
+    {{$.config.ReleaseRequest "client.proxy" "request"}}
   
+    if err != nil {
+      return {{range $result := $resultList -}}
+             {{zeroValue $result.Typ}},
+             {{- end -}}err
+    }
+      
+    {{- if $hasWrapper }} 
+    if !{{$resultName}}Wrap.Success {
+      return {{range $result := $resultList -}}
+             {{zeroValue $result.Typ}},
+             {{- end -}} {{$resultName}}Wrap.Error
+    }
+    {{- else}}
+    return {{range $result := $resultList -}}
+           {{$resultName}}.{{$result.FieldName}},
+          {{- end -}} nil
+    {{- end}}
   {{- end}}
 }
 	{{end}}{{/* if $skipResult.IsSkipped */}}

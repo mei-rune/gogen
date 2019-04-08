@@ -15,6 +15,19 @@ import (
 // TimeRange2 is skipped
 
 func InitStringSvc(mux loong.Party, svc StringSvc) {
+	mux.GET("/allfiles", func(ctx *loong.Context) error {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		return ctx.ReturnQueryResult(result)
+	})
 	mux.GET("/ping", func(ctx *loong.Context) error {
 		var key Key
 		if s := ctx.QueryParam("key"); s != "" {
@@ -443,6 +456,19 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
+	mux.GET("/allfiles", func(ctx *loong.Context) error {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		return ctx.ReturnQueryResult(result)
+	})
 	mux.GET("/ping", func(ctx *loong.Context) error {
 		resulterr := svc.Ping()
 		if resulterr != nil {

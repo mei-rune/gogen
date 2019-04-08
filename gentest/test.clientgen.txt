@@ -17,6 +17,24 @@ type TestClient struct {
 	proxy *resty.Proxy
 }
 
+func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, error) {
+	var result struct {
+		Elist  []string `json:"list"`
+		Etotal int64    `json:"total"`
+	}
+
+	request := resty.NewRequest(client.proxy, "/allfiles").
+		Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.proxy, request)
+
+	if err != nil {
+		return nil, 0, err
+	}
+	return result.Elist, result.Etotal, nil
+}
+
 func (client TestClient) TestByKey(ctx context.Context, key Key) error {
 	request := resty.NewRequest(client.proxy, "/ping").
 		SetParam("key", strconv.FormatInt(int64(key), 10))
@@ -358,6 +376,24 @@ func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRa
 
 type StringSvcImplClient struct {
 	proxy *resty.Proxy
+}
+
+func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, int64, error) {
+	var result struct {
+		Elist  []string `json:"list"`
+		Etotal int64    `json:"total"`
+	}
+
+	request := resty.NewRequest(client.proxy, "/allfiles").
+		Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.proxy, request)
+
+	if err != nil {
+		return nil, 0, err
+	}
+	return result.Elist, result.Etotal, nil
 }
 
 func (client StringSvcImplClient) Ping(ctx context.Context) error {

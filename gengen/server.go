@@ -236,7 +236,19 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{- if $hasInitParam }}
     {{/* generate a empty line*/}}
     {{end}}
-    {{- if eq 1 (len $method.Results.List) }}
+    {{- if gt (len $method.Results.List) 2 }}
+      {{range $idx, $result := $method.Results.List -}}
+
+        {{- if gt $idx 0 -}},{{- end -}}
+        
+        {{- if eq "error" (typePrint $result.Typ) -}}
+          err
+        {{- else -}}
+          {{ $result.Name }}
+        {{- end -}}
+      
+      {{- end -}}
+    {{- else if eq 1 (len $method.Results.List) }}
       {{- $arg := index $method.Results.List 0}}
       {{- if eq "error" (typePrint $arg.Typ)}}
         resulterr 
@@ -255,7 +267,23 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
         {{- end -}}
       {{- end -}})
 
-    {{- if eq 1 (len $method.Results.List) }}
+    {{- if gt (len $method.Results.List) 2 }}
+      if err != nil {
+        {{$.mux.ErrorFunc $method false "httpCodeWith(err)" "err"}}
+      }
+      
+      result := map[string]interface{}{
+      {{- range $idx, $result := $method.Results.List}}        
+        {{- if eq "error" (typePrint $result.Typ) -}}
+        {{- else}}
+          "{{ $result.Name }}": {{ $result.Name }},
+        {{- end -}}
+      {{- end}}
+      }
+      
+      {{$.mux.OkFunc $method "result"}}
+    
+    {{- else if eq 1 (len $method.Results.List) }}
       {{- $arg := index $method.Results.List 0}}
       {{- if eq "error" (typePrint $arg.Typ)}}
           if resulterr != nil {
