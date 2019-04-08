@@ -251,7 +251,7 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{- else if eq 1 (len $method.Results.List) }}
       {{- $arg := index $method.Results.List 0}}
       {{- if eq "error" (typePrint $arg.Typ)}}
-        resulterr 
+        err 
       {{- else -}}
         result
       {{- end -}}
@@ -286,8 +286,8 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{- else if eq 1 (len $method.Results.List) }}
       {{- $arg := index $method.Results.List 0}}
       {{- if eq "error" (typePrint $arg.Typ)}}
-          if resulterr != nil {
-            {{$.mux.ErrorFunc $method false "httpCodeWith(err)" "resulterr"}}
+          if err != nil {
+            {{$.mux.ErrorFunc $method false "httpCodeWith(err)" "err"}}
           }
           {{$.mux.OkFunc $method "\"OK\""}}        
       {{- else}}

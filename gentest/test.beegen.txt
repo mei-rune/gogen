@@ -56,10 +56,10 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			key = Key(keyValue)
 		}
 
-		resulterr := svc.TestByKey(key)
-		if resulterr != nil {
+		err := svc.TestByKey(key)
+		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
-			ctx.WriteString(resulterr.Error())
+			ctx.WriteString(err.Error())
 			return
 		}
 		ctx.Output.SetStatus(http.StatusOK)
@@ -67,10 +67,10 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		return
 	})
 	mux.Get("/ping", func(ctx *beecontext.Context) {
-		resulterr := svc.Ping()
-		if resulterr != nil {
+		err := svc.Ping()
+		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
-			ctx.WriteString(resulterr.Error())
+			ctx.WriteString(err.Error())
 			return
 		}
 		ctx.Output.SetStatus(http.StatusOK)
@@ -630,10 +630,10 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		return
 	})
 	mux.Get("/ping", func(ctx *beecontext.Context) {
-		resulterr := svc.Ping()
-		if resulterr != nil {
+		err := svc.Ping()
+		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
-			ctx.WriteString(resulterr.Error())
+			ctx.WriteString(err.Error())
 			return
 		}
 		ctx.Output.SetStatus(http.StatusOK)

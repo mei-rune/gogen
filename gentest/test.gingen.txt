@@ -51,18 +51,18 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			key = Key(keyValue)
 		}
 
-		resulterr := svc.TestByKey(key)
-		if resulterr != nil {
-			ctx.String(httpCodeWith(err), resulterr.Error())
+		err := svc.TestByKey(key)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
 			return
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
 	mux.GET("/ping", func(ctx *gin.Context) {
-		resulterr := svc.Ping()
-		if resulterr != nil {
-			ctx.String(httpCodeWith(err), resulterr.Error())
+		err := svc.Ping()
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
 			return
 		}
 		ctx.JSON(http.StatusOK, "OK")
@@ -554,9 +554,9 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		return
 	})
 	mux.GET("/ping", func(ctx *gin.Context) {
-		resulterr := svc.Ping()
-		if resulterr != nil {
-			ctx.String(httpCodeWith(err), resulterr.Error())
+		err := svc.Ping()
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
 			return
 		}
 		ctx.JSON(http.StatusOK, "OK")

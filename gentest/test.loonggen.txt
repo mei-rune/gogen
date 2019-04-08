@@ -38,16 +38,16 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			key = Key(keyValue)
 		}
 
-		resulterr := svc.TestByKey(key)
-		if resulterr != nil {
-			return ctx.ReturnError(resulterr)
+		err := svc.TestByKey(key)
+		if err != nil {
+			return ctx.ReturnError(err)
 		}
 		return ctx.ReturnQueryResult("OK")
 	})
 	mux.GET("/ping", func(ctx *loong.Context) error {
-		resulterr := svc.Ping()
-		if resulterr != nil {
-			return ctx.ReturnError(resulterr)
+		err := svc.Ping()
+		if err != nil {
+			return ctx.ReturnError(err)
 		}
 		return ctx.ReturnQueryResult("OK")
 	})
@@ -470,9 +470,9 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		return ctx.ReturnQueryResult(result)
 	})
 	mux.GET("/ping", func(ctx *loong.Context) error {
-		resulterr := svc.Ping()
-		if resulterr != nil {
-			return ctx.ReturnError(resulterr)
+		err := svc.Ping()
+		if err != nil {
+			return ctx.ReturnError(err)
 		}
 		return ctx.ReturnQueryResult("OK")
 	})
