@@ -206,8 +206,10 @@ func TestGenerate(t *testing.T) {
 				},
 				//config: "@echo",
 			}
-			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{})
-			gen.config.HasWrapper = false
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+				"-has-wrapper", "true",
+			})
+			gen.config.HasWrapper = true
 
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)

@@ -615,18 +615,17 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
              {{zeroValue $result.Typ}},
              {{- end -}}err
     }
-      
+
     {{- if $hasWrapper }} 
     if !{{$resultName}}Wrap.Success {
       return {{range $result := $resultList -}}
              {{zeroValue $result.Typ}},
              {{- end -}} {{$resultName}}Wrap.Error
     }
-    {{- else}}
+    {{- end}}
     return {{range $result := $resultList -}}
            {{$resultName}}.{{$result.FieldName}},
           {{- end -}} nil
-    {{- end}}
   {{- end}}
 }
 	{{end}}{{/* if $skipResult.IsSkipped */}}

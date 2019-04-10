@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/runner-mei/loong"
 	"github.com/runner-mei/loong/resty"
 )
 
@@ -22,15 +23,20 @@ func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, erro
 		Elist  []string `json:"list"`
 		Etotal int64    `json:"total"`
 	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/allfiles").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
 
 	if err != nil {
 		return nil, 0, err
+	}
+	if !resultWrap.Success {
+		return nil, 0, resultWrap.Error
 	}
 	return result.Elist, result.Etotal, nil
 }
@@ -52,43 +58,69 @@ func (client TestClient) Ping(ctx context.Context) error {
 
 func (client TestClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/echo").
 		SetParam("a", a).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/echo").
 		SetBody(body).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Concat(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat").
 		SetParam("a", a).
 		SetParam("b", b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat1")
 	if a != nil {
@@ -101,151 +133,247 @@ func (client TestClient) Concat1(ctx context.Context, a *string, b *string) (str
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat2/"+a+"/"+b+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat3/"+*a+"/"+*b+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save/"+a+"").
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save2/"+*a+"").
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save3").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save4(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save4").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save5(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save5").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Echo5(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/echo5").
 		SetBody(map[string]interface{}{
 			"a": a,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add3")
 	if a != nil {
@@ -258,68 +386,108 @@ func (client TestClient) Add3(ctx context.Context, a *int, b *int) (int, error) 
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query1").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
 		SetParam("is_raw", BoolToString(isRaw)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw)+"").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query4/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
 		SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat)).
 		SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query5/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
@@ -331,11 +499,19 @@ func (client TestClient) Query5(ctx context.Context, a string, createdAt *TimeRa
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query6/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
@@ -349,11 +525,19 @@ func (client TestClient) Query6(ctx context.Context, a string, createdAt TimeRan
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query7/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
@@ -369,7 +553,13 @@ func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRa
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 // Misc: annotation is missing
@@ -383,15 +573,20 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 		Elist  []string `json:"list"`
 		Etotal int64    `json:"total"`
 	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/allfiles").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
 
 	if err != nil {
 		return nil, 0, err
+	}
+	if !resultWrap.Success {
+		return nil, 0, resultWrap.Error
 	}
 	return result.Elist, result.Etotal, nil
 }
@@ -405,43 +600,69 @@ func (client StringSvcImplClient) Ping(ctx context.Context) error {
 
 func (client StringSvcImplClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/echo").
 		SetParam("a", a).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/echo_body").
 		SetBody(body).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Concat(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat").
 		SetParam("a", a).
 		SetParam("b", b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat1")
 	if a != nil {
@@ -454,122 +675,202 @@ func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *str
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat2/"+a+"/"+b+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat3/"+*a+"/"+*b+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save/"+a+"").
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save2/"+*a+"").
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save3").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save4").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add3")
 	if a != nil {
@@ -582,68 +883,108 @@ func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query1").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
 		SetParam("is_raw", BoolToString(isRaw)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw)+"").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query4/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
 		SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat)).
 		SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query5/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
@@ -655,11 +996,19 @@ func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdA
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query6/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
@@ -673,11 +1022,19 @@ func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdA
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/query7/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
@@ -693,7 +1050,13 @@ func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdA
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 // Misc: annotation is missing
@@ -704,43 +1067,69 @@ type StringSvcWithContextClient struct {
 
 func (client StringSvcWithContextClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/echo").
 		SetParam("a", a).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/echo").
 		SetBody(body).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Concat(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat").
 		SetParam("a", a).
 		SetParam("b", b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat1")
 	if a != nil {
@@ -753,92 +1142,156 @@ func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string,
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat2/"+a+"/"+b+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/concat3/"+*a+"/"+*b+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save/"+a+"").
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/save2/"+*a+"").
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.proxy, "/add3")
 	if a != nil {
@@ -851,7 +1304,13 @@ func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *in
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 // Misc: annotation is missing
