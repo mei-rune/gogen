@@ -27,6 +27,8 @@ func (cmd *WebClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 
 	fs = cmd.GeneratorBase.Flags(fs)
 	fs.StringVar(&cmd.file, "config", "", "配置文件名")
+
+	fs.StringVar(&cmd.config.RestyField, "field", "Proxy", "")
 	fs.StringVar(&cmd.config.RestyName, "resty", "*resty.Proxy", "")
 	fs.StringVar(&cmd.config.ContextClassName, "context", "context.Context", "")
 	fs.StringVar(&cmd.config.newRequest, "new-request", "resty.NewRequest({{.proxy}},{{.url}})", "")
@@ -67,7 +69,7 @@ func (cmd *WebClientGenerator) Run(args []string) error {
 		}
 	}
 
-	TimeFormat = "client.proxy.TimeFormat"
+	TimeFormat = "client." + cmd.config.RestyField + ".TimeFormat"
 
 	var e error
 	for _, file := range args {
@@ -183,6 +185,7 @@ func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext,
 type ClientConfig struct {
 	Classes          []Class
 	RestyName        string
+	RestyField       string
 	ContextClassName string
 	ClassName        string
 	RecvClassName    string
@@ -461,7 +464,7 @@ func init() {
 	clientTpl = template.Must(template.New("clientTpl").Funcs(Funcs).Parse(`
 
 type {{.config.ClassName}} struct {
-  proxy {{.config.RestyName}}
+  {{.config.RestyField}} {{.config.RestyName}}
 }
 
 {{range $method := .class.Methods}}
@@ -510,7 +513,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   {{- if gt (len $resultList) 0}}
   {{/* empty line */}}
   {{- end}}
-  request := {{$.config.NewRequest "client.proxy" ($.config.GetPath $method $paramList) }}
+  request := {{$.config.NewRequest (concat "client." $.config.RestyField) ($.config.GetPath $method $paramList) }}
   {{- $needAssignment := false -}}
   {{- range $param := $paramList -}}
     {{- if $param.IsSkipUse -}}
@@ -570,7 +573,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
   {{- end}}
 
   {{if and (not $hasWrapper) (eq 0 (len $resultList)) }}
-  defer {{$.config.ReleaseRequest "client.proxy" "request"}}
+  defer {{$.config.ReleaseRequest (concat "client." $.config.RestyField) "request"}}
   return {{else}}err := {{end}} request.{{$.config.RouteFunc $method}}(ctx)
   {{- if eq 0 (len $resultList) }}
     
@@ -585,7 +588,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- end}}
   
   {{- else if eq 1 (len $resultList) }}
-    {{$.config.ReleaseRequest "client.proxy" "request"}}
+    {{$.config.ReleaseRequest (concat "client." $.config.RestyField) "request"}}
   
     {{- $isPtr := false}}
     {{- $result := false}}
@@ -608,7 +611,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
       return {{if $isPtr}}&{{end}}{{$resultName}}, err
     {{- end}}
   {{- else}}
-    {{$.config.ReleaseRequest "client.proxy" "request"}}
+    {{$.config.ReleaseRequest (concat "client." $.config.RestyField) "request"}}
   
     if err != nil {
       return {{range $result := $resultList -}}

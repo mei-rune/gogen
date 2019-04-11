@@ -14,7 +14,7 @@ import (
 // TimeRange2 is skipped
 
 type TestClient struct {
-	proxy *resty.Proxy
+	Proxy *resty.Proxy
 }
 
 func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, error) {
@@ -23,11 +23,11 @@ func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, erro
 		Etotal int64    `json:"total"`
 	}
 
-	request := resty.NewRequest(client.proxy, "/allfiles").
+	request := resty.NewRequest(client.Proxy, "/allfiles").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 
 	if err != nil {
 		return nil, 0, err
@@ -36,61 +36,61 @@ func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, erro
 }
 
 func (client TestClient) TestByKey(ctx context.Context, key Key) error {
-	request := resty.NewRequest(client.proxy, "/ping").
+	request := resty.NewRequest(client.Proxy, "/ping").
 		SetParam("key", strconv.FormatInt(int64(key), 10))
 
-	defer resty.ReleaseRequest(client.proxy, request)
+	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client TestClient) Ping(ctx context.Context) error {
-	request := resty.NewRequest(client.proxy, "/ping")
+	request := resty.NewRequest(client.Proxy, "/ping")
 
-	defer resty.ReleaseRequest(client.proxy, request)
+	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client TestClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/echo").
 		SetParam("a", a).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/echo").
 		SetBody(body).
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Concat(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat").
+	request := resty.NewRequest(client.Proxy, "/concat").
 		SetParam("a", a).
 		SetParam("b", b).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat1")
+	request := resty.NewRequest(client.Proxy, "/concat1")
 	if a != nil {
 		request = request.SetParam("a", *a)
 	}
@@ -100,73 +100,73 @@ func (client TestClient) Concat1(ctx context.Context, a *string, b *string) (str
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat2/"+a+"/"+b+"").
+	request := resty.NewRequest(client.Proxy, "/concat2/"+a+"/"+b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat3/"+*a+"/"+*b+"").
+	request := resty.NewRequest(client.Proxy, "/concat3/"+*a+"/"+*b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/sub").
+	request := resty.NewRequest(client.Proxy, "/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/save/"+a+"").
 		SetBody(b).
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save2/"+*a+"").
+	request := resty.NewRequest(client.Proxy, "/save2/"+*a+"").
 		SetBody(b).
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save3").
+	request := resty.NewRequest(client.Proxy, "/save3").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
@@ -174,14 +174,14 @@ func (client TestClient) Save3(ctx context.Context, a *string, b *string) (strin
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Save4(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save4").
+	request := resty.NewRequest(client.Proxy, "/save4").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
@@ -189,14 +189,14 @@ func (client TestClient) Save4(ctx context.Context, a string, b string) (string,
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Save5(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save5").
+	request := resty.NewRequest(client.Proxy, "/save5").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
@@ -204,50 +204,50 @@ func (client TestClient) Save5(ctx context.Context, a string, b string) (string,
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Echo5(ctx context.Context, a string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/echo5").
+	request := resty.NewRequest(client.Proxy, "/echo5").
 		SetBody(map[string]interface{}{
 			"a": a,
 		}).
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add3")
+	request := resty.NewRequest(client.Proxy, "/add3")
 	if a != nil {
 		request = request.SetParam("a", strconv.FormatInt(int64(*a), 10))
 	}
@@ -257,125 +257,125 @@ func (client TestClient) Add3(ctx context.Context, a *int, b *int) (int, error) 
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query1").
+	request := resty.NewRequest(client.Proxy, "/query1").
 		SetParam("a", a).
-		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
-		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
+		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
+		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
 		SetParam("is_raw", BoolToString(isRaw)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query2/"+BoolToString(isRaw)+"").
 		SetParam("a", a).
-		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
-		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
+		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
+		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query3/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
-		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
-		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
+		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
+		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query4/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query4/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
-		SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat)).
-		SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat)).
+		SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
+		SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query5/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query5/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt != nil {
-		request = request.SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat)).
-			SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat))
+		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
+			SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat))
 	}
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query6/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query6/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt.Start != nil {
-		request = request.SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat))
+		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat))
 	}
 	if createdAt.End != nil {
-		request = request.SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat))
+		request = request.SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat))
 	}
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query7/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query7/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt != nil {
 		if createdAt.Start != nil {
-			request = request.SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat))
+			request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat))
 		}
 		if createdAt.End != nil {
-			request = request.SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat))
+			request = request.SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat))
 		}
 	}
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 // Misc: annotation is missing
 
 type StringSvcImplClient struct {
-	proxy *resty.Proxy
+	Proxy *resty.Proxy
 }
 
 func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, int64, error) {
@@ -384,11 +384,11 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 		Etotal int64    `json:"total"`
 	}
 
-	request := resty.NewRequest(client.proxy, "/allfiles").
+	request := resty.NewRequest(client.Proxy, "/allfiles").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 
 	if err != nil {
 		return nil, 0, err
@@ -397,53 +397,53 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 }
 
 func (client StringSvcImplClient) Ping(ctx context.Context) error {
-	request := resty.NewRequest(client.proxy, "/ping")
+	request := resty.NewRequest(client.Proxy, "/ping")
 
-	defer resty.ReleaseRequest(client.proxy, request)
+	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client StringSvcImplClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/echo").
 		SetParam("a", a).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/echo_body").
+	request := resty.NewRequest(client.Proxy, "/echo_body").
 		SetBody(body).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Concat(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat").
+	request := resty.NewRequest(client.Proxy, "/concat").
 		SetParam("a", a).
 		SetParam("b", b).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat1")
+	request := resty.NewRequest(client.Proxy, "/concat1")
 	if a != nil {
 		request = request.SetParam("a", *a)
 	}
@@ -453,73 +453,73 @@ func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *str
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat2/"+a+"/"+b+"").
+	request := resty.NewRequest(client.Proxy, "/concat2/"+a+"/"+b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat3/"+*a+"/"+*b+"").
+	request := resty.NewRequest(client.Proxy, "/concat3/"+*a+"/"+*b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/sub").
+	request := resty.NewRequest(client.Proxy, "/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/save/"+a+"").
 		SetBody(b).
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save2/"+*a+"").
+	request := resty.NewRequest(client.Proxy, "/save2/"+*a+"").
 		SetBody(b).
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save3").
+	request := resty.NewRequest(client.Proxy, "/save3").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
@@ -527,14 +527,14 @@ func (client StringSvcImplClient) Save3(ctx context.Context, a *string, b *strin
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save4").
+	request := resty.NewRequest(client.Proxy, "/save4").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
@@ -542,36 +542,36 @@ func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string)
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add3")
+	request := resty.NewRequest(client.Proxy, "/add3")
 	if a != nil {
 		request = request.SetParam("a", strconv.FormatInt(int64(*a), 10))
 	}
@@ -581,168 +581,168 @@ func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query1").
+	request := resty.NewRequest(client.Proxy, "/query1").
 		SetParam("a", a).
-		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
-		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
+		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
+		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
 		SetParam("is_raw", BoolToString(isRaw)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query2/"+BoolToString(isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query2/"+BoolToString(isRaw)+"").
 		SetParam("a", a).
-		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
-		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
+		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
+		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query3/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query3/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
-		SetParam("begin_at", beginAt.Format(client.proxy.TimeFormat)).
-		SetParam("end_at", endAt.Format(client.proxy.TimeFormat)).
+		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
+		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query4/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query4/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
-		SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat)).
-		SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat)).
+		SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
+		SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query5/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query5/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt != nil {
-		request = request.SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat)).
-			SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat))
+		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
+			SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat))
 	}
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query6/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query6/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt.Start != nil {
-		request = request.SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat))
+		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat))
 	}
 	if createdAt.End != nil {
-		request = request.SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat))
+		request = request.SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat))
 	}
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/query7/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query7/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt != nil {
 		if createdAt.Start != nil {
-			request = request.SetParam("created_at.start", createdAt.Start.Format(client.proxy.TimeFormat))
+			request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat))
 		}
 		if createdAt.End != nil {
-			request = request.SetParam("created_at.end", createdAt.End.Format(client.proxy.TimeFormat))
+			request = request.SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat))
 		}
 	}
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 // Misc: annotation is missing
 
 type StringSvcWithContextClient struct {
-	proxy *resty.Proxy
+	Proxy *resty.Proxy
 }
 
 func (client StringSvcWithContextClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/echo").
 		SetParam("a", a).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/echo").
 		SetBody(body).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Concat(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat").
+	request := resty.NewRequest(client.Proxy, "/concat").
 		SetParam("a", a).
 		SetParam("b", b).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat1")
+	request := resty.NewRequest(client.Proxy, "/concat1")
 	if a != nil {
 		request = request.SetParam("a", *a)
 	}
@@ -752,95 +752,95 @@ func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string,
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat2/"+a+"/"+b+"").
+	request := resty.NewRequest(client.Proxy, "/concat2/"+a+"/"+b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/concat3/"+*a+"/"+*b+"").
+	request := resty.NewRequest(client.Proxy, "/concat3/"+*a+"/"+*b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/sub").
+	request := resty.NewRequest(client.Proxy, "/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/save/"+a+"").
 		SetBody(b).
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.proxy, "/save2/"+*a+"").
+	request := resty.NewRequest(client.Proxy, "/save2/"+*a+"").
 		SetBody(b).
 		Result(&result)
 
 	err := request.POST(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Add(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
 func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.proxy, "/add3")
+	request := resty.NewRequest(client.Proxy, "/add3")
 	if a != nil {
 		request = request.SetParam("a", strconv.FormatInt(int64(*a), 10))
 	}
@@ -850,7 +850,7 @@ func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *in
 	request = request.Result(&result)
 
 	err := request.GET(ctx)
-	resty.ReleaseRequest(client.proxy, request)
+	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
 
