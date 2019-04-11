@@ -6,8 +6,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	beego "github.com/astaxie/beego"
@@ -183,14 +185,14 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 	})
 	mux.Post("/save/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b string
-		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
-		result, err := svc.Save(a, b)
+		result, err := svc.Save(a, b.String())
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -202,14 +204,14 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 	})
 	mux.Post("/save2/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b string
-		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
-		result, err := svc.Save2(&a, &b)
+		result, err := svc.Save2(&a, b.String())
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -746,14 +748,14 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 	})
 	mux.Post("/save/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b string
-		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
-		result, err := svc.Save(a, b)
+		result, err := svc.Save(a, b.String())
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -765,14 +767,14 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 	})
 	mux.Post("/save2/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b string
-		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
-		result, err := svc.Save2(&a, &b)
+		result, err := svc.Save2(&a, b.String())
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -1240,14 +1242,14 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 	})
 	mux.Post("/save/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b string
-		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
-		result, err := svc.Save(ctx.Request.Context(), a, b)
+		result, err := svc.Save(ctx.Request.Context(), a, b.String())
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -1259,14 +1261,14 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 	})
 	mux.Post("/save2/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b string
-		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
 
-		result, err := svc.Save2(ctx.Request.Context(), &a, &b)
+		result, err := svc.Save2(ctx.Request.Context(), &a, b.String())
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())

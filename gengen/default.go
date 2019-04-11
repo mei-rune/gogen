@@ -427,11 +427,29 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 			serverParam.ParamName = "&" + serverParam.ParamName
 		}
 
+		if elmType == "[]byte" {
+			serverParam.ParamName = name + ".Bytes()"
+		} else if elmType == "string" {
+			serverParam.ParamName = name + ".String()"
+		}
+
 		bindTxt := template.Must(template.New("bindTxt").Funcs(Funcs).Funcs(funcs).Parse(`
+		{{- if eq .type "[]byte"}}
+		var {{.name}} bytes.Buffer
+		if _, err := io.Copy(&{{.name}}, {{.reader}}); err != nil {
+			{{badArgument .name "\"body\"" "err"}}
+		}
+		{{- else if eq .type "string"}}
+		var {{.name}} strings.Builder
+		if _, err := io.Copy(&{{.name}}, {{.reader}}); err != nil {
+			{{badArgument .name "\"body\"" "err"}}
+		}
+		{{- else}}
 		var {{.name}} {{.type}}
 		if err := {{readBody .param .ctx .name}}; err != nil {
 			{{badArgument .name "\"body\"" "err"}}
 		}
+		{{- end}}
 		`))
 
 		if dataType := anno.Attributes["dataType"]; dataType != "" {
@@ -445,6 +463,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 			"rname":     paramName,
 			"param":     param,
 			"readParam": mux.ReadBody,
+			"reader":    mux.bodyReader,
 		}
 
 		var sb strings.Builder

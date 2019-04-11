@@ -4,8 +4,10 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/runner-mei/loong"
@@ -129,12 +131,12 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 	})
 	mux.POST("/save/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
-		var b string
-		if err := ctx.Bind(&b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
-		result, err := svc.Save(a, b)
+		result, err := svc.Save(a, b.String())
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
@@ -142,12 +144,12 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 	})
 	mux.POST("/save2/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
-		var b string
-		if err := ctx.Bind(&b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
-		result, err := svc.Save2(&a, &b)
+		result, err := svc.Save2(&a, b.String())
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
@@ -554,12 +556,12 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 	})
 	mux.POST("/save/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
-		var b string
-		if err := ctx.Bind(&b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
-		result, err := svc.Save(a, b)
+		result, err := svc.Save(a, b.String())
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
@@ -567,12 +569,12 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 	})
 	mux.POST("/save2/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
-		var b string
-		if err := ctx.Bind(&b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
-		result, err := svc.Save2(&a, &b)
+		result, err := svc.Save2(&a, b.String())
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
@@ -930,12 +932,12 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 	})
 	mux.POST("/save/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
-		var b string
-		if err := ctx.Bind(&b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
-		result, err := svc.Save(ctx.StdContext, a, b)
+		result, err := svc.Save(ctx.StdContext, a, b.String())
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
@@ -943,12 +945,12 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 	})
 	mux.POST("/save2/:a", func(ctx *loong.Context) error {
 		var a = ctx.Param("a")
-		var b string
-		if err := ctx.Bind(&b); err != nil {
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
 		}
 
-		result, err := svc.Save2(ctx.StdContext, &a, &b)
+		result, err := svc.Save2(ctx.StdContext, &a, b.String())
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
