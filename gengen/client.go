@@ -34,7 +34,7 @@ func (cmd *WebClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.config.newRequest, "new-request", "resty.NewRequest({{.proxy}},{{.url}})", "")
 	fs.StringVar(&cmd.config.releaseRequest, "free-request", "resty.ReleaseRequest({{.proxy}},{{.request}})", "")
 
-	fs.BoolVar(&cmd.config.HasWrapper, "has-wrapper", true, "")
+	fs.BoolVar(&cmd.config.HasWrapper, "has-wrapper", false, "")
 	fs.StringVar(&cmd.config.WrapperType, "wrapper-type", "loong.Result", "")
 	fs.StringVar(&cmd.config.WrapperData, "wrapper-data", "Data", "")
 	fs.StringVar(&cmd.config.WrapperError, "wrapper-error", "Error", "")
