@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"io"
 	"strconv"
 	"time"
@@ -36,6 +37,10 @@ func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, erro
 		return nil, 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
 		return nil, 0, resultWrap.Error
 	}
 	return result.Elist, result.Etotal, nil
@@ -71,6 +76,9 @@ func (client TestClient) Echo(ctx context.Context, a string) (string, error) {
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -91,6 +99,9 @@ func (client TestClient) EchoBody(ctx context.Context, body io.Reader) (string, 
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -112,6 +123,9 @@ func (client TestClient) Concat(ctx context.Context, a string, b string) (string
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -137,6 +151,9 @@ func (client TestClient) Concat1(ctx context.Context, a *string, b *string) (str
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -156,6 +173,9 @@ func (client TestClient) Concat2(ctx context.Context, a string, b string) (strin
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -175,6 +195,9 @@ func (client TestClient) Concat3(ctx context.Context, a *string, b *string) (str
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -196,6 +219,9 @@ func (client TestClient) Sub(ctx context.Context, a string, start int64) (string
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -216,6 +242,9 @@ func (client TestClient) Save(ctx context.Context, a string, b string) (string, 
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -236,6 +265,9 @@ func (client TestClient) Save2(ctx context.Context, a *string, b *string) (strin
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -259,6 +291,9 @@ func (client TestClient) Save3(ctx context.Context, a *string, b *string) (strin
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -282,6 +317,9 @@ func (client TestClient) Save4(ctx context.Context, a string, b string) (string,
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -305,6 +343,9 @@ func (client TestClient) Save5(ctx context.Context, a string, b string) (string,
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -327,6 +368,9 @@ func (client TestClient) Echo5(ctx context.Context, a string) (string, error) {
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -346,6 +390,9 @@ func (client TestClient) Add(ctx context.Context, a int, b int) (int, error) {
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil
@@ -365,6 +412,9 @@ func (client TestClient) Add2(ctx context.Context, a *int, b *int) (int, error) 
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil
@@ -390,6 +440,9 @@ func (client TestClient) Add3(ctx context.Context, a *int, b *int) (int, error) 
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil
@@ -413,6 +466,9 @@ func (client TestClient) Query1(ctx context.Context, a string, beginAt time.Time
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -435,6 +491,9 @@ func (client TestClient) Query2(ctx context.Context, a string, beginAt time.Time
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -457,6 +516,9 @@ func (client TestClient) Query3(ctx context.Context, a string, beginAt time.Time
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -479,6 +541,9 @@ func (client TestClient) Query4(ctx context.Context, a string, createdAt TimeRan
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -503,6 +568,9 @@ func (client TestClient) Query5(ctx context.Context, a string, createdAt *TimeRa
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -529,6 +597,9 @@ func (client TestClient) Query6(ctx context.Context, a string, createdAt TimeRan
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -557,6 +628,9 @@ func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRa
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -586,6 +660,10 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 		return nil, 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
 		return nil, 0, resultWrap.Error
 	}
 	return result.Elist, result.Etotal, nil
@@ -613,6 +691,9 @@ func (client StringSvcImplClient) Echo(ctx context.Context, a string) (string, e
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -633,6 +714,9 @@ func (client StringSvcImplClient) EchoBody(ctx context.Context, body io.Reader) 
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -654,6 +738,9 @@ func (client StringSvcImplClient) Concat(ctx context.Context, a string, b string
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -679,6 +766,9 @@ func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *str
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -698,6 +788,9 @@ func (client StringSvcImplClient) Concat2(ctx context.Context, a string, b strin
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -717,6 +810,9 @@ func (client StringSvcImplClient) Concat3(ctx context.Context, a *string, b *str
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -738,6 +834,9 @@ func (client StringSvcImplClient) Sub(ctx context.Context, a string, start int64
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -758,6 +857,9 @@ func (client StringSvcImplClient) Save(ctx context.Context, a string, b string) 
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -778,6 +880,9 @@ func (client StringSvcImplClient) Save2(ctx context.Context, a *string, b *strin
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -801,6 +906,9 @@ func (client StringSvcImplClient) Save3(ctx context.Context, a *string, b *strin
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -824,6 +932,9 @@ func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string)
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -843,6 +954,9 @@ func (client StringSvcImplClient) Add(ctx context.Context, a int, b int) (int, e
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil
@@ -862,6 +976,9 @@ func (client StringSvcImplClient) Add2(ctx context.Context, a *int, b *int) (int
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil
@@ -887,6 +1004,9 @@ func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil
@@ -910,6 +1030,9 @@ func (client StringSvcImplClient) Query1(ctx context.Context, a string, beginAt 
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -932,6 +1055,9 @@ func (client StringSvcImplClient) Query2(ctx context.Context, a string, beginAt 
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -954,6 +1080,9 @@ func (client StringSvcImplClient) Query3(ctx context.Context, a string, beginAt 
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -976,6 +1105,9 @@ func (client StringSvcImplClient) Query4(ctx context.Context, a string, createdA
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1000,6 +1132,9 @@ func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdA
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1026,6 +1161,9 @@ func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdA
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1054,6 +1192,9 @@ func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdA
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1080,6 +1221,9 @@ func (client StringSvcWithContextClient) Echo(ctx context.Context, a string) (st
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1100,6 +1244,9 @@ func (client StringSvcWithContextClient) EchoBody(ctx context.Context, body io.R
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1121,6 +1268,9 @@ func (client StringSvcWithContextClient) Concat(ctx context.Context, a string, b
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1146,6 +1296,9 @@ func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string,
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1165,6 +1318,9 @@ func (client StringSvcWithContextClient) Concat2(ctx context.Context, a string, 
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1184,6 +1340,9 @@ func (client StringSvcWithContextClient) Concat3(ctx context.Context, a *string,
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1205,6 +1364,9 @@ func (client StringSvcWithContextClient) Sub(ctx context.Context, a string, star
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1225,6 +1387,9 @@ func (client StringSvcWithContextClient) Save(ctx context.Context, a string, b s
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1245,6 +1410,9 @@ func (client StringSvcWithContextClient) Save2(ctx context.Context, a *string, b
 		return "", err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
 		return "", resultWrap.Error
 	}
 	return result, nil
@@ -1264,6 +1432,9 @@ func (client StringSvcWithContextClient) Add(ctx context.Context, a int, b int) 
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil
@@ -1283,6 +1454,9 @@ func (client StringSvcWithContextClient) Add2(ctx context.Context, a *int, b *in
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil
@@ -1308,6 +1482,9 @@ func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *in
 		return 0, err
 	}
 	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
 		return 0, resultWrap.Error
 	}
 	return result, nil

@@ -582,6 +582,9 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
         return err
       }
       if !{{$resultName}}Wrap.Success {
+          if {{$resultName}}Wrap.Error == nil {
+            return errors.New("error is nil")
+          }
           return {{$resultName}}Wrap.Error
       }
       return nil
@@ -604,6 +607,9 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
         return {{if $isPtr}}nil{{else}}{{zeroValue $result.Typ}}{{end}}, err
       }
       if !{{$resultName}}Wrap.Success {
+        if {{$resultName}}Wrap.Error == nil {
+            return {{if $isPtr}}nil{{else}}{{zeroValue $result.Typ}}{{end}}, errors.New("error is nil!!! wrapper is missing?")
+        }
         return {{if $isPtr}}nil{{else}}{{zeroValue $result.Typ}}{{end}}, {{$resultName}}Wrap.Error
       }
       return {{if $isPtr}}&{{end}}{{$resultName}}, nil
@@ -621,6 +627,12 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
 
     {{- if $hasWrapper }} 
     if !{{$resultName}}Wrap.Success {
+      if {{$resultName}}Wrap.Error == nil {
+          return {{range $result := $resultList -}}
+           {{zeroValue $result.Typ}},
+           {{- end -}} errors.New("error is nil!!! wrapper is missing?")
+      }
+        
       return {{range $result := $resultList -}}
              {{zeroValue $result.Typ}},
              {{- end -}} {{$resultName}}Wrap.Error
