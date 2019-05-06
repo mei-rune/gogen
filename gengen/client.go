@@ -265,7 +265,7 @@ func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
 
 	rawurl := anno.Attributes["path"]
 	if rawurl == "" {
-		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
+		log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
 	}
 	var replace = ReplaceFunc(func(segement PathSegement) string {
 		for idx := range paramList {
@@ -273,7 +273,7 @@ func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
 				return "\" + " + convertToStringLiteral(paramList[idx].Param) + " + \""
 			}
 		}
-		err := errors.New("path param '" + segement.Value + "' isnot found")
+		err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path param '" + segement.Value + "' isnot found")
 		log.Fatalln(err)
 		panic(err)
 	})
@@ -299,7 +299,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	anno := getAnnotation(method, false)
 	rawurl := anno.Attributes["path"]
 	if rawurl == "" {
-		log.Fatalln(errors.New(strconv.Itoa(int(method.Node.Pos())) + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
+		log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
 	}
 
 	data := anno.Attributes["data"]
@@ -409,7 +409,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			for _, a := range inBody {
 				names = append(names, a.Name.Name)
 			}
-			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": params '" + strings.Join(names, ",") + "' method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid - ")
+			err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": params '" + strings.Join(names, ",") + "' method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid - ")
 			log.Fatalln(err)
 		}
 
