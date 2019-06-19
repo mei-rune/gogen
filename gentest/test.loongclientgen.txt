@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/runner-mei/loong"
-	"github.com/runner-mei/loong/resty"
+	"github.com/runner-mei/resty"
 )
 
 // TimeRange is skipped

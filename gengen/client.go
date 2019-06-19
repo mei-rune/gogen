@@ -64,8 +64,8 @@ func (cmd *WebClientGenerator) Run(args []string) error {
 		cmd.imports = readImports(cfg)
 	} else {
 		cmd.imports = map[string]string{
-			"github.com/runner-mei/loong/resty": "",
-			"github.com/runner-mei/loong":       "",
+			"github.com/runner-mei/resty": "",
+			"github.com/runner-mei/loong": "",
 		}
 	}
 
