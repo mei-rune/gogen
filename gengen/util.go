@@ -148,6 +148,8 @@ retry:
 		return "BoolToString(*" + param.Name.Name + ")"
 	case "time.Time", "*time.Time":
 		return param.Name.Name + ".Format(" + TimeFormat + ")"
+	case "time.Duration", "*time.Duration":
+		return param.Name.Name + ".String()"
 	case "net.IP", "*net.IP":
 		return param.Name.Name + ".String()"
 	default:

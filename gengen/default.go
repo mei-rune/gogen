@@ -143,6 +143,9 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		funcName := stringWith(values, "features.datetimeConvert", "toDatetime({{.name}})")
 		mux.Converts["time.Time"] = ConvertArgs{Format: funcName, HasError: true}
 	}
+	if _, ok := mux.Converts["time.Duration"]; !ok {
+		mux.Converts["time.Duration"] = ConvertArgs{Format: "time.ParseDuration({{.name}})", HasError: true}
+	}
 
 	mux.bodyReader = mux.Reserved["*http.Request"] + ".Body"
 	mux.readTemplate = template.Must(template.New("readTemplate").Parse(mux.ReadFormat))
@@ -484,6 +487,12 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 
 	isPath := false
 	for _, pa := range pathNames {
+		if pa == param.Name.Name {
+			isPath = true
+			optional = false
+			break
+		}
+
 		if pa == param.Name.Name {
 			isPath = true
 			optional = false
