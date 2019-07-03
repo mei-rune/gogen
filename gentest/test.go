@@ -49,6 +49,12 @@ type StringSvc interface {
 	// @http.GET(path="/ping")
 	TestByKey(key Key) error
 
+	// @http.GET(path="/test64/:id")
+	TestInt64Path(id int64) error
+
+	// @http.GET(path="/test64")
+	TestInt64Query(id int64) error
+
 	// @http.GET(path="/ping")
 	Ping() error
 
@@ -132,6 +138,16 @@ type StringSvcImpl struct {
 // @http.GET(path="/allfiles")
 func (svc *StringSvcImpl) GetAllFiles() (list []string, total int64, err error) {
 	return []string{"abc"}, 1, nil
+}
+
+// @http.GET(path="/test64/:id")
+func (svc *StringSvcImpl) TestInt64Path(id int64) error {
+	return nil
+}
+
+// @http.GET(path="/test64")
+func (svc *StringSvcImpl) TestInt64Query(id int64) error {
+	return nil
 }
 
 // @http.GET(path="/ping")

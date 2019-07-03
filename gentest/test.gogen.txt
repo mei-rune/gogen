@@ -59,6 +59,38 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
+	mux.GET("/test64/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+
+		err := svc.TestInt64Path(id)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
+	mux.GET("/test64", func(ctx echo.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", s, err))
+				return nil
+			}
+			id = idValue
+		}
+
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
 	mux.GET("/ping", func(ctx echo.Context) error {
 		err := svc.Ping()
 		if err != nil {
@@ -523,6 +555,38 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 
 		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.GET("/test64/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+
+		err := svc.TestInt64Path(id)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
+	mux.GET("/test64", func(ctx echo.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", s, err))
+				return nil
+			}
+			id = idValue
+		}
+
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
 	})
 	mux.GET("/ping", func(ctx echo.Context) error {
 		err := svc.Ping()

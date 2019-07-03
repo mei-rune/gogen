@@ -296,10 +296,16 @@ func (mux *DefaultStye) GetPath(method Method) string {
 type ServerParam struct {
 	Param
 
-	IsSkipUse  bool
-	InBody     bool
-	ParamName  string
-	InitString string
+	IsErrorDefined bool
+	IsSkipUse      bool
+	InBody         bool
+	ParamName      string
+	InitString     string
+}
+
+type ServerMethod struct {
+	ParamList      []ServerParam
+	IsErrorDefined bool
 }
 
 func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) string {
@@ -351,7 +357,7 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 	return strings.TrimSpace(sb.String())
 }
 
-func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
+func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 	var genCtx context
 	var results []ServerParam
 
@@ -360,6 +366,7 @@ func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
 	isEdit := methodStr == "PUT" || methodStr == "POST"
 
 	for idx := range method.Params.List {
+		fmt.Println(method.Params.List[idx].Name)
 		results = append(results, mux.ToParam(&genCtx, method, method.Params.List[idx], isEdit)...)
 	}
 
@@ -373,7 +380,8 @@ func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
 		}
 	}
 
-	return results
+	fmt.Println(method.Name, genCtx.IsErrorDefined())
+	return ServerMethod{results, genCtx.IsErrorDefined()}
 }
 
 func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit bool) []ServerParam {
@@ -409,6 +417,8 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	serverParam := ServerParam{
 		Param:     param,
 		ParamName: param.Name.Name,
+
+		IsErrorDefined: c.IsErrorDefined(),
 	}
 
 	var readParam = mux.PathParam
@@ -563,6 +573,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			typePrint(startType), strings.TrimPrefix(typePrint(startType), "*"), name+".Start", paramName2, readParam, initRootValue))
 
 		p3 := serverParam
+		p3.IsErrorDefined = c.IsErrorDefined()
 		p3.IsSkipUse = true
 		p3.Name = &ast.Ident{}
 		*p3.Name = *param.Name
@@ -678,7 +689,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 				if  err != nil {
 					{{badArgument .rname $s "err"}}
 				}
-				{{- .c.SetErrorDefined -}}
+				{{- set . "xxx" ( .c.SetErrorDefined ) -}}
 			{{- else -}}
 
 				{{- if .skipDeclare | not}}var {{.name}} {{.type}}{{end}}

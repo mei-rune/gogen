@@ -28,7 +28,7 @@ type MuxStye interface {
 	RouteParty() string
 
 	ToBindString(method Method, results []ServerParam) string
-	ToParamList(method Method) []ServerParam
+	ToParamList(method Method) ServerMethod
 
 	FuncSignature() string
 	RouteFunc(method Method) string
@@ -219,7 +219,10 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
   // {{$method.Name.Name}}: {{$skipResult.Message}} 
   {{- end}}
   {{- else}}
-  {{- $paramList := $.mux.ToParamList $method }}
+
+  {{- $methodParams := $.mux.ToParamList $method }}
+  {{- $paramList := $methodParams.ParamList }}
+  {{- $IsErrorDefined := $methodParams.IsErrorDefined }}
   mux.{{$.mux.RouteFunc $method}}("{{$.mux.GetPath $method}}", {{$.mux.FuncSignature}}{
     {{- $hasInitParam := false}}
     {{- range $param := $paramList}}
@@ -236,28 +239,29 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{- if $hasInitParam }}
     {{/* generate a empty line*/}}
     {{end}}
+
     {{- if gt (len $method.Results.List) 2 }}
       {{range $idx, $result := $method.Results.List -}}
 
         {{- if gt $idx 0 -}},{{- end -}}
         
         {{- if eq "error" (typePrint $result.Typ) -}}
-          err
+          err 
         {{- else -}}
-          {{ $result.Name }}
+          {{ $result.Name }} 
         {{- end -}}
       
-      {{- end -}}
+      {{- end -}} :=
     {{- else if eq 1 (len $method.Results.List) }}
       {{- $arg := index $method.Results.List 0}}
       {{- if eq "error" (typePrint $arg.Typ)}}
-        err 
+        err {{if $IsErrorDefined }}={{else}}:={{end}}
       {{- else -}}
-        result
+        result :=
       {{- end -}}
     {{- else -}}
-    result, err
-    {{- end -}} := svc.{{$method.Name}}(
+    result, err :=
+    {{- end -}} svc.{{$method.Name}}(
       {{- $isFirst := true}}
       {{- range $idx, $param := $paramList}}
         {{- if $param.IsSkipUse -}}

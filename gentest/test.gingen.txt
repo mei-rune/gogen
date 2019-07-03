@@ -61,6 +61,40 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
+	mux.GET("/test64/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+
+		err := svc.TestInt64Path(id)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64", func(ctx *gin.Context) {
+		var id int64
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, s, err).Error())
+				return
+			}
+			id = idValue
+		}
+
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
 	mux.GET("/ping", func(ctx *gin.Context) {
 		err := svc.Ping()
 		if err != nil {
@@ -549,6 +583,40 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 
 		ctx.JSON(http.StatusOK, result)
+		return
+	})
+	mux.GET("/test64/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+
+		err := svc.TestInt64Path(id)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64", func(ctx *gin.Context) {
+		var id int64
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, s, err).Error())
+				return
+			}
+			id = idValue
+		}
+
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
 	mux.GET("/ping", func(ctx *gin.Context) {

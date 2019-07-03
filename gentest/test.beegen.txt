@@ -68,6 +68,46 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
+	mux.Get("/test64/:id", func(ctx *beecontext.Context) {
+		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", id, ctx.Input.Param("id"), err).Error())
+			return
+		}
+
+		err := svc.TestInt64Path(id)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/test64", func(ctx *beecontext.Context) {
+		var id int64
+		if s := ctx.Input.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", id, s, err).Error())
+				return
+			}
+			id = idValue
+		}
+
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
 	mux.Get("/ping", func(ctx *beecontext.Context) {
 		err := svc.Ping()
 		if err != nil {
@@ -625,6 +665,46 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 
 		ctx.Output.SetStatus(http.StatusOK)
 		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/test64/:id", func(ctx *beecontext.Context) {
+		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", id, ctx.Input.Param("id"), err).Error())
+			return
+		}
+
+		err := svc.TestInt64Path(id)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/test64", func(ctx *beecontext.Context) {
+		var id int64
+		if s := ctx.Input.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", id, s, err).Error())
+				return
+			}
+			id = idValue
+		}
+
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
 		return
 	})
 	mux.Get("/ping", func(ctx *beecontext.Context) {

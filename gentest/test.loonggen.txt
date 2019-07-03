@@ -46,6 +46,34 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		return ctx.ReturnQueryResult("OK")
 	})
+	mux.GET("/test64/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+
+		err := svc.TestInt64Path(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test64", func(ctx *loong.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
 	mux.GET("/ping", func(ctx *loong.Context) error {
 		err := svc.Ping()
 		if err != nil {
@@ -466,6 +494,34 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 
 		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/test64/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+
+		err := svc.TestInt64Path(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test64", func(ctx *loong.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
 	})
 	mux.GET("/ping", func(ctx *loong.Context) error {
 		err := svc.Ping()

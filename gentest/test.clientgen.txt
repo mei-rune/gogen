@@ -43,6 +43,21 @@ func (client TestClient) TestByKey(ctx context.Context, key Key) error {
 	return request.GET(ctx)
 }
 
+func (client TestClient) TestInt64Path(ctx context.Context, id int64) error {
+	request := resty.NewRequest(client.Proxy, "/test64/"+strconv.FormatInt(id, 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client TestClient) TestInt64Query(ctx context.Context, id int64) error {
+	request := resty.NewRequest(client.Proxy, "/test64").
+		SetParam("id", strconv.FormatInt(id, 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
 func (client TestClient) Ping(ctx context.Context) error {
 	request := resty.NewRequest(client.Proxy, "/ping")
 
@@ -394,6 +409,21 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 		return nil, 0, err
 	}
 	return result.Elist, result.Etotal, nil
+}
+
+func (client StringSvcImplClient) TestInt64Path(ctx context.Context, id int64) error {
+	request := resty.NewRequest(client.Proxy, "/test64/"+strconv.FormatInt(id, 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client StringSvcImplClient) TestInt64Query(ctx context.Context, id int64) error {
+	request := resty.NewRequest(client.Proxy, "/test64").
+		SetParam("id", strconv.FormatInt(id, 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
 }
 
 func (client StringSvcImplClient) Ping(ctx context.Context) error {
