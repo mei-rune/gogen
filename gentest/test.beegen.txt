@@ -307,18 +307,16 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 	mux.Get("/add/:a/:b", func(ctx *beecontext.Context) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Input.Param("a"), 10, 64); err != nil {
-			s := ctx.Input.Param("a")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, ctx.Input.Param("a"), err).Error())
 			return
 		} else {
 			a = int(aValue)
 		}
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Input.Param("b"), 10, 64); err != nil {
-			s := ctx.Input.Param("b")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, ctx.Input.Param("b"), err).Error())
 			return
 		} else {
 			b = int(bValue)
@@ -337,9 +335,8 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 	mux.Get("/add2/:a/:b", func(ctx *beecontext.Context) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Input.Param("a"), 10, 64); err != nil {
-			s := ctx.Input.Param("a")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, ctx.Input.Param("a"), err).Error())
 			return
 		} else {
 			a = new(int)
@@ -347,9 +344,8 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		}
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Input.Param("b"), 10, 64); err != nil {
-			s := ctx.Input.Param("b")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, ctx.Input.Param("b"), err).Error())
 			return
 		} else {
 			b = new(int)
@@ -829,18 +825,16 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 	mux.Get("/add/:a/:b", func(ctx *beecontext.Context) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Input.Param("a"), 10, 64); err != nil {
-			s := ctx.Input.Param("a")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, ctx.Input.Param("a"), err).Error())
 			return
 		} else {
 			a = int(aValue)
 		}
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Input.Param("b"), 10, 64); err != nil {
-			s := ctx.Input.Param("b")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, ctx.Input.Param("b"), err).Error())
 			return
 		} else {
 			b = int(bValue)
@@ -859,9 +853,8 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 	mux.Get("/add2/:a/:b", func(ctx *beecontext.Context) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Input.Param("a"), 10, 64); err != nil {
-			s := ctx.Input.Param("a")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, ctx.Input.Param("a"), err).Error())
 			return
 		} else {
 			a = new(int)
@@ -869,9 +862,8 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		}
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Input.Param("b"), 10, 64); err != nil {
-			s := ctx.Input.Param("b")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, ctx.Input.Param("b"), err).Error())
 			return
 		} else {
 			b = new(int)
@@ -1281,18 +1273,16 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 	mux.Get("/add/:a/:b", func(ctx *beecontext.Context) {
 		var a int
 		if aValue, err := strconv.ParseInt(ctx.Input.Param("a"), 10, 64); err != nil {
-			s := ctx.Input.Param("a")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, ctx.Input.Param("a"), err).Error())
 			return
 		} else {
 			a = int(aValue)
 		}
 		var b int
 		if bValue, err := strconv.ParseInt(ctx.Input.Param("b"), 10, 64); err != nil {
-			s := ctx.Input.Param("b")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, ctx.Input.Param("b"), err).Error())
 			return
 		} else {
 			b = int(bValue)
@@ -1311,9 +1301,8 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 	mux.Get("/add2/:a/:b", func(ctx *beecontext.Context) {
 		var a *int
 		if aValue, err := strconv.ParseInt(ctx.Input.Param("a"), 10, 64); err != nil {
-			s := ctx.Input.Param("a")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", a, ctx.Input.Param("a"), err).Error())
 			return
 		} else {
 			a = new(int)
@@ -1321,9 +1310,8 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		}
 		var b *int
 		if bValue, err := strconv.ParseInt(ctx.Input.Param("b"), 10, 64); err != nil {
-			s := ctx.Input.Param("b")
 			ctx.Output.SetStatus(http.StatusBadRequest)
-			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, s, err).Error())
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, ctx.Input.Param("b"), err).Error())
 			return
 		} else {
 			b = new(int)

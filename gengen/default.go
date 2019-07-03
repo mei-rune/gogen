@@ -352,6 +352,7 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 }
 
 func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
+	var genCtx context
 	var results []ServerParam
 
 	ann := getAnnotation(method, false)
@@ -359,7 +360,7 @@ func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
 	isEdit := methodStr == "PUT" || methodStr == "POST"
 
 	for idx := range method.Params.List {
-		results = append(results, mux.ToParam(method, method.Params.List[idx], isEdit)...)
+		results = append(results, mux.ToParam(&genCtx, method, method.Params.List[idx], isEdit)...)
 	}
 
 	_, hasData := ann.Attributes["data"]
@@ -375,7 +376,7 @@ func (mux *DefaultStye) ToParamList(method Method) []ServerParam {
 	return results
 }
 
-func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []ServerParam {
+func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit bool) []ServerParam {
 	typeStr := typePrint(param.Typ)
 	elmType := strings.TrimPrefix(typeStr, "*")
 	hasStar := typeStr != elmType
@@ -460,6 +461,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 		}
 
 		renderArgs := map[string]interface{}{
+			"g":         c,
 			"ctx":       mux.CtxName(),
 			"type":      elmType,
 			"name":      name,
@@ -557,7 +559,7 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 		if hasStar {
 			initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
 		}
-		p2.InitString = strings.TrimSpace(mux.initString(method, p2.Param, funcs, true, optional,
+		p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, true, optional,
 			typePrint(startType), strings.TrimPrefix(typePrint(startType), "*"), name+".Start", paramName2, readParam, initRootValue))
 
 		p3 := serverParam
@@ -571,17 +573,17 @@ func (mux *DefaultStye) ToParam(method Method, param Param, isEdit bool) []Serve
 		if hasStar {
 			initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
 		}
-		p3.InitString = strings.TrimSpace(mux.initString(method, p3.Param, funcs, true, optional,
+		p3.InitString = strings.TrimSpace(mux.initString(c, method, p3.Param, funcs, true, optional,
 			typePrint(endType), strings.TrimPrefix(typePrint(endType), "*"), name+".End", paramName3, readParam, initRootValue))
 
 		return []ServerParam{p1, p2, p3}
 	}
 
-	serverParam.InitString = strings.TrimSpace(mux.initString(method, param, funcs, false, optional, typeStr, elmType, name, paramName, readParam, ""))
+	serverParam.InitString = strings.TrimSpace(mux.initString(c, method, param, funcs, false, optional, typeStr, elmType, name, paramName, readParam, ""))
 	return []ServerParam{serverParam}
 }
 
-func (mux *DefaultStye) initString(method Method, param Param, funcs template.FuncMap, skipDeclare, optional bool, typeStr, elmType, name, paramName, readParam, initRootValue string) string {
+func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs template.FuncMap, skipDeclare, optional bool, typeStr, elmType, name, paramName, readParam, initRootValue string) string {
 	var hasStar = typeStr != elmType
 
 	var immediate bool
@@ -605,6 +607,7 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 		`))
 
 			renderArgs := map[string]interface{}{
+				"g":             c,
 				"skipDeclare":   skipDeclare,
 				"ctx":           mux.CtxName(),
 				"type":          elmType,
@@ -635,6 +638,7 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 		`))
 
 			renderArgs := map[string]interface{}{
+				"g":             c,
 				"skipDeclare":   skipDeclare,
 				"ctx":           mux.CtxName(),
 				"type":          elmType,
@@ -655,25 +659,38 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 		requiredTxt := template.Must(template.New("requiredTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- $s := concat .ctx "." .readParam "(\"" .rname "\")"}}
 		{{- if not .hasConvertError}}
+
+
 			{{- .initRootValue}}
 			{{- if .needTransform}}
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{.type}}({{convert .param .ctx .type $s}})
 			{{- else}}
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{convert .param .ctx .type $s}}
 			{{- end}}
+
+
 		{{- else}}
-		{{- if .skipDeclare | not}}var {{.name}} {{.type}}{{end}}
-		if {{goify .name false}}Value, err := {{convert .param .ctx .type $s}}; err != nil {
-			s := {{$s}}
-			{{badArgument .rname "s" "err"}}
-		} else {
-			{{- .initRootValue}}
-			{{- if .needTransform}}
-			{{.name}} = {{.type}}({{goify .name false}}Value)
-			{{- else}}
-			{{.name}} = {{goify .name false}}Value
-			{{- end}}
-		}
+
+
+			{{- if not .needTransform -}}
+				{{- .initRootValue}}
+				{{goify .name false}}, err := {{convert .param .ctx .type $s}}
+				if  err != nil {
+					{{badArgument .rname $s "err"}}
+				}
+				{{- .c.SetErrorDefined -}}
+			{{- else -}}
+
+				{{- if .skipDeclare | not}}var {{.name}} {{.type}}{{end}}
+				if {{goify .name false}}Value, err := {{convert .param .ctx .type $s}}; err != nil {
+					{{badArgument .rname $s "err"}}
+				} else {
+					{{- .initRootValue}}
+					{{.name}} = {{.type}}({{goify .name false}}Value)
+				}
+			{{- end -}}
+
+
 		{{- end}}
 		`))
 
@@ -713,8 +730,7 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 		{{- else}}
 		{{- if .skipDeclare | not}}var {{.name}} *{{.type}}{{end}}
 		if {{goify .name false}}Value, err := {{convert .param .ctx .type $s}}; err != nil {
-			s := {{$s}}
-			{{badArgument .rname "s" "err"}}
+			{{badArgument .rname $s "err"}}
 		} else {
 			{{- .initRootValue}}
 			{{- if .needTransform}}
@@ -772,6 +788,7 @@ func (mux *DefaultStye) initString(method Method, param Param, funcs template.Fu
 		}
 
 		renderArgs := map[string]interface{}{
+			"g":           c,
 			"skipDeclare": skipDeclare,
 			"ctx":         mux.CtxName(),
 			"type":        elmType,
