@@ -76,7 +76,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			return
 		}
 
-		err := svc.TestInt64Path(id)
+		err = svc.TestInt64Path(id)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -675,7 +675,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			return
 		}
 
-		err := svc.TestInt64Path(id)
+		err = svc.TestInt64Path(id)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())

@@ -366,7 +366,6 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 	isEdit := methodStr == "PUT" || methodStr == "POST"
 
 	for idx := range method.Params.List {
-		fmt.Println(method.Params.List[idx].Name)
 		results = append(results, mux.ToParam(&genCtx, method, method.Params.List[idx], isEdit)...)
 	}
 
@@ -380,7 +379,6 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 		}
 	}
 
-	fmt.Println(method.Name, genCtx.IsErrorDefined())
 	return ServerMethod{results, genCtx.IsErrorDefined()}
 }
 
@@ -689,7 +687,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 				if  err != nil {
 					{{badArgument .rname $s "err"}}
 				}
-				{{- set . "xxx" ( .c.SetErrorDefined ) -}}
+				{{- $xxx := ( .g.SetErrorDefined ) -}}
 			{{- else -}}
 
 				{{- if .skipDeclare | not}}var {{.name}} {{.type}}{{end}}

@@ -52,7 +52,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
 		}
 
-		err := svc.TestInt64Path(id)
+		err = svc.TestInt64Path(id)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
@@ -501,7 +501,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
 		}
 
-		err := svc.TestInt64Path(id)
+		err = svc.TestInt64Path(id)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}

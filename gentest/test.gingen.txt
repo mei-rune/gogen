@@ -68,7 +68,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			return
 		}
 
-		err := svc.TestInt64Path(id)
+		err = svc.TestInt64Path(id)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -592,7 +592,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			return
 		}
 
-		err := svc.TestInt64Path(id)
+		err = svc.TestInt64Path(id)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
