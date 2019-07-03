@@ -429,13 +429,13 @@ func (sc *SourceContext) GetType(name string) *ast.TypeSpec {
 }
 
 func (sc *SourceContext) validate() error {
-	for _, i := range sc.Classes {
-		for _, m := range i.Methods {
-			if m.Results == nil || len(m.Results.List) < 1 {
-				return fmt.Errorf("method %q of interface %q has no result types", m.Name, i.Name)
-			}
-		}
-	}
+	//	for _, i := range sc.Classes {
+	//		for _, m := range i.Methods {
+	//			if m.Results == nil || len(m.Results.List) < 1 {
+	//				return fmt.Errorf("method %q of interface %q has no result types", m.Name, i.Name)
+	//			}
+	//		}
+	//	}
 	return nil
 }
 
