@@ -278,7 +278,7 @@ func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
 		panic(err)
 	})
 	segements, _, _ := parseURL(rawurl)
-	return "\"" + JoinPathSegments(segements, replace) + "\""
+	return "\"" + JoinPathSegments(segements, false, replace) + "\""
 }
 
 type ParamConfig struct {
@@ -537,29 +537,42 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- end}}
     {{- $needAssignment = false -}}
     {{- else if $param.IsQueryParam -}}
-    {{- $typeName := typePrint $param.Param.Typ -}}
-    {{- if startWith $typeName "*"}}
-    if {{$param.Name.Name}} != nil {
-    	request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
-    }
-    {{- $needAssignment = true -}}
-    {{- else -}}
-    
-      {{- if $param.IsMultQueryValue }}
-        for idx := range {{$param.Param.Name.Name}} {
-          request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param true}}[idx])
+      {{- $typeName := typePrint $param.Param.Typ -}}
+      
+      
+      {{- if startWith $typeName "*http.Request"}}
+      {{- else if startWith $typeName "url.Values"}}
+
+          {{- if $needAssignment}}
+          request = request.
+          {{- else -}}
+          .
+          {{end -}}
+          SetParams({{$param.Param.Name}})
+          {{- $needAssignment = false -}}
+
+      {{- else if startWith $typeName "*"}}
+        if {{$param.Name.Name}} != nil {
+        	request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
         }
-      {{- $needAssignment = true -}}
-      {{- else}}    
-        {{- if $needAssignment}}
-        request = request.
-        {{- else -}}
-        .
-        {{end -}}
-        SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
-      {{- $needAssignment = false -}}
+        {{- $needAssignment = true -}}
+      {{- else -}}
+      
+        {{- if $param.IsMultQueryValue }}
+          for idx := range {{$param.Param.Name.Name}} {
+            request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param true}}[idx])
+          }
+        {{- $needAssignment = true -}}
+        {{- else}}    
+          {{- if $needAssignment}}
+          request = request.
+          {{- else -}}
+          .
+          {{end -}}
+          SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+          {{- $needAssignment = false -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
     {{- end -}}
   {{- end -}}
 

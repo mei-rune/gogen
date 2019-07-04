@@ -22,6 +22,7 @@ var ginConfig = map[string]interface{}{
 	"err_func_format": "ctx.String({{.errCode}}, {{.err}}.Error())\r\n    return",
 
 	"reserved": map[string]string{
+		"url.Values":          "ctx.Request.URL.Query()",
 		"*http.Request":       "ctx.Request",
 		"http.ResponseWriter": "ctx.Writer",
 		"context.Context":     "ctx.Request.Context()",

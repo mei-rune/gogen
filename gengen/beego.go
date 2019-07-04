@@ -23,6 +23,7 @@ var beeConfig = map[string]interface{}{
 	"err_func_format": "ctx.Output.SetStatus({{.errCode}})\r\n    ctx.WriteString({{.err}}.Error())\r\n    return",
 
 	"reserved": map[string]string{
+		"url.Values":          "ctx.Request.URL.Query()",
 		"*http.Request":       "ctx.Request",
 		"http.ResponseWriter": "ctx.Response",
 		"context.Context":     "ctx.Request.Context()",

@@ -27,8 +27,11 @@ var (
 	}
 )
 
-func JoinPathSegments(segements []PathSegement, replace ReplaceFunc) string {
+func JoinPathSegments(segements []PathSegement, canEmpty bool, replace ReplaceFunc) string {
 	if len(segements) == 0 {
+		if canEmpty {
+			return ""
+		}
 		return "/"
 	}
 
@@ -62,13 +65,15 @@ func parseURL(rawurl string) ([]PathSegement, []string, map[string]string) {
 	pathList := strings.Split(strings.Trim(pa, "/"), "/")
 	var pathNames []string
 	var segements []PathSegement
-	for idx := range pathList {
-		if strings.HasPrefix(pathList[idx], ":") {
-			name := strings.TrimPrefix(pathList[idx], ":")
-			pathNames = append(pathNames, name)
-			segements = append(segements, PathSegement{IsArgument: true, Value: name})
-		} else {
-			segements = append(segements, PathSegement{IsArgument: false, Value: pathList[idx]})
+	if pa != "" {
+		for idx := range pathList {
+			if strings.HasPrefix(pathList[idx], ":") {
+				name := strings.TrimPrefix(pathList[idx], ":")
+				pathNames = append(pathNames, name)
+				segements = append(segements, PathSegement{IsArgument: true, Value: name})
+			} else {
+				segements = append(segements, PathSegement{IsArgument: false, Value: pathList[idx]})
+			}
 		}
 	}
 	return segements, pathNames, parseQuery(query)

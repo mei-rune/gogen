@@ -22,6 +22,7 @@ var echoConfig = map[string]interface{}{
 	"err_func_format":     "ctx.Error({{.err}})\r\n     return nil",
 
 	"reserved": map[string]string{
+		"url.Values":          "ctx.QueryParams()",
 		"*http.Request":       "ctx.Request()",
 		"http.ResponseWriter": "ctx.Response().Writer",
 		"context.Context":     "ctx.Request().Context()",

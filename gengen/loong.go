@@ -32,6 +32,7 @@ var loongConfig = map[string]interface{}{
 	"err_func_format": "return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})",
 
 	"reserved": map[string]string{
+		"url.Values":          "ctx.QueryParams()",
 		"*http.Request":       "ctx.Request()",
 		"http.ResponseWriter": "ctx.Response().Writer",
 		"context.Context":     "ctx.StdContext",

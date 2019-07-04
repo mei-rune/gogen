@@ -77,9 +77,11 @@ func (mux *DefaultStye) Init() {
 func (mux *DefaultStye) reinit(values map[string]interface{}) {
 	if mux.ParseURL == nil {
 		var replace ReplaceFunc
+		var canEmpty bool
 		switch mux.UrlStyle {
 		case "colon", "":
 			replace = colonReplace
+			canEmpty = true
 		case "brace":
 			replace = braceReplace
 		default:
@@ -88,7 +90,7 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 
 		mux.ParseURL = func(rawurl string) (string, []string, map[string]string) {
 			segements, names, query := parseURL(rawurl)
-			return JoinPathSegments(segements, replace), names, query
+			return JoinPathSegments(segements, canEmpty, replace), names, query
 		}
 	}
 
