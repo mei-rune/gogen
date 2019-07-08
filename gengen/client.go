@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 	"text/template"
@@ -28,6 +29,7 @@ func (cmd *WebClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs = cmd.GeneratorBase.Flags(fs)
 	fs.StringVar(&cmd.file, "config", "", "配置文件名")
 
+	fs.StringVar(&cmd.config.TagName, "tag", "json", "")
 	fs.StringVar(&cmd.config.RestyField, "field", "Proxy", "")
 	fs.StringVar(&cmd.config.RestyName, "resty", "*resty.Proxy", "")
 	fs.StringVar(&cmd.config.ContextClassName, "context", "context.Context", "")
@@ -184,6 +186,7 @@ func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext,
 
 type ClientConfig struct {
 	Classes          []Class
+	TagName          string
 	RestyName        string
 	RestyField       string
 	ContextClassName string
@@ -311,10 +314,10 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	var inBody []Param
 	var bodyExists bool
 
-	add := func(param Param, isSkipDeclared, isSkipUse bool) ParamConfig {
+	add := func(param Param, queryName string, isSkipDeclared, isSkipUse bool) ParamConfig {
 		cp := ParamConfig{
 			Param:          param,
-			QueryParamName: param.Name.Name,
+			QueryParamName: queryName,
 			IsSkipDeclared: isSkipDeclared,
 			IsSkipUse:      isSkipUse,
 		}
@@ -356,9 +359,19 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 	paramList := make([]ParamConfig, 0, len(method.Params.List))
 	for _, param := range method.Params.List {
+
+		var prefix = param.Name.Name + "."
+		if newName, ok := queryNames[param.Name.Name]; ok && newName != "" {
+			if newName == "<none>" {
+				prefix = ""
+			} else {
+				prefix = newName + "."
+			}
+		}
+
 		if ok, startType, endType := IsRange(c.Classes, param.Typ); ok {
 
-			paramList = append(paramList, add(param, false, true))
+			paramList = append(paramList, add(param, "xxx", false, true))
 
 			isPtr := IsPtrType(param.Typ)
 			if isPtr {
@@ -378,14 +391,14 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			startParm.Name.Name = param.Name.Name + ".Start"
 			startParm.Typ = startType
 
-			paramList = append(paramList, add(startParm, true, false))
+			paramList = append(paramList, add(startParm, prefix+"start", true, false))
 
 			endParm := param
 			endParm.Name = &ast.Ident{}
 			*endParm.Name = *param.Name
 			endParm.Name.Name = param.Name.Name + ".End"
 			endParm.Typ = endType
-			paramList = append(paramList, add(endParm, true, false))
+			paramList = append(paramList, add(endParm, prefix+"end", true, false))
 
 			if isPtr {
 				end := param
@@ -400,7 +413,65 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			continue
 		}
 
-		paramList = append(paramList, add(param, false, false))
+		var stType *Class
+		if starType, ok := param.Typ.(*ast.StarExpr); ok {
+			if identType, ok := starType.X.(*ast.Ident); ok {
+				stType = method.Ctx.GetClass(identType.Name)
+			}
+		} else if identType, ok := param.Typ.(*ast.Ident); ok {
+			stType = method.Ctx.GetClass(identType.Name)
+		}
+		if stType != nil {
+
+			paramList = append(paramList, add(param, "", false, true))
+
+			isPtr := IsPtrType(param.Typ)
+			if isPtr {
+				start := param
+				start.Name = &ast.Ident{}
+				start.Name.Name = "\r\nif " + param.Name.Name + " != nil {"
+				paramList = append(paramList, ParamConfig{
+					Param:          start,
+					IsSkipDeclared: true,
+					IsCodeSegement: true,
+				})
+			}
+
+			for _, field := range stType.Fields {
+				fieldParam := param
+				fieldParam.Name = &ast.Ident{}
+				*fieldParam.Name = *param.Name
+				fieldParam.Name.Name = param.Name.Name + "." + field.Name.Name
+				fieldParam.Typ = field.Typ
+
+				queryName := prefix + field.Name.Name
+				if field.Tag != nil {
+					tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(c.TagName)
+					if tagValue != "" {
+						ss := strings.Split(tagValue, ",")
+						if len(ss) > 0 && ss[0] != "" {
+							queryName = prefix + "." + ss[0]
+						}
+					}
+				}
+
+				paramList = append(paramList, add(fieldParam, queryName, true, false))
+			}
+
+			if isPtr {
+				end := param
+				end.Name = &ast.Ident{}
+				end.Name.Name = "\r\n}"
+				paramList = append(paramList, ParamConfig{
+					Param:          end,
+					IsSkipDeclared: true,
+					IsCodeSegement: true,
+				})
+			}
+			continue
+		}
+
+		paramList = append(paramList, add(param, param.Name.Name, false, false))
 	}
 
 	if len(inBody) > 0 {

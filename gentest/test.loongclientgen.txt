@@ -14,6 +14,7 @@ import (
 
 // TimeRange is skipped
 // TimeRange2 is skipped
+// QueryArgs is skipped
 
 type TestClient struct {
 	Proxy *resty.Proxy
@@ -64,6 +65,86 @@ func (client TestClient) TestInt64Path(ctx context.Context, id int64) error {
 func (client TestClient) TestInt64Query(ctx context.Context, id int64) error {
 	request := resty.NewRequest(client.Proxy, "/test64").
 		SetParam("id", strconv.FormatInt(id, 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client TestClient) TestQueryArgs1(ctx context.Context, id int64, args QueryArgs) error {
+	request := resty.NewRequest(client.Proxy, "/test_query_args1/"+strconv.FormatInt(id, 10)+"").
+		SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
+		SetParam("args.fstring", args.fstring).
+		SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
+	if args.fintptr != nil {
+		request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+	}
+	if args.fstringptr != nil {
+		request = request.SetParam("args.fstringptr", *args.fstringptr)
+	}
+	if args.ftimeptr != nil {
+		request = request.SetParam("args.ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client TestClient) TestQueryArgs2(ctx context.Context, id int64, args *QueryArgs) error {
+	request := resty.NewRequest(client.Proxy, "/test_query_args2/"+strconv.FormatInt(id, 10)+"")
+	if args != nil {
+		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
+			SetParam("args.fstring", args.fstring).
+			SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
+		if args.fintptr != nil {
+			request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		}
+		if args.fstringptr != nil {
+			request = request.SetParam("args.fstringptr", *args.fstringptr)
+		}
+		if args.ftimeptr != nil {
+			request = request.SetParam("args.ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+		}
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client TestClient) TestQueryArgs3(ctx context.Context, id int64, args QueryArgs) error {
+	request := resty.NewRequest(client.Proxy, "/test_query_args3/"+strconv.FormatInt(id, 10)+"").
+		SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
+		SetParam("fstring", args.fstring).
+		SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
+	if args.fintptr != nil {
+		request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+	}
+	if args.fstringptr != nil {
+		request = request.SetParam("fstringptr", *args.fstringptr)
+	}
+	if args.ftimeptr != nil {
+		request = request.SetParam("ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client TestClient) TestQueryArgs4(ctx context.Context, id int64, args *QueryArgs) error {
+	request := resty.NewRequest(client.Proxy, "/test_query_args4/"+strconv.FormatInt(id, 10)+"")
+	if args != nil {
+		request = request.SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
+			SetParam("fstring", args.fstring).
+			SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
+		if args.fintptr != nil {
+			request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		}
+		if args.fstringptr != nil {
+			request = request.SetParam("fstringptr", *args.fstringptr)
+		}
+		if args.ftimeptr != nil {
+			request = request.SetParam("ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+		}
+	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)

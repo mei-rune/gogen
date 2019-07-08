@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"go/ast"
 	"log"
+	"reflect"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"text/template"
@@ -23,6 +25,7 @@ type ConvertArgs struct {
 
 type DefaultStye struct {
 	classes           []Class
+	TagName           string            `json:"tag_name"`
 	FuncSignatureStr  string            `json:"func_signature"`
 	CtxNameStr        string            `json:"ctx_name"`
 	CtxTypeStr        string            `json:"ctx_type"`
@@ -52,6 +55,7 @@ type DefaultStye struct {
 }
 
 func (mux *DefaultStye) Init() {
+	mux.TagName = "json"
 	mux.CtxNameStr = "ctx"
 	mux.CtxTypeStr = "echo.Context"
 	mux.FuncSignatureStr = "func(" + mux.CtxNameStr + " " + mux.CtxTypeStr + ") error "
@@ -94,6 +98,10 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		}
 	}
 
+	if mux.TagName == "" {
+		mux.TagName = "json"
+	}
+
 	if mux.Types.Required == nil {
 		mux.Types.Required = map[string]ReadArgs{}
 	}
@@ -116,7 +124,13 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 	if mux.Converts == nil {
 		mux.Converts = map[string]ConvertArgs{}
 	}
-	for _, t := range []string{"int", "int8", "int16", "int32", "int64"} {
+
+	if _, ok := mux.Converts["int"]; !ok {
+		funcName := "strconv.Atoi({{.name}})"
+		mux.Converts["int"] = ConvertArgs{Format: funcName, HasError: true}
+	}
+
+	for _, t := range []string{"int8", "int16", "int32", "int64"} {
 		if _, ok := mux.Converts[t]; ok {
 			continue
 		}
@@ -254,14 +268,14 @@ func (mux *DefaultStye) TypeConvert(param Param, typeName, ctxName, paramName st
 	if !ok {
 		underlying := param.Method.Ctx.GetType(typeName)
 		if underlying == nil {
-			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeName)
+			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 1argument '"+param.Name.Name+"' is unsupported type -", typeName)
 		}
 
 		// elmType = typePrint(underlying.Type)
 
 		format, ok = mux.Converts[typePrint(underlying.Type)]
 		if !ok {
-			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeName)
+			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 2argument '"+param.Name.Name+"' is unsupported type -", typeName)
 		}
 
 		format.NeedTransform = true
@@ -590,6 +604,69 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		return []ServerParam{p1, p2, p3}
 	}
 
+	var stType *Class
+	if starType, ok := param.Typ.(*ast.StarExpr); ok {
+		if identType, ok := starType.X.(*ast.Ident); ok {
+			stType = method.Ctx.GetClass(identType.Name)
+		}
+	} else if identType, ok := param.Typ.(*ast.Ident); ok {
+		stType = method.Ctx.GetClass(identType.Name)
+	}
+
+	if stType != nil {
+		if isPath {
+			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name + "' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
+			log.Fatalln(err)
+			panic(err)
+		}
+
+		p1 := serverParam
+		p1.InitString = "var " + name + " " + elmType
+		if IsPtrType(param.Typ) {
+			p1.ParamName = "&" + p1.ParamName
+		}
+
+		var paramNamePrefix = param.Name.Name + "."
+		if s, ok := queryNames[param.Name.Name]; ok {
+			if s == "" || s == "<none>" {
+				paramNamePrefix = ""
+			} else {
+				paramNamePrefix = s + "."
+			}
+		}
+
+		serverParams := []ServerParam{p1}
+
+		for _, field := range stType.Fields {
+			p2 := serverParam
+			p2.IsSkipUse = true
+			p2.Name = &ast.Ident{}
+			*p2.Name = *param.Name
+			p2.Param.Name.Name = param.Name.Name + "." + field.Name.Name
+			p2.Param.Typ = field.Typ
+			paramName2 := paramNamePrefix + field.Name.Name
+
+			if field.Tag != nil {
+				tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(mux.TagName)
+				if tagValue != "" {
+					ss := strings.Split(tagValue, ",")
+					if len(ss) > 0 && ss[0] != "" {
+						paramName2 = paramNamePrefix + "." + ss[0]
+					}
+				}
+			}
+
+			//field.Tag.Value
+
+			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, true, optional,
+				typePrint(p2.Param.Typ), strings.TrimPrefix(typePrint(p2.Param.Typ), "*"), p2.Param.Name.Name, paramName2, readParam, ""))
+
+			serverParams = append(serverParams, p2)
+		}
+
+		return serverParams
+	}
+
 	serverParam.InitString = strings.TrimSpace(mux.initString(c, method, param, funcs, false, optional, typeStr, elmType, name, paramName, readParam, ""))
 	return []ServerParam{serverParam}
 }
@@ -785,14 +862,15 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		if !ok {
 			underlying := method.Ctx.GetType(elmType)
 			if underlying == nil {
-				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr)
 			}
 
 			// elmType = typePrint(underlying.Type)
 
 			convertArgs, ok = mux.Converts[typePrint(underlying.Type)]
 			if !ok {
-				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+				debug.PrintStack()
+				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 4argument '"+param.Name.Name+"' is unsupported type -", typeStr)
 			}
 
 			convertArgs.NeedTransform = true

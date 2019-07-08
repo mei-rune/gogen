@@ -98,7 +98,12 @@ func parseQuery(query string) map[string]string {
 				value = strings.TrimPrefix(value, ":")
 			}
 		}
-		values[value] = key
+
+		if value == "<none>" {
+			values[key] = value
+		} else {
+			values[value] = key
+		}
 	}
 	return values
 }

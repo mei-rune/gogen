@@ -41,6 +41,16 @@ type TimeRange2 struct {
 	Start, End *time.Time
 }
 
+type QueryArgs struct {
+	fint    int
+	fstring string
+	ftime   time.Time
+
+	fintptr    *int
+	fstringptr *string
+	ftimeptr   *time.Time
+}
+
 // @http.Client(name="TestClient", ref="true")
 type StringSvc interface {
 	// @http.GET(path="/allfiles")
@@ -54,6 +64,18 @@ type StringSvc interface {
 
 	// @http.GET(path="/test64")
 	TestInt64Query(id int64) error
+
+	// @http.GET(path="/test_query_args1/:id")
+	TestQueryArgs1(id int64, args QueryArgs) error
+
+	// @http.GET(path="/test_query_args2/:id")
+	TestQueryArgs2(id int64, args *QueryArgs) error
+
+	// @http.GET(path="/test_query_args3/:id?args=<none>")
+	TestQueryArgs3(id int64, args QueryArgs) error
+
+	// @http.GET(path="/test_query_args4/:id?<none>=args")
+	TestQueryArgs4(id int64, args *QueryArgs) error
 
 	// @http.GET(path="/ping")
 	Ping() error
