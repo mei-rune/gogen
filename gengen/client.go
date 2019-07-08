@@ -369,50 +369,6 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			}
 		}
 
-		if ok, startType, endType := IsRange(c.Classes, param.Typ); ok {
-
-			paramList = append(paramList, add(param, "xxx", false, true))
-
-			isPtr := IsPtrType(param.Typ)
-			if isPtr {
-				start := param
-				start.Name = &ast.Ident{}
-				start.Name.Name = "\r\nif " + param.Name.Name + " != nil {"
-				paramList = append(paramList, ParamConfig{
-					Param:          start,
-					IsSkipDeclared: true,
-					IsCodeSegement: true,
-				})
-			}
-
-			startParm := param
-			startParm.Name = &ast.Ident{}
-			*startParm.Name = *param.Name
-			startParm.Name.Name = param.Name.Name + ".Start"
-			startParm.Typ = startType
-
-			paramList = append(paramList, add(startParm, prefix+"start", true, false))
-
-			endParm := param
-			endParm.Name = &ast.Ident{}
-			*endParm.Name = *param.Name
-			endParm.Name.Name = param.Name.Name + ".End"
-			endParm.Typ = endType
-			paramList = append(paramList, add(endParm, prefix+"end", true, false))
-
-			if isPtr {
-				end := param
-				end.Name = &ast.Ident{}
-				end.Name.Name = "\r\n}"
-				paramList = append(paramList, ParamConfig{
-					Param:          end,
-					IsSkipDeclared: true,
-					IsCodeSegement: true,
-				})
-			}
-			continue
-		}
-
 		var stType *Class
 		if starType, ok := param.Typ.(*ast.StarExpr); ok {
 			if identType, ok := starType.X.(*ast.Ident); ok {

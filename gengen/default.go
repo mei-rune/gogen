@@ -561,48 +561,48 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	// 	InitString string
 	// }
 
-	if ok, startType, endType := IsRange(mux.classes, param.Typ); ok {
-		if isPath {
-			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name + "' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
-			log.Fatalln(err)
-			panic(err)
-		}
+	//	if ok, startType, endType := IsRange(mux.classes, param.Typ); ok {
+	//		if isPath {
+	//			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name + "' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
+	//			log.Fatalln(err)
+	//			panic(err)
+	//		}
 
-		p1 := serverParam
-		p1.InitString = "var " + name + " " + typeStr
+	//		p1 := serverParam
+	//		p1.InitString = "var " + name + " " + typeStr
 
-		p2 := serverParam
-		p2.IsSkipUse = true
-		p2.Name = &ast.Ident{}
-		*p2.Name = *param.Name
-		p2.Param.Name.Name = name + ".Start"
-		p2.Param.Typ = startType
-		paramName2 := paramName + ".start"
+	//		p2 := serverParam
+	//		p2.IsSkipUse = true
+	//		p2.Name = &ast.Ident{}
+	//		*p2.Name = *param.Name
+	//		p2.Param.Name.Name = name + ".Start"
+	//		p2.Param.Typ = startType
+	//		paramName2 := paramName + ".start"
 
-		var initRootValue string
-		if hasStar {
-			initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
-		}
-		p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, true, optional,
-			typePrint(startType), strings.TrimPrefix(typePrint(startType), "*"), name+".Start", paramName2, readParam, initRootValue))
+	//		var initRootValue string
+	//		if hasStar {
+	//			initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
+	//		}
+	//		p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, true, optional,
+	//			typePrint(startType), strings.TrimPrefix(typePrint(startType), "*"), name+".Start", paramName2, readParam, initRootValue))
 
-		p3 := serverParam
-		p3.IsErrorDefined = c.IsErrorDefined()
-		p3.IsSkipUse = true
-		p3.Name = &ast.Ident{}
-		*p3.Name = *param.Name
-		p3.Param.Name.Name = name + ".End"
-		p3.Param.Typ = endType
-		paramName3 := paramName + ".end"
+	//		p3 := serverParam
+	//		p3.IsErrorDefined = c.IsErrorDefined()
+	//		p3.IsSkipUse = true
+	//		p3.Name = &ast.Ident{}
+	//		*p3.Name = *param.Name
+	//		p3.Param.Name.Name = name + ".End"
+	//		p3.Param.Typ = endType
+	//		paramName3 := paramName + ".end"
 
-		if hasStar {
-			initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
-		}
-		p3.InitString = strings.TrimSpace(mux.initString(c, method, p3.Param, funcs, true, optional,
-			typePrint(endType), strings.TrimPrefix(typePrint(endType), "*"), name+".End", paramName3, readParam, initRootValue))
+	//		if hasStar {
+	//			initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
+	//		}
+	//		p3.InitString = strings.TrimSpace(mux.initString(c, method, p3.Param, funcs, true, optional,
+	//			typePrint(endType), strings.TrimPrefix(typePrint(endType), "*"), name+".End", paramName3, readParam, initRootValue))
 
-		return []ServerParam{p1, p2, p3}
-	}
+	//		return []ServerParam{p1, p2, p3}
+	//	}
 
 	var stType *Class
 	if starType, ok := param.Typ.(*ast.StarExpr); ok {
@@ -621,12 +621,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 
 		p1 := serverParam
-		p1.InitString = "var " + name + " " + elmType
-		if IsPtrType(param.Typ) {
-			p1.ParamName = "&" + p1.ParamName
-		}
+		p1.InitString = "var " + name + " " + typeStr
 
-		var paramNamePrefix = param.Name.Name + "."
+		var paramNamePrefix = Underscore(param.Name.Name) + "."
 		if s, ok := queryNames[param.Name.Name]; ok {
 			if s == "" || s == "<none>" {
 				paramNamePrefix = ""
@@ -635,16 +632,18 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			}
 		}
 
+		c.parentInited = false
+
 		serverParams := []ServerParam{p1}
 
-		for _, field := range stType.Fields {
+		for fieldIdx, field := range stType.Fields {
 			p2 := serverParam
 			p2.IsSkipUse = true
 			p2.Name = &ast.Ident{}
 			*p2.Name = *param.Name
 			p2.Param.Name.Name = param.Name.Name + "." + field.Name.Name
 			p2.Param.Typ = field.Typ
-			paramName2 := paramNamePrefix + field.Name.Name
+			paramName2 := paramNamePrefix + Underscore(field.Name.Name)
 
 			if field.Tag != nil {
 				tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(mux.TagName)
@@ -656,10 +655,17 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 			}
 
-			//field.Tag.Value
+			var initRootValue string
+			if IsPtrType(param.Typ) && !c.IsParentInited() {
+				if fieldIdx == 0 {
+					initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
+				} else {
+					initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
+				}
+			}
 
 			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, true, optional,
-				typePrint(p2.Param.Typ), strings.TrimPrefix(typePrint(p2.Param.Typ), "*"), p2.Param.Name.Name, paramName2, readParam, ""))
+				typePrint(p2.Param.Typ), strings.TrimPrefix(typePrint(p2.Param.Typ), "*"), p2.Param.Name.Name, paramName2, readParam, initRootValue))
 
 			serverParams = append(serverParams, p2)
 		}
@@ -685,13 +691,22 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 	if immediate {
 		if !hasStar {
 			requiredTxt := template.Must(template.New("requiredTxt").Funcs(Funcs).Funcs(funcs).Parse(`
-		{{- .initRootValue}}
-		{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{readRequired .param .ctx .type .rname}}
+		{{- .initRootValue}}{{$xxx := .g.SetParentInited}}
+		{{if .skipDeclare | not}}var {{end}}{{.name}} = {{readRequired .param .ctx .type .rname}}
 		`))
 
 			optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
-		{{- .initRootValue}}
-		{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{readOptional .param .ctx .type .rname}}
+      {{- if .initRootValue}}
+      
+  		    {{- if .skipDeclare | not}}var {{.name}} .type {{end}}
+          if s := {{readOptional .param .ctx .type .rname}}; s != "" {
+      		  {{- .initRootValue}}
+            {{.name}} = s
+          }
+          
+      {{- else}}
+  		  {{if .skipDeclare | not}}var {{end}}{{.name}} = {{readOptional .param .ctx .type .rname}}
+      {{- end}}
 		`))
 
 			renderArgs := map[string]interface{}{
@@ -714,7 +729,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		} else {
 			requiredTxt := template.Must(template.New("requiredTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- .initRootValue}}
-		{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{readRequired .param .ctx .type .rname}}
+		{{if .skipDeclare | not}}var {{end}}{{.name}} = {{readRequired .param .ctx .type .rname}}
 		`))
 
 			optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
@@ -750,7 +765,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 
 
 			{{- .initRootValue}}
-			{{- if .needTransform}}
+			{{if .needTransform}}
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{.type}}({{convert .param .ctx .type $s}})
 			{{- else}}
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{convert .param .ctx .type $s}}

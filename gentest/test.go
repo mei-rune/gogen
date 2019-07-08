@@ -56,7 +56,7 @@ type StringSvc interface {
 	// @http.GET(path="/allfiles")
 	GetAllFiles() (list []string, total int64, err error)
 
-	// @http.GET(path="/ping")
+	// @http.GET(path="/test_by_key")
 	TestByKey(key Key) error
 
 	// @http.GET(path="/test64/:id")
@@ -83,8 +83,11 @@ type StringSvc interface {
 	// @http.GET(path="/echo")
 	Echo(a string) string
 
-	// @http.POST(path="/echo", data="body")
+	// @http.POST(path="/echo2", data="body")
 	EchoBody(body io.Reader) (string, error)
+
+	// @http.POST(path="/echo3")
+	Echo3(context context.Context, a string) (string, error)
 
 	// @http.GET(path="/concat")
 	Concat(a, b string) (string, error)
@@ -115,9 +118,6 @@ type StringSvc interface {
 
 	// @http.POST(path="/save5")
 	Save5(context context.Context, a, b string) (string, error)
-
-	// @http.POST(path="/echo5")
-	Echo5(context context.Context, a string) (string, error)
 
 	// @http.GET(path="/add/:a/:b")
 	Add(a, b int) (int, error)
@@ -157,6 +157,11 @@ var _ StringSvc = &StringSvcImpl{}
 type StringSvcImpl struct {
 }
 
+// @http.GET(path="/test_by_key")
+func (svc *StringSvcImpl) TestByKey(key Key) error {
+	return nil
+}
+
 // @http.GET(path="/allfiles")
 func (svc *StringSvcImpl) GetAllFiles() (list []string, total int64, err error) {
 	return []string{"abc"}, 1, nil
@@ -172,6 +177,26 @@ func (svc *StringSvcImpl) TestInt64Query(id int64) error {
 	return nil
 }
 
+// @http.GET(path="/test_query_args1/:id")
+func (svc *StringSvcImpl) TestQueryArgs1(id int64, args QueryArgs) error {
+	return nil
+}
+
+// @http.GET(path="/test_query_args2/:id")
+func (svc *StringSvcImpl) TestQueryArgs2(id int64, args *QueryArgs) error {
+	return nil
+}
+
+// @http.GET(path="/test_query_args3/:id?args=<none>")
+func (svc *StringSvcImpl) TestQueryArgs3(id int64, args QueryArgs) error {
+	return nil
+}
+
+// @http.GET(path="/test_query_args4/:id?<none>=args")
+func (svc *StringSvcImpl) TestQueryArgs4(id int64, args *QueryArgs) error {
+	return nil
+}
+
 // @http.GET(path="/ping")
 func (svc *StringSvcImpl) Ping() error {
 	return nil
@@ -182,10 +207,15 @@ func (svc *StringSvcImpl) Echo(a string) string {
 	return a
 }
 
-// @http.GET(path="/echo_body", data="body")
+// @http.GET(path="/echo_body1", data="body")
 func (svc *StringSvcImpl) EchoBody(body io.Reader) (string, error) {
 	bs, err := ioutil.ReadAll(body)
 	return string(bs), err
+}
+
+// @http.POST(path="/echo3")
+func (svc *StringSvcImpl) Echo3(context context.Context, a string) (string, error) {
+	return a, nil
 }
 
 // @http.GET(path="/concat")
@@ -230,6 +260,11 @@ func (svc *StringSvcImpl) Save3(a, b *string) (string, error) {
 
 // @http.POST(path="/save4")
 func (svc *StringSvcImpl) Save4(a, b string) (string, error) {
+	return a + b, nil
+}
+
+// @http.POST(path="/save5")
+func (svc *StringSvcImpl) Save5(context context.Context, a, b string) (string, error) {
 	return a + b, nil
 }
 

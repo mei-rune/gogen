@@ -37,7 +37,7 @@ func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, erro
 }
 
 func (client TestClient) TestByKey(ctx context.Context, key Key) error {
-	request := resty.NewRequest(client.Proxy, "/ping").
+	request := resty.NewRequest(client.Proxy, "/test_by_key").
 		SetParam("key", strconv.FormatInt(int64(key), 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -161,8 +161,22 @@ func (client TestClient) Echo(ctx context.Context, a string) (string, error) {
 func (client TestClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/echo2").
 		SetBody(body).
+		Result(&result)
+
+	err := request.POST(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client TestClient) Echo3(ctx context.Context, a string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/echo3").
+		SetBody(map[string]interface{}{
+			"a": a,
+		}).
 		Result(&result)
 
 	err := request.POST(ctx)
@@ -296,20 +310,6 @@ func (client TestClient) Save5(ctx context.Context, a string, b string) (string,
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
-		}).
-		Result(&result)
-
-	err := request.POST(ctx)
-	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
-}
-
-func (client TestClient) Echo5(ctx context.Context, a string) (string, error) {
-	var result string
-
-	request := resty.NewRequest(client.Proxy, "/echo5").
-		SetBody(map[string]interface{}{
-			"a": a,
 		}).
 		Result(&result)
 
@@ -474,6 +474,14 @@ type StringSvcImplClient struct {
 	Proxy *resty.Proxy
 }
 
+func (client StringSvcImplClient) TestByKey(ctx context.Context, key Key) error {
+	request := resty.NewRequest(client.Proxy, "/test_by_key").
+		SetParam("key", strconv.FormatInt(int64(key), 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
 func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, int64, error) {
 	var result struct {
 		Elist  []string `json:"list"`
@@ -507,6 +515,86 @@ func (client StringSvcImplClient) TestInt64Query(ctx context.Context, id int64) 
 	return request.GET(ctx)
 }
 
+func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, args QueryArgs) error {
+	request := resty.NewRequest(client.Proxy, "/test_query_args1/"+strconv.FormatInt(id, 10)+"").
+		SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
+		SetParam("args.fstring", args.fstring).
+		SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
+	if args.fintptr != nil {
+		request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+	}
+	if args.fstringptr != nil {
+		request = request.SetParam("args.fstringptr", *args.fstringptr)
+	}
+	if args.ftimeptr != nil {
+		request = request.SetParam("args.ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, args *QueryArgs) error {
+	request := resty.NewRequest(client.Proxy, "/test_query_args2/"+strconv.FormatInt(id, 10)+"")
+	if args != nil {
+		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
+			SetParam("args.fstring", args.fstring).
+			SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
+		if args.fintptr != nil {
+			request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		}
+		if args.fstringptr != nil {
+			request = request.SetParam("args.fstringptr", *args.fstringptr)
+		}
+		if args.ftimeptr != nil {
+			request = request.SetParam("args.ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+		}
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, args QueryArgs) error {
+	request := resty.NewRequest(client.Proxy, "/test_query_args3/"+strconv.FormatInt(id, 10)+"").
+		SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
+		SetParam("fstring", args.fstring).
+		SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
+	if args.fintptr != nil {
+		request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+	}
+	if args.fstringptr != nil {
+		request = request.SetParam("fstringptr", *args.fstringptr)
+	}
+	if args.ftimeptr != nil {
+		request = request.SetParam("ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client StringSvcImplClient) TestQueryArgs4(ctx context.Context, id int64, args *QueryArgs) error {
+	request := resty.NewRequest(client.Proxy, "/test_query_args4/"+strconv.FormatInt(id, 10)+"")
+	if args != nil {
+		request = request.SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
+			SetParam("fstring", args.fstring).
+			SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
+		if args.fintptr != nil {
+			request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		}
+		if args.fstringptr != nil {
+			request = request.SetParam("fstringptr", *args.fstringptr)
+		}
+		if args.ftimeptr != nil {
+			request = request.SetParam("ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+		}
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
 func (client StringSvcImplClient) Ping(ctx context.Context) error {
 	request := resty.NewRequest(client.Proxy, "/ping")
 
@@ -529,11 +617,25 @@ func (client StringSvcImplClient) Echo(ctx context.Context, a string) (string, e
 func (client StringSvcImplClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/echo_body").
+	request := resty.NewRequest(client.Proxy, "/echo_body1").
 		SetBody(body).
 		Result(&result)
 
 	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Echo3(ctx context.Context, a string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/echo3").
+		SetBody(map[string]interface{}{
+			"a": a,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
@@ -646,6 +748,21 @@ func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string)
 	var result string
 
 	request := resty.NewRequest(client.Proxy, "/save4").
+		SetBody(map[string]interface{}{
+			"a": a,
+			"b": b,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Save5(ctx context.Context, a string, b string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/save5").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,

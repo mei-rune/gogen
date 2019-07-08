@@ -1,7 +1,8 @@
 package gengen
 
 type context struct {
-	errDefined bool
+	errDefined   bool
+	parentInited bool
 }
 
 func (c *context) SetErrorDefined() string {
@@ -10,4 +11,12 @@ func (c *context) SetErrorDefined() string {
 }
 func (c *context) IsErrorDefined() bool {
 	return c.errDefined
+}
+
+func (c *context) SetParentInited() string {
+	c.parentInited = true
+	return ""
+}
+func (c *context) IsParentInited() bool {
+	return c.parentInited
 }
