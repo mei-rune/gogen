@@ -360,6 +360,11 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	paramList := make([]ParamConfig, 0, len(method.Params.List))
 	for _, param := range method.Params.List {
 
+		if data != "" && data == param.Name.Name {
+			paramList = append(paramList, add(param, param.Name.Name, false, false))
+			continue
+		}
+
 		var prefix = param.Name.Name + "."
 		if newName, ok := queryNames[param.Name.Name]; ok && newName != "" {
 			if newName == "<none>" {
