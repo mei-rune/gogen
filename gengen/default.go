@@ -611,7 +611,33 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 	} else if identType, ok := param.Typ.(*ast.Ident); ok {
 		stType = method.Ctx.GetClass(identType.Name)
+	} else if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
+		//stType = method.Ctx.GetClass(selectorExpr.X)
+		//fmt.Println("======", selectorExpr.Sel)
+		// fmt.Println("======", typePrint(param.Typ))
+		// stType = method.Ctx.GetClass(identType.Name)
+
+		pkgName := typePrint(selectorExpr.X)
+		isSysPkg := false
+		for _, nm := range []string{
+			"time",
+			"net",
+		} {
+			// fmt.Println(pkgName == nm, pkgName, nm)
+			if pkgName == nm {
+				isSysPkg = true
+				break
+			}
+		}
+		if !isSysPkg {
+			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name +
+				"' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is unsupported, '" +
+				typePrint(param.Typ) + "' is in another package")
+			log.Fatalln(err)
+			panic(err)
+		}
 	}
+	// fmt.Println(param.Name, fmt.Sprintf("%T", param.Typ))
 
 	if stType != nil {
 		if isPath {
@@ -643,6 +669,29 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			*p2.Name = *param.Name
 			p2.Param.Name.Name = param.Name.Name + "." + field.Name.Name
 			p2.Param.Typ = field.Typ
+
+			reservedStr, ok := mux.Reserved[typePrint(field.Typ)]
+			if !ok {
+				reservedStr, ok = mux.Reserved[strings.TrimPrefix(typePrint(field.Typ), "*")]
+			}
+			if ok {
+				p2.ParamName = reservedStr
+
+				var initRootValue string
+				if IsPtrType(param.Typ) && !c.IsParentInited() {
+					if fieldIdx == 0 {
+						initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
+					} else {
+						initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
+					}
+				}
+
+				p2.InitString = initRootValue + "\r\n" + p2.Param.Name.Name + " = " + reservedStr
+
+				serverParams = append(serverParams, p2)
+				continue
+			}
+
 			paramName2 := paramNamePrefix + Underscore(field.Name.Name)
 
 			if field.Tag != nil {
