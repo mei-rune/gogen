@@ -611,31 +611,6 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 	} else if identType, ok := param.Typ.(*ast.Ident); ok {
 		stType = method.Ctx.GetClass(identType.Name)
-	} else if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
-		//stType = method.Ctx.GetClass(selectorExpr.X)
-		//fmt.Println("======", selectorExpr.Sel)
-		// fmt.Println("======", typePrint(param.Typ))
-		// stType = method.Ctx.GetClass(identType.Name)
-
-		pkgName := typePrint(selectorExpr.X)
-		isSysPkg := false
-		for _, nm := range []string{
-			"time",
-			"net",
-		} {
-			// fmt.Println(pkgName == nm, pkgName, nm)
-			if pkgName == nm {
-				isSysPkg = true
-				break
-			}
-		}
-		if !isSysPkg {
-			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name +
-				"' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is unsupported, '" +
-				typePrint(param.Typ) + "' is in another package")
-			log.Fatalln(err)
-			panic(err)
-		}
 	}
 	// fmt.Println(param.Name, fmt.Sprintf("%T", param.Typ))
 
@@ -926,6 +901,34 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		if !ok {
 			underlying := method.Ctx.GetType(elmType)
 			if underlying == nil {
+
+				if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
+					//stType = method.Ctx.GetClass(selectorExpr.X)
+					//fmt.Println("======", selectorExpr.Sel)
+					// fmt.Println("======", typePrint(param.Typ))
+					// stType = method.Ctx.GetClass(identType.Name)
+
+					pkgName := typePrint(selectorExpr.X)
+					isSysPkg := false
+					for _, nm := range []string{
+						"time",
+						"net",
+					} {
+						// fmt.Println(pkgName == nm, pkgName, nm)
+						if pkgName == nm {
+							isSysPkg = true
+							break
+						}
+					}
+					if !isSysPkg {
+						err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name +
+							"' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is unsupported, '" +
+							typePrint(param.Typ) + "' is in another package")
+						log.Fatalln(err)
+						panic(err)
+					}
+				}
+
 				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr)
 			}
 
