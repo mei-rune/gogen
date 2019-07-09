@@ -302,9 +302,9 @@ func (mux *DefaultStye) GetPath(method Method) string {
 	anno := getAnnotation(method, false)
 
 	rawurl := anno.Attributes["path"]
-	if rawurl == "" {
-		log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
-	}
+	//if rawurl == "" {
+	//	log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
+	//}
 	pa, _, _ := mux.ParseURL(rawurl)
 	return pa
 }

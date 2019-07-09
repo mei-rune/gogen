@@ -267,9 +267,9 @@ func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
 	anno := getAnnotation(method, false)
 
 	rawurl := anno.Attributes["path"]
-	if rawurl == "" {
-		log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
-	}
+	//if rawurl == "" {
+	// log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
+	//}
 	var replace = ReplaceFunc(func(segement PathSegement) string {
 		for idx := range paramList {
 			if paramList[idx].Name.Name == segement.Value {
@@ -301,9 +301,9 @@ type ParamConfig struct {
 func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	anno := getAnnotation(method, false)
 	rawurl := anno.Attributes["path"]
-	if rawurl == "" {
-		log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
-	}
+	// if rawurl == "" {
+	//	log.Fatalln(errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path(in annotation) of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is missing"))
+	//}
 
 	data := anno.Attributes["data"]
 	_, pathNames, queryNames := parseURL(rawurl)
