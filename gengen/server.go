@@ -46,12 +46,14 @@ type WebServerGenerator struct {
 	config             string
 	enableHttpCodeWith bool
 	Mux                MuxStye
+	preInitObject      bool
 }
 
 func (cmd *WebServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs = cmd.GeneratorBase.Flags(fs)
 
 	fs.StringVar(&cmd.config, "config", "", "配置文件名")
+	fs.BoolVar(&cmd.preInitObject, "pre_init_object", false, "生成 enableHttpCodeWith 函数")
 	fs.BoolVar(&cmd.enableHttpCodeWith, "httpCodeWith", false, "生成 enableHttpCodeWith 函数")
 	return fs
 }
@@ -68,6 +70,9 @@ func (cmd *WebServerGenerator) Run(args []string) error {
 		if err != nil {
 			log.Fatalln(err)
 			return err
+		}
+		if cmd.preInitObject {
+			cfg["pre_init_object"] = true
 		}
 
 		if err := toStruct(cmd.Mux, cfg); err != nil {

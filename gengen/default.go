@@ -37,6 +37,7 @@ type DefaultStye struct {
 	BadArgumentFormat string            `json:"bad_argument_format"`
 	OkFuncFormat      string            `json:"ok_func_format"`
 	ErrorFuncFormat   string            `json:"err_func_format"`
+	PreInitObject     bool              `json:"pre_init_object"`
 	Reserved          map[string]string `json:"reserved"`
 	MethodMapping     map[string]string `json:"method_mapping"`
 	Types             struct {
@@ -623,6 +624,10 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 		p1 := serverParam
 		p1.InitString = "var " + name + " " + typeStr
+		if mux.PreInitObject {
+			p1.InitString = "var " + name + " " + elmType
+			p1.ParamName = "&" + name
+		}
 
 		var paramNamePrefix = Underscore(param.Name.Name) + "."
 		if s, ok := queryNames[param.Name.Name]; ok {
@@ -653,7 +658,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				p2.ParamName = reservedStr
 
 				var initRootValue string
-				if IsPtrType(param.Typ) && !c.IsParentInited() {
+				if !mux.PreInitObject && IsPtrType(param.Typ) && !c.IsParentInited() {
 					if fieldIdx == 0 {
 						initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
 					} else {
