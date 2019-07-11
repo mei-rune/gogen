@@ -903,11 +903,6 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 			if underlying == nil {
 
 				if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
-					//stType = method.Ctx.GetClass(selectorExpr.X)
-					//fmt.Println("======", selectorExpr.Sel)
-					// fmt.Println("======", typePrint(param.Typ))
-					// stType = method.Ctx.GetClass(identType.Name)
-
 					pkgName := typePrint(selectorExpr.X)
 					isSysPkg := false
 					for _, nm := range []string{
@@ -925,7 +920,6 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 							"' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is unsupported, '" +
 							typePrint(param.Typ) + "' is in another package")
 						log.Fatalln(err)
-						panic(err)
 					}
 				}
 
