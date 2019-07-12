@@ -42,7 +42,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/ping", func(ctx echo.Context) error {
+	mux.GET("/test_by_key", func(ctx echo.Context) error {
 		var key Key
 		if s := ctx.QueryParam("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
@@ -149,21 +149,30 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
 			return nil
 		}
-		var args QueryArgs
+		var args *QueryArgs
 		if s := ctx.QueryParam("args.fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
 				return nil
 			}
+			args = &QueryArgs{}
 			args.fint = argsFintValue
 		}
-		args.fstring = ctx.QueryParam("args.fstring")
+		if s := ctx.QueryParam("args.fstring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.fstring = s
+		}
 		if s := ctx.QueryParam("args.ftime"); s != "" {
 			argsFtimeValue, err := toDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
 				return nil
+			}
+			if args == nil {
+				args = &QueryArgs{}
 			}
 			args.ftime = argsFtimeValue
 		}
@@ -173,9 +182,15 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
 				return nil
 			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
 			args.fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
@@ -184,10 +199,13 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
 				return nil
 			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
 			args.ftimeptr = &argsFtimeptrValue
 		}
 
-		err = svc.TestQueryArgs2(id, &args)
+		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
 			ctx.Error(err)
 			return nil
@@ -251,21 +269,30 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
 			return nil
 		}
-		var args QueryArgs
+		var args *QueryArgs
 		if s := ctx.QueryParam("fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
 				return nil
 			}
+			args = &QueryArgs{}
 			args.fint = argsFintValue
 		}
-		args.fstring = ctx.QueryParam("fstring")
+		if s := ctx.QueryParam("fstring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.fstring = s
+		}
 		if s := ctx.QueryParam("ftime"); s != "" {
 			argsFtimeValue, err := toDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
 				return nil
+			}
+			if args == nil {
+				args = &QueryArgs{}
 			}
 			args.ftime = argsFtimeValue
 		}
@@ -275,9 +302,15 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
 				return nil
 			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
 			args.fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("fstringptr"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
@@ -286,10 +319,13 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
 				return nil
 			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
 			args.ftimeptr = &argsFtimeptrValue
 		}
 
-		err = svc.TestQueryArgs4(id, &args)
+		err = svc.TestQueryArgs4(id, args)
 		if err != nil {
 			ctx.Error(err)
 			return nil
@@ -310,8 +346,24 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		result := svc.Echo(a)
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/echo", func(ctx echo.Context) error {
+	mux.POST("/echo2", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, result)
+	})
+	mux.POST("/echo3", func(ctx echo.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Echo3(ctx.Request().Context(), bindArgs.A)
 		if err != nil {
 			ctx.Error(err)
 			return nil
@@ -462,22 +514,6 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 
 		result, err := svc.Save5(ctx.Request().Context(), bindArgs.A, bindArgs.B)
-		if err != nil {
-			ctx.Error(err)
-			return nil
-		}
-		return ctx.JSON(http.StatusCreated, result)
-	})
-	mux.POST("/echo5", func(ctx echo.Context) error {
-		var bindArgs struct {
-			A string `json:"a,omitempty"`
-		}
-		if err := ctx.Bind(&bindArgs); err != nil {
-			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
-			return nil
-		}
-
-		result, err := svc.Echo5(ctx.Request().Context(), bindArgs.A)
 		if err != nil {
 			ctx.Error(err)
 			return nil
@@ -739,6 +775,24 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
+	mux.GET("/test_by_key", func(ctx echo.Context) error {
+		var key Key
+		if s := ctx.QueryParam("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "key", s, err))
+				return nil
+			}
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey(key)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
 	mux.GET("/allfiles", func(ctx echo.Context) error {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
@@ -785,6 +839,246 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
+	mux.GET("/test_query_args1/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var args QueryArgs
+		if s := ctx.QueryParam("args.fint"); s != "" {
+			argsFintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
+				return nil
+			}
+			args.fint = argsFintValue
+		}
+		args.fstring = ctx.QueryParam("args.fstring")
+		if s := ctx.QueryParam("args.ftime"); s != "" {
+			argsFtimeValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
+				return nil
+			}
+			args.ftime = argsFtimeValue
+		}
+		if s := ctx.QueryParam("args.fintptr"); s != "" {
+			argsFintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
+				return nil
+			}
+			args.fintptr = &argsFintptrValue
+		}
+		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			args.fstringptr = &s
+		}
+		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
+			argsFtimeptrValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
+				return nil
+			}
+			args.ftimeptr = &argsFtimeptrValue
+		}
+
+		err = svc.TestQueryArgs1(id, args)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
+	mux.GET("/test_query_args2/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var args *QueryArgs
+		if s := ctx.QueryParam("args.fint"); s != "" {
+			argsFintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
+				return nil
+			}
+			args = &QueryArgs{}
+			args.fint = argsFintValue
+		}
+		if s := ctx.QueryParam("args.fstring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.fstring = s
+		}
+		if s := ctx.QueryParam("args.ftime"); s != "" {
+			argsFtimeValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
+				return nil
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.ftime = argsFtimeValue
+		}
+		if s := ctx.QueryParam("args.fintptr"); s != "" {
+			argsFintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
+				return nil
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.fintptr = &argsFintptrValue
+		}
+		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.fstringptr = &s
+		}
+		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
+			argsFtimeptrValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
+				return nil
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.ftimeptr = &argsFtimeptrValue
+		}
+
+		err = svc.TestQueryArgs2(id, args)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
+	mux.GET("/test_query_args3/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var args QueryArgs
+		if s := ctx.QueryParam("fint"); s != "" {
+			argsFintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
+				return nil
+			}
+			args.fint = argsFintValue
+		}
+		args.fstring = ctx.QueryParam("fstring")
+		if s := ctx.QueryParam("ftime"); s != "" {
+			argsFtimeValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
+				return nil
+			}
+			args.ftime = argsFtimeValue
+		}
+		if s := ctx.QueryParam("fintptr"); s != "" {
+			argsFintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
+				return nil
+			}
+			args.fintptr = &argsFintptrValue
+		}
+		if s := ctx.QueryParam("fstringptr"); s != "" {
+			args.fstringptr = &s
+		}
+		if s := ctx.QueryParam("ftimeptr"); s != "" {
+			argsFtimeptrValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
+				return nil
+			}
+			args.ftimeptr = &argsFtimeptrValue
+		}
+
+		err = svc.TestQueryArgs3(id, args)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
+	mux.GET("/test_query_args4/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var args *QueryArgs
+		if s := ctx.QueryParam("fint"); s != "" {
+			argsFintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
+				return nil
+			}
+			args = &QueryArgs{}
+			args.fint = argsFintValue
+		}
+		if s := ctx.QueryParam("fstring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.fstring = s
+		}
+		if s := ctx.QueryParam("ftime"); s != "" {
+			argsFtimeValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
+				return nil
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.ftime = argsFtimeValue
+		}
+		if s := ctx.QueryParam("fintptr"); s != "" {
+			argsFintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
+				return nil
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.fintptr = &argsFintptrValue
+		}
+		if s := ctx.QueryParam("fstringptr"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.fstringptr = &s
+		}
+		if s := ctx.QueryParam("ftimeptr"); s != "" {
+			argsFtimeptrValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
+				return nil
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.ftimeptr = &argsFtimeptrValue
+		}
+
+		err = svc.TestQueryArgs4(id, args)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
 	mux.GET("/ping", func(ctx echo.Context) error {
 		err := svc.Ping()
 		if err != nil {
@@ -799,13 +1093,29 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		result := svc.Echo(a)
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/echo_body", func(ctx echo.Context) error {
+	mux.GET("/echo_body1", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
 			ctx.Error(err)
 			return nil
 		}
 		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.POST("/echo3", func(ctx echo.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Echo3(ctx.Request().Context(), bindArgs.A)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, result)
 	})
 	mux.GET("/concat", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
@@ -934,6 +1244,23 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 
 		result, err := svc.Save4(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, result)
+	})
+	mux.POST("/save5", func(ctx echo.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Save5(ctx.Request().Context(), bindArgs.A, bindArgs.B)
 		if err != nil {
 			ctx.Error(err)
 			return nil
