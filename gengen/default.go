@@ -605,6 +605,17 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	//		return []ServerParam{p1, p2, p3}
 	//	}
 
+	renderArgs := map[string]interface{}{
+		"g":             c,
+		"ctx":           mux.CtxName(),
+		"type":          elmType,
+		"name":          name,
+		"rname":         paramName,
+		"param":         param,
+		"readParam":     readParam,
+		"initRootValue": "",
+	}
+
 	var stType *Class
 	if starType, ok := param.Typ.(*ast.StarExpr); ok {
 		if identType, ok := starType.X.(*ast.Ident); ok {
@@ -695,21 +706,29 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 			}
 
-			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, true, optional,
-				typePrint(p2.Param.Typ), strings.TrimPrefix(typePrint(p2.Param.Typ), "*"), p2.Param.Name.Name, paramName2, readParam, initRootValue))
+			renderArgs["skipDeclare"] = true
+			renderArgs["initRootValue"] = initRootValue
+			renderArgs["type"] = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
+			renderArgs["name"] = p2.Param.Name.Name
+			renderArgs["rname"] = paramName2
+			renderArgs["readParam"] = readParam
 
+			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, renderArgs, optional))
 			serverParams = append(serverParams, p2)
 		}
 
 		return serverParams
 	}
 
-	serverParam.InitString = strings.TrimSpace(mux.initString(c, method, param, funcs, false, optional, typeStr, elmType, name, paramName, readParam, ""))
+	renderArgs["skipDeclare"] = false
+	serverParam.InitString = strings.TrimSpace(mux.initString(c, method, param, funcs, renderArgs, optional))
 	return []ServerParam{serverParam}
 }
 
-func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs template.FuncMap, skipDeclare, optional bool, typeStr, elmType, name, paramName, readParam, initRootValue string) string {
-	var hasStar = typeStr != elmType
+func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs template.FuncMap, renderArgs map[string]interface{}, optional bool) string {
+	typeStr := typePrint(param.Typ)
+	elmType := strings.TrimPrefix(typeStr, "*")
+	hasStar := typeStr != elmType
 
 	var immediate bool
 	if optional {
@@ -740,18 +759,6 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
       {{- end}}
 		`))
 
-			renderArgs := map[string]interface{}{
-				"g":             c,
-				"skipDeclare":   skipDeclare,
-				"ctx":           mux.CtxName(),
-				"type":          elmType,
-				"name":          name,
-				"param":         param,
-				"rname":         paramName,
-				"readParam":     readParam,
-				"initRootValue": initRootValue,
-			}
-
 			if optional {
 				renderText(optionalTxt, &sb, renderArgs)
 			} else {
@@ -770,18 +777,6 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 			{{.name}} = &s
 		}
 		`))
-
-			renderArgs := map[string]interface{}{
-				"g":             c,
-				"skipDeclare":   skipDeclare,
-				"ctx":           mux.CtxName(),
-				"type":          elmType,
-				"name":          name,
-				"rname":         paramName,
-				"readParam":     readParam,
-				"param":         param,
-				"initRootValue": initRootValue,
-			}
 
 			if optional {
 				renderText(optionalTxt, &sb, renderArgs)
@@ -944,20 +939,8 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 			convertArgs.NeedTransform = true
 		}
 
-		renderArgs := map[string]interface{}{
-			"g":           c,
-			"skipDeclare": skipDeclare,
-			"ctx":         mux.CtxName(),
-			"type":        elmType,
-			"name":        name,
-			"rname":       paramName,
-			"param":       param,
-			//"conv":          conv,
-			"readParam":       readParam,
-			"needTransform":   convertArgs.NeedTransform,
-			"hasConvertError": convertArgs.HasError,
-			"initRootValue":   initRootValue,
-		}
+		renderArgs["needTransform"] = convertArgs.NeedTransform
+		renderArgs["hasConvertError"] = convertArgs.HasError
 
 		if !hasStar {
 			if optional {
