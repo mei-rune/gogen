@@ -626,7 +626,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		p1.InitString = "var " + name + " " + typeStr
 		if mux.PreInitObject {
 			p1.InitString = "var " + name + " " + elmType
-			p1.ParamName = "&" + name
+			if hasStar {
+				p1.ParamName = "&" + name
+			}
 		}
 
 		var paramNamePrefix = Underscore(param.Name.Name) + "."
