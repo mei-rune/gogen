@@ -19,6 +19,8 @@ func readConfig(filename string) (map[string]interface{}, error) {
 		return echoConfig, nil
 	case "@loong", "@loong.json":
 		return loongConfig, nil
+	case "@chi", "@chi.json":
+		return chiConfig, nil
 	}
 
 	bs, err := ioutil.ReadFile(filename)

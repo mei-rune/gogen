@@ -13,8 +13,9 @@ import (
 )
 
 type ReadArgs struct {
-	Name string   `json:"name"`
-	Args []string `json:"args"`
+	Format string   `json:"format"`
+	Name   string   `json:"name"`
+	Args   []string `json:"args"`
 }
 
 type ConvertArgs struct {
@@ -24,23 +25,23 @@ type ConvertArgs struct {
 }
 
 type DefaultStye struct {
-	classes           []Class
-	TagName           string            `json:"tag_name"`
-	FuncSignatureStr  string            `json:"func_signature"`
-	CtxNameStr        string            `json:"ctx_name"`
-	CtxTypeStr        string            `json:"ctx_type"`
-	RoutePartyName    string            `json:"route_party_name"`
-	PathParam         string            `json:"path_param_format"`
-	QueryParam        string            `json:"query_param_format"`
-	ReadFormat        string            `json:"read_format"`
-	ReadBodyFormat    string            `json:"read_body_format"`
-	BadArgumentFormat string            `json:"bad_argument_format"`
-	OkFuncFormat      string            `json:"ok_func_format"`
-	ErrorFuncFormat   string            `json:"err_func_format"`
-	PreInitObject     bool              `json:"pre_init_object"`
-	Reserved          map[string]string `json:"reserved"`
-	MethodMapping     map[string]string `json:"method_mapping"`
-	Types             struct {
+	classes             []Class
+	TagName             string            `json:"tag_name"`
+	FuncSignatureStr    string            `json:"func_signature"`
+	CtxNameStr          string            `json:"ctx_name"`
+	CtxTypeStr          string            `json:"ctx_type"`
+	RoutePartyName      string            `json:"route_party_name"`
+	RequiredParamFormat string            `json:"required_param_format"`
+	OptionalParamFormat string            `json:"optional_param_format"`
+	ReadFormat          string            `json:"read_format"`
+	ReadBodyFormat      string            `json:"read_body_format"`
+	BadArgumentFormat   string            `json:"bad_argument_format"`
+	OkFuncFormat        string            `json:"ok_func_format"`
+	ErrorFuncFormat     string            `json:"err_func_format"`
+	PreInitObject       bool              `json:"pre_init_object"`
+	Reserved            map[string]string `json:"reserved"`
+	MethodMapping       map[string]string `json:"method_mapping"`
+	Types               struct {
 		Required map[string]ReadArgs `json:"required"`
 		Optional map[string]ReadArgs `json:"optional"`
 	} `json:"types"`
@@ -48,8 +49,8 @@ type DefaultStye struct {
 	UrlStyle string                                                    `json:"url_style"`
 	ParseURL func(rawurl string) (string, []string, map[string]string) `json:"-"`
 
-	bodyReader   string
-	readTemplate *template.Template
+	bodyReader string
+	// readTemplate *template.Template
 	bindTemplate *template.Template
 	errTemplate  *template.Template
 	okTemplate   *template.Template
@@ -61,8 +62,8 @@ func (mux *DefaultStye) Init() {
 	mux.CtxTypeStr = "echo.Context"
 	mux.FuncSignatureStr = "func(" + mux.CtxNameStr + " " + mux.CtxTypeStr + ") error "
 	mux.RoutePartyName = "*echo.Group"
-	mux.PathParam = "Param"
-	mux.QueryParam = "QueryParam"
+	mux.RequiredParamFormat = "{{.ctx}}.Param({{.name}})"
+	mux.OptionalParamFormat = "{{.ctx}}.QueryParam({{.name}})"
 	mux.ReadBodyFormat = "{{.ctx}}.Bind(&{{.name}})"
 	mux.BadArgumentFormat = "fmt.Errorf(\"argument %%q is invalid - %%q\", \"%s\", %s, %s)"
 	mux.Reserved = map[string]string{
@@ -74,7 +75,6 @@ func (mux *DefaultStye) Init() {
 	}
 	//mux.Reserved["io.Reader"] = mux.bodyReader
 
-	mux.ReadFormat = `{{.ctx}}.{{.readMethodName}}("{{.name}}")`
 	mux.OkFuncFormat = "return ctx.JSON({{.statusCode}}, {{.data}})"
 	mux.ErrorFuncFormat = "ctx.Error({{.err}})\r\n     return nil"
 }
@@ -113,12 +113,12 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 
 	if _, ok := mux.Types.Optional["string"]; !ok {
 		mux.Types.Optional["string"] = ReadArgs{
-			Name: mux.QueryParam,
+			Name: mux.OptionalParamFormat,
 		}
 	}
 	if _, ok := mux.Types.Required["string"]; !ok {
 		mux.Types.Required["string"] = ReadArgs{
-			Name: mux.PathParam,
+			Name: mux.RequiredParamFormat,
 		}
 	}
 
@@ -165,7 +165,6 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 	}
 
 	mux.bodyReader = mux.Reserved["*http.Request"] + ".Body"
-	mux.readTemplate = template.Must(template.New("readTemplate").Parse(mux.ReadFormat))
 	mux.bindTemplate = template.Must(template.New("bindTemplate").Parse(mux.ReadBodyFormat))
 	mux.errTemplate = template.Must(template.New("errTemplate").Parse(mux.ErrorFuncFormat))
 	mux.okTemplate = template.Must(template.New("okTemplate").Parse(mux.OkFuncFormat))
@@ -237,29 +236,35 @@ func (mux *DefaultStye) IsSkipped(method Method) SkippedResult {
 }
 
 func (mux *DefaultStye) ReadRequired(param Param, typeName, ctxName, paramName string) string {
-	var sb strings.Builder
-	readMethodName := mux.PathParam
+	format := mux.RequiredParamFormat
 	if args, ok := mux.Types.Required[typeName]; ok {
-		readMethodName = args.Name
+		if args.Format != "" {
+			format = args.Format
+		}
 		if len(args.Args) > 0 {
 			paramName = paramName + "," + strings.Join(args.Args, ",")
 		}
 	}
-	renderText(mux.readTemplate, &sb, map[string]interface{}{"ctx": ctxName, "name": paramName, "readMethodName": readMethodName})
-	return sb.String()
+
+	return renderString(format, map[string]interface{}{"ctx": ctxName,
+		"name": paramName,
+	})
 }
 
 func (mux *DefaultStye) ReadOptional(param Param, typeName, ctxName, paramName string) string {
-	var sb strings.Builder
-	readMethodName := mux.QueryParam
+	format := mux.OptionalParamFormat
 	if args, ok := mux.Types.Optional[typeName]; ok {
-		readMethodName = args.Name
+		if args.Format != "" {
+			format = args.Format
+		}
 		if len(args.Args) > 0 {
 			paramName = paramName + "," + strings.Join(args.Args, ",")
 		}
 	}
-	renderText(mux.readTemplate, &sb, map[string]interface{}{"ctx": ctxName, "name": paramName, "readMethodName": readMethodName})
-	return sb.String()
+
+	return renderString(format, map[string]interface{}{"ctx": ctxName,
+		"name": paramName,
+	})
 }
 
 func (mux *DefaultStye) TypeConvert(param Param, typeName, ctxName, paramName string) string {
@@ -436,7 +441,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		IsErrorDefined: c.IsErrorDefined(),
 	}
 
-	var readParam = mux.PathParam
+	funcs["readParam"] = funcs["readRequired"]
 	var paramName = param.Name.Name
 	var name = serverParam.ParamName
 	if name == "result" {
@@ -528,7 +533,8 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	}
 	if !isPath {
 		optional = true
-		readParam = mux.QueryParam
+
+		funcs["readParam"] = funcs["readOptional"]
 		if s, ok := queryNames[param.Name.Name]; ok && s != "" {
 			paramName = s
 		} else if isEdit {
@@ -553,58 +559,6 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 	}
 
-	// 	type ServerParam struct {
-	// 	Param
-
-	// 	IsSkipUse  bool
-	// 	InBody     bool
-	// 	ParamName  string
-	// 	InitString string
-	// }
-
-	//	if ok, startType, endType := IsRange(mux.classes, param.Typ); ok {
-	//		if isPath {
-	//			err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name + "' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
-	//			log.Fatalln(err)
-	//			panic(err)
-	//		}
-
-	//		p1 := serverParam
-	//		p1.InitString = "var " + name + " " + typeStr
-
-	//		p2 := serverParam
-	//		p2.IsSkipUse = true
-	//		p2.Name = &ast.Ident{}
-	//		*p2.Name = *param.Name
-	//		p2.Param.Name.Name = name + ".Start"
-	//		p2.Param.Typ = startType
-	//		paramName2 := paramName + ".start"
-
-	//		var initRootValue string
-	//		if hasStar {
-	//			initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
-	//		}
-	//		p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, true, optional,
-	//			typePrint(startType), strings.TrimPrefix(typePrint(startType), "*"), name+".Start", paramName2, readParam, initRootValue))
-
-	//		p3 := serverParam
-	//		p3.IsErrorDefined = c.IsErrorDefined()
-	//		p3.IsSkipUse = true
-	//		p3.Name = &ast.Ident{}
-	//		*p3.Name = *param.Name
-	//		p3.Param.Name.Name = name + ".End"
-	//		p3.Param.Typ = endType
-	//		paramName3 := paramName + ".end"
-
-	//		if hasStar {
-	//			initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
-	//		}
-	//		p3.InitString = strings.TrimSpace(mux.initString(c, method, p3.Param, funcs, true, optional,
-	//			typePrint(endType), strings.TrimPrefix(typePrint(endType), "*"), name+".End", paramName3, readParam, initRootValue))
-
-	//		return []ServerParam{p1, p2, p3}
-	//	}
-
 	renderArgs := map[string]interface{}{
 		"g":             c,
 		"ctx":           mux.CtxName(),
@@ -612,7 +566,6 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		"name":          name,
 		"rname":         paramName,
 		"param":         param,
-		"readParam":     readParam,
 		"initRootValue": "",
 	}
 
@@ -711,7 +664,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			renderArgs["type"] = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
 			renderArgs["name"] = p2.Param.Name.Name
 			renderArgs["rname"] = paramName2
-			renderArgs["readParam"] = readParam
+			//renderArgs["readParam"] = readParam
 
 			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, renderArgs, optional))
 			serverParams = append(serverParams, p2)
@@ -786,7 +739,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		}
 	} else {
 		requiredTxt := template.Must(template.New("requiredTxt").Funcs(Funcs).Funcs(funcs).Parse(`
-		{{- $s := concat .ctx "." .readParam "(\"" .rname "\")"}}
+		{{- $s := readRequired .param .ctx .type .rname }}
 		{{- if not .hasConvertError}}
 
 
@@ -824,8 +777,9 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		`))
 
 		optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
+		{{- $s := readOptional .param .ctx .type .rname }}
 		{{- if .skipDeclare | not}}var {{.name}} {{.type}}{{end}}
-		if s := {{.ctx}}.{{.readParam}}("{{.rname}}"); s != "" {
+		if s := {{ $s }}; s != "" {
 		{{- if not .hasConvertError}}
 			{{- .initRootValue}}
 			{{- if .needTransform}}
@@ -849,7 +803,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		`))
 
 		requiredTxtWithStar := template.Must(template.New("requiredTxtWithStar").Funcs(Funcs).Funcs(funcs).Parse(`
-		{{- $s := concat .ctx "." .readParam "(\"" .rname "\")"}}
+		{{- $s := readRequired .param .ctx .type .rname }}
 		{{- if not .hasConvertError}}
 			{{- if .needTransform}}
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{.type}}({{convert .param .ctx .type $s}})
@@ -874,7 +828,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 
 		optionalTxtWithStar := template.Must(template.New("optionalTxtWithStar").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- if .skipDeclare | not}}var {{.name}} *{{.type}}{{end}}
-		if s := {{.ctx}}.{{.readParam}}("{{.rname}}"); s != "" {
+		if s := {{readOptional .param .ctx .type .rname}}; s != "" {
 		{{- if not .hasConvertError}}
 			{{- if .needTransform}}
 			var {{goify .name false}}Value = {{.type}}({{convert .param .ctx .type "s"}})

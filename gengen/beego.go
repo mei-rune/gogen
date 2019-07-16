@@ -10,12 +10,14 @@ var beeConfig = map[string]interface{}{
 		"github.com/astaxie/beego/context": "beecontext",
 	},
 
-	"func_signature":      "func(ctx *beecontext.Context) ",
-	"ctx_name":            "ctx",
-	"ctx_type":            "*beecontext.Context",
-	"route_party_name":    "*beego.Namespace",
-	"path_param_format":   "Input.Param",
-	"query_param_format":  "Input.Query",
+	"func_signature":   "func(ctx *beecontext.Context) ",
+	"ctx_name":         "ctx",
+	"ctx_type":         "*beecontext.Context",
+	"route_party_name": "*beego.Namespace",
+
+	"required_param_format": "{{.ctx}}.Input.Param(\"{{.name}}\")",
+	"optional_param_format": "{{.ctx}}.Input.Query(\"{{.name}}\")",
+
 	"read_body_format":    "json.Unmarshal({{.ctx}}.Input.CopyBody(4 * 1024), &{{.name}})",
 	"bad_argument_format": "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)",
 

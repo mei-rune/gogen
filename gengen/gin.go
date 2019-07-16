@@ -9,12 +9,14 @@ var ginConfig = map[string]interface{}{
 		"github.com/gin-gonic/gin": "",
 	},
 
-	"func_signature":      "func(ctx *gin.Context) ",
-	"ctx_name":            "ctx",
-	"ctx_type":            "*gin.Context",
-	"route_party_name":    "gin.IRouter",
-	"path_param_format":   "Param",
-	"query_param_format":  "Query",
+	"func_signature":   "func(ctx *gin.Context) ",
+	"ctx_name":         "ctx",
+	"ctx_type":         "*gin.Context",
+	"route_party_name": "gin.IRouter",
+
+	"required_param_format": "{{.ctx}}.Param(\"{{.name}}\")",
+	"optional_param_format": "{{.ctx}}.Query(\"{{.name}}\")",
+
 	"read_body_format":    "{{.ctx}}.Bind(&{{.name}})",
 	"bad_argument_format": "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)",
 

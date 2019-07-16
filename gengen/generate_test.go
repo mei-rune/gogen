@@ -27,6 +27,40 @@ func getGogen() string {
 func TestGenerate(t *testing.T) {
 	wd := getGogen()
 
+	//	t.Run("chi", func(t *testing.T) {
+	//		for _, name := range []string{"test"} {
+	//			t.Log("=====================", name)
+	//			os.Remove(filepath.Join(wd, "gentest", name+".chi-gen.go"))
+	//			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+
+	//			var gen = WebServerGenerator{
+	//				GeneratorBase: GeneratorBase{
+	//					ext:      ".chi-gen.go",
+	//					buildTag: "chi",
+	//				},
+	//				config: "@chi",
+	//			}
+	//			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+	//				fmt.Println(err)
+	//				t.Error(err)
+	//				continue
+	//			}
+
+	//			actual := readFile(filepath.Join(wd, "gentest", name+".chi-gen.go"))
+	//			excepted := readFile(filepath.Join(wd, "gentest", name+".chi-gen.txt"))
+	//			if !reflect.DeepEqual(actual, excepted) {
+	//				results := difflib.Diff(excepted, actual)
+	//				for _, result := range results {
+	//					if result.Delta == difflib.Common {
+	//						continue
+	//					}
+	//					t.Error(result)
+	//				}
+	//			}
+	//		}
+	//	})
+	//	return
+
 	t.Run("gogen", func(t *testing.T) {
 		for _, name := range []string{"test"} {
 			t.Log("=====================", name)

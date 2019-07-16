@@ -44,7 +44,17 @@ func (cmd *GeneratorBase) generateHeader(out io.Writer, file *SourceContext, cb 
 	io.WriteString(out, "// Please don't edit this file!\r\npackage ")
 	io.WriteString(out, file.Pkg.Name)
 	io.WriteString(out, "\r\n\r\nimport (")
-	io.WriteString(out, "\r\n\t\"errors\"")
+
+	found := false
+	for pa, alias := range cmd.imports {
+		if alias == "errors" || strings.HasSuffix(pa, "/errors") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		io.WriteString(out, "\r\n\t\"errors\"")
+	}
 	for _, pa := range file.Imports {
 		io.WriteString(out, "\r\n\t")
 		io.WriteString(out, pa.Path.Value)
