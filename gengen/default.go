@@ -28,6 +28,7 @@ type DefaultStye struct {
 	classes             []Class
 	TagName             string            `json:"tag_name"`
 	FuncSignatureStr    string            `json:"func_signature"`
+	FuncHeadStr         string            `json:"func_head_str"`
 	CtxNameStr          string            `json:"ctx_name"`
 	CtxTypeStr          string            `json:"ctx_type"`
 	RoutePartyName      string            `json:"route_party_name"`
@@ -277,17 +278,12 @@ func (mux *DefaultStye) TypeConvert(param Param, typeName, ctxName, paramName st
 			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 1argument '"+param.Name.Name+"' is unsupported type -", typeName)
 		}
 
-		// elmType = typePrint(underlying.Type)
-
 		format, ok = mux.Converts[typePrint(underlying.Type)]
 		if !ok {
 			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 2argument '"+param.Name.Name+"' is unsupported type -", typeName)
 		}
 
 		format.NeedTransform = true
-
-		// panic(fmt.Errorf("%d: unsupport type - %s", param.Method.Node.Pos(), typeName))
-		//log.Fatalln(fmt.Errorf("%d: unsupport type - %s", param.Method.Node.Pos(), typeName))
 	}
 
 	tpl := template.Must(template.New("convertTemplate").Parse(format.Format))
@@ -331,7 +327,6 @@ type ServerMethod struct {
 }
 
 func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) string {
-
 	has := false
 	for idx := range results {
 		if results[idx].InBody {
@@ -386,14 +381,26 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 	isEdit := methodStr == "PUT" || methodStr == "POST"
 
 	for idx := range method.Params.List {
-		results = append(results, mux.ToParam(&genCtx, method, method.Params.List[idx], isEdit)...)
+		old := genCtx.IsNeedQuery()
+
+		segments := mux.ToParam(&genCtx, method, method.Params.List[idx], isEdit)
+		if !old && genCtx.IsNeedQuery() {
+			if mux.FuncHeadStr != "" {
+				results = append(results, ServerParam{
+					IsSkipUse:  true,
+					InitString: mux.FuncHeadStr,
+				})
+			}
+		}
+		results = append(results, segments...)
 	}
 
 	_, hasData := ann.Attributes["data"]
 	if hasData {
 		for idx := range results {
 			if results[idx].InBody {
-				err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": param '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
+				err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() +
+					": param '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
 				log.Fatalln(err)
 			}
 		}
@@ -415,6 +422,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			return mux.ReadBody(ctxName, paramName)
 		},
 		"readOptional": func(param Param, ctxName, elmType, paramName string) string {
+			c.SetNeedQuery()
 			return mux.ReadOptional(param, elmType, ctxName, paramName)
 		},
 		"readRequired": func(param Param, ctxName, elmType, paramName string) string {
@@ -458,23 +466,39 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			serverParam.ParamName = "&" + serverParam.ParamName
 		}
 
-		if elmType == "[]byte" {
-			serverParam.ParamName = name + ".Bytes()"
-		} else if elmType == "string" {
-			serverParam.ParamName = name + ".String()"
+		if typeStr == "[]byte" {
+			serverParam.ParamName = paramName + ".Bytes()"
+		} else if typeStr == "string" {
+			serverParam.ParamName = paramName + ".String()"
 		}
 
 		bindTxt := template.Must(template.New("bindTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- if eq .type "[]byte"}}
-		var {{.name}} bytes.Buffer
-		if _, err := io.Copy(&{{.name}}, {{.reader}}); err != nil {
-			{{badArgument .name "\"body\"" "err"}}
-		}
-		{{- else if eq .type "string"}}
-		var {{.name}} strings.Builder
-		if _, err := io.Copy(&{{.name}}, {{.reader}}); err != nil {
-			{{badArgument .name "\"body\"" "err"}}
-		}
+        {{- if eq .rawType "*[]byte"}}
+      	var {{.name}}Buffer bytes.Buffer
+    		if _, err := io.Copy(&{{.name}}Buffer, {{.reader}}); err != nil {
+    			{{badArgument .name "\"body\"" "err"}}
+    		}
+        var {{.name}} = {{.name}}Buffer.String()
+      {{- else}}
+      		var {{.name}} bytes.Buffer
+      		if _, err := io.Copy(&{{.name}}, {{.reader}}); err != nil {
+      			{{badArgument .name "\"body\"" "err"}}
+      		}
+      {{- end}}
+		{{- else if eq .type "string"}}    
+      {{- if eq .rawType "*string"}}
+      	var {{.name}}Builder strings.Builder
+    		if _, err := io.Copy(&{{.name}}Builder, {{.reader}}); err != nil {
+    			{{badArgument .name "\"body\"" "err"}}
+    		}
+        var {{.name}} = {{.name}}Builder.String()
+      {{- else}}
+      	var {{.name}} strings.Builder
+    		if _, err := io.Copy(&{{.name}}, {{.reader}}); err != nil {
+    			{{badArgument .name "\"body\"" "err"}}
+    		}
+      {{- end}}
 		{{- else}}
 		var {{.name}} {{.type}}
 		if err := {{readBody .param .ctx .name}}; err != nil {
@@ -488,13 +512,14 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 
 		renderArgs := map[string]interface{}{
-			"g":      c,
-			"ctx":    mux.CtxName(),
-			"type":   elmType,
-			"name":   name,
-			"rname":  paramName,
-			"param":  param,
-			"reader": mux.bodyReader,
+			"g":       c,
+			"ctx":     mux.CtxName(),
+			"rawType": typeStr,
+			"type":    elmType,
+			"name":    name,
+			"rname":   paramName,
+			"param":   param,
+			"reader":  mux.bodyReader,
 		}
 
 		var sb strings.Builder

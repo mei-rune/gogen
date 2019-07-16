@@ -537,14 +537,15 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 	})
 	mux.Post("/save2/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b strings.Builder
-		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
+		var bBuilder strings.Builder
+		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
+		var b = bBuilder.String()
 
-		result, err := svc.Save2(&a, b.String())
+		result, err := svc.Save2(&a, &b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -1422,14 +1423,15 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 	})
 	mux.Post("/save2/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b strings.Builder
-		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
+		var bBuilder strings.Builder
+		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
+		var b = bBuilder.String()
 
-		result, err := svc.Save2(&a, b.String())
+		result, err := svc.Save2(&a, &b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -1925,14 +1927,15 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 	})
 	mux.Post("/save2/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
-		var b strings.Builder
-		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
+		var bBuilder strings.Builder
+		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", b, "body", err).Error())
 			return
 		}
+		var b = bBuilder.String()
 
-		result, err := svc.Save2(ctx.Request.Context(), &a, b.String())
+		result, err := svc.Save2(ctx.Request.Context(), &a, &b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())

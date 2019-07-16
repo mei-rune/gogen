@@ -12,13 +12,14 @@ var chiConfig = map[string]interface{}{
 		"github.com/runner-mei/errors": "",
 	},
 
+	"func_head_str":         "queryParams := r.URL.Query()",
 	"func_signature":        "func(w http.ResponseWriter, r *http.Request) ",
 	"ctx_name":              "r",
 	"ctx_type":              "*http.Request",
 	"route_party_name":      "chi.Router",
 	"required_param_format": "chi.URLParam({{.ctx}}, \"{{.name}}\")",
 	"optional_param_format": "queryParams.Get(\"{{.name}}\")",
-	"read_body_format":      "chi.Bind({{.ctx}}, &{{.name}})",
+	"read_body_format":      "render.Decode({{.ctx}}, &{{.name}})",
 	"bad_argument_format":   "errors.ErrBadArgument(\"%s\", %s, %s)",
 	"ok_func_format": `{{- if eq .method "POST" -}} 
 	render.JSON(w, r, {{.data}})
@@ -61,9 +62,6 @@ var chiConfig = map[string]interface{}{
 		"optional": map[string]interface{}{
 			"[]string": map[string]interface{}{
 				"format": "queryParams[{{.name}}]",
-			},
-			"string": map[string]interface{}{
-				"format": "queryParams.Get({{.name}})",
 			},
 		},
 	},
