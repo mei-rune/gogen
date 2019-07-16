@@ -298,7 +298,7 @@ func (mux *DefaultStye) TypeConvert(param Param, typeName, ctxName, paramName st
 	return sb.String()
 }
 
-func (mux *DefaultStye) ReadBody(param Param, ctxName, paramName string) string {
+func (mux *DefaultStye) ReadBody(ctxName, paramName string) string {
 	var sb strings.Builder
 	renderText(mux.bindTemplate, &sb, map[string]interface{}{"ctx": ctxName, "name": paramName})
 	return sb.String()
@@ -349,9 +349,7 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 			return mux.BadArgumentFunc(method, fmt.Sprintf(mux.BadArgumentFormat, paramName, valueName, errName))
 		},
 		"readBody": func(ctxName, paramName string) string {
-			var sb strings.Builder
-			renderText(mux.bindTemplate, &sb, map[string]interface{}{"ctx": ctxName, "name": paramName})
-			return sb.String()
+			return mux.ReadBody(ctxName, paramName)
 		},
 	}
 
@@ -414,7 +412,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			return mux.BadArgumentFunc(method, fmt.Sprintf(mux.BadArgumentFormat, paramName, valueName, errName))
 		},
 		"readBody": func(param Param, ctxName string, paramName string) string {
-			return mux.ReadBody(param, ctxName, paramName)
+			return mux.ReadBody(ctxName, paramName)
 		},
 		"readOptional": func(param Param, ctxName, elmType, paramName string) string {
 			return mux.ReadOptional(param, elmType, ctxName, paramName)
@@ -441,7 +439,6 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		IsErrorDefined: c.IsErrorDefined(),
 	}
 
-	funcs["readParam"] = funcs["readRequired"]
 	var paramName = param.Name.Name
 	var name = serverParam.ParamName
 	if name == "result" {
@@ -491,14 +488,13 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 
 		renderArgs := map[string]interface{}{
-			"g":         c,
-			"ctx":       mux.CtxName(),
-			"type":      elmType,
-			"name":      name,
-			"rname":     paramName,
-			"param":     param,
-			"readParam": mux.ReadBody,
-			"reader":    mux.bodyReader,
+			"g":      c,
+			"ctx":    mux.CtxName(),
+			"type":   elmType,
+			"name":   name,
+			"rname":  paramName,
+			"param":  param,
+			"reader": mux.bodyReader,
 		}
 
 		var sb strings.Builder
@@ -534,7 +530,6 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	if !isPath {
 		optional = true
 
-		funcs["readParam"] = funcs["readOptional"]
 		if s, ok := queryNames[param.Name.Name]; ok && s != "" {
 			paramName = s
 		} else if isEdit {
@@ -664,7 +659,6 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			renderArgs["type"] = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
 			renderArgs["name"] = p2.Param.Name.Name
 			renderArgs["rname"] = paramName2
-			//renderArgs["readParam"] = readParam
 
 			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, renderArgs, optional))
 			serverParams = append(serverParams, p2)

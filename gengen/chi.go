@@ -18,7 +18,7 @@ var chiConfig = map[string]interface{}{
 	"route_party_name":      "chi.Router",
 	"required_param_format": "chi.URLParam({{.ctx}}, \"{{.name}}\")",
 	"optional_param_format": "queryParams.Get(\"{{.name}}\")",
-	"read_body_format":      "chi.Bind(r, &{{.name}})",
+	"read_body_format":      "chi.Bind({{.ctx}}, &{{.name}})",
 	"bad_argument_format":   "errors.ErrBadArgument(\"%s\", %s, %s)",
 	"ok_func_format": `{{- if eq .method "POST" -}} 
 	render.JSON(w, r, {{.data}})
