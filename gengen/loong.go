@@ -41,7 +41,7 @@ var loongConfig = map[string]interface{}{
 	"types": map[string]interface{}{
 		"optional": map[string]interface{}{
 			"[]string": map[string]interface{}{
-				"name": "QueryParamArray",
+				"format": "{{.ctx}}.QueryParamArray(\"{{.name}}\")",
 			},
 		},
 	},

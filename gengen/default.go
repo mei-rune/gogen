@@ -474,17 +474,17 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 		bindTxt := template.Must(template.New("bindTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- if eq .type "[]byte"}}
-        {{- if eq .rawType "*[]byte"}}
+      {{- if eq .rawType "*[]byte"}}
       	var {{.name}}Buffer bytes.Buffer
     		if _, err := io.Copy(&{{.name}}Buffer, {{.reader}}); err != nil {
     			{{badArgument .name "\"body\"" "err"}}
     		}
-        var {{.name}} = {{.name}}Buffer.String()
+        var {{.name}} = {{.name}}Buffer.Bytes()
       {{- else}}
-      		var {{.name}} bytes.Buffer
-      		if _, err := io.Copy(&{{.name}}, {{.reader}}); err != nil {
-      			{{badArgument .name "\"body\"" "err"}}
-      		}
+    		var {{.name}} bytes.Buffer
+    		if _, err := io.Copy(&{{.name}}, {{.reader}}); err != nil {
+    			{{badArgument .name "\"body\"" "err"}}
+    		}
       {{- end}}
 		{{- else if eq .type "string"}}    
       {{- if eq .rawType "*string"}}

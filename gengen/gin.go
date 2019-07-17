@@ -48,7 +48,7 @@ var ginConfig = map[string]interface{}{
 		// },
 		"optional": map[string]interface{}{
 			"[]string": map[string]interface{}{
-				"name": "QueryArray",
+				"format": "{{.ctx}}.QueryArray(\"{{.name}}\")",
 			},
 		},
 	},
