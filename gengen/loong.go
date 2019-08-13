@@ -35,6 +35,7 @@ var loongConfig = map[string]interface{}{
 		"url.Values":          "ctx.QueryParams()",
 		"*http.Request":       "ctx.Request()",
 		"http.ResponseWriter": "ctx.Response().Writer",
+		"io.Writer":           "ctx.Response().Writer",
 		"context.Context":     "ctx.StdContext",
 		"*loong.Context":      "ctx",
 	},

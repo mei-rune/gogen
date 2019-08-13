@@ -27,6 +27,7 @@ var ginConfig = map[string]interface{}{
 		"url.Values":          "ctx.Request.URL.Query()",
 		"*http.Request":       "ctx.Request",
 		"http.ResponseWriter": "ctx.Writer",
+		"io.Writer":           "ctx.Writer",
 		"context.Context":     "ctx.Request.Context()",
 		"*gin.Context":        "ctx",
 	},
