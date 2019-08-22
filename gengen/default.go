@@ -132,6 +132,24 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		mux.Converts["int"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 
+	if _, ok := mux.Converts["[]int"]; !ok {
+		funcName := "ToIntArray({{.name}})"
+		mux.Converts["[]int"] = ConvertArgs{Format: funcName, HasError: true}
+	}
+	if _, ok := mux.Converts["[]int64"]; !ok {
+		funcName := "ToInt64Array({{.name}})"
+		mux.Converts["[]int64"] = ConvertArgs{Format: funcName, HasError: true}
+	}
+
+	if _, ok := mux.Converts["[]uint"]; !ok {
+		funcName := "ToUintArray({{.name}})"
+		mux.Converts["[]uint"] = ConvertArgs{Format: funcName, HasError: true}
+	}
+	if _, ok := mux.Converts["[]uint64"]; !ok {
+		funcName := "ToUint64Array({{.name}})"
+		mux.Converts["[]uint64"] = ConvertArgs{Format: funcName, HasError: true}
+	}
+
 	for _, t := range []string{"int8", "int16", "int32", "int64"} {
 		if _, ok := mux.Converts[t]; ok {
 			continue
@@ -253,6 +271,9 @@ func (mux *DefaultStye) ReadRequired(param Param, typeName, ctxName, paramName s
 }
 
 func (mux *DefaultStye) ReadOptional(param Param, typeName, ctxName, paramName string) string {
+	if strings.HasPrefix(typeName, "[]") {
+		typeName = "[]string"
+	}
 	format := mux.OptionalParamFormat
 	if args, ok := mux.Types.Optional[typeName]; ok {
 		if args.Format != "" {
@@ -587,6 +608,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		"rname":         paramName,
 		"param":         param,
 		"initRootValue": "",
+		"isArray":       IsArrayType(param.Typ) || IsSliceType(param.Typ),
 	}
 
 	var stType *Class
@@ -684,6 +706,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			renderArgs["type"] = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
 			renderArgs["name"] = p2.Param.Name.Name
 			renderArgs["rname"] = paramName2
+			renderArgs["isArray"] = IsArrayType(p2.Param.Typ) || IsSliceType(p2.Param.Typ)
 
 			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, renderArgs, optional))
 			serverParams = append(serverParams, p2)
@@ -721,10 +744,18 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
       {{- if .initRootValue}}
       
   		    {{- if .skipDeclare | not}}var {{.name}} .type {{end}}
+          
+          {{- if .isArray}} 
+          if ss := {{readOptional .param .ctx .type .rname}}; len(ss) == 0 {
+      		  {{- .initRootValue}}
+            {{.name}} = ss
+          }
+          {{- else}}
           if s := {{readOptional .param .ctx .type .rname}}; s != "" {
       		  {{- .initRootValue}}
             {{.name}} = s
           }
+          {{- end}}
           
       {{- else}}
   		  {{if .skipDeclare | not}}var {{end}}{{.name}} = {{readOptional .param .ctx .type .rname}}
@@ -744,10 +775,18 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 
 			optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- if .skipDeclare | not}}var {{.name}} *{{.type}}{{end}}
+    
+    {{- if .isArray}} 
+    if ss := {{readOptional .param .ctx .type .rname}}; len(ss) == 0 {
+			{{- .initRootValue}}
+			{{.name}} = &ss
+		}
+    {{- else}}
 		if s := {{readOptional .param .ctx .type .rname}}; s != "" {
 			{{- .initRootValue}}
 			{{.name}} = &s
 		}
+    {{- end}}
 		`))
 
 			if optional {
@@ -798,18 +837,26 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- $s := readOptional .param .ctx .type .rname }}
 		{{- if .skipDeclare | not}}var {{.name}} {{.type}}{{end}}
-		if s := {{ $s }}; s != "" {
+    
+    {{- $tmp := "s"}}
+    {{- $tmpIs := "s != \"\""}}
+    {{- if .isArray}}
+      {{- $tmp = "ss"}}
+      {{- $tmpIs = "len(ss) != 0"}}
+    {{- end}}
+    
+		if {{$tmp}} := {{ $s }}; {{$tmpIs}} {
 		{{- if not .hasConvertError}}
 			{{- .initRootValue}}
 			{{- if .needTransform}}
-			{{.name}} = {{.type}}({{convert .param .ctx .type "s"}})
+			{{.name}} = {{.type}}({{convert .param .ctx .type $tmp}})
 			{{- else}}
-			{{.name}} = {{convert .param .ctx .type "s"}}
+			{{.name}} = {{convert .param .ctx .type $tmp}}
 			{{- end}}
 		{{- else}}
-			{{goify .name false}}Value, err := {{convert .param .ctx .type "s"}}
+			{{goify .name false}}Value, err := {{convert .param .ctx .type $tmp}}
 			if err != nil {
-				{{badArgument .rname "s" "err"}}
+				{{badArgument .rname $tmp "err"}}
 			}
 			{{- .initRootValue}}
 			{{- if .needTransform}}

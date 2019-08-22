@@ -199,10 +199,11 @@ var Funcs = template.FuncMap{
 		}
 		return false
 	},
-	"typePrint":              typePrint,
-	"convertToStringLiteral": convertToStringLiteral,
-	"goify":                  Goify,
-	"underscore":             Underscore,
+	"typePrint":               typePrint,
+	"convertToStringLiteral":  convertToStringLiteral,
+	"convertToStringLiteral2": convertToStringLiteral2,
+	"goify":                   Goify,
+	"underscore":              Underscore,
 	"zeroValue": func(typ ast.Expr) string {
 		switch typ.(type) {
 		case *ast.StarExpr:

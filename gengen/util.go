@@ -109,11 +109,20 @@ func parseQuery(query string) map[string]string {
 }
 
 func convertToStringLiteral(param Param, isArray ...bool) string {
+	return convertToStringLiteral2("", param, isArray...)
+}
+
+func convertToStringLiteral2(suffix string, param Param, isArray ...bool) string {
+	name := param.Name.Name + suffix
+
 	var typ string
 	if len(isArray) > 0 && isArray[0] {
 		typ = typePrint(ElemType(param.Typ))
 	} else {
 		typ = typePrint(param.Typ)
+		if strings.HasPrefix(typ, "[]") {
+			return strings.TrimPrefix(typ, "[]") + "ArrayToString(" + name + ")"
+		}
 	}
 	isFirst := true
 	needWrap := false
@@ -121,47 +130,47 @@ func convertToStringLiteral(param Param, isArray ...bool) string {
 retry:
 	switch typ {
 	case "string":
-		return param.Name.Name
+		return name
 	case "*string":
-		return "*" + param.Name.Name
+		return "*" + param.Name.Name + suffix
 	case "int", "int8", "int16", "int32":
-		return "strconv.FormatInt(int64(" + param.Name.Name + "), 10)"
+		return "strconv.FormatInt(int64(" + name + "), 10)"
 	case "*int", "*int8", "*int16", "*int32":
-		return "strconv.FormatInt(int64(*" + param.Name.Name + "), 10)"
+		return "strconv.FormatInt(int64(*" + name + "), 10)"
 	case "int64":
 		if needWrap {
-			return "strconv.FormatInt(int64(" + param.Name.Name + "), 10)"
+			return "strconv.FormatInt(int64(" + name + "), 10)"
 		}
-		return "strconv.FormatInt(" + param.Name.Name + ", 10)"
+		return "strconv.FormatInt(" + name + ", 10)"
 	case "*int64":
 		if needWrap {
-			return "strconv.FormatInt(int64(*" + param.Name.Name + "), 10)"
+			return "strconv.FormatInt(int64(*" + name + "), 10)"
 		}
-		return "strconv.FormatInt(*" + param.Name.Name + ", 10)"
+		return "strconv.FormatInt(*" + name + ", 10)"
 	case "uint", "uint8", "uint16", "uint32":
-		return "strconv.FormatUint(uint64(" + param.Name.Name + "), 10)"
+		return "strconv.FormatUint(uint64(" + name + "), 10)"
 	case "*uint", "*uint8", "*uint16", "*uint32":
-		return "strconv.FormatUint(uint64(*" + param.Name.Name + "), 10)"
+		return "strconv.FormatUint(uint64(*" + name + "), 10)"
 	case "uint64":
 		if needWrap {
-			return "strconv.FormatUint(uint64(" + param.Name.Name + "), 10)"
+			return "strconv.FormatUint(uint64(" + name + "), 10)"
 		}
 		return "strconv.FormatUint(" + param.Name.Name + ", 10)"
 	case "*uint64":
 		if needWrap {
-			return "strconv.FormatUint(uint64(*" + param.Name.Name + "), 10)"
+			return "strconv.FormatUint(uint64(*" + name + "), 10)"
 		}
-		return "strconv.FormatUint(*" + param.Name.Name + ", 10)"
+		return "strconv.FormatUint(*" + name + ", 10)"
 	case "bool":
-		return "BoolToString(" + param.Name.Name + ")"
+		return "BoolToString(" + name + ")"
 	case "*bool":
-		return "BoolToString(*" + param.Name.Name + ")"
+		return "BoolToString(*" + name + ")"
 	case "time.Time", "*time.Time":
-		return param.Name.Name + ".Format(" + TimeFormat + ")"
+		return name + ".Format(" + TimeFormat + ")"
 	case "time.Duration", "*time.Duration":
-		return param.Name.Name + ".String()"
+		return name + ".String()"
 	case "net.IP", "*net.IP":
-		return param.Name.Name + ".String()"
+		return name + ".String()"
 	default:
 
 		underlying := param.Method.Ctx.GetType(typ)
