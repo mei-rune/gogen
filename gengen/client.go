@@ -592,7 +592,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
       
         {{- if $param.IsMultQueryValue }}
           for idx := range {{$param.Param.Name.Name}} {
-            request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral2 "[idx]" $param.Param  true}})
+            request = request.AddParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral2 "[idx]" $param.Param  true}})
           }
         {{- $needAssignment = true -}}
         {{- else}}    

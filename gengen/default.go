@@ -743,7 +743,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 			optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
       {{- if .initRootValue}}
       
-  		    {{- if .skipDeclare | not}}var {{.name}} .type {{end}}
+  		    {{- if .skipDeclare | not}}var {{.name}} .type {{end -}}
           
           {{- if .isArray}} 
           if ss := {{readOptional .param .ctx .type .rname}}; len(ss) == 0 {
@@ -774,7 +774,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		`))
 
 			optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
-		{{- if .skipDeclare | not}}var {{.name}} *{{.type}}{{end}}
+		{{- if .skipDeclare | not}}var {{.name}} *{{.type}}{{end -}}
     
     {{- if .isArray}} 
     if ss := {{readOptional .param .ctx .type .rname}}; len(ss) == 0 {
@@ -802,7 +802,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 
 
 			{{- .initRootValue}}
-			{{if .needTransform}}
+			{{- if .needTransform}}
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{.type}}({{convert .param .ctx .type $s}})
 			{{- else}}
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{convert .param .ctx .type $s}}
@@ -836,15 +836,16 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 
 		optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- $s := readOptional .param .ctx .type .rname }}
-		{{- if .skipDeclare | not}}var {{.name}} {{.type}}{{end}}
+		{{- if .skipDeclare | not}}var {{.name}} {{.type}}
+		{{end -}}
     
     {{- $tmp := "s"}}
     {{- $tmpIs := "s != \"\""}}
     {{- if .isArray}}
       {{- $tmp = "ss"}}
       {{- $tmpIs = "len(ss) != 0"}}
-    {{- end}}
-    
+    {{- end -}}
+
 		if {{$tmp}} := {{ $s }}; {{$tmpIs}} {
 		{{- if not .hasConvertError}}
 			{{- .initRootValue}}
