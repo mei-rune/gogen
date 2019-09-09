@@ -373,7 +373,7 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 			var bindArgs struct {
 				{{- range $param := .params}}
           {{- if $param.InBody }}
-  				{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{ $param.Param.Name.Name}},omitempty\"`" + `
+  				{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{underscore $param.Param.Name.Name}},omitempty\"`" + `
   				{{- end}}
         {{- end}}
 			}

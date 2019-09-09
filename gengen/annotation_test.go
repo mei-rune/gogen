@@ -21,3 +21,13 @@ func TestAnnotations(t *testing.T) {
 		})
 	}
 }
+
+func TestUnderscore(t *testing.T) {
+	for key, value := range map[string]string{
+		"samplingNode": "sampling_node",
+	} {
+		if Underscore(key) != value {
+			t.Error("want", Underscore(key), "got", value)
+		}
+	}
+}
