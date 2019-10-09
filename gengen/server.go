@@ -285,7 +285,7 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
       {{- range $idx, $result := $method.Results.List}}        
         {{- if eq "error" (typePrint $result.Typ) -}}
         {{- else}}
-          "{{ $result.Name }}": {{ $result.Name }},
+          "{{underscore $result.Name.Name }}": {{ $result.Name }},
         {{- end -}}
       {{- end}}
       }
