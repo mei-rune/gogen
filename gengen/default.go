@@ -39,6 +39,7 @@ type DefaultStye struct {
 	BadArgumentFormat   string            `json:"bad_argument_format"`
 	OkFuncFormat        string            `json:"ok_func_format"`
 	ErrorFuncFormat     string            `json:"err_func_format"`
+	PlainTextFormat     string            `json:"plain_text_func_format"`
 	PreInitObject       bool              `json:"pre_init_object"`
 	Reserved            map[string]string `json:"reserved"`
 	MethodMapping       map[string]string `json:"method_mapping"`
@@ -52,9 +53,10 @@ type DefaultStye struct {
 
 	bodyReader string
 	// readTemplate *template.Template
-	bindTemplate *template.Template
-	errTemplate  *template.Template
-	okTemplate   *template.Template
+	bindTemplate      *template.Template
+	errTemplate       *template.Template
+	okTemplate        *template.Template
+	plainTextTemplate *template.Template
 }
 
 func (mux *DefaultStye) Init() {
@@ -78,6 +80,8 @@ func (mux *DefaultStye) Init() {
 
 	mux.OkFuncFormat = "return ctx.JSON({{.statusCode}}, {{.data}})"
 	mux.ErrorFuncFormat = "ctx.Error({{.err}})\r\n     return nil"
+	mux.PlainTextFormat = "return ctx.String({{.statusCode}}, {{.data}})"
+
 }
 
 func (mux *DefaultStye) reinit(values map[string]interface{}) {
@@ -187,6 +191,8 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 	mux.bindTemplate = template.Must(template.New("bindTemplate").Parse(mux.ReadBodyFormat))
 	mux.errTemplate = template.Must(template.New("errTemplate").Parse(mux.ErrorFuncFormat))
 	mux.okTemplate = template.Must(template.New("okTemplate").Parse(mux.OkFuncFormat))
+	mux.plainTextTemplate = template.Must(template.New("plainTextTemplate").Parse(mux.PlainTextFormat))
+
 }
 
 func stringWith(values map[string]interface{}, key, defValue string) string {
@@ -345,6 +351,7 @@ type ServerParam struct {
 type ServerMethod struct {
 	ParamList      []ServerParam
 	IsErrorDefined bool
+	IsPlainText    bool
 }
 
 func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) string {
@@ -427,7 +434,21 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 		}
 	}
 
-	return ServerMethod{results, genCtx.IsErrorDefined()}
+	isText := false
+	if len(method.Results.List) == 2 {
+		s := typePrint(method.Results.List[0].Typ)
+		isText = s == "string"
+	} else if len(method.Results.List) == 1 {
+		s := typePrint(method.Results.List[0].Typ)
+		isText = s == "string"
+	}
+
+	isPlainText := ann.Attributes["content_type"] == "text"
+	if !isText && isPlainText {
+		panic("content_type is mismatch, " + typePrint(results[0].Typ))
+	}
+
+	return ServerMethod{results, genCtx.IsErrorDefined(), isPlainText}
 }
 
 func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit bool) []ServerParam {
@@ -1004,6 +1025,27 @@ func (mux *DefaultStye) ErrorFunc(method Method, hasRealErrorCode bool, errCode,
 		"errCode":          errCode,
 		"err":              err,
 		"addArgs":          addArgs,
+	})
+	return sb.String()
+}
+
+func (mux *DefaultStye) PlainTextFunc(method Method, args ...string) string {
+	ann := getAnnotation(method, false)
+
+	okCode := "http.StatusOK"
+	methodName := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
+	switch methodName {
+	case "POST":
+		okCode = "http.StatusCreated"
+	case "PUT":
+		okCode = "http.StatusAccepted"
+	}
+
+	var sb strings.Builder
+	renderText(mux.plainTextTemplate, &sb, map[string]interface{}{
+		"method":     methodName,
+		"statusCode": okCode,
+		"data":       strings.Join(args, ","),
 	})
 	return sb.String()
 }

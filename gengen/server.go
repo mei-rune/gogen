@@ -300,13 +300,21 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
           }
           {{$.mux.OkFunc $method "\"OK\""}}        
       {{- else}}
-          {{$.mux.OkFunc $method "result"}}
+		    {{- if $methodParams.IsPlainText }}
+		     	{{$.mux.PlainTextFunc $method "result"}}
+		   	{{- else}}
+          		{{$.mux.OkFunc $method "result"}}
+      		{{- end}}
       {{- end}}
     {{- else}}
     if err != nil {
       {{$.mux.ErrorFunc $method false "httpCodeWith(err)" "err"}}
     }
-    {{$.mux.OkFunc $method "result"}}
+    {{- if $methodParams.IsPlainText }}
+      {{$.mux.PlainTextFunc $method "result"}}
+    {{- else}}
+      {{$.mux.OkFunc $method "result"}}
+    {{- end}}
     {{- end}}
   })
   {{- end}} {{/* isSkipped */}}
