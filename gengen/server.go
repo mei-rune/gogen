@@ -272,7 +272,7 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
         {{- if $param.IsSkipUse -}}
         {{- else -}}
         {{- if $isFirst -}}{{- $isFirst = false -}}{{- else -}},{{- end -}}
-        {{- $param.ParamName }}
+        {{- $param.ParamName }}{{if isEllipsisType $param.Param.Typ}}...{{- end -}}
         {{- end -}}
       {{- end -}})
 

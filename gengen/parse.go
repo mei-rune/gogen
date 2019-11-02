@@ -605,19 +605,18 @@ func IsStructType(typ ast.Expr) bool {
 }
 
 func IsSliceType(typ ast.Expr) bool {
-	arrayType, ok := typ.(*ast.ArrayType)
-	if !ok {
-		return false
-	}
-	return arrayType.Len == nil
+	_, ok := typ.(*ast.ArrayType)
+	return ok
 }
 
 func IsArrayType(typ ast.Expr) bool {
-	arrayType, ok := typ.(*ast.ArrayType)
-	if !ok {
-		return false
-	}
-	return arrayType.Len != nil
+	_, ok := typ.(*ast.ArrayType)
+	return ok
+}
+
+func IsEllipsisType(typ ast.Expr) bool {
+	_, ok := typ.(*ast.Ellipsis)
+	return ok
 }
 
 func IsMapType(typ ast.Expr) bool {
@@ -646,6 +645,8 @@ func ElemType(typ ast.Expr) ast.Expr {
 	case *ast.StarExpr:
 		return t.X
 	case *ast.ArrayType:
+		return t.Elt
+	case *ast.Ellipsis:
 		return t.Elt
 	}
 	return nil

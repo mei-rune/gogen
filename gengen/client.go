@@ -350,7 +350,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		if cp.IsQueryParam || !cp.IsPathParam && !cp.IsBodyParam {
 			cp.IsQueryParam = true
 
-			if IsSliceType(param.Typ) || IsArrayType(param.Typ) {
+			if IsSliceType(param.Typ) || IsArrayType(param.Typ) || IsEllipsisType(param.Typ) {
 				cp.IsMultQueryValue = true
 			}
 		}

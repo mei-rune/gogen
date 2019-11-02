@@ -199,6 +199,7 @@ var Funcs = template.FuncMap{
 		}
 		return false
 	},
+	"isEllipsisType":          IsEllipsisType,
 	"typePrint":               typePrint,
 	"convertToStringLiteral":  convertToStringLiteral,
 	"convertToStringLiteral2": convertToStringLiteral2,

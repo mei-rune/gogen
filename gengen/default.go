@@ -136,6 +136,10 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		mux.Converts["int"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 
+	if _, ok := mux.Converts["[]bool"]; !ok {
+		funcName := "ToBoolArray({{.name}})"
+		mux.Converts["[]bool"] = ConvertArgs{Format: funcName, HasError: true}
+	}
 	if _, ok := mux.Converts["[]int"]; !ok {
 		funcName := "ToIntArray({{.name}})"
 		mux.Converts["[]int"] = ConvertArgs{Format: funcName, HasError: true}
@@ -452,7 +456,11 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 }
 
 func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit bool) []ServerParam {
+
 	typeStr := typePrint(param.Typ)
+	if strings.HasPrefix(typeStr, "...") {
+		typeStr = "[]" + strings.TrimPrefix(typeStr, "...")
+	}
 	elmType := strings.TrimPrefix(typeStr, "*")
 	hasStar := typeStr != elmType
 
@@ -629,7 +637,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		"rname":         paramName,
 		"param":         param,
 		"initRootValue": "",
-		"isArray":       IsArrayType(param.Typ) || IsSliceType(param.Typ),
+		"isArray":       IsArrayType(param.Typ) || IsSliceType(param.Typ) || IsEllipsisType(param.Typ),
 	}
 
 	var stType *Class
@@ -727,7 +735,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			renderArgs["type"] = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
 			renderArgs["name"] = p2.Param.Name.Name
 			renderArgs["rname"] = paramName2
-			renderArgs["isArray"] = IsArrayType(p2.Param.Typ) || IsSliceType(p2.Param.Typ)
+			renderArgs["isArray"] = IsArrayType(p2.Param.Typ) || IsSliceType(p2.Param.Typ) || IsEllipsisType(param.Typ)
 
 			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, renderArgs, optional))
 			serverParams = append(serverParams, p2)
@@ -743,6 +751,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs template.FuncMap, renderArgs map[string]interface{}, optional bool) string {
 	typeStr := typePrint(param.Typ)
+	if strings.HasPrefix(typeStr, "...") {
+		typeStr = "[]" + strings.TrimPrefix(typeStr, "...")
+	}
 	elmType := strings.TrimPrefix(typeStr, "*")
 	hasStar := typeStr != elmType
 
