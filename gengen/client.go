@@ -3,6 +3,7 @@ package gengen
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"go/ast"
 	"io"
 	"log"
@@ -73,9 +74,25 @@ func (cmd *WebClientGenerator) Run(args []string) error {
 
 	TimeFormat = "client." + cmd.config.RestyField + ".TimeFormat"
 
+	var includeFiles []*SourceContext
+	for _, filename := range strings.Split(cmd.includes, ",") {
+		if filename == "" {
+			continue
+		}
+		pa, err := filepath.Abs(filename)
+		if err != nil {
+			return err
+		}
+
+		file, err := ParseFile(pa)
+		if err != nil {
+			return err
+		}
+		includeFiles = append(includeFiles, file)
+	}
 	var e error
 	for _, file := range args {
-		if err := cmd.runFile(file); err != nil {
+		if err := cmd.runFile(includeFiles, file); err != nil {
 			log.Println(err)
 			e = err
 		}
@@ -84,7 +101,7 @@ func (cmd *WebClientGenerator) Run(args []string) error {
 	return e
 }
 
-func (cmd *WebClientGenerator) runFile(filename string) error {
+func (cmd *WebClientGenerator) runFile(includeFiles []*SourceContext, filename string) error {
 	pa, err := filepath.Abs(filename)
 	if err != nil {
 		return err
@@ -129,7 +146,7 @@ func (cmd *WebClientGenerator) runFile(filename string) error {
 			out.WriteString("// " + class.Name.Name + " is skipped\r\n")
 			continue
 		}
-		if err := cmd.generateClass(out, file, &class); err != nil {
+		if err := cmd.generateClass(out, includeFiles, file, &class); err != nil {
 			return err
 		}
 	}
@@ -149,10 +166,10 @@ func (cmd *WebClientGenerator) runFile(filename string) error {
 	return goImports(targetFile)
 }
 
-func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext, class *Class) error {
+func (cmd *WebClientGenerator) generateClass(out io.Writer, includeFiles []*SourceContext, file *SourceContext, class *Class) error {
 
 	config := cmd.config
-
+	config.includeFiles = includeFiles
 	config.Classes = file.Classes
 	config.ClassName = class.Name.Name + "Client"
 	config.RecvClassName = config.ClassName
@@ -185,6 +202,7 @@ func (cmd *WebClientGenerator) generateClass(out io.Writer, file *SourceContext,
 }
 
 type ClientConfig struct {
+	includeFiles     []*SourceContext
 	Classes          []Class
 	TagName          string
 	RestyName        string
@@ -378,9 +396,23 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		if starType, ok := param.Typ.(*ast.StarExpr); ok {
 			if identType, ok := starType.X.(*ast.Ident); ok {
 				stType = method.Ctx.GetClass(identType.Name)
+			} else if selectorExpr, ok := starType.X.(*ast.SelectorExpr); ok {
+				for _, ctx := range c.includeFiles {
+					if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
+						stType = ctx.GetClass(selectorExpr.Sel.Name)
+					}
+				}
 			}
+
+			fmt.Println(param.Name, fmt.Sprintf("%T", starType.X), len(c.includeFiles))
 		} else if identType, ok := param.Typ.(*ast.Ident); ok {
 			stType = method.Ctx.GetClass(identType.Name)
+		} else if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
+			for _, ctx := range c.includeFiles {
+				if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
+					stType = ctx.GetClass(selectorExpr.Sel.Name)
+				}
+			}
 		}
 		if stType != nil {
 
@@ -595,7 +627,12 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
             request = request.AddParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral2 "[idx]" $param.Param  true}})
           }
         {{- $needAssignment = true -}}
-        {{- else}}    
+        {{- else if isNull $param.Param.Typ }}
+          if {{$param.Param.Name}}.Valid {
+            request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+          }
+          {{- $needAssignment = true -}}
+        {{- else}}
           {{- if $needAssignment}}
           request = request.
           {{- else -}}

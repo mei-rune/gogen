@@ -95,6 +95,27 @@ func (cmd *WebServerGenerator) Run(args []string) error {
 		cmd.ext = ".gogen.go"
 	}
 
+	var includeFiles []*SourceContext
+	for _, filename := range strings.Split(cmd.includes, ",") {
+		if filename == "" {
+			continue
+		}
+		pa, err := filepath.Abs(filename)
+		if err != nil {
+			return err
+		}
+
+		file, err := ParseFile(pa)
+		if err != nil {
+			return err
+		}
+		includeFiles = append(includeFiles, file)
+	}
+
+	if mux := cmd.Mux.(*DefaultStye); mux != nil {
+		mux.includeFiles = includeFiles
+	}
+
 	for _, file := range args {
 		if err := cmd.runFile(file); err != nil {
 			log.Println(err)

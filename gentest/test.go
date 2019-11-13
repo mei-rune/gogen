@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"strings"
 	"time"
+
+	"github.com/runner-mei/gogen/gentest/models"
 )
 
 // 用于测试 parse() 方法
@@ -392,3 +394,12 @@ func (svc *StringSvcWithContext) Misc() string {
 
 // 用于测试 Parse() 不会 panic
 func notpanic() {}
+
+type Requests interface {
+	// @http.GET(path="")
+	List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
+	// @http.POST(path="", data="data")
+	Create(ctx context.Context, data *models.Request) (int64, error)
+	// @http.PUT(path="/:id", data="data")
+	UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error)
+}

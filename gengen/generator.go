@@ -22,6 +22,8 @@ type GeneratorBase struct {
 	buildTag string
 
 	imports map[string]string
+
+	includes string
 }
 
 func (cmd *GeneratorBase) Flags(fs *flag.FlagSet) *flag.FlagSet {
@@ -29,6 +31,7 @@ func (cmd *GeneratorBase) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	if ext == "" {
 		ext = ".gogen.go"
 	}
+	fs.StringVar(&cmd.includes, "includes", "", "其它文件")
 	fs.StringVar(&cmd.ext, "ext", ext, "文件后缀名")
 	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 	return fs
@@ -220,6 +223,14 @@ var Funcs = template.FuncMap{
 			return lit
 		}
 		return "0"
+	},
+	"isNull": func(typ ast.Expr) bool {
+		s := typePrint(typ)
+		return s == "sql.NullBool" ||
+			s == "sql.NullInt64" ||
+			s == "sql.NullUint64" ||
+			s == "sql.NullString" ||
+			s == "sql.NullTime"
 	},
 }
 

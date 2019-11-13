@@ -25,6 +25,7 @@ type ConvertArgs struct {
 }
 
 type DefaultStye struct {
+	includeFiles        []*SourceContext
 	classes             []Class
 	TagName             string            `json:"tag_name"`
 	FuncSignatureStr    string            `json:"func_signature"`
@@ -178,7 +179,6 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		}
 		mux.Converts[t] = conv
 	}
-
 	if _, ok := mux.Converts["bool"]; !ok {
 		funcName := stringWith(values, "features.boolConvert", "toBool({{.name}})")
 		mux.Converts["bool"] = ConvertArgs{Format: funcName, HasError: false}
@@ -189,6 +189,20 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 	}
 	if _, ok := mux.Converts["time.Duration"]; !ok {
 		mux.Converts["time.Duration"] = ConvertArgs{Format: "time.ParseDuration({{.name}})", HasError: true}
+	}
+	if _, ok := mux.Converts["sql.NullBool"]; !ok {
+		funcName := stringWith(values, "features.boolConvert", "toBool({{.name}})")
+		mux.Converts["sql.NullBool"] = ConvertArgs{Format: funcName, HasError: false}
+	}
+	if _, ok := mux.Converts["sql.NullTime"]; !ok {
+		funcName := stringWith(values, "features.datetimeConvert", "toDatetime({{.name}})")
+		mux.Converts["sql.NullTime"] = ConvertArgs{Format: funcName, HasError: true}
+	}
+	if _, ok := mux.Converts["sql.NullInt64"]; !ok {
+		mux.Converts["sql.NullInt64"] = ConvertArgs{Format: "strconv.ParseInt({{.name}}, 10, 64)", HasError: true}
+	}
+	if _, ok := mux.Converts["sql.NullUint64"]; !ok {
+		mux.Converts["sql.NullUint64"] = ConvertArgs{Format: "strconv.ParseUint({{.name}}, 10, 64)", HasError: true}
 	}
 
 	mux.bodyReader = mux.Reserved["*http.Request"] + ".Body"
@@ -644,11 +658,22 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	if starType, ok := param.Typ.(*ast.StarExpr); ok {
 		if identType, ok := starType.X.(*ast.Ident); ok {
 			stType = method.Ctx.GetClass(identType.Name)
+		} else if selectorExpr, ok := starType.X.(*ast.SelectorExpr); ok {
+			for _, ctx := range mux.includeFiles {
+				if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
+					stType = ctx.GetClass(selectorExpr.Sel.Name)
+				}
+			}
 		}
 	} else if identType, ok := param.Typ.(*ast.Ident); ok {
 		stType = method.Ctx.GetClass(identType.Name)
+	} else if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
+		for _, ctx := range mux.includeFiles {
+			if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
+				stType = ctx.GetClass(selectorExpr.Sel.Name)
+			}
+		}
 	}
-	// fmt.Println(param.Name, fmt.Sprintf("%T", param.Typ))
 
 	if stType != nil {
 		if isPath {
@@ -722,7 +747,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			}
 
 			var initRootValue string
-			if IsPtrType(param.Typ) && !c.IsParentInited() {
+			if !mux.PreInitObject && IsPtrType(param.Typ) && !c.IsParentInited() {
 				if fieldIdx == 0 {
 					initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
 				} else {
@@ -730,6 +755,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 			}
 
+			renderArgs["param"] = p2.Param
 			renderArgs["skipDeclare"] = true
 			renderArgs["initRootValue"] = initRootValue
 			renderArgs["type"] = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
@@ -785,7 +811,12 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
           {{- else}}
           if s := {{readOptional .param .ctx .type .rname}}; s != "" {
       		  {{- .initRootValue}}
+			{{- if isNull .param.Typ}}
+			{{.name}}.Valid = true
+            {{.name}}.String = s
+			{{- else}}
             {{.name}} = s
+            {{- end}}
           }
           {{- end}}
           
@@ -832,7 +863,6 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		{{- $s := readRequired .param .ctx .type .rname }}
 		{{- if not .hasConvertError}}
 
-
 			{{- .initRootValue}}
 			{{- if .needTransform}}
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{.type}}({{convert .param .ctx .type $s}})
@@ -840,9 +870,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 			{{- if .skipDeclare | not}}var {{end}}{{.name}} = {{convert .param .ctx .type $s}}
 			{{- end}}
 
-
 		{{- else}}
-
 
 			{{- if not .needTransform -}}
 				{{- .initRootValue}}
@@ -861,8 +889,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 					{{.name}} = {{.type}}({{goify .name false}}Value)
 				}
 			{{- end -}}
-
-
+			
 		{{- end}}
 		`))
 
@@ -881,10 +908,27 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		if {{$tmp}} := {{ $s }}; {{$tmpIs}} {
 		{{- if not .hasConvertError}}
 			{{- .initRootValue}}
+			
+			{{- $suffix := ""}}
+			{{- if isNull .param.Typ}}
+			{{.name}}.Valid = true
+				{{- if eq .type "sql.NullBool"}}	
+				{{- $suffix = ".Bool"}}
+				{{- else if eq .type "sql.NullTime"}}	
+				{{- $suffix = ".Time"}}
+				{{- else if eq .type "sql.NullInt64"}}	
+				{{- $suffix = ".Int64"}}
+				{{- else if eq .type "sql.NullUint64"}}	
+				{{- $suffix = ".Uint64"}}
+				{{- else if eq .type "sql.NullString"}}	
+				{{- $suffix = ".String"}}
+				{{- end}}
+            {{- end}}
+            
 			{{- if .needTransform}}
-			{{.name}} = {{.type}}({{convert .param .ctx .type $tmp}})
+			{{.name}}{{$suffix}} = {{.type}}({{convert .param .ctx .type $tmp}})
 			{{- else}}
-			{{.name}} = {{convert .param .ctx .type $tmp}}
+			{{.name}}{{$suffix}} = {{convert .param .ctx .type $tmp}}
 			{{- end}}
 		{{- else}}
 			{{goify .name false}}Value, err := {{convert .param .ctx .type $tmp}}
@@ -892,10 +936,27 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 				{{badArgument .rname $tmp "err"}}
 			}
 			{{- .initRootValue}}
+			
+			{{- $suffix := ""}}
+			{{- if isNull .param.Typ}}
+				{{.name}}.Valid = true
+				{{- if eq .type "sql.NullBool"}}	
+				{{- $suffix = ".Bool"}}
+				{{- else if eq .type "sql.NullTime"}}	
+				{{- $suffix = ".Time"}}
+				{{- else if eq .type "sql.NullInt64"}}	
+				{{- $suffix = ".Int64"}}
+				{{- else if eq .type "sql.NullUint64"}}	
+				{{- $suffix = ".Uint64"}}
+				{{- else if eq .type "sql.NullString"}}	
+				{{- $suffix = ".String"}}
+				{{- end}}
+            {{- end}}
+            
 			{{- if .needTransform}}
-			{{.name}} = {{.type}}({{goify .name false}}Value)
+			{{.name}}{{$suffix}} = {{.type}}({{goify .name false}}Value)
 			{{- else}}
-			{{.name}} = {{goify .name false}}Value
+			{{.name}}{{$suffix}} = {{goify .name false}}Value
 			{{- end}}
 		{{- end}}
 		}
@@ -963,6 +1024,8 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 					for _, nm := range []string{
 						"time",
 						"net",
+						"sql",
+						"null",
 					} {
 						// fmt.Println(pkgName == nm, pkgName, nm)
 						if pkgName == nm {

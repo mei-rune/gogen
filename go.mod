@@ -6,3 +6,5 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/mitchellh/mapstructure v1.1.2
 )
+
+go 1.13

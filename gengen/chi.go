@@ -64,6 +64,11 @@ var chiConfig = map[string]interface{}{
 				"format": "queryParams[{{.name}}]",
 			},
 		},
+		"required": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"format": "queryParams[{{.name}}]",
+			},
+		},
 	},
 
 	"method_mapping": map[string]string{

@@ -37,6 +37,7 @@ func TestGenerate(t *testing.T) {
 				GeneratorBase: GeneratorBase{
 					ext:      ".chi-gen.go",
 					buildTag: "chi",
+					includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 				},
 				config: "@chi",
 			}
@@ -70,6 +71,7 @@ func TestGenerate(t *testing.T) {
 				GeneratorBase: GeneratorBase{
 					//ext:      ".echogen.go",
 					buildTag: "echo",
+					includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 				},
 				config: "@echo",
 			}
@@ -103,6 +105,7 @@ func TestGenerate(t *testing.T) {
 				GeneratorBase: GeneratorBase{
 					ext:      ".beegen.go",
 					buildTag: "beego",
+					includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 				},
 				config: "@beego",
 			}
@@ -136,6 +139,7 @@ func TestGenerate(t *testing.T) {
 				GeneratorBase: GeneratorBase{
 					ext:      ".gingen.go",
 					buildTag: "gin",
+					includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 				},
 				config: "@gin",
 			}
@@ -169,6 +173,7 @@ func TestGenerate(t *testing.T) {
 				GeneratorBase: GeneratorBase{
 					ext:      ".loonggen.go",
 					buildTag: "loong",
+					includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 				},
 				config: "@loong",
 			}
@@ -200,7 +205,8 @@ func TestGenerate(t *testing.T) {
 
 			var gen = WebClientGenerator{
 				GeneratorBase: GeneratorBase{
-					ext: ".clientgen.go",
+					ext:      ".clientgen.go",
+					includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 				},
 				//config: "@echo",
 			}
@@ -235,7 +241,8 @@ func TestGenerate(t *testing.T) {
 
 			var gen = WebClientGenerator{
 				GeneratorBase: GeneratorBase{
-					ext: ".loongclientgen.go",
+					ext:      ".loongclientgen.go",
+					includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 				},
 				//config: "@echo",
 			}

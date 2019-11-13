@@ -171,6 +171,16 @@ retry:
 		return name + ".String()"
 	case "net.IP", "*net.IP":
 		return name + ".String()"
+	case "sql.NullTime":
+		return name + ".Time.Format(" + TimeFormat + ")"
+	case "sql.NullBool":
+		return "BoolToString(" + name + ".Bool)"
+	case "sql.NullInt64":
+		return "strconv.FormatInt(" + name + ".Int64, 10)"
+	case "sql.NullUint64":
+		return "strconv.FormatUint(" + name + ".Uint64, 10)"
+	case "sql.NullString":
+		return name + ".String"
 	default:
 
 		underlying := param.Method.Ctx.GetType(typ)
