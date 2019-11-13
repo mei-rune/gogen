@@ -52,5 +52,10 @@ var ginConfig = map[string]interface{}{
 				"format": "{{.ctx}}.QueryArray(\"{{.name}}\")",
 			},
 		},
+		"required": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"format": "{{.ctx}}.QueryParamArray(\"{{.name}}\")",
+			},
+		},
 	},
 }

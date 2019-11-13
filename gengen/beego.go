@@ -43,7 +43,15 @@ var beeConfig = map[string]interface{}{
 		"ANY":     "Any",
 	},
 	"types": map[string]interface{}{
-		"required": map[string]interface{}{},
-		"optional": map[string]interface{}{},
+		"optional": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"format": "{{.ctx}}.QueryParamArray(\"{{.name}}\")",
+			},
+		},
+		"required": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"format": "{{.ctx}}.QueryParamArray(\"{{.name}}\")",
+			},
+		},
 	},
 }

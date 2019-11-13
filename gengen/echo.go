@@ -29,4 +29,16 @@ var echoConfig = map[string]interface{}{
 		"context.Context":     "ctx.Request().Context()",
 		"echo.Context":        "ctx",
 	},
+	"types": map[string]interface{}{
+		"optional": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"format": "{{.ctx}}.QueryParamArray(\"{{.name}}\")",
+			},
+		},
+		"required": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"format": "{{.ctx}}.QueryParamArray(\"{{.name}}\")",
+			},
+		},
+	},
 }

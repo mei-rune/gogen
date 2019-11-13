@@ -46,6 +46,11 @@ var loongConfig = map[string]interface{}{
 				"format": "{{.ctx}}.QueryParamArray(\"{{.name}}\")",
 			},
 		},
+		"required": map[string]interface{}{
+			"[]string": map[string]interface{}{
+				"format": "{{.ctx}}.QueryParamArray(\"{{.name}}\")",
+			},
+		},
 	},
 }
 

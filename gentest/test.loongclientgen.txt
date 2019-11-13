@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/runner-mei/gogen/gentest/models"
 	"github.com/runner-mei/loong"
 	"github.com/runner-mei/resty"
 )
@@ -1741,3 +1742,103 @@ func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *in
 }
 
 // Misc: annotation is missing
+
+type RequestsClient struct {
+	Proxy *resty.Proxy
+}
+
+func (client RequestsClient) List(ctx context.Context, query *models.RequestQuery, offset int64, limit int64) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/")
+	if query != nil {
+		request = request.SetParam("query.operator_id", strconv.FormatInt(query.OperatorID, 10)).
+			SetParam("query.creator_id", strconv.FormatInt(query.CreatorID, 10)).
+			SetParam("query.requester_id", strconv.FormatInt(query.RequesterID, 10))
+		for idx := range query.RequestTypeIDs {
+			request = request.AddParam("query.request_type_ids", strconv.FormatInt(query.RequestTypeIDs[idx], 10))
+		}
+		for idx := range query.RequestTypeNames {
+			request = request.AddParam("query.request_type_names", query.RequestTypeNames[idx])
+		}
+		request = request.SetParam("query.name_like", query.NameLike).
+			SetParam("query.current_status", strconv.FormatInt(query.CurrentStatus, 10))
+		if query.IsUnclosed.Valid {
+			request = request.SetParam("query.is_unclosed", BoolToString(query.IsUnclosed.Bool))
+		}
+		if query.IsOverdued.Valid {
+			request = request.SetParam("query.is_overdued", BoolToString(query.IsOverdued.Bool))
+		}
+		if query.IsSuspend.Valid {
+			request = request.SetParam("query.is_suspend", BoolToString(query.IsSuspend.Bool))
+		}
+		request = request.SetParam("query.start_at", query.StartAt.Format(client.Proxy.TimeFormat)).
+			SetParam("query.end_at", query.EndAt.Format(client.Proxy.TimeFormat)).
+			SetParam("query.overdue_start", query.OverdueStart.Format(client.Proxy.TimeFormat)).
+			SetParam("query.overdue_end", query.OverdueEnd.Format(client.Proxy.TimeFormat))
+	}
+	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
+		SetParam("limit", strconv.FormatInt(limit, 10)).
+		Result(&resultWrap)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
+}
+
+func (client RequestsClient) Create(ctx context.Context, data *models.Request) (int64, error) {
+	var result int64
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/").
+		SetBody(data).
+		Result(&resultWrap)
+
+	err := request.POST(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
+}
+
+func (client RequestsClient) UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error) {
+	var result int64
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+		SetBody(data).
+		Result(&resultWrap)
+
+	err := request.PUT(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
+}

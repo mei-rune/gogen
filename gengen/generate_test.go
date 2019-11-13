@@ -205,13 +205,13 @@ func TestGenerate(t *testing.T) {
 
 			var gen = WebClientGenerator{
 				GeneratorBase: GeneratorBase{
-					ext:      ".clientgen.go",
-					includes: filepath.Join(wd, "gentest", "models", "requests.go"),
+					ext: ".clientgen.go",
 				},
 				//config: "@echo",
 			}
 			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{})
 			gen.config.HasWrapper = false
+			gen.includes = filepath.Join(wd, "gentest", "models", "requests.go")
 
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)
@@ -250,6 +250,7 @@ func TestGenerate(t *testing.T) {
 				"-has-wrapper", "true",
 			})
 			gen.config.HasWrapper = true
+			gen.includes = filepath.Join(wd, "gentest", "models", "requests.go")
 
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)

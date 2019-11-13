@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo"
+	"github.com/runner-mei/gogen/gentest/models"
 )
 
 func httpCodeWith(err error) int {
@@ -1708,4 +1709,198 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 		return ctx.JSON(http.StatusOK, result)
 	})
 	// Misc: annotation is missing
+}
+
+func InitRequests(mux *echo.Group, svc Requests) {
+	mux.GET("", func(ctx echo.Context) error {
+		var query *models.RequestQuery
+		if s := ctx.QueryParam("query.operator_id"); s != "" {
+			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.operator_id", s, err))
+				return nil
+			}
+			query = &models.RequestQuery{}
+			query.OperatorID = queryOperatorIDValue
+		}
+		if s := ctx.QueryParam("query.creator_id"); s != "" {
+			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.creator_id", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.CreatorID = queryCreatorIDValue
+		}
+		if s := ctx.QueryParam("query.requester_id"); s != "" {
+			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.requester_id", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequesterID = queryRequesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.request_type_ids"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
+		}
+		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) == 0 {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		}
+		if s := ctx.QueryParam("query.name_like"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.NameLike = s
+		}
+		if s := ctx.QueryParam("query.current_status"); s != "" {
+			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.current_status", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.CurrentStatus = queryCurrentStatusValue
+		}
+		if s := ctx.QueryParam("query.is_unclosed"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("query.is_overdued"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("query.is_suspend"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("query.start_at"); s != "" {
+			queryStartAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.StartAt = queryStartAtValue
+		}
+		if s := ctx.QueryParam("query.end_at"); s != "" {
+			queryEndAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.EndAt = queryEndAtValue
+		}
+		if s := ctx.QueryParam("query.overdue_start"); s != "" {
+			queryOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.OverdueStart = queryOverdueStartValue
+		}
+		if s := ctx.QueryParam("query.overdue_end"); s != "" {
+			queryOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.OverdueEnd = queryOverdueEndValue
+		}
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
+			}
+			limit = limitValue
+		}
+
+		result, err := svc.List(ctx.Request().Context(), query, offset, limit)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.POST("", func(ctx echo.Context) error {
+		var data models.Request
+		if err := ctx.Bind(&data); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "data", "body", err))
+			return nil
+		}
+
+		result, err := svc.Create(ctx.Request().Context(), &data)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, result)
+	})
+	mux.PUT("/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var data models.Request
+		if err := ctx.Bind(&data); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "data", "body", err))
+			return nil
+		}
+
+		result, err := svc.UpdateByID(ctx.Request().Context(), id, &data)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusAccepted, result)
+	})
 }

@@ -89,6 +89,7 @@ func (cmd *WebClientGenerator) Run(args []string) error {
 			return err
 		}
 		includeFiles = append(includeFiles, file)
+		fmt.Println("load include", pa)
 	}
 	var e error
 	for _, file := range args {
@@ -294,7 +295,7 @@ func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
 				return "\" + " + convertToStringLiteral(paramList[idx].Param) + " + \""
 			}
 		}
-		err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": path param '" + segement.Value + "' isnot found")
+		err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() + ": param.Typ '" + segement.Value + "' isnot found")
 		log.Fatalln(err)
 		panic(err)
 	})
@@ -404,7 +405,6 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				}
 			}
 
-			fmt.Println(param.Name, fmt.Sprintf("%T", starType.X), len(c.includeFiles))
 		} else if identType, ok := param.Typ.(*ast.Ident); ok {
 			stType = method.Ctx.GetClass(identType.Name)
 		} else if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
@@ -414,6 +414,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				}
 			}
 		}
+
 		if stType != nil {
 
 			paramList = append(paramList, add(param, "", false, true))

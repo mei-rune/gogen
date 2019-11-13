@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/runner-mei/gogen/gentest/models"
 	"github.com/runner-mei/loong"
 )
 
@@ -1530,4 +1531,181 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		return ctx.ReturnQueryResult(result)
 	})
 	// Misc: annotation is missing
+}
+
+func InitRequests(mux loong.Party, svc Requests) {
+	mux.GET("", func(ctx *loong.Context) error {
+		var query *models.RequestQuery
+		if s := ctx.QueryParam("query.operator_id"); s != "" {
+			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.operator_id", s, err), http.StatusBadRequest)
+			}
+			query = &models.RequestQuery{}
+			query.OperatorID = queryOperatorIDValue
+		}
+		if s := ctx.QueryParam("query.creator_id"); s != "" {
+			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.creator_id", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.CreatorID = queryCreatorIDValue
+		}
+		if s := ctx.QueryParam("query.requester_id"); s != "" {
+			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requester_id", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequesterID = queryRequesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.request_type_ids"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
+		}
+		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) == 0 {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		}
+		if s := ctx.QueryParam("query.name_like"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.NameLike = s
+		}
+		if s := ctx.QueryParam("query.current_status"); s != "" {
+			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.current_status", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.CurrentStatus = queryCurrentStatusValue
+		}
+		if s := ctx.QueryParam("query.is_unclosed"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("query.is_overdued"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("query.is_suspend"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("query.start_at"); s != "" {
+			queryStartAtValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.start_at", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.StartAt = queryStartAtValue
+		}
+		if s := ctx.QueryParam("query.end_at"); s != "" {
+			queryEndAtValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.end_at", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.EndAt = queryEndAtValue
+		}
+		if s := ctx.QueryParam("query.overdue_start"); s != "" {
+			queryOverdueStartValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_start", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.OverdueStart = queryOverdueStartValue
+		}
+		if s := ctx.QueryParam("query.overdue_end"); s != "" {
+			queryOverdueEndValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_end", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.OverdueEnd = queryOverdueEndValue
+		}
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+
+		result, err := svc.List(ctx.StdContext, query, offset, limit)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("", func(ctx *loong.Context) error {
+		var data models.Request
+		if err := ctx.Bind(&data); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("data", "body", err), http.StatusBadRequest)
+		}
+
+		result, err := svc.Create(ctx.StdContext, &data)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.PUT("/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var data models.Request
+		if err := ctx.Bind(&data); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("data", "body", err), http.StatusBadRequest)
+		}
+
+		result, err := svc.UpdateByID(ctx.StdContext, id, &data)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnUpdatedResult(result)
+	})
 }

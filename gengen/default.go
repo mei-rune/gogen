@@ -786,8 +786,10 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 	var immediate bool
 	if optional {
 		_, immediate = mux.Types.Optional[elmType]
+		//fmt.Println(elmType, mux.Types.Optional)
 	} else {
 		_, immediate = mux.Types.Required[elmType]
+		//fmt.Println(elmType, mux.Types.Required)
 	}
 
 	var sb strings.Builder
@@ -1041,7 +1043,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 					}
 				}
 
-				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr, elmType)
 			}
 
 			// elmType = typePrint(underlying.Type)
