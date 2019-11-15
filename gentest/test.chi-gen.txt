@@ -2906,6 +2906,34 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
+	mux.Post("", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			Request *models.Request `json:"request,omitempty"`
+			Testarg int64           `json:"testarg,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			if he, ok := errors.ErrBadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("bindArgs", "body", err))
+			return
+		}
+
+		result, err := svc.Create2(r.Context(), bindArgs.Request, bindArgs.Testarg)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
 	mux.Put("/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {

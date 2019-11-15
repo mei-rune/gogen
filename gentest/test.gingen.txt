@@ -1962,6 +1962,24 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
+	mux.POST("", func(ctx *gin.Context) {
+		var bindArgs struct {
+			Request *models.Request `json:"request,omitempty"`
+			Testarg int64           `json:"testarg,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Create2(ctx.Request.Context(), bindArgs.Request, bindArgs.Testarg)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusCreated, result)
+		return
+	})
 	mux.PUT("/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {

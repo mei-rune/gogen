@@ -1820,6 +1820,32 @@ func (client RequestsClient) Create(ctx context.Context, data *models.Request) (
 	return result, nil
 }
 
+func (client RequestsClient) Create2(ctx context.Context, _request *models.Request, testarg int64) (int64, error) {
+	var result int64
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/").
+		SetBody(map[string]interface{}{
+			"request": _request,
+			"testarg": testarg,
+		}).
+		Result(&resultWrap)
+
+	err := request.POST(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
+}
+
 func (client RequestsClient) UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error) {
 	var result int64
 	var resultWrap loong.Result

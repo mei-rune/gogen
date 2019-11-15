@@ -1140,6 +1140,21 @@ func (client RequestsClient) Create(ctx context.Context, data *models.Request) (
 	return result, err
 }
 
+func (client RequestsClient) Create2(ctx context.Context, _request *models.Request, testarg int64) (int64, error) {
+	var result int64
+
+	request := resty.NewRequest(client.Proxy, "/").
+		SetBody(map[string]interface{}{
+			"request": _request,
+			"testarg": testarg,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
 func (client RequestsClient) UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error) {
 	var result int64
 

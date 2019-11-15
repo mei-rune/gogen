@@ -1884,6 +1884,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusCreated, result)
 	})
+	mux.POST("", func(ctx echo.Context) error {
+		var bindArgs struct {
+			Request *models.Request `json:"request,omitempty"`
+			Testarg int64           `json:"testarg,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Create2(ctx.Request().Context(), bindArgs.Request, bindArgs.Testarg)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, result)
+	})
 	mux.PUT("/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {

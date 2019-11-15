@@ -2224,6 +2224,27 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
+	mux.Post("", func(ctx *beecontext.Context) {
+		var bindArgs struct {
+			Request *models.Request `json:"request,omitempty"`
+			Testarg int64           `json:"testarg,omitempty"`
+		}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &bindArgs); err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Create2(ctx.Request.Context(), bindArgs.Request, bindArgs.Testarg)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
 	mux.Put("/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {

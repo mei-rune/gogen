@@ -400,6 +400,10 @@ type Requests interface {
 	List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 	// @http.POST(path="", data="data")
 	Create(ctx context.Context, data *models.Request) (int64, error)
+
+	// @http.POST(path="")
+	Create2(ctx context.Context, request *models.Request, testarg int64) (int64, error)
+
 	// @http.PUT(path="/:id", data="data")
 	UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error)
 }

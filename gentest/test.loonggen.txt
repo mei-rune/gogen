@@ -1692,6 +1692,21 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 		return ctx.ReturnCreatedResult(result)
 	})
+	mux.POST("", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			Request *models.Request `json:"request,omitempty"`
+			Testarg int64           `json:"testarg,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+
+		result, err := svc.Create2(ctx.StdContext, bindArgs.Request, bindArgs.Testarg)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
 	mux.PUT("/:id", func(ctx *loong.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
