@@ -378,9 +378,13 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 	paramList := make([]ParamConfig, 0, len(method.Params.List))
 	for _, param := range method.Params.List {
+		queryName := param.Name.Name
+		if param.Name.Name == "request" {
+			param.Name.Name = "_request"
+		}
 
 		if data != "" && data == param.Name.Name {
-			paramList = append(paramList, add(param, param.Name.Name, false, false))
+			paramList = append(paramList, add(param, queryName, false, false))
 			continue
 		}
 
@@ -390,6 +394,19 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				prefix = ""
 			} else {
 				prefix = newName + "."
+			}
+		}
+		if isEdit {
+			isPathParam := false
+			for _, pname := range pathNames {
+				if param.Name.Name == pname {
+					isPathParam = true
+					break
+				}
+			}
+			if !isPathParam {
+				paramList = append(paramList, add(param, queryName, false, false))
+				continue
 			}
 		}
 
@@ -416,7 +433,6 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		}
 
 		if stType != nil {
-
 			paramList = append(paramList, add(param, "", false, true))
 
 			isPtr := IsPtrType(param.Typ)
@@ -438,18 +454,18 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				fieldParam.Name.Name = param.Name.Name + "." + field.Name.Name
 				fieldParam.Typ = field.Typ
 
-				queryName := prefix + field.Name.Name
+				fieldQueryName := prefix + field.Name.Name
 				if field.Tag != nil {
 					tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(c.TagName)
 					if tagValue != "" {
 						ss := strings.Split(tagValue, ",")
 						if len(ss) > 0 && ss[0] != "" {
-							queryName = prefix + "." + ss[0]
+							fieldQueryName = prefix + "." + ss[0]
 						}
 					}
 				}
 
-				paramList = append(paramList, add(fieldParam, queryName, true, false))
+				paramList = append(paramList, add(fieldParam, fieldQueryName, true, false))
 			}
 
 			if isPtr {
@@ -465,7 +481,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			continue
 		}
 
-		paramList = append(paramList, add(param, param.Name.Name, false, false))
+		paramList = append(paramList, add(param, queryName, false, false))
 	}
 
 	if len(inBody) > 0 {
