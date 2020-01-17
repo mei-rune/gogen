@@ -622,6 +622,16 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
       
       
       {{- if startWith $typeName "*http.Request"}}
+      {{- else if startWith $typeName "map[string]string"}}
+    
+          {{- if $needAssignment}}
+          request = request.
+          {{- else -}}
+          .
+          {{end -}}
+          SetParamValues({{$param.Param.Name}})
+          {{- $needAssignment = false -}}
+        
       {{- else if startWith $typeName "url.Values"}}
 
           {{- if $needAssignment}}

@@ -363,7 +363,12 @@ type ServerParam struct {
 	IsSkipUse      bool
 	InBody         bool
 	ParamName      string
-	InitString     string
+
+	SkipDeclare bool
+	IsArray     bool
+	ArgName     string
+
+	InitString string
 }
 
 type ServerMethod struct {
@@ -424,21 +429,93 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 
 	ann := getAnnotation(method, false)
 	methodStr := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
-	isEdit := methodStr == "PUT" || methodStr == "POST"
+	hasBody := methodStr == "PUT" || methodStr == "POST"
+
+	var optParamIdx = -1
+	var optArgumentIdx = -1
 
 	for idx := range method.Params.List {
 		old := genCtx.IsNeedQuery()
 
-		segments := mux.ToParam(&genCtx, method, method.Params.List[idx], isEdit)
+		if !hasBody && typePrint(method.Params.List[idx].Typ) == "map[string]string" {
+			if optParamIdx < 0 {
+				optParamIdx = idx
+
+				if !genCtx.IsNeedQuery() {
+					if mux.FuncHeadStr != "" {
+						results = append(results, ServerParam{
+							IsSkipUse:  true,
+							ArgName:    "<noArgname>",
+							InitString: mux.FuncHeadStr,
+						})
+						genCtx.SetNeedQuery()
+					}
+				}
+
+				results = append(results, ServerParam{
+					Param:     method.Params.List[idx],
+					IsSkipUse: false,
+					ArgName:   "<noArgname>",
+					ParamName: method.Params.List[idx].Name.Name,
+				})
+				optArgumentIdx = len(results) - 1
+
+			} else {
+				err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() +
+					": param '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
+				log.Fatalln(err)
+			}
+			continue
+		}
+
+		segments := mux.ToParam(&genCtx, method, method.Params.List[idx], hasBody)
 		if !old && genCtx.IsNeedQuery() {
 			if mux.FuncHeadStr != "" {
 				results = append(results, ServerParam{
 					IsSkipUse:  true,
+					ArgName:    "<noArgname>",
 					InitString: mux.FuncHeadStr,
 				})
 			}
 		}
 		results = append(results, segments...)
+	}
+
+	if optParamIdx >= 0 {
+		param := method.Params.List[optParamIdx]
+
+		var queryParamName = mux.Reserved["url.Values"]
+		if mux.FuncHeadStr != "" {
+			queryParamName = "queryParams"
+		}
+
+		var sb strings.Builder
+
+		for i := range results {
+			if !results[i].InBody && results[i].ArgName != "<noArgname>" {
+				if sb.Len() > 0 {
+					sb.WriteString(" || \r\n")
+				}
+				sb.WriteString("key == \"")
+				sb.WriteString(results[i].ArgName)
+				sb.WriteString("\" ")
+			}
+		}
+
+		var continueStr = ""
+		if sb.Len() > 0 {
+			continueStr = `
+						if ` + sb.String() + ` {
+							continue
+						}
+						`
+		}
+
+		results[optArgumentIdx].InitString = `var ` + param.Name.Name + ` = map[string]string{}
+					for key, values := range ` + queryParamName + `{` + continueStr + `
+						` + param.Name.Name + `[key] = values[len(values)-1]
+					}					
+					`
 	}
 
 	_, hasData := ann.Attributes["data"]
@@ -702,6 +779,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 		c.parentInited = false
 
+		p1.IsArray = false
+		p1.ArgName = "<noArgname>"
+
 		serverParams := []ServerParam{p1}
 
 		for fieldIdx, field := range stType.Fields {
@@ -729,6 +809,10 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 
 				p2.InitString = initRootValue + "\r\n" + p2.Param.Name.Name + " = " + reservedStr
+
+				p2.SkipDeclare = true
+				p2.IsArray = false
+				p2.ArgName = p2.Param.Name.Name
 
 				serverParams = append(serverParams, p2)
 				continue
@@ -763,6 +847,10 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			renderArgs["rname"] = paramName2
 			renderArgs["isArray"] = IsArrayType(p2.Param.Typ) || IsSliceType(p2.Param.Typ) || IsEllipsisType(param.Typ)
 
+			p2.SkipDeclare = true
+			// p2.TypeStr = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
+			p2.IsArray = true
+			p2.ArgName = paramName2
 			p2.InitString = strings.TrimSpace(mux.initString(c, method, p2.Param, funcs, renderArgs, optional))
 			serverParams = append(serverParams, p2)
 		}
@@ -771,6 +859,10 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	}
 
 	renderArgs["skipDeclare"] = false
+
+	serverParam.SkipDeclare = false
+	serverParam.IsArray = false
+	serverParam.ArgName = paramName
 	serverParam.InitString = strings.TrimSpace(mux.initString(c, method, param, funcs, renderArgs, optional))
 	return []ServerParam{serverParam}
 }

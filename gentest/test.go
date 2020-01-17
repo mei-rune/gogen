@@ -396,6 +396,9 @@ func (svc *StringSvcWithContext) Misc() string {
 func notpanic() {}
 
 type Requests interface {
+	// @http.GET(path="/query")
+	Query(ctx context.Context, query *models.RequestQuery, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+
 	// @http.GET(path="")
 	List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 	// @http.POST(path="", data="data")
