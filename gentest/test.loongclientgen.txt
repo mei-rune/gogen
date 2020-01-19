@@ -1919,3 +1919,57 @@ func (client RequestsClient) UpdateByID(ctx context.Context, id int64, data *mod
 	}
 	return result, nil
 }
+
+func (client RequestsClient) Set1ByID(ctx context.Context, id int64, params map[string]string) error {
+	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+		SetBody(map[string]interface{}{
+			"params": params,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.PATCH(ctx)
+}
+
+func (client RequestsClient) Set2ByID(ctx context.Context, id int64, params map[string]string) error {
+	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+		SetBody(params)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.PATCH(ctx)
+}
+
+func (client RequestsClient) Set3ByID(ctx context.Context, id int64, params map[string]string) error {
+	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+		SetBody(map[string]interface{}{
+			"params": params,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.PUT(ctx)
+}
+
+func (client RequestsClient) Set4ByID(ctx context.Context, id int64, params map[string]string) error {
+	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+		SetBody(params)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.PUT(ctx)
+}
+
+func (client RequestsClient) Set5ByID(ctx context.Context, id int64, params map[string]string) error {
+	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+		SetBody(map[string]interface{}{
+			"params": params,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
+func (client RequestsClient) Set6ByID(ctx context.Context, id int64, params map[string]string) error {
+	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+		SetBody(params)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}

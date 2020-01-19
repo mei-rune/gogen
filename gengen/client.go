@@ -328,7 +328,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	_, pathNames, queryNames := parseURL(rawurl)
 
 	methodStr := strings.ToUpper(strings.TrimPrefix(anno.Name, "http."))
-	isEdit := methodStr == "PUT" || methodStr == "POST"
+	isEdit := methodStr == "PUT" || methodStr == "POST" || methodStr == "PATCH"
 
 	var inBody []Param
 	var bodyExists bool

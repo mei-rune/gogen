@@ -396,6 +396,7 @@ func (svc *StringSvcWithContext) Misc() string {
 func notpanic() {}
 
 type Requests interface {
+
 	// @http.GET(path="/query")
 	Query(ctx context.Context, query *models.RequestQuery, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
@@ -409,4 +410,22 @@ type Requests interface {
 
 	// @http.PUT(path="/:id", data="data")
 	UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error)
+
+	// @http.PATCH(path="/:id")
+	Set1ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+
+	// @http.PATCH(path="/:id", data="params")
+	Set2ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+
+	// @http.PUT(path="/:id")
+	Set3ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+
+	// @http.PUT(path="/:id", data="params")
+	Set4ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+
+	// @http.POST(path="/:id")
+	Set5ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+
+	// @http.POST(path="/:id", data="params")
+	Set6ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 }

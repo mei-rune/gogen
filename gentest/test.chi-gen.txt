@@ -3213,4 +3213,226 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
+	mux.Patch("/:id", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			if he, ok := errors.ErrBadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
+			return
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			if he, ok := errors.ErrBadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("bindArgs", "body", err))
+			return
+		}
+
+		result, err := svc.Set1ByID(r.Context(), id, bindArgs.Params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, result)
+		return
+
+	})
+	mux.Patch("/:id", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			if he, ok := errors.ErrBadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
+			return
+		}
+		var params map[string]string
+		if err := render.Decode(r, &params); err != nil {
+			if he, ok := errors.ErrBadArgument("params", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("params", "body", err))
+			return
+		}
+
+		result, err := svc.Set2ByID(r.Context(), id, params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+
+		render.Status(r, http.StatusOK)
+		render.JSON(w, r, result)
+		return
+
+	})
+	mux.Put("/:id", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			if he, ok := errors.ErrBadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
+			return
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			if he, ok := errors.ErrBadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("bindArgs", "body", err))
+			return
+		}
+
+		result, err := svc.Set3ByID(r.Context(), id, bindArgs.Params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Put("/:id", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			if he, ok := errors.ErrBadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
+			return
+		}
+		var params map[string]string
+		if err := render.Decode(r, &params); err != nil {
+			if he, ok := errors.ErrBadArgument("params", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("params", "body", err))
+			return
+		}
+
+		result, err := svc.Set4ByID(r.Context(), id, params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/:id", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			if he, ok := errors.ErrBadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
+			return
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			if he, ok := errors.ErrBadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("bindArgs", "body", err))
+			return
+		}
+
+		result, err := svc.Set5ByID(r.Context(), id, bindArgs.Params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/:id", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			if he, ok := errors.ErrBadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
+			return
+		}
+		var params map[string]string
+		if err := render.Decode(r, &params); err != nil {
+			if he, ok := errors.ErrBadArgument("params", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.ErrBadArgument("params", "body", err))
+			return
+		}
+
+		result, err := svc.Set6ByID(r.Context(), id, params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
 }

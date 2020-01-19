@@ -2183,4 +2183,130 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusAccepted, result)
 		return
 	})
+	mux.PATCH("/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Set1ByID(ctx.Request.Context(), id, bindArgs.Params)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
+	mux.PATCH("/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Set2ByID(ctx.Request.Context(), id, params)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
+	mux.PUT("/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Set3ByID(ctx.Request.Context(), id, bindArgs.Params)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusAccepted, result)
+		return
+	})
+	mux.PUT("/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Set4ByID(ctx.Request.Context(), id, params)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusAccepted, result)
+		return
+	})
+	mux.POST("/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Set5ByID(ctx.Request.Context(), id, bindArgs.Params)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusCreated, result)
+		return
+	})
+	mux.POST("/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Set6ByID(ctx.Request.Context(), id, params)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusCreated, result)
+		return
+	})
 }

@@ -2102,4 +2102,124 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusAccepted, result)
 	})
+	mux.PATCH("/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Set1ByID(ctx.Request().Context(), id, bindArgs.Params)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.PATCH("/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
+			return nil
+		}
+
+		result, err := svc.Set2ByID(ctx.Request().Context(), id, params)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.PUT("/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Set3ByID(ctx.Request().Context(), id, bindArgs.Params)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusAccepted, result)
+	})
+	mux.PUT("/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
+			return nil
+		}
+
+		result, err := svc.Set4ByID(ctx.Request().Context(), id, params)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusAccepted, result)
+	})
+	mux.POST("/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
+		}
+
+		result, err := svc.Set5ByID(ctx.Request().Context(), id, bindArgs.Params)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, result)
+	})
+	mux.POST("/:id", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
+			return nil
+		}
+
+		result, err := svc.Set6ByID(ctx.Request().Context(), id, params)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, result)
+	})
 }

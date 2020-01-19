@@ -429,7 +429,7 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 
 	ann := getAnnotation(method, false)
 	methodStr := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
-	hasBody := methodStr == "PUT" || methodStr == "POST"
+	hasBody := methodStr == "PUT" || methodStr == "POST" || methodStr == "PATCH"
 
 	var optParamIdx = -1
 	var optArgumentIdx = -1
