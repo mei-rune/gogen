@@ -1,8 +1,6 @@
 package gengen
 
 import (
-	"errors"
-	"log"
 	"strings"
 
 	"github.com/grsmv/inflect"
@@ -193,10 +191,12 @@ retry:
 			}
 		}
 
-		err := errors.New(param.Method.Ctx.PostionFor(param.Method.Node.Pos()).String() + ": path param '" + param.Name.Name + "' of '" + param.Method.Name.Name + "' is unsupport type - " + typ)
+		return "fmt.Sprint(" + name + ")"
 
-		log.Fatalln(err)
-		panic(err)
+		// err := errors.New(param.Method.Ctx.PostionFor(param.Method.Node.Pos()).String() + ": path param '" + param.Name.Name + "' of '" + param.Method.Name.Name + "' is unsupport type - " + typ)
+
+		// log.Fatalln(err)
+		// panic(err)
 	}
 }
 
