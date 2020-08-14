@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"reflect"
 	"strings"
 )
 
@@ -650,4 +651,11 @@ func ElemType(typ ast.Expr) ast.Expr {
 		return t.Elt
 	}
 	return nil
+}
+
+func (f *Field) GetTag(key string) string {
+	if f.Tag == nil {
+		return ""
+	}
+	return reflect.StructTag(strings.Trim(f.Tag.Value, "`")).Get(key)
 }

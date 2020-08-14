@@ -424,6 +424,12 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 }
 
 func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
+	defer func() {
+		if o := recover(); o != nil {
+			debug.PrintStack()
+			panic(o)
+		}
+	}()
 	var genCtx context
 	var results []ServerParam
 
@@ -785,6 +791,10 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		serverParams := []ServerParam{p1}
 
 		for fieldIdx, field := range stType.Fields {
+			tag := field.GetTag("gogen")
+			if tag == "ignore" {
+				continue
+			}
 			p2 := serverParam
 			p2.IsSkipUse = true
 			p2.Name = &ast.Ident{}
