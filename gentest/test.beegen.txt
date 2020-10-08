@@ -2498,7 +2498,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", id, ctx.Input.Param("id"), err).Error())
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &params); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
@@ -2548,7 +2548,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", id, ctx.Input.Param("id"), err).Error())
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &params); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
@@ -2598,7 +2598,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", id, ctx.Input.Param("id"), err).Error())
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &params); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
 			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())

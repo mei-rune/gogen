@@ -402,10 +402,10 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 	bindTxt := template.Must(template.New("bindTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 			var bindArgs struct {
 				{{- range $param := .params}}
-          {{- if $param.InBody }}
-  				{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{underscore $param.Param.Name.Name}},omitempty\"`" + `
-  				{{- end}}
-        {{- end}}
+					{{- if $param.InBody }}
+  						{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{underscore $param.Param.Name.Name}},omitempty\"`" + `
+  					{{- end}}
+				{{- end}}
 			}
 			if err := {{readBody .ctx "bindArgs"}}; err != nil {
 				{{badArgument "bindArgs" "\"body\"" "err"}}
@@ -647,7 +647,11 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
     		}
       {{- end}}
 		{{- else}}
+		{{- if .isMapType }}
+		var {{.name}} = {{.type}}{}
+		{{- else}}
 		var {{.name}} {{.type}}
+		{{- end}}
 		if err := {{readBody .param .ctx .name}}; err != nil {
 			{{badArgument .name "\"body\"" "err"}}
 		}
@@ -659,14 +663,15 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 
 		renderArgs := map[string]interface{}{
-			"g":       c,
-			"ctx":     mux.CtxName(),
-			"rawType": typeStr,
-			"type":    elmType,
-			"name":    name,
-			"rname":   paramName,
-			"param":   param,
-			"reader":  mux.bodyReader,
+			"g":         c,
+			"ctx":       mux.CtxName(),
+			"rawType":   typeStr,
+			"type":      elmType,
+			"isMapType": strings.HasPrefix(elmType, "map["),
+			"name":      name,
+			"rname":     paramName,
+			"param":     param,
+			"reader":    mux.bodyReader,
 		}
 
 		var sb strings.Builder

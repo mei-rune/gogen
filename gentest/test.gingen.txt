@@ -2211,7 +2211,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
 			return
@@ -2253,7 +2253,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
 			return
@@ -2295,7 +2295,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
 			return

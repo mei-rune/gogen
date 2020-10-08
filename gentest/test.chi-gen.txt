@@ -3264,7 +3264,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := render.Decode(r, &params); err != nil {
 			if he, ok := errors.ErrBadArgument("params", "body", err).(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -3339,7 +3339,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := render.Decode(r, &params); err != nil {
 			if he, ok := errors.ErrBadArgument("params", "body", err).(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -3411,7 +3411,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			render.JSON(w, r, errors.ErrBadArgument("id", chi.URLParam(r, "id"), err))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := render.Decode(r, &params); err != nil {
 			if he, ok := errors.ErrBadArgument("params", "body", err).(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())

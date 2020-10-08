@@ -2129,7 +2129,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
 			return nil
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
 			return nil
@@ -2169,7 +2169,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
 			return nil
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
 			return nil
@@ -2209,7 +2209,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
 			return nil
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
 			return nil
