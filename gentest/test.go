@@ -423,9 +423,12 @@ type Requests interface {
 	// @http.PUT(path="/:id", data="params")
 	Set4ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// @http.POST(path="/:id")
+	// @http.POST(path="/:id/5")
 	Set5ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// @http.POST(path="/:id", data="params")
+	// @http.POST(path="/:id/6", data="params")
 	Set6ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+
+	// @http.POST(path="/:id/7", data="params", dataType="map[string]string")
+	Set7ByID(ctx context.Context, id int64, params interface{}) (int64, err error)
 }

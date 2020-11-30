@@ -2565,7 +2565,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/:id", func(ctx *beecontext.Context) {
+	mux.Post("/:id/5", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -2591,7 +2591,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/:id", func(ctx *beecontext.Context) {
+	mux.Post("/:id/6", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -2606,6 +2606,30 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		}
 
 		result, err := svc.Set6ByID(ctx.Request.Context(), id, params)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Post("/:id/7", func(ctx *beecontext.Context) {
+		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", id, ctx.Input.Param("id"), err).Error())
+			return
+		}
+		var params = map[string]string{}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &params); err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Set7ByID(ctx.Request.Context(), id, params)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())

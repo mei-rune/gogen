@@ -660,6 +660,8 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 		if dataType := anno.Attributes["dataType"]; dataType != "" {
 			elmType = dataType
+		} else if dataType := anno.Attributes["datatype"]; dataType != "" {
+			elmType = dataType
 		}
 
 		renderArgs := map[string]interface{}{

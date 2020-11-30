@@ -6,7 +6,7 @@ var echoConfig = map[string]interface{}{
 	// "features.boolConvert":     "toBool({{.name}})",
 	// "features.datetimeConvert": "toDatetime({{.name}})",
 	"imports": map[string]string{
-		"github.com/labstack/echo": "",
+		"github.com/labstack/echo/v4": "",
 	},
 
 	"func_signature":        "func(ctx echo.Context) error ",

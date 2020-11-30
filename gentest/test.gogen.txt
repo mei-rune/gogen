@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/runner-mei/gogen/gentest/models"
 )
 
@@ -2182,7 +2182,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusAccepted, result)
 	})
-	mux.POST("/:id", func(ctx echo.Context) error {
+	mux.POST("/:id/5", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -2203,7 +2203,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/:id", func(ctx echo.Context) error {
+	mux.POST("/:id/6", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -2216,6 +2216,25 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 
 		result, err := svc.Set6ByID(ctx.Request().Context(), id, params)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, result)
+	})
+	mux.POST("/:id/7", func(ctx echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
+		}
+		var params = map[string]string{}
+		if err := ctx.Bind(&params); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
+			return nil
+		}
+
+		result, err := svc.Set7ByID(ctx.Request().Context(), id, params)
 		if err != nil {
 			ctx.Error(err)
 			return nil

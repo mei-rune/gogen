@@ -2267,7 +2267,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusAccepted, result)
 		return
 	})
-	mux.POST("/:id", func(ctx *gin.Context) {
+	mux.POST("/:id/5", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -2289,7 +2289,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("/:id", func(ctx *gin.Context) {
+	mux.POST("/:id/6", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -2302,6 +2302,26 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 
 		result, err := svc.Set6ByID(ctx.Request.Context(), id, params)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusCreated, result)
+		return
+	})
+	mux.POST("/:id/7", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
+			return
+		}
+		var params = map[string]string{}
+		if err := ctx.Bind(&params); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", params, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Set7ByID(ctx.Request.Context(), id, params)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return

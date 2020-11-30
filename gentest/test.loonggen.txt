@@ -1963,7 +1963,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 		return ctx.ReturnUpdatedResult(result)
 	})
-	mux.POST("/:id", func(ctx *loong.Context) error {
+	mux.POST("/:id/5", func(ctx *loong.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
@@ -1981,7 +1981,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 		return ctx.ReturnCreatedResult(result)
 	})
-	mux.POST("/:id", func(ctx *loong.Context) error {
+	mux.POST("/:id/6", func(ctx *loong.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
@@ -1992,6 +1992,22 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 
 		result, err := svc.Set6ByID(ctx.StdContext, id, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/:id/7", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var params = map[string]string{}
+		if err := ctx.Bind(&params); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+		}
+
+		result, err := svc.Set7ByID(ctx.StdContext, id, params)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
