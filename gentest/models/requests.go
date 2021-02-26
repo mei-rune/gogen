@@ -1,8 +1,14 @@
 package models
 
+import (
+	"database/sql"
+	"net/url"
+	"time"
+)
+
 type Request struct {
-	ID                      int64                  `json:"id" xorm:"id pk autoincr"`
-	Uuid                    string                 `json:"uuid" xorm:"uuid null"`
+	ID   int64  `json:"id" xorm:"id pk autoincr"`
+	Uuid string `json:"uuid" xorm:"uuid null"`
 }
 
 type RequestQuery struct {
@@ -18,4 +24,6 @@ type RequestQuery struct {
 	IsSuspend                sql.NullBool
 	StartAt, EndAt           time.Time
 	OverdueStart, OverdueEnd time.Time
+	Settings                 map[string]string
+	url.Values
 }

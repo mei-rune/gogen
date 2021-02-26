@@ -311,6 +311,7 @@ type ParamConfig struct {
 	IsSkipUse        bool
 	IsCodeSegement   bool
 	IsQueryParam     bool
+	Prefix           string
 	IsMultQueryValue bool
 	IsPathParam      bool
 	IsBodyParam      bool
@@ -449,12 +450,25 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 			for _, field := range stType.Fields {
 				fieldParam := param
-				fieldParam.Name = &ast.Ident{}
-				*fieldParam.Name = *param.Name
-				fieldParam.Name.Name = param.Name.Name + "." + field.Name.Name
 				fieldParam.Typ = field.Typ
+				fieldParam.Name = &ast.Ident{}
 
-				fieldQueryName := prefix + field.Name.Name
+				fieldQueryName := prefix
+				if field.Name != nil {
+
+					*fieldParam.Name = *param.Name
+					fieldParam.Name.Name = param.Name.Name + "." + field.Name.Name
+
+					fieldQueryName = prefix + field.Name.Name
+				} else {
+					typeName := typePrint(field.Typ)
+					idx := strings.Index(typeName, ".")
+					if idx >= 0 {
+						typeName = typeName[idx+1:]
+					}
+					fieldQueryName = prefix + typeName
+					fieldParam.Name.Name = param.Name.Name + "." + typeName
+				}
 				if field.Tag != nil {
 					tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(c.TagName)
 					if tagValue != "" {
@@ -465,7 +479,18 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 					}
 				}
 
-				paramList = append(paramList, add(fieldParam, fieldQueryName, true, false))
+				newParam := add(fieldParam, fieldQueryName, true, false)
+				if newParam.IsQueryParam {
+					if typePrint(fieldParam.Typ) == "map[string]string" ||
+						typePrint(fieldParam.Typ) == "url.Values" {
+						if field.Name == nil {
+							newParam.Prefix = strings.TrimSuffix(prefix, ".")
+						} else {
+							newParam.Prefix = fieldQueryName
+						}
+					}
+				}
+				paramList = append(paramList, newParam)
 			}
 
 			if isPtr {
@@ -629,7 +654,11 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
           {{- else -}}
           .
           {{end -}}
+          {{- if eq $param.Prefix "" }}
           SetParamValues({{$param.Param.Name}})
+          {{- else}}
+          SetParamValuesWithPrefix("{{$param.Prefix}}.", {{$param.Param.Name}})
+          {{- end}}
           {{- $needAssignment = false -}}
         
       {{- else if startWith $typeName "url.Values"}}
@@ -639,7 +668,11 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
           {{- else -}}
           .
           {{end -}}
+          {{- if eq $param.Prefix "" }}
           SetParams({{$param.Param.Name}})
+          {{- else}}
+          SetParamsWithPrefix("{{$param.Prefix}}.", {{$param.Param.Name}})
+          {{- end}}
           {{- $needAssignment = false -}}
 
       {{- else if startWith $typeName "*"}}

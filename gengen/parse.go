@@ -271,8 +271,12 @@ func (v *structVisitor) Visit(n ast.Node) ast.Visitor {
 	case *ast.FieldList:
 		return v
 	case *ast.Field:
-		for _, name := range rn.Names {
-			v.fields = append(v.fields, Field{Node: rn, Name: name, Typ: rn.Type, Tag: rn.Tag})
+		if len(rn.Names) == 0 {
+			v.fields = append(v.fields, Field{Node: rn, Name: nil, Typ: rn.Type, Tag: rn.Tag})
+		} else {
+			for _, name := range rn.Names {
+				v.fields = append(v.fields, Field{Node: rn, Name: name, Typ: rn.Type, Tag: rn.Tag})
+			}
 		}
 		return nil
 	case nil:

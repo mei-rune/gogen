@@ -836,7 +836,6 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			}
 
 			paramName2 := paramNamePrefix + Underscore(field.Name.Name)
-
 			if field.Tag != nil {
 				tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(mux.TagName)
 				if tagValue != "" {
@@ -845,6 +844,29 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 						paramName2 = paramNamePrefix + "." + ss[0]
 					}
 				}
+			}
+
+			if typePrint(field.Typ) == "map[string]string" {
+
+				p2.SkipDeclare = true
+				// p2.TypeStr = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
+				p2.IsArray = false
+				p2.ArgName = paramName2
+
+				var queryParamName = mux.Reserved["url.Values"]
+				if mux.FuncHeadStr != "" {
+					queryParamName = "queryParams"
+				}
+
+				p2.InitString = `var ` + param.Name.Name + ` = map[string]string{}
+					for key, values := range ` + queryParamName + `{
+						if strings.HasPrefix(key, "` + paramName2 + `.") {
+						` + param.Name.Name + `[strings.TrimPrefix(key, "` + paramName2 + `.") ] = values[len(values)-1]
+						}
+					}
+					`
+				serverParams = append(serverParams, p2)
+				continue
 			}
 
 			var initRootValue string
