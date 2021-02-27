@@ -6,6 +6,7 @@ package main
 import (
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -1657,6 +1658,26 @@ func InitRequests(mux loong.Party, svc Requests) {
 			}
 			query.OverdueEnd = queryOverdueEndValue
 		}
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.settings.") {
+				if query.Settings == nil {
+					query.Settings = map[string]string{}
+				}
+				query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.") {
+
+				if query.Values == nil {
+					query.Values = url.Values{}
+				}
+
+				query.Values[strings.TrimPrefix(key, "query.")] = values
+			}
+		}
+
 		var offset int64
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -1690,6 +1711,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 				key == "query.end_at" ||
 				key == "query.overdue_start" ||
 				key == "query.overdue_end" ||
+				key == "query.settings" ||
+				key == "query." ||
 				key == "offset" ||
 				key == "limit" {
 				continue
@@ -1827,6 +1850,26 @@ func InitRequests(mux loong.Party, svc Requests) {
 			}
 			query.OverdueEnd = queryOverdueEndValue
 		}
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.settings.") {
+				if query.Settings == nil {
+					query.Settings = map[string]string{}
+				}
+				query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.") {
+
+				if query.Values == nil {
+					query.Values = url.Values{}
+				}
+
+				query.Values[strings.TrimPrefix(key, "query.")] = values
+			}
+		}
+
 		var offset int64
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)

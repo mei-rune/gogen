@@ -364,9 +364,10 @@ type ServerParam struct {
 	InBody         bool
 	ParamName      string
 
-	SkipDeclare bool
-	IsArray     bool
-	ArgName     string
+	SkipDeclare   bool
+	IsArray       bool
+	ArgNamePrefix string
+	ArgName       string
 
 	InitString string
 }
@@ -503,7 +504,11 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 					sb.WriteString(" || \r\n")
 				}
 				sb.WriteString("key == \"")
-				sb.WriteString(results[i].ArgName)
+				if results[i].ArgNamePrefix != "" {
+					sb.WriteString(results[i].ArgNamePrefix)
+				} else {
+					sb.WriteString(results[i].ArgName)
+				}
 				sb.WriteString("\" ")
 			}
 		}
@@ -806,8 +811,61 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			p2.IsSkipUse = true
 			p2.Name = &ast.Ident{}
 			*p2.Name = *param.Name
-			p2.Param.Name.Name = param.Name.Name + "." + field.Name.Name
 			p2.Param.Typ = field.Typ
+
+			if field.Name == nil {
+				p2.Param.Name.Name = param.Name.Name
+
+				typeName := typePrint(field.Typ)
+				idx := strings.Index(typeName, ".")
+				if idx >= 0 {
+					typeName = typeName[idx+1:]
+				}
+				p2.Param.Name.Name = param.Name.Name + "." + typeName
+			} else {
+				p2.Param.Name.Name = param.Name.Name + "." + field.Name.Name
+			}
+
+			paramName2 := strings.TrimSuffix(paramNamePrefix, ".")
+			if field.Name != nil {
+				paramName2 = paramNamePrefix + Underscore(field.Name.Name)
+			}
+			if field.Tag != nil {
+				tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(mux.TagName)
+				if tagValue != "" {
+					ss := strings.Split(tagValue, ",")
+					if len(ss) > 0 && ss[0] != "" {
+						paramName2 = paramNamePrefix + ss[0]
+					}
+				}
+			}
+
+			if typePrint(field.Typ) == "url.Values" {
+				p2.SkipDeclare = true
+				// p2.TypeStr = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
+				p2.IsArray = false
+				p2.ArgName = paramName2
+				p2.ArgNamePrefix = paramNamePrefix
+
+				var queryParamName = mux.Reserved["url.Values"]
+				if mux.FuncHeadStr != "" {
+					queryParamName = "queryParams"
+				}
+
+				p2.InitString = `for key, values := range ` + queryParamName + `{
+						if strings.HasPrefix(key, "` + paramName2 + `.") {
+
+							if ` + p2.Param.Name.Name + ` == nil {
+							 ` + p2.Param.Name.Name + ` = url.Values{}
+							}
+
+						` + p2.Name.Name + `[strings.TrimPrefix(key, "` + paramName2 + `.") ] = values
+						}
+					}
+					`
+				serverParams = append(serverParams, p2)
+				continue
+			}
 
 			reservedStr, ok := mux.Reserved[typePrint(field.Typ)]
 			if !ok {
@@ -835,19 +893,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				continue
 			}
 
-			paramName2 := paramNamePrefix + Underscore(field.Name.Name)
-			if field.Tag != nil {
-				tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(mux.TagName)
-				if tagValue != "" {
-					ss := strings.Split(tagValue, ",")
-					if len(ss) > 0 && ss[0] != "" {
-						paramName2 = paramNamePrefix + "." + ss[0]
-					}
-				}
-			}
-
 			if typePrint(field.Typ) == "map[string]string" {
-
 				p2.SkipDeclare = true
 				// p2.TypeStr = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
 				p2.IsArray = false
@@ -858,10 +904,12 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					queryParamName = "queryParams"
 				}
 
-				p2.InitString = `var ` + param.Name.Name + ` = map[string]string{}
-					for key, values := range ` + queryParamName + `{
+				p2.InitString = `for key, values := range ` + queryParamName + `{
 						if strings.HasPrefix(key, "` + paramName2 + `.") {
-						` + param.Name.Name + `[strings.TrimPrefix(key, "` + paramName2 + `.") ] = values[len(values)-1]
+							if ` + p2.Param.Name.Name + ` == nil {
+							 ` + p2.Param.Name.Name + ` = map[string]string{}
+							}
+						` + p2.Name.Name + `[strings.TrimPrefix(key, "` + paramName2 + `.") ] = values[len(values)-1]
 						}
 					}
 					`
