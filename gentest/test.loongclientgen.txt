@@ -1781,7 +1781,8 @@ func (client RequestsClient) Query(ctx context.Context, query *models.RequestQue
 			SetParam("query.end_at", query.EndAt.Format(client.Proxy.TimeFormat)).
 			SetParam("query.overdue_start", query.OverdueStart.Format(client.Proxy.TimeFormat)).
 			SetParam("query.overdue_end", query.OverdueEnd.Format(client.Proxy.TimeFormat)).
-			SetParamValuesWithPrefix("query.Settings.", query.Settings).
+			SetParamValuesWithPrefix("query.settings.", query.Settings).
+			SetParamValuesWithPrefix("query.ttargstt.", query.Args).
 			SetParamsWithPrefix("query.", query.Values)
 	}
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
@@ -1834,7 +1835,8 @@ func (client RequestsClient) QueryEx1(ctx context.Context, query *RequestQueryEx
 			SetParam("query.end_at", query.EndAt.Format(client.Proxy.TimeFormat)).
 			SetParam("query.overdue_start", query.OverdueStart.Format(client.Proxy.TimeFormat)).
 			SetParam("query.overdue_end", query.OverdueEnd.Format(client.Proxy.TimeFormat)).
-			SetParamValuesWithPrefix("query.Settings.", query.Settings).
+			SetParamValuesWithPrefix("query.settings.", query.Settings).
+			SetParamValuesWithPrefix("query.ttargstt.", query.Args).
 			SetParamsWithPrefix("query.", query.Values).
 			SetParam("query.ex_arg", query.ExArg)
 	}
@@ -1889,7 +1891,8 @@ func (client RequestsClient) QueryEx2(ctx context.Context, query *RequestQueryEx
 				SetParam("query.end_at", query.EndAt.Format(client.Proxy.TimeFormat)).
 				SetParam("query.overdue_start", query.OverdueStart.Format(client.Proxy.TimeFormat)).
 				SetParam("query.overdue_end", query.OverdueEnd.Format(client.Proxy.TimeFormat)).
-				SetParamValuesWithPrefix("query.Settings.", query.Settings).
+				SetParamValuesWithPrefix("query.settings.", query.Settings).
+				SetParamValuesWithPrefix("query.ttargstt.", query.Args).
 				SetParamsWithPrefix("query.", query.Values)
 		}
 		request = request.SetParam("query.ex_arg", query.ExArg)
@@ -1944,7 +1947,8 @@ func (client RequestsClient) List(ctx context.Context, query *models.RequestQuer
 			SetParam("query.end_at", query.EndAt.Format(client.Proxy.TimeFormat)).
 			SetParam("query.overdue_start", query.OverdueStart.Format(client.Proxy.TimeFormat)).
 			SetParam("query.overdue_end", query.OverdueEnd.Format(client.Proxy.TimeFormat)).
-			SetParamValuesWithPrefix("query.Settings.", query.Settings).
+			SetParamValuesWithPrefix("query.settings.", query.Settings).
+			SetParamValuesWithPrefix("query.ttargstt.", query.Args).
 			SetParamsWithPrefix("query.", query.Values)
 	}
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).

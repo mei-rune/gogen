@@ -25,6 +25,6 @@ type RequestQuery struct {
 	StartAt, EndAt           time.Time
 	OverdueStart, OverdueEnd time.Time
 	Settings                 map[string]string
+	Args                     map[string]string `json:"ttargstt"`
 	url.Values
 }
-

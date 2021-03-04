@@ -1671,6 +1671,15 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 
 		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.") {
 
 				if query.Values == nil {
@@ -1715,6 +1724,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				key == "query.overdue_start" ||
 				key == "query.overdue_end" ||
 				key == "query.settings" ||
+				key == "query.ttargstt" ||
 				key == "query." ||
 				key == "offset" ||
 				key == "limit" {
@@ -1863,6 +1873,15 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 
 		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.") {
 
 				if query.Values == nil {
@@ -1913,6 +1932,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				key == "query.overdue_start" ||
 				key == "query.overdue_end" ||
 				key == "query.settings" ||
+				key == "query.ttargstt" ||
 				key == "query." ||
 				key == "query.ex_arg" ||
 				key == "offset" ||
@@ -2102,6 +2122,15 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 
 		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.") {
 
 				if query.Values == nil {
@@ -2155,6 +2184,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				key == "query.overdue_start" ||
 				key == "query.overdue_end" ||
 				key == "query.settings" ||
+				key == "query.ttargstt" ||
 				key == "query." ||
 				key == "query.ex_arg" ||
 				key == "offset" ||
@@ -2300,6 +2330,15 @@ func InitRequests(mux loong.Party, svc Requests) {
 					query.Settings = map[string]string{}
 				}
 				query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
 			}
 		}
 

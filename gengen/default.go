@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"go/ast"
 	"log"
-	"reflect"
 	"runtime/debug"
 	"strconv"
 	"strings"
@@ -837,7 +836,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					paramName2 = paramNamePrefix + Underscore(field.Name.Name)
 				}
 				if field.Tag != nil {
-					tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(mux.TagName)
+					tagValue := field.GetTag(mux.TagName)
 					if tagValue != "" {
 						ss := strings.Split(tagValue, ",")
 						if len(ss) > 0 && ss[0] != "" {

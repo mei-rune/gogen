@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"reflect"
 	"strconv"
 	"strings"
 	"text/template"
@@ -403,14 +402,14 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		return stType
 	}
 
-	var addStructField func(prefix string, param Param, stType *Class)
-	addStructField = func(prefix string, param Param, stType *Class) {
+	var addStructField func(prefix, fullName string, param Param, stType *Class)
+	addStructField = func(prefix, fullName string, param Param, stType *Class) {
 
 		isPtr := IsPtrType(param.Typ)
 		if isPtr {
 			start := param
 			start.Name = &ast.Ident{}
-			start.Name.Name = "\r\nif " + param.Name.Name + " != nil {"
+			start.Name.Name = "\r\nif " + fullName + " != nil {"
 			paramList = append(paramList, ParamConfig{
 				Param:          start,
 				IsSkipDeclared: true,
@@ -439,18 +438,23 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				fieldParam.Name.Name = param.Name.Name + "." + typeName
 			}
 			if field.Tag != nil {
-				tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(c.TagName)
+				tagValue := field.GetTag(c.TagName)
 				if tagValue != "" {
 					ss := strings.Split(tagValue, ",")
 					if len(ss) > 0 && ss[0] != "" {
-						fieldQueryName = prefix + "." + ss[0]
+						fieldQueryName = prefix + ss[0]
 					}
 				}
 			}
 
 			stType := toClass(fieldParam.Typ)
 			if stType != nil {
-				addStructField(prefix, fieldParam, stType)
+				fullName := fieldParam.Name.Name
+				if field.Name == nil {
+					fieldQueryName = prefix
+					fieldParam.Name.Name = param.Name.Name
+				}
+				addStructField(prefix, fullName, fieldParam, stType)
 				continue
 			}
 
@@ -516,7 +520,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		stType := toClass(param.Typ)
 		if stType != nil {
 			paramList = append(paramList, add(param, "", false, true))
-			addStructField(prefix, param, stType)
+			addStructField(prefix, param.Name.Name, param, stType)
 			continue
 		}
 
@@ -671,7 +675,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
           {{- if eq $param.Prefix "" }}
           SetParamValues({{$param.Param.Name}})
           {{- else}}
-          SetParamValuesWithPrefix("{{$param.Prefix}}.", {{$param.Param.Name}})
+          SetParamValuesWithPrefix("{{underscore $param.Prefix}}.", {{$param.Param.Name}})
           {{- end}}
           {{- $needAssignment = false -}}
         
@@ -685,7 +689,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
           {{- if eq $param.Prefix "" }}
           SetParams({{$param.Param.Name}})
           {{- else}}
-          SetParamsWithPrefix("{{$param.Prefix}}.", {{$param.Param.Name}})
+          SetParamsWithPrefix("{{underscore $param.Prefix}}.", {{$param.Param.Name}})
           {{- end}}
           {{- $needAssignment = false -}}
 
