@@ -1850,6 +1850,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.settings.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
 				}
@@ -1858,8 +1861,22 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 
 		for key, values := range ctx.QueryParams() {
-			if strings.HasPrefix(key, "query.") {
+			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+			}
+		}
 
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Values == nil {
 					query.Values = url.Values{}
 				}
@@ -1904,6 +1921,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				key == "query.overdue_start" ||
 				key == "query.overdue_end" ||
 				key == "query.settings" ||
+				key == "query.ttargstt" ||
 				key == "query." ||
 				key == "offset" ||
 				key == "limit" {
@@ -1913,7 +1931,193 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.Query(ctx.Request().Context(), query, offset, limit, params)
+		result, err := svc.Query1(ctx.Request().Context(), query, offset, limit, params)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, result)
+	})
+	mux.GET("/query2", func(ctx echo.Context) error {
+		var query *models.RequestQuery
+		if s := ctx.QueryParam("operator_id"); s != "" {
+			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "operator_id", s, err))
+				return nil
+			}
+			query = &models.RequestQuery{}
+			query.OperatorID = queryOperatorIDValue
+		}
+		if s := ctx.QueryParam("creator_id"); s != "" {
+			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "creator_id", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.CreatorID = queryCreatorIDValue
+		}
+		if s := ctx.QueryParam("requester_id"); s != "" {
+			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "requester_id", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequesterID = queryRequesterIDValue
+		}
+		if ss := ctx.QueryParamArray("request_type_ids"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
+		}
+		if ss := ctx.QueryParamArray("request_type_names"); len(ss) == 0 {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		}
+		if s := ctx.QueryParam("name_like"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.NameLike = s
+		}
+		if s := ctx.QueryParam("current_status"); s != "" {
+			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "current_status", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.CurrentStatus = queryCurrentStatusValue
+		}
+		if s := ctx.QueryParam("is_unclosed"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("is_overdued"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("is_suspend"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("start_at"); s != "" {
+			queryStartAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "start_at", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.StartAt = queryStartAtValue
+		}
+		if s := ctx.QueryParam("end_at"); s != "" {
+			queryEndAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.EndAt = queryEndAtValue
+		}
+		if s := ctx.QueryParam("overdue_start"); s != "" {
+			queryOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_start", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.OverdueStart = queryOverdueStartValue
+		}
+		if s := ctx.QueryParam("overdue_end"); s != "" {
+			queryOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_end", s, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.OverdueEnd = queryOverdueEndValue
+		}
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "settings.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
+				if query.Settings == nil {
+					query.Settings = map[string]string{}
+				}
+				query.Settings[strings.TrimPrefix(key, "settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "ttargstt.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		if query == nil {
+			query = &models.RequestQuery{}
+		}
+		query.Values = ctx.QueryParams()
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
+			}
+			limit = limitValue
+		}
+
+		result, err := svc.Query2(ctx.Request().Context(), query, offset, limit)
 		if err != nil {
 			ctx.Error(err)
 			return nil
@@ -2054,6 +2258,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.settings.") {
+				if query == nil {
+					query = &RequestQueryEx1{}
+				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
 				}
@@ -2062,8 +2269,22 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 
 		for key, values := range ctx.QueryParams() {
-			if strings.HasPrefix(key, "query.") {
+			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query == nil {
+					query = &RequestQueryEx1{}
+				}
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+			}
+		}
 
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.") {
+				if query == nil {
+					query = &RequestQueryEx1{}
+				}
 				if query.Values == nil {
 					query.Values = url.Values{}
 				}
@@ -2114,6 +2335,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				key == "query.overdue_start" ||
 				key == "query.overdue_end" ||
 				key == "query.settings" ||
+				key == "query.ttargstt" ||
 				key == "query." ||
 				key == "query.ex_arg" ||
 				key == "offset" ||
@@ -2265,6 +2487,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.settings.") {
+				if query == nil {
+					query = &RequestQueryEx2{}
+				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
 				}
@@ -2273,8 +2498,22 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 
 		for key, values := range ctx.QueryParams() {
-			if strings.HasPrefix(key, "query.") {
+			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query == nil {
+					query = &RequestQueryEx2{}
+				}
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+			}
+		}
 
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.") {
+				if query == nil {
+					query = &RequestQueryEx2{}
+				}
 				if query.Values == nil {
 					query.Values = url.Values{}
 				}
@@ -2325,6 +2564,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				key == "query.overdue_start" ||
 				key == "query.overdue_end" ||
 				key == "query.settings" ||
+				key == "query.ttargstt" ||
 				key == "query." ||
 				key == "query.ex_arg" ||
 				key == "offset" ||
@@ -2476,6 +2716,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.settings.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
 				}
@@ -2484,8 +2727,22 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 
 		for key, values := range ctx.QueryParams() {
-			if strings.HasPrefix(key, "query.") {
+			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+			}
+		}
 
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "query.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Values == nil {
 					query.Values = url.Values{}
 				}

@@ -1750,7 +1750,7 @@ type RequestsClient struct {
 	Proxy *resty.Proxy
 }
 
-func (client RequestsClient) Query(ctx context.Context, query *models.RequestQuery, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
+func (client RequestsClient) Query1(ctx context.Context, query *models.RequestQuery, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
 	var resultWrap loong.Result
 	resultWrap.Data = &result
@@ -1788,6 +1788,59 @@ func (client RequestsClient) Query(ctx context.Context, query *models.RequestQue
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
 		SetParamValues(params).
+		Result(&resultWrap)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
+}
+
+func (client RequestsClient) Query2(ctx context.Context, query *models.RequestQuery, offset int64, limit int64) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/query2")
+	if query != nil {
+		request = request.SetParam("operator_id", strconv.FormatInt(query.OperatorID, 10)).
+			SetParam("creator_id", strconv.FormatInt(query.CreatorID, 10)).
+			SetParam("requester_id", strconv.FormatInt(query.RequesterID, 10))
+		for idx := range query.RequestTypeIDs {
+			request = request.AddParam("request_type_ids", strconv.FormatInt(query.RequestTypeIDs[idx], 10))
+		}
+		for idx := range query.RequestTypeNames {
+			request = request.AddParam("request_type_names", query.RequestTypeNames[idx])
+		}
+		request = request.SetParam("name_like", query.NameLike).
+			SetParam("current_status", strconv.FormatInt(query.CurrentStatus, 10))
+		if query.IsUnclosed.Valid {
+			request = request.SetParam("is_unclosed", BoolToString(query.IsUnclosed.Bool))
+		}
+		if query.IsOverdued.Valid {
+			request = request.SetParam("is_overdued", BoolToString(query.IsOverdued.Bool))
+		}
+		if query.IsSuspend.Valid {
+			request = request.SetParam("is_suspend", BoolToString(query.IsSuspend.Bool))
+		}
+		request = request.SetParam("start_at", query.StartAt.Format(client.Proxy.TimeFormat)).
+			SetParam("end_at", query.EndAt.Format(client.Proxy.TimeFormat)).
+			SetParam("overdue_start", query.OverdueStart.Format(client.Proxy.TimeFormat)).
+			SetParam("overdue_end", query.OverdueEnd.Format(client.Proxy.TimeFormat)).
+			SetParamValuesWithPrefix("settings.", query.Settings).
+			SetParamValuesWithPrefix("ttargstt.", query.Args).
+			SetParams(query.Values)
+	}
+	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
+		SetParam("limit", strconv.FormatInt(limit, 10)).
 		Result(&resultWrap)
 
 	err := request.GET(ctx)

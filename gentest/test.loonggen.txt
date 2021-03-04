@@ -1663,6 +1663,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.settings.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
 				}
@@ -1672,6 +1675,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Args == nil {
 					query.Args = map[string]string{}
 				}
@@ -1681,7 +1687,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.") {
-
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Values == nil {
 					query.Values = url.Values{}
 				}
@@ -1734,7 +1742,181 @@ func InitRequests(mux loong.Party, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.Query(ctx.StdContext, query, offset, limit, params)
+		result, err := svc.Query1(ctx.StdContext, query, offset, limit, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query2", func(ctx *loong.Context) error {
+		var query *models.RequestQuery
+		if s := ctx.QueryParam("operator_id"); s != "" {
+			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("operator_id", s, err), http.StatusBadRequest)
+			}
+			query = &models.RequestQuery{}
+			query.OperatorID = queryOperatorIDValue
+		}
+		if s := ctx.QueryParam("creator_id"); s != "" {
+			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("creator_id", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.CreatorID = queryCreatorIDValue
+		}
+		if s := ctx.QueryParam("requester_id"); s != "" {
+			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("requester_id", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequesterID = queryRequesterIDValue
+		}
+		if ss := ctx.QueryParamArray("request_type_ids"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("request_type_ids", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
+		}
+		if ss := ctx.QueryParamArray("request_type_names"); len(ss) == 0 {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		}
+		if s := ctx.QueryParam("name_like"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.NameLike = s
+		}
+		if s := ctx.QueryParam("current_status"); s != "" {
+			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("current_status", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.CurrentStatus = queryCurrentStatusValue
+		}
+		if s := ctx.QueryParam("is_unclosed"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("is_overdued"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("is_suspend"); s != "" {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = toBool(s)
+		}
+		if s := ctx.QueryParam("start_at"); s != "" {
+			queryStartAtValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("start_at", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.StartAt = queryStartAtValue
+		}
+		if s := ctx.QueryParam("end_at"); s != "" {
+			queryEndAtValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.EndAt = queryEndAtValue
+		}
+		if s := ctx.QueryParam("overdue_start"); s != "" {
+			queryOverdueStartValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("overdue_start", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.OverdueStart = queryOverdueStartValue
+		}
+		if s := ctx.QueryParam("overdue_end"); s != "" {
+			queryOverdueEndValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("overdue_end", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.OverdueEnd = queryOverdueEndValue
+		}
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "settings.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
+				if query.Settings == nil {
+					query.Settings = map[string]string{}
+				}
+				query.Settings[strings.TrimPrefix(key, "settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if strings.HasPrefix(key, "ttargstt.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		if query == nil {
+			query = &models.RequestQuery{}
+		}
+		query.Values = ctx.QueryParams()
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+
+		result, err := svc.Query2(ctx.StdContext, query, offset, limit)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
@@ -1865,6 +2047,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.settings.") {
+				if query == nil {
+					query = &RequestQueryEx1{}
+				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
 				}
@@ -1874,6 +2059,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query == nil {
+					query = &RequestQueryEx1{}
+				}
 				if query.Args == nil {
 					query.Args = map[string]string{}
 				}
@@ -1883,7 +2071,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.") {
-
+				if query == nil {
+					query = &RequestQueryEx1{}
+				}
 				if query.Values == nil {
 					query.Values = url.Values{}
 				}
@@ -2114,6 +2304,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.settings.") {
+				if query == nil {
+					query = &RequestQueryEx2{}
+				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
 				}
@@ -2123,6 +2316,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query == nil {
+					query = &RequestQueryEx2{}
+				}
 				if query.Args == nil {
 					query.Args = map[string]string{}
 				}
@@ -2132,7 +2328,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.") {
-
+				if query == nil {
+					query = &RequestQueryEx2{}
+				}
 				if query.Values == nil {
 					query.Values = url.Values{}
 				}
@@ -2326,6 +2524,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.settings.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
 				}
@@ -2335,6 +2536,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.ttargstt.") {
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Args == nil {
 					query.Args = map[string]string{}
 				}
@@ -2344,7 +2548,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "query.") {
-
+				if query == nil {
+					query = &models.RequestQuery{}
+				}
 				if query.Values == nil {
 					query.Values = url.Values{}
 				}

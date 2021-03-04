@@ -852,20 +852,31 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 
 				if typePrint(field.Typ) == "url.Values" {
-					p2.SkipDeclare = true
-					// p2.TypeStr = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
-					p2.IsArray = false
-					p2.ArgName = paramName2
-					p2.ArgNamePrefix = paramNamePrefix
+					s := queryNames[param.Name.Name]
+					if field.Name != nil || s != "<none>" {
 
-					var queryParamName = mux.Reserved["url.Values"]
-					if mux.FuncHeadStr != "" {
-						queryParamName = "queryParams"
-					}
+						p2.SkipDeclare = true
+						// p2.TypeStr = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
+						p2.IsArray = false
+						p2.ArgName = paramName2
+						p2.ArgNamePrefix = paramNamePrefix
 
-					p2.InitString = `for key, values := range ` + queryParamName + `{
-						if strings.HasPrefix(key, "` + paramName2 + `.") {
+						var queryParamName = mux.Reserved["url.Values"]
+						if mux.FuncHeadStr != "" {
+							queryParamName = "queryParams"
+						}
 
+						var initLine string
+						if IsPtrType(serverParam.Param.Typ) {
+							initLine = `
+						  if ` + serverParam.Param.Name.Name + ` == nil {
+								` + serverParam.Param.Name.Name + ` = &` + typePrint(ElemType(serverParam.Param.Typ)) + `{}
+							}
+							`
+						}
+
+						p2.InitString = `for key, values := range ` + queryParamName + `{
+						if strings.HasPrefix(key, "` + paramName2 + `.") {` + initLine + `
 							if ` + p2.Param.Name.Name + ` == nil {
 							 ` + p2.Param.Name.Name + ` = url.Values{}
 							}
@@ -874,8 +885,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 						}
 					}
 					`
-					serverParams = append(serverParams, p2)
-					continue
+						serverParams = append(serverParams, p2)
+						continue
+					}
 				}
 
 				reservedStr, ok := mux.Reserved[typePrint(field.Typ)]
@@ -915,8 +927,17 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 						queryParamName = "queryParams"
 					}
 
+					var initLine string
+					if IsPtrType(serverParam.Param.Typ) {
+						initLine = `
+						  if ` + serverParam.Param.Name.Name + ` == nil {
+								` + serverParam.Param.Name.Name + ` = &` + typePrint(ElemType(serverParam.Param.Typ)) + `{}
+							}
+							`
+					}
+
 					p2.InitString = `for key, values := range ` + queryParamName + `{
-						if strings.HasPrefix(key, "` + paramName2 + `.") {
+						if strings.HasPrefix(key, "` + paramName2 + `.") {` + initLine + `
 							if ` + p2.Param.Name.Name + ` == nil {
 							 ` + p2.Param.Name.Name + ` = map[string]string{}
 							}
