@@ -1356,6 +1356,10 @@ func (mux *DefaultStye) PlainTextFunc(method Method, args ...string) string {
 func (mux *DefaultStye) OkFunc(method Method, args ...string) string {
 	ann := getAnnotation(method, false)
 
+	if ann.Attributes["noreturn"] == "true" {
+		return "return nil"
+	}
+
 	okCode := "http.StatusOK"
 	methodName := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
 	switch methodName {

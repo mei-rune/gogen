@@ -690,6 +690,29 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
 	})
+	mux.GET("/query8", func(ctx *loong.Context) error {
+		var itemID int64
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+			}
+			itemID = itemIDValue
+		}
+
+		result, err := svc.Query8(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.String(http.StatusOK, result)
+	})
+	mux.POST("", func(ctx *loong.Context) error {
+		err := svc.Create3(ctx.StdContext, ctx.Request(), ctx.Response().Writer)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return nil
+	})
 	// Misc: annotation is missing
 }
 

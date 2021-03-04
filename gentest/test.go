@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
 
@@ -150,6 +151,12 @@ type StringSvc interface {
 
 	// @http.GET(path="/query7/:isRaw")
 	Query7(a string, createdAt *TimeRange2, isRaw *bool) string
+
+	// @http.GET(path="/query8", content_type="text")
+	Query8(ctx context.Context, itemID int64) (string, error)
+
+	// @http.POST(path="", noreturn="true")
+	Create3(ctx context.Context, request *http.Request, response http.ResponseWriter) error
 
 	Misc() string
 }

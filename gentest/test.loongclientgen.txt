@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -731,6 +732,40 @@ func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRa
 		return "", resultWrap.Error
 	}
 	return result, nil
+}
+
+func (client TestClient) Query8(ctx context.Context, itemID int64) (string, error) {
+	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/query8").
+		SetParam("item_id", strconv.FormatInt(itemID, 10)).
+		Result(&resultWrap)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
+}
+
+func (client TestClient) Create3(ctx context.Context, _request *http.Request, response http.ResponseWriter) error {
+	request := resty.NewRequest(client.Proxy, "/").
+		SetBody(map[string]interface{}{
+			"request":  _request,
+			"response": response,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
 }
 
 // Misc: annotation is missing
