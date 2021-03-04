@@ -769,6 +769,20 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 			}
 		}
+
+		if stType != nil && stType.AliasName != nil {
+			found := false
+			for _, ctx := range mux.includeFiles {
+				if ctx.Pkg.Name == fmt.Sprint(stType.AliasName.X) {
+					stType = ctx.GetClass(stType.AliasName.Sel.Name)
+					found = true
+				}
+			}
+
+			if !found {
+				panic(fmt.Sprint(stType.AliasName.X) + "." + stType.AliasName.Sel.Name + " isnot found")
+			}
+		}
 		return stType
 	}
 
@@ -1256,7 +1270,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 					}
 				}
 
-				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr, elmType)
+				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr, elmType, fmt.Sprintf("%T", param.Typ))
 			}
 
 			// elmType = typePrint(underlying.Type)
@@ -1264,7 +1278,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 			convertArgs, ok = mux.Converts[typePrint(underlying.Type)]
 			if !ok {
 				debug.PrintStack()
-				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 4argument '"+param.Name.Name+"' is unsupported type -", typeStr)
+				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 4argument '"+param.Name.Name+"' is unsupported type -", typeStr, fmt.Sprintf("%T", param.Typ), fmt.Sprintf("%T", underlying.Type))
 			}
 
 			convertArgs.NeedTransform = true

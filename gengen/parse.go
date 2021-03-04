@@ -43,9 +43,12 @@ type (
 	}
 
 	Class struct {
-		Ctx         *SourceContext `json:"-"`
-		Node        *ast.TypeSpec
-		Name        *ast.Ident
+		Ctx  *SourceContext `json:"-"`
+		Node *ast.TypeSpec
+		Name *ast.Ident
+
+		AliasName *ast.SelectorExpr
+
 		Comments    []string
 		IsInterface bool
 
@@ -258,6 +261,27 @@ func (v *typeSpecVisitor) Visit(n ast.Node) ast.Visitor {
 
 			v.src.Classes = append(v.src.Classes, *v.iface)
 		}
+		return nil
+	case *ast.SelectorExpr:
+		cls := Class{}
+
+		cls.Ctx = v.src
+		cls.Node = v.node
+		cls.Name = v.name
+		cls.AliasName = rn
+		cls.Comments = v.comments
+
+		if v.node.Comment != nil {
+			for _, a := range v.node.Comment.List {
+				v.iface.Comments = append(v.iface.Comments, a.Text)
+			}
+		}
+		if v.node.Doc != nil {
+			for _, a := range v.node.Doc.List {
+				v.iface.Comments = append(v.iface.Comments, a.Text)
+			}
+		}
+		v.src.Classes = append(v.src.Classes, cls)
 		return nil
 	default:
 		return v

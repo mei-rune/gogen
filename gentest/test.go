@@ -395,6 +395,8 @@ func (svc *StringSvcWithContext) Misc() string {
 // 用于测试 Parse() 不会 panic
 func notpanic() {}
 
+type AliasRequestQuery = models.RequestQuery
+
 type RequestQueryEx1 struct {
 	models.RequestQuery
 
@@ -413,6 +415,9 @@ type Requests interface {
 
 	// @http.GET(path="/query2?query=<none>")
 	Query2(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
+
+	// @http.GET(path="/query3?query=<none>")
+	Query3(ctx context.Context, query *AliasRequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 
 	// @http.GET(path="/queryex1")
 	QueryEx1(ctx context.Context, query *RequestQueryEx1, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)

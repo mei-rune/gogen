@@ -399,6 +399,19 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				}
 			}
 		}
+
+		if stType != nil && stType.AliasName != nil {
+			found := false
+			for _, ctx := range c.includeFiles {
+				if ctx.Pkg.Name == fmt.Sprint(stType.AliasName.X) {
+					stType = ctx.GetClass(stType.AliasName.Sel.Name)
+					found = true
+				}
+			}
+			if !found {
+				panic(fmt.Sprint(stType.AliasName.X) + "." + stType.AliasName.Sel.Name + " isnot found")
+			}
+		}
 		return stType
 	}
 
