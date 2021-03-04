@@ -334,6 +334,8 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	var inBody []Param
 	var bodyExists bool
 
+	paramList := make([]ParamConfig, 0, len(method.Params.List))
+
 	add := func(param Param, queryName string, isSkipDeclared, isSkipUse bool) ParamConfig {
 		cp := ParamConfig{
 			Param:          param,
@@ -376,8 +378,108 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		}
 		return cp
 	}
+	toClass := func(typ ast.Expr) *Class {
+		var stType *Class
+		if starType, ok := typ.(*ast.StarExpr); ok {
+			if identType, ok := starType.X.(*ast.Ident); ok {
+				stType = method.Ctx.GetClass(identType.Name)
+			} else if selectorExpr, ok := starType.X.(*ast.SelectorExpr); ok {
+				for _, ctx := range c.includeFiles {
+					if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
+						stType = ctx.GetClass(selectorExpr.Sel.Name)
+					}
+				}
+			}
 
-	paramList := make([]ParamConfig, 0, len(method.Params.List))
+		} else if identType, ok := typ.(*ast.Ident); ok {
+			stType = method.Ctx.GetClass(identType.Name)
+		} else if selectorExpr, ok := typ.(*ast.SelectorExpr); ok {
+			for _, ctx := range c.includeFiles {
+				if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
+					stType = ctx.GetClass(selectorExpr.Sel.Name)
+				}
+			}
+		}
+		return stType
+	}
+
+	var addStructField func(prefix string, param Param, stType *Class)
+	addStructField = func(prefix string, param Param, stType *Class) {
+
+		isPtr := IsPtrType(param.Typ)
+		if isPtr {
+			start := param
+			start.Name = &ast.Ident{}
+			start.Name.Name = "\r\nif " + param.Name.Name + " != nil {"
+			paramList = append(paramList, ParamConfig{
+				Param:          start,
+				IsSkipDeclared: true,
+				IsCodeSegement: true,
+			})
+		}
+
+		for _, field := range stType.Fields {
+			fieldParam := param
+			fieldParam.Typ = field.Typ
+			fieldParam.Name = &ast.Ident{}
+
+			fieldQueryName := prefix
+			if field.Name != nil {
+				*fieldParam.Name = *param.Name
+				fieldParam.Name.Name = param.Name.Name + "." + field.Name.Name
+
+				fieldQueryName = prefix + field.Name.Name
+			} else {
+				typeName := typePrint(field.Typ)
+				idx := strings.Index(typeName, ".")
+				if idx >= 0 {
+					typeName = typeName[idx+1:]
+				}
+				fieldQueryName = prefix + typeName
+				fieldParam.Name.Name = param.Name.Name + "." + typeName
+			}
+			if field.Tag != nil {
+				tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(c.TagName)
+				if tagValue != "" {
+					ss := strings.Split(tagValue, ",")
+					if len(ss) > 0 && ss[0] != "" {
+						fieldQueryName = prefix + "." + ss[0]
+					}
+				}
+			}
+
+			stType := toClass(fieldParam.Typ)
+			if stType != nil {
+				addStructField(prefix, fieldParam, stType)
+				continue
+			}
+
+			newParam := add(fieldParam, fieldQueryName, true, false)
+			if newParam.IsQueryParam {
+				if typePrint(fieldParam.Typ) == "map[string]string" ||
+					typePrint(fieldParam.Typ) == "url.Values" {
+					if field.Name == nil {
+						newParam.Prefix = strings.TrimSuffix(prefix, ".")
+					} else {
+						newParam.Prefix = fieldQueryName
+					}
+				}
+			}
+			paramList = append(paramList, newParam)
+		}
+
+		if isPtr {
+			end := param
+			end.Name = &ast.Ident{}
+			end.Name.Name = "\r\n}"
+			paramList = append(paramList, ParamConfig{
+				Param:          end,
+				IsSkipDeclared: true,
+				IsCodeSegement: true,
+			})
+		}
+	}
+
 	for _, param := range method.Params.List {
 		queryName := param.Name.Name
 		if param.Name.Name == "request" {
@@ -411,98 +513,10 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			}
 		}
 
-		var stType *Class
-		if starType, ok := param.Typ.(*ast.StarExpr); ok {
-			if identType, ok := starType.X.(*ast.Ident); ok {
-				stType = method.Ctx.GetClass(identType.Name)
-			} else if selectorExpr, ok := starType.X.(*ast.SelectorExpr); ok {
-				for _, ctx := range c.includeFiles {
-					if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
-						stType = ctx.GetClass(selectorExpr.Sel.Name)
-					}
-				}
-			}
-
-		} else if identType, ok := param.Typ.(*ast.Ident); ok {
-			stType = method.Ctx.GetClass(identType.Name)
-		} else if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
-			for _, ctx := range c.includeFiles {
-				if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
-					stType = ctx.GetClass(selectorExpr.Sel.Name)
-				}
-			}
-		}
-
+		stType := toClass(param.Typ)
 		if stType != nil {
 			paramList = append(paramList, add(param, "", false, true))
-
-			isPtr := IsPtrType(param.Typ)
-			if isPtr {
-				start := param
-				start.Name = &ast.Ident{}
-				start.Name.Name = "\r\nif " + param.Name.Name + " != nil {"
-				paramList = append(paramList, ParamConfig{
-					Param:          start,
-					IsSkipDeclared: true,
-					IsCodeSegement: true,
-				})
-			}
-
-			for _, field := range stType.Fields {
-				fieldParam := param
-				fieldParam.Typ = field.Typ
-				fieldParam.Name = &ast.Ident{}
-
-				fieldQueryName := prefix
-				if field.Name != nil {
-
-					*fieldParam.Name = *param.Name
-					fieldParam.Name.Name = param.Name.Name + "." + field.Name.Name
-
-					fieldQueryName = prefix + field.Name.Name
-				} else {
-					typeName := typePrint(field.Typ)
-					idx := strings.Index(typeName, ".")
-					if idx >= 0 {
-						typeName = typeName[idx+1:]
-					}
-					fieldQueryName = prefix + typeName
-					fieldParam.Name.Name = param.Name.Name + "." + typeName
-				}
-				if field.Tag != nil {
-					tagValue, _ := reflect.StructTag(field.Tag.Value).Lookup(c.TagName)
-					if tagValue != "" {
-						ss := strings.Split(tagValue, ",")
-						if len(ss) > 0 && ss[0] != "" {
-							fieldQueryName = prefix + "." + ss[0]
-						}
-					}
-				}
-
-				newParam := add(fieldParam, fieldQueryName, true, false)
-				if newParam.IsQueryParam {
-					if typePrint(fieldParam.Typ) == "map[string]string" ||
-						typePrint(fieldParam.Typ) == "url.Values" {
-						if field.Name == nil {
-							newParam.Prefix = strings.TrimSuffix(prefix, ".")
-						} else {
-							newParam.Prefix = fieldQueryName
-						}
-					}
-				}
-				paramList = append(paramList, newParam)
-			}
-
-			if isPtr {
-				end := param
-				end.Name = &ast.Ident{}
-				end.Name.Name = "\r\n}"
-				paramList = append(paramList, ParamConfig{
-					Param:          end,
-					IsSkipDeclared: true,
-					IsCodeSegement: true,
-				})
-			}
+			addStructField(prefix, param, stType)
 			continue
 		}
 

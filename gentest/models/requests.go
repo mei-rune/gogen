@@ -27,3 +27,4 @@ type RequestQuery struct {
 	Settings                 map[string]string
 	url.Values
 }
+
