@@ -2034,6 +2034,9 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 	// Misc: annotation is missing
 }
 
+// RequestQueryEx1 is skipped
+// RequestQueryEx2 is skipped
+
 func InitRequests(mux *beego.Namespace, svc Requests) {
 	mux.Get("/query", func(ctx *beecontext.Context) {
 		var query *models.RequestQuery
@@ -2244,6 +2247,456 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		}
 
 		result, err := svc.Query(ctx.Request.Context(), query, offset, limit, params)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/queryex1", func(ctx *beecontext.Context) {
+		var query *RequestQueryEx1
+		if s := ctx.Input.Query("query.operator_id"); s != "" {
+			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.operator_id, s, err).Error())
+				return
+			}
+			query = &RequestQueryEx1{}
+			query.OperatorID = queryOperatorIDValue
+		}
+		if s := ctx.Input.Query("query.creator_id"); s != "" {
+			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.creator_id, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.CreatorID = queryCreatorIDValue
+		}
+		if s := ctx.Input.Query("query.requester_id"); s != "" {
+			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.requester_id, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.RequesterID = queryRequesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.request_type_ids"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request_type_ids, ss, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
+		}
+		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) == 0 {
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.RequestTypeNames = ss
+		}
+		if s := ctx.Input.Query("query.name_like"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.NameLike = s
+		}
+		if s := ctx.Input.Query("query.current_status"); s != "" {
+			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.current_status, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.CurrentStatus = queryCurrentStatusValue
+		}
+		if s := ctx.Input.Query("query.is_unclosed"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = toBool(s)
+		}
+		if s := ctx.Input.Query("query.is_overdued"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = toBool(s)
+		}
+		if s := ctx.Input.Query("query.is_suspend"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = toBool(s)
+		}
+		if s := ctx.Input.Query("query.start_at"); s != "" {
+			queryStartAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.start_at, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.StartAt = queryStartAtValue
+		}
+		if s := ctx.Input.Query("query.end_at"); s != "" {
+			queryEndAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.end_at, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.EndAt = queryEndAtValue
+		}
+		if s := ctx.Input.Query("query.overdue_start"); s != "" {
+			queryOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_start, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.OverdueStart = queryOverdueStartValue
+		}
+		if s := ctx.Input.Query("query.overdue_end"); s != "" {
+			queryOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_end, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.OverdueEnd = queryOverdueEndValue
+		}
+		for key, values := range ctx.Request.URL.Query() {
+			if strings.HasPrefix(key, "query.settings.") {
+				if query.Settings == nil {
+					query.Settings = map[string]string{}
+				}
+				query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.Request.URL.Query() {
+			if strings.HasPrefix(key, "query.") {
+
+				if query.Values == nil {
+					query.Values = url.Values{}
+				}
+
+				query.Values[strings.TrimPrefix(key, "query.")] = values
+			}
+		}
+
+		if s := ctx.Input.Query("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.ExArg = s
+		}
+		var offset int64
+		if s := ctx.Input.Query("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", offset, s, err).Error())
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.Input.Query("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", limit, s, err).Error())
+				return
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.Request.URL.Query() {
+			if key == "" ||
+				key == "query.operator_id" ||
+				key == "query.creator_id" ||
+				key == "query.requester_id" ||
+				key == "query.request_type_ids" ||
+				key == "query.request_type_names" ||
+				key == "query.name_like" ||
+				key == "query.current_status" ||
+				key == "query.is_unclosed" ||
+				key == "query.is_overdued" ||
+				key == "query.is_suspend" ||
+				key == "query.start_at" ||
+				key == "query.end_at" ||
+				key == "query.overdue_start" ||
+				key == "query.overdue_end" ||
+				key == "query.settings" ||
+				key == "query." ||
+				key == "query.ex_arg" ||
+				key == "offset" ||
+				key == "limit" {
+				continue
+			}
+
+			params[key] = values[len(values)-1]
+		}
+
+		result, err := svc.QueryEx1(ctx.Request.Context(), query, offset, limit, params)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/queryex2", func(ctx *beecontext.Context) {
+		var query *RequestQueryEx2
+		if s := ctx.Input.Query("query.operator_id"); s != "" {
+			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.operator_id, s, err).Error())
+				return
+			}
+			query = &RequestQueryEx2{}
+			query.OperatorID = queryOperatorIDValue
+		}
+		if s := ctx.Input.Query("query.creator_id"); s != "" {
+			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.creator_id, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.CreatorID = queryCreatorIDValue
+		}
+		if s := ctx.Input.Query("query.requester_id"); s != "" {
+			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.requester_id, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.RequesterID = queryRequesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.request_type_ids"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request_type_ids, ss, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
+		}
+		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) == 0 {
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.RequestTypeNames = ss
+		}
+		if s := ctx.Input.Query("query.name_like"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.NameLike = s
+		}
+		if s := ctx.Input.Query("query.current_status"); s != "" {
+			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.current_status, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.CurrentStatus = queryCurrentStatusValue
+		}
+		if s := ctx.Input.Query("query.is_unclosed"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = toBool(s)
+		}
+		if s := ctx.Input.Query("query.is_overdued"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = toBool(s)
+		}
+		if s := ctx.Input.Query("query.is_suspend"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = toBool(s)
+		}
+		if s := ctx.Input.Query("query.start_at"); s != "" {
+			queryStartAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.start_at, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.StartAt = queryStartAtValue
+		}
+		if s := ctx.Input.Query("query.end_at"); s != "" {
+			queryEndAtValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.end_at, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.EndAt = queryEndAtValue
+		}
+		if s := ctx.Input.Query("query.overdue_start"); s != "" {
+			queryOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_start, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.OverdueStart = queryOverdueStartValue
+		}
+		if s := ctx.Input.Query("query.overdue_end"); s != "" {
+			queryOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_end, s, err).Error())
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.OverdueEnd = queryOverdueEndValue
+		}
+		for key, values := range ctx.Request.URL.Query() {
+			if strings.HasPrefix(key, "query.settings.") {
+				if query.Settings == nil {
+					query.Settings = map[string]string{}
+				}
+				query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range ctx.Request.URL.Query() {
+			if strings.HasPrefix(key, "query.") {
+
+				if query.Values == nil {
+					query.Values = url.Values{}
+				}
+
+				query.Values[strings.TrimPrefix(key, "query.")] = values
+			}
+		}
+
+		if s := ctx.Input.Query("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			query.ExArg = s
+		}
+		var offset int64
+		if s := ctx.Input.Query("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", offset, s, err).Error())
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.Input.Query("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", limit, s, err).Error())
+				return
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.Request.URL.Query() {
+			if key == "" ||
+				key == "query.operator_id" ||
+				key == "query.creator_id" ||
+				key == "query.requester_id" ||
+				key == "query.request_type_ids" ||
+				key == "query.request_type_names" ||
+				key == "query.name_like" ||
+				key == "query.current_status" ||
+				key == "query.is_unclosed" ||
+				key == "query.is_overdued" ||
+				key == "query.is_suspend" ||
+				key == "query.start_at" ||
+				key == "query.end_at" ||
+				key == "query.overdue_start" ||
+				key == "query.overdue_end" ||
+				key == "query.settings" ||
+				key == "query." ||
+				key == "query.ex_arg" ||
+				key == "offset" ||
+				key == "limit" {
+				continue
+			}
+
+			params[key] = values[len(values)-1]
+		}
+
+		result, err := svc.QueryEx2(ctx.Request.Context(), query, offset, limit, params)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
