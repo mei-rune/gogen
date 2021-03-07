@@ -819,8 +819,8 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 		serverParams := []ServerParam{p1}
 
-		var addStructFields func(string, *Class, ServerParam, Param)
-		addStructFields = func(paramNamePrefix string, stType *Class, serverParam ServerParam, param Param) {
+		var addStructFields func(string, *Class, ServerParam, []ServerParam)
+		addStructFields = func(paramNamePrefix string, stType *Class, serverParam ServerParam, parents []ServerParam) {
 			for fieldIdx, field := range stType.Fields {
 				tag := field.GetTag("gogen")
 				if tag == "ignore" {
@@ -829,20 +829,18 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				p2 := serverParam
 				p2.IsSkipUse = true
 				p2.Name = &ast.Ident{}
-				*p2.Name = *param.Name
+				*p2.Name = *serverParam.Name
 				p2.Param.Typ = field.Typ
 
 				if field.Name == nil {
-					p2.Param.Name.Name = param.Name.Name
-
 					typeName := typePrint(field.Typ)
 					idx := strings.Index(typeName, ".")
 					if idx >= 0 {
 						typeName = typeName[idx+1:]
 					}
-					p2.Param.Name.Name = param.Name.Name + "." + typeName
+					p2.Param.Name.Name = serverParam.Name.Name + "." + typeName
 				} else {
-					p2.Param.Name.Name = param.Name.Name + "." + field.Name.Name
+					p2.Param.Name.Name = serverParam.Name.Name + "." + field.Name.Name
 				}
 
 				paramName2 := strings.TrimSuffix(paramNamePrefix, ".")
@@ -861,15 +859,15 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 				stType := getStructType(p2.Param)
 				if stType != nil {
-					if !strings.HasPrefix(paramName2, ".") {
+					if paramName2 != "" && !strings.HasPrefix(paramName2, ".") {
 						paramName2 = paramName2 + "."
 					}
-					addStructFields(paramName2, stType, serverParam, param)
+					addStructFields(paramName2, stType, p2, append(parents, serverParam))
 					continue
 				}
 
 				if typePrint(field.Typ) == "url.Values" {
-					s := queryNames[param.Name.Name]
+					s := queryNames[serverParam.Name.Name]
 					if field.Name != nil || s != "<none>" {
 
 						p2.SkipDeclare = true
@@ -884,8 +882,23 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 						}
 
 						var initLine string
+
+						for _, parent := range parents {
+							if IsPtrType(parent.Param.Typ) {
+								if fieldIdx == 0 {
+									initLine += "\r\n  " + parent.Param.Name.Name + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}"
+								} else {
+
+									initLine += `
+						  if ` + parent.Param.Name.Name + ` == nil {
+								` + parent.Param.Name.Name + ` = &` + typePrint(ElemType(parent.Param.Typ)) + `{}
+							}
+							`
+								}
+							}
+						}
 						if IsPtrType(serverParam.Param.Typ) {
-							initLine = `
+							initLine += `
 						  if ` + serverParam.Param.Name.Name + ` == nil {
 								` + serverParam.Param.Name.Name + ` = &` + typePrint(ElemType(serverParam.Param.Typ)) + `{}
 							}
@@ -915,11 +928,25 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					p2.ParamName = reservedStr
 
 					var initRootValue string
-					if !mux.PreInitObject && IsPtrType(param.Typ) && !c.IsParentInited() {
+
+					for _, parent := range parents {
+						if IsPtrType(parent.Param.Typ) {
+							if fieldIdx == 0 {
+								initRootValue += "\r\n  " + parent.Param.Name.Name + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}"
+							} else {
+								initRootValue += `
+						  if ` + parent.Param.Name.Name + ` == nil {
+								` + parent.Param.Name.Name + ` = &` + typePrint(ElemType(parent.Param.Typ)) + `{}
+							}
+							`
+							}
+						}
+					}
+					if !mux.PreInitObject && IsPtrType(serverParam.Typ) && !c.IsParentInited() {
 						if fieldIdx == 0 {
-							initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
+							initRootValue += "\r\n  " + name + " = &" + elmType + "{}"
 						} else {
-							initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
+							initRootValue += "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
 						}
 					}
 
@@ -945,8 +972,21 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					}
 
 					var initLine string
+					for _, parent := range parents {
+						if IsPtrType(parent.Param.Typ) {
+							if fieldIdx == 0 {
+								initLine += "\r\n  " + parent.Param.Name.Name + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}"
+							} else {
+								initLine += `
+						  if ` + parent.Param.Name.Name + ` == nil {
+								` + parent.Param.Name.Name + ` = &` + typePrint(ElemType(parent.Param.Typ)) + `{}
+							}
+							`
+							}
+						}
+					}
 					if IsPtrType(serverParam.Param.Typ) {
-						initLine = `
+						initLine += `
 						  if ` + serverParam.Param.Name.Name + ` == nil {
 								` + serverParam.Param.Name.Name + ` = &` + typePrint(ElemType(serverParam.Param.Typ)) + `{}
 							}
@@ -967,11 +1007,24 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 
 				var initRootValue string
-				if !mux.PreInitObject && IsPtrType(param.Typ) && !c.IsParentInited() {
+				for _, parent := range parents {
+					if IsPtrType(parent.Param.Typ) {
+						if fieldIdx == 0 {
+							initRootValue += "\r\n  " + parent.Param.Name.Name + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}"
+						} else {
+							initRootValue += `
+						  if ` + parent.Param.Name.Name + ` == nil {
+								` + parent.Param.Name.Name + ` = &` + typePrint(ElemType(parent.Param.Typ)) + `{}
+							}
+							`
+						}
+					}
+				}
+				if !mux.PreInitObject && IsPtrType(serverParam.Typ) && !c.IsParentInited() {
 					if fieldIdx == 0 {
-						initRootValue = "\r\n  " + name + " = &" + elmType + "{}"
+						initRootValue += "\r\n  " + name + " = &" + elmType + "{}"
 					} else {
-						initRootValue = "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
+						initRootValue += "\r\nif " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}"
 					}
 				}
 
@@ -981,7 +1034,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				renderArgs["type"] = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
 				renderArgs["name"] = p2.Param.Name.Name
 				renderArgs["rname"] = paramName2
-				renderArgs["isArray"] = IsArrayType(p2.Param.Typ) || IsSliceType(p2.Param.Typ) || IsEllipsisType(param.Typ)
+				renderArgs["isArray"] = IsArrayType(p2.Param.Typ) || IsSliceType(p2.Param.Typ) || IsEllipsisType(serverParam.Typ)
 
 				p2.SkipDeclare = true
 				// p2.TypeStr = strings.TrimPrefix(typePrint(p2.Param.Typ), "*")
@@ -992,7 +1045,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			}
 		}
 
-		addStructFields(paramNamePrefix, stType, serverParam, param)
+		addStructFields(paramNamePrefix, stType, serverParam, nil)
 		return serverParams
 	}
 
