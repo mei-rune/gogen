@@ -466,8 +466,10 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				if field.Name == nil {
 					fieldQueryName = prefix
 					fieldParam.Name.Name = param.Name.Name
+				} else if !strings.HasSuffix(fieldQueryName, ".") {
+					fieldQueryName = fieldQueryName + "."
 				}
-				addStructField(prefix, fullName, fieldParam, stType)
+				addStructField(fieldQueryName, fullName, fieldParam, stType)
 				continue
 			}
 

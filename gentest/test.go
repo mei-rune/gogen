@@ -416,6 +416,18 @@ type RequestQueryEx2 struct {
 	ExArg string
 }
 
+type RequestQueryEx3 struct {
+	Request models.RequestQuery `json:"request"`
+
+	ExArg string
+}
+
+type RequestQueryEx4 struct {
+	Request *models.RequestQuery `json:"request"`
+
+	ExArg string
+}
+
 type Requests interface {
 	// @http.GET(path="/query")
 	Query1(ctx context.Context, query *models.RequestQuery, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
@@ -431,6 +443,18 @@ type Requests interface {
 
 	// @http.GET(path="/queryex2")
 	QueryEx2(ctx context.Context, query *RequestQueryEx2, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+
+	// @http.GET(path="/queryex3")
+	QueryEx3(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+
+	// @http.GET(path="/queryex4")
+	QueryEx4(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+
+	// @http.GET(path="/queryex3/NoPrefix?query=<none>")
+	QueryEx3NoPrefix(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+
+	// @http.GET(path="/queryex4/NoPrefix?query=<none>")
+	QueryEx4NoPrefix(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
 	// @http.GET(path="")
 	List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)

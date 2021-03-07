@@ -819,8 +819,8 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 		serverParams := []ServerParam{p1}
 
-		var addStructFields func(*Class, ServerParam, Param)
-		addStructFields = func(stType *Class, serverParam ServerParam, param Param) {
+		var addStructFields func(string, *Class, ServerParam, Param)
+		addStructFields = func(paramNamePrefix string, stType *Class, serverParam ServerParam, param Param) {
 			for fieldIdx, field := range stType.Fields {
 				tag := field.GetTag("gogen")
 				if tag == "ignore" {
@@ -861,7 +861,10 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 				stType := getStructType(p2.Param)
 				if stType != nil {
-					addStructFields(stType, serverParam, param)
+					if !strings.HasPrefix(paramName2, ".") {
+						paramName2 = paramName2 + "."
+					}
+					addStructFields(paramName2, stType, serverParam, param)
 					continue
 				}
 
@@ -989,7 +992,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			}
 		}
 
-		addStructFields(stType, serverParam, param)
+		addStructFields(paramNamePrefix, stType, serverParam, param)
 		return serverParams
 	}
 
