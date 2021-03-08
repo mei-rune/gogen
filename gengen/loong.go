@@ -18,7 +18,9 @@ var loongConfig = map[string]interface{}{
 	"read_body_format":      "{{.ctx}}.Bind(&{{.name}})",
 	"bad_argument_format":   "loong.ErrBadArgument(\"%s\", %s, %s)",
 	"read_format":           "{{.ctx}}.{{.readMethodName}}(\"{{.name}}\")",
-	"ok_func_format": `{{- if eq .method "POST" -}} 
+	"ok_func_format": `{{if .noreturn}}
+	return nil
+	{{- else if eq .method "POST" -}} 
 	return ctx.ReturnCreatedResult({{.data}})
 	{{- else if eq .method "PUT" -}}
 	return ctx.ReturnUpdatedResult({{.data}})
@@ -29,7 +31,7 @@ var loongConfig = map[string]interface{}{
 	{{- else -}}
 	return ctx.ReturnResult({{.statusCode}}, {{.data}})
 	{{end}}`,
-	"plain_text_func_format": "return ctx.String({{.statusCode}}, {{.data}})",
+	"plain_text_func_format": "{{if .noreturn}}return nil{{- else }}return ctx.String({{.statusCode}}, {{.data}}){{end}}",
 	"err_func_format":        "return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})",
 
 	"reserved": map[string]string{

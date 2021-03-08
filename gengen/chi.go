@@ -21,7 +21,9 @@ var chiConfig = map[string]interface{}{
 	"optional_param_format": "queryParams.Get(\"{{.name}}\")",
 	"read_body_format":      "render.Decode({{.ctx}}, &{{.name}})",
 	"bad_argument_format":   "errors.BadArgument(\"%s\", %s, %s)",
-	"ok_func_format": `{{- if eq .method "POST" -}} 
+	"ok_func_format": `{{if .noreturn}}
+  return
+  {{- else if eq .method "POST" -}} 
 	render.JSON(w, r, {{.data}})
   return
 	{{- else if eq .method "PUT" -}}
@@ -40,6 +42,28 @@ var chiConfig = map[string]interface{}{
 	render.JSON(w, r, {{.data}})
   return
 	{{end}}`,
+
+	"plain_text_func_format": `{{if .noreturn}}
+  return
+  {{- else if eq .method "POST" -}} 
+  render.PlainText(w, r, {{.data}})
+  return
+  {{- else if eq .method "PUT" -}}
+  render.PlainText(w, r, {{.data}})
+  return
+  {{- else if eq .method "DELETE" -}}
+  render.PlainText(w, r, {{.data}})
+  return
+  {{- else if eq .method "GET" -}}
+  render.PlainText(w, r, {{.data}})
+  return
+  {{- else -}}
+  {{- if .statusCode }}
+    render.Status(r, {{.statusCode}})
+  {{- end}}
+  render.PlainText(w, r, {{.data}})
+  return
+  {{end}}`,
 	"err_func_format": `if he, ok := {{.err}}.(errors.HTTPError); ok {
     render.Status(r, he.HTTPCode())
   } else {

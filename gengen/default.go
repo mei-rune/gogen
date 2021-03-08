@@ -1403,6 +1403,8 @@ func (mux *DefaultStye) ErrorFunc(method Method, hasRealErrorCode bool, errCode,
 func (mux *DefaultStye) PlainTextFunc(method Method, args ...string) string {
 	ann := getAnnotation(method, false)
 
+	noreturn := ann.Attributes["noreturn"] == "true"
+
 	okCode := "http.StatusOK"
 	methodName := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
 	switch methodName {
@@ -1417,6 +1419,7 @@ func (mux *DefaultStye) PlainTextFunc(method Method, args ...string) string {
 		"method":     methodName,
 		"statusCode": okCode,
 		"data":       strings.Join(args, ","),
+		"noreturn":   noreturn,
 	})
 	return sb.String()
 }
@@ -1424,9 +1427,7 @@ func (mux *DefaultStye) PlainTextFunc(method Method, args ...string) string {
 func (mux *DefaultStye) OkFunc(method Method, args ...string) string {
 	ann := getAnnotation(method, false)
 
-	if ann.Attributes["noreturn"] == "true" {
-		return "return nil"
-	}
+	noreturn := ann.Attributes["noreturn"] == "true"
 
 	okCode := "http.StatusOK"
 	methodName := strings.ToUpper(strings.TrimPrefix(ann.Name, "http."))
@@ -1442,6 +1443,7 @@ func (mux *DefaultStye) OkFunc(method Method, args ...string) string {
 		"method":     methodName,
 		"statusCode": okCode,
 		"data":       strings.Join(args, ","),
+		"noreturn":   noreturn,
 	})
 	return sb.String()
 }

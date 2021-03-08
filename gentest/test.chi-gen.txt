@@ -1186,6 +1186,50 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		render.JSON(w, r, result)
 		return
 	})
+	mux.Get("/query8", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID int64
+		if s := queryParams.Get("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("item_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("item_id", s, err))
+				return
+			}
+			itemID = itemIDValue
+		}
+
+		result, err := svc.Query8(r.Context(), itemID)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Post("", func(w http.ResponseWriter, r *http.Request) {
+		err := svc.Create3(r.Context(), r, w)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+
+		return
+	})
 	// Misc: annotation is missing
 }
 
@@ -2661,8 +2705,11 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 	// Misc: annotation is missing
 }
 
+// AliasRequestQuery is skipped
 // RequestQueryEx1 is skipped
 // RequestQueryEx2 is skipped
+// RequestQueryEx3 is skipped
+// RequestQueryEx4 is skipped
 
 func InitRequests(mux chi.Router, svc Requests) {
 	mux.Get("/query", func(w http.ResponseWriter, r *http.Request) {
@@ -3197,6 +3244,254 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
+	mux.Get("/query3", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var query *AliasRequestQuery
+		if s := queryParams.Get("operator_id"); s != "" {
+			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("operator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("operator_id", s, err))
+				return
+			}
+			query = &AliasRequestQuery{}
+			query.OperatorID = queryOperatorIDValue
+		}
+		if s := queryParams.Get("creator_id"); s != "" {
+			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("creator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("creator_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.CreatorID = queryCreatorIDValue
+		}
+		if s := queryParams.Get("requester_id"); s != "" {
+			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("requester_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("requester_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.RequesterID = queryRequesterIDValue
+		}
+		if ss := queryParams[request_type_ids]; len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				if he, ok := errors.BadArgument("request_type_ids", ss, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request_type_ids", ss, err))
+				return
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
+		}
+		if ss := queryParams[request_type_names]; len(ss) == 0 {
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		}
+		if s := queryParams.Get("name_like"); s != "" {
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.NameLike = s
+		}
+		if s := queryParams.Get("current_status"); s != "" {
+			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("current_status", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("current_status", s, err))
+				return
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.CurrentStatus = queryCurrentStatusValue
+		}
+		if s := queryParams.Get("is_unclosed"); s != "" {
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = toBool(s)
+		}
+		if s := queryParams.Get("is_overdued"); s != "" {
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = toBool(s)
+		}
+		if s := queryParams.Get("is_suspend"); s != "" {
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = toBool(s)
+		}
+		if s := queryParams.Get("start_at"); s != "" {
+			queryStartAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("start_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("start_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.StartAt = queryStartAtValue
+		}
+		if s := queryParams.Get("end_at"); s != "" {
+			queryEndAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("end_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.EndAt = queryEndAtValue
+		}
+		if s := queryParams.Get("overdue_start"); s != "" {
+			queryOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("overdue_start", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("overdue_start", s, err))
+				return
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.OverdueStart = queryOverdueStartValue
+		}
+		if s := queryParams.Get("overdue_end"); s != "" {
+			queryOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("overdue_end", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("overdue_end", s, err))
+				return
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.OverdueEnd = queryOverdueEndValue
+		}
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "settings.") {
+				if query == nil {
+					query = &AliasRequestQuery{}
+				}
+				if query.Settings == nil {
+					query.Settings = map[string]string{}
+				}
+				query.Settings[strings.TrimPrefix(key, "settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "ttargstt.") {
+				if query == nil {
+					query = &AliasRequestQuery{}
+				}
+				if query.Args == nil {
+					query.Args = map[string]string{}
+				}
+				query.Args[strings.TrimPrefix(key, "ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		if query == nil {
+			query = &AliasRequestQuery{}
+		}
+		query.Values = r.URL.Query()
+		var offset int64
+		if s := queryParams.Get("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("offset", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("offset", s, err))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := queryParams.Get("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("limit", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("limit", s, err))
+				return
+			}
+			limit = limitValue
+		}
+
+		result, err := svc.Query3(r.Context(), query, offset, limit)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
 	mux.Get("/queryex1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *RequestQueryEx1
@@ -3503,6 +3798,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 				return
 			}
 			query = &RequestQueryEx2{}
+			query.RequestQuery = &RequestQueryEx2{}
 			query.OperatorID = queryOperatorIDValue
 		}
 		if s := queryParams.Get("query.creator_id"); s != "" {
@@ -3518,6 +3814,9 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.CreatorID = queryCreatorIDValue
 		}
@@ -3535,6 +3834,9 @@ func InitRequests(mux chi.Router, svc Requests) {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
 			query.RequesterID = queryRequesterIDValue
 		}
 		if ss := queryParams[query.request_type_ids]; len(ss) != 0 {
@@ -3551,17 +3853,26 @@ func InitRequests(mux chi.Router, svc Requests) {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
 		if ss := queryParams[query.request_type_names]; len(ss) == 0 {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
 			query.RequestTypeNames = ss
 		}
 		if s := queryParams.Get("query.name_like"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx2{}
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.NameLike = s
 		}
@@ -3579,11 +3890,17 @@ func InitRequests(mux chi.Router, svc Requests) {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
 			query.CurrentStatus = queryCurrentStatusValue
 		}
 		if s := queryParams.Get("query.is_unclosed"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx2{}
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = toBool(s)
@@ -3592,12 +3909,18 @@ func InitRequests(mux chi.Router, svc Requests) {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = toBool(s)
 		}
 		if s := queryParams.Get("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx2{}
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
 			query.IsSuspend.Bool = toBool(s)
@@ -3616,6 +3939,9 @@ func InitRequests(mux chi.Router, svc Requests) {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
 			query.StartAt = queryStartAtValue
 		}
 		if s := queryParams.Get("query.end_at"); s != "" {
@@ -3631,6 +3957,9 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.EndAt = queryEndAtValue
 		}
@@ -3648,6 +3977,9 @@ func InitRequests(mux chi.Router, svc Requests) {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := queryParams.Get("query.overdue_end"); s != "" {
@@ -3664,12 +3996,18 @@ func InitRequests(mux chi.Router, svc Requests) {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
 			query.OverdueEnd = queryOverdueEndValue
 		}
 		for key, values := range queryParams {
 			if strings.HasPrefix(key, "query.settings.") {
 				if query == nil {
 					query = &RequestQueryEx2{}
+				}
+				if query.RequestQuery == nil {
+					query.RequestQuery = &models.RequestQuery{}
 				}
 				if query.Settings == nil {
 					query.Settings = map[string]string{}
@@ -3683,6 +4021,9 @@ func InitRequests(mux chi.Router, svc Requests) {
 				if query == nil {
 					query = &RequestQueryEx2{}
 				}
+				if query.RequestQuery == nil {
+					query.RequestQuery = &models.RequestQuery{}
+				}
 				if query.Args == nil {
 					query.Args = map[string]string{}
 				}
@@ -3694,6 +4035,9 @@ func InitRequests(mux chi.Router, svc Requests) {
 			if strings.HasPrefix(key, "query.") {
 				if query == nil {
 					query = &RequestQueryEx2{}
+				}
+				if query.RequestQuery == nil {
+					query.RequestQuery = &models.RequestQuery{}
 				}
 				if query.Values == nil {
 					query.Values = url.Values{}
@@ -3767,6 +4111,1268 @@ func InitRequests(mux chi.Router, svc Requests) {
 		}
 
 		result, err := svc.QueryEx2(r.Context(), query, offset, limit, params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/queryex3", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var query *RequestQueryEx3
+		if s := queryParams.Get("query.request.operator_id"); s != "" {
+			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.operator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.operator_id", s, err))
+				return
+			}
+			query = &RequestQueryEx3{}
+			query.Request.OperatorID = queryRequestOperatorIDValue
+		}
+		if s := queryParams.Get("query.request.creator_id"); s != "" {
+			queryRequestCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.creator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.creator_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.CreatorID = queryRequestCreatorIDValue
+		}
+		if s := queryParams.Get("query.request.requester_id"); s != "" {
+			queryRequestRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.requester_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.requester_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequesterID = queryRequestRequesterIDValue
+		}
+		if ss := queryParams[query.request.request_type_ids]; len(ss) != 0 {
+			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.request_type_ids", ss, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.request_type_ids", ss, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
+		}
+		if ss := queryParams[query.request.request_type_names]; len(ss) == 0 {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequestTypeNames = ss
+		}
+		if s := queryParams.Get("query.request.name_like"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.NameLike = s
+		}
+		if s := queryParams.Get("query.request.current_status"); s != "" {
+			queryRequestCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.current_status", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.current_status", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.CurrentStatus = queryRequestCurrentStatusValue
+		}
+		if s := queryParams.Get("query.request.is_unclosed"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.IsUnclosed.Valid = true
+			query.Request.IsUnclosed.Bool = toBool(s)
+		}
+		if s := queryParams.Get("query.request.is_overdued"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.IsOverdued.Valid = true
+			query.Request.IsOverdued.Bool = toBool(s)
+		}
+		if s := queryParams.Get("query.request.is_suspend"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.IsSuspend.Valid = true
+			query.Request.IsSuspend.Bool = toBool(s)
+		}
+		if s := queryParams.Get("query.request.start_at"); s != "" {
+			queryRequestStartAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.start_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.start_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.StartAt = queryRequestStartAtValue
+		}
+		if s := queryParams.Get("query.request.end_at"); s != "" {
+			queryRequestEndAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.end_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.end_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.EndAt = queryRequestEndAtValue
+		}
+		if s := queryParams.Get("query.request.overdue_start"); s != "" {
+			queryRequestOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.overdue_start", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.overdue_start", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.OverdueStart = queryRequestOverdueStartValue
+		}
+		if s := queryParams.Get("query.request.overdue_end"); s != "" {
+			queryRequestOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.overdue_end", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.overdue_end", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.OverdueEnd = queryRequestOverdueEndValue
+		}
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "query.request.settings.") {
+				if query == nil {
+					query = &RequestQueryEx3{}
+				}
+				if query.Request.Settings == nil {
+					query.Request.Settings = map[string]string{}
+				}
+				query.Request.Settings[strings.TrimPrefix(key, "query.request.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "query.request.ttargstt.") {
+				if query == nil {
+					query = &RequestQueryEx3{}
+				}
+				if query.Request.Args == nil {
+					query.Request.Args = map[string]string{}
+				}
+				query.Request.Args[strings.TrimPrefix(key, "query.request.ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "query.request.") {
+				if query == nil {
+					query = &RequestQueryEx3{}
+				}
+				if query.Request.Values == nil {
+					query.Request.Values = url.Values{}
+				}
+
+				query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
+			}
+		}
+
+		if s := queryParams.Get("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.ExArg = s
+		}
+		var offset int64
+		if s := queryParams.Get("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("offset", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("offset", s, err))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := queryParams.Get("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("limit", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("limit", s, err))
+				return
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range queryParams {
+			if key == "" ||
+				key == "query.request.operator_id" ||
+				key == "query.request.creator_id" ||
+				key == "query.request.requester_id" ||
+				key == "query.request.request_type_ids" ||
+				key == "query.request.request_type_names" ||
+				key == "query.request.name_like" ||
+				key == "query.request.current_status" ||
+				key == "query.request.is_unclosed" ||
+				key == "query.request.is_overdued" ||
+				key == "query.request.is_suspend" ||
+				key == "query.request.start_at" ||
+				key == "query.request.end_at" ||
+				key == "query.request.overdue_start" ||
+				key == "query.request.overdue_end" ||
+				key == "query.request.settings" ||
+				key == "query.request.ttargstt" ||
+				key == "query.request." ||
+				key == "query.ex_arg" ||
+				key == "offset" ||
+				key == "limit" {
+				continue
+			}
+
+			params[key] = values[len(values)-1]
+		}
+
+		result, err := svc.QueryEx3(r.Context(), query, offset, limit, params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/queryex4", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var query *RequestQueryEx4
+		if s := queryParams.Get("query.request.operator_id"); s != "" {
+			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.operator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.operator_id", s, err))
+				return
+			}
+			query = &RequestQueryEx4{}
+			query.Request = &RequestQueryEx4{}
+			query.Request.OperatorID = queryRequestOperatorIDValue
+		}
+		if s := queryParams.Get("query.request.creator_id"); s != "" {
+			queryRequestCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.creator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.creator_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.CreatorID = queryRequestCreatorIDValue
+		}
+		if s := queryParams.Get("query.request.requester_id"); s != "" {
+			queryRequestRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.requester_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.requester_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequesterID = queryRequestRequesterIDValue
+		}
+		if ss := queryParams[query.request.request_type_ids]; len(ss) != 0 {
+			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.request_type_ids", ss, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.request_type_ids", ss, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
+		}
+		if ss := queryParams[query.request.request_type_names]; len(ss) == 0 {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequestTypeNames = ss
+		}
+		if s := queryParams.Get("query.request.name_like"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.NameLike = s
+		}
+		if s := queryParams.Get("query.request.current_status"); s != "" {
+			queryRequestCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.current_status", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.current_status", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.CurrentStatus = queryRequestCurrentStatusValue
+		}
+		if s := queryParams.Get("query.request.is_unclosed"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.IsUnclosed.Valid = true
+			query.Request.IsUnclosed.Bool = toBool(s)
+		}
+		if s := queryParams.Get("query.request.is_overdued"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.IsOverdued.Valid = true
+			query.Request.IsOverdued.Bool = toBool(s)
+		}
+		if s := queryParams.Get("query.request.is_suspend"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.IsSuspend.Valid = true
+			query.Request.IsSuspend.Bool = toBool(s)
+		}
+		if s := queryParams.Get("query.request.start_at"); s != "" {
+			queryRequestStartAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.start_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.start_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.StartAt = queryRequestStartAtValue
+		}
+		if s := queryParams.Get("query.request.end_at"); s != "" {
+			queryRequestEndAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.end_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.end_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.EndAt = queryRequestEndAtValue
+		}
+		if s := queryParams.Get("query.request.overdue_start"); s != "" {
+			queryRequestOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.overdue_start", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.overdue_start", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.OverdueStart = queryRequestOverdueStartValue
+		}
+		if s := queryParams.Get("query.request.overdue_end"); s != "" {
+			queryRequestOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("query.request.overdue_end", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("query.request.overdue_end", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.OverdueEnd = queryRequestOverdueEndValue
+		}
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "query.request.settings.") {
+				if query == nil {
+					query = &RequestQueryEx4{}
+				}
+				if query.Request == nil {
+					query.Request = &models.RequestQuery{}
+				}
+				if query.Request.Settings == nil {
+					query.Request.Settings = map[string]string{}
+				}
+				query.Request.Settings[strings.TrimPrefix(key, "query.request.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "query.request.ttargstt.") {
+				if query == nil {
+					query = &RequestQueryEx4{}
+				}
+				if query.Request == nil {
+					query.Request = &models.RequestQuery{}
+				}
+				if query.Request.Args == nil {
+					query.Request.Args = map[string]string{}
+				}
+				query.Request.Args[strings.TrimPrefix(key, "query.request.ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "query.request.") {
+				if query == nil {
+					query = &RequestQueryEx4{}
+				}
+				if query.Request == nil {
+					query.Request = &models.RequestQuery{}
+				}
+				if query.Request.Values == nil {
+					query.Request.Values = url.Values{}
+				}
+
+				query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
+			}
+		}
+
+		if s := queryParams.Get("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			query.ExArg = s
+		}
+		var offset int64
+		if s := queryParams.Get("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("offset", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("offset", s, err))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := queryParams.Get("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("limit", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("limit", s, err))
+				return
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range queryParams {
+			if key == "" ||
+				key == "query.request.operator_id" ||
+				key == "query.request.creator_id" ||
+				key == "query.request.requester_id" ||
+				key == "query.request.request_type_ids" ||
+				key == "query.request.request_type_names" ||
+				key == "query.request.name_like" ||
+				key == "query.request.current_status" ||
+				key == "query.request.is_unclosed" ||
+				key == "query.request.is_overdued" ||
+				key == "query.request.is_suspend" ||
+				key == "query.request.start_at" ||
+				key == "query.request.end_at" ||
+				key == "query.request.overdue_start" ||
+				key == "query.request.overdue_end" ||
+				key == "query.request.settings" ||
+				key == "query.request.ttargstt" ||
+				key == "query.request." ||
+				key == "query.ex_arg" ||
+				key == "offset" ||
+				key == "limit" {
+				continue
+			}
+
+			params[key] = values[len(values)-1]
+		}
+
+		result, err := svc.QueryEx4(r.Context(), query, offset, limit, params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/queryex3/NoPrefix", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var query *RequestQueryEx3
+		if s := queryParams.Get("request.operator_id"); s != "" {
+			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.operator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.operator_id", s, err))
+				return
+			}
+			query = &RequestQueryEx3{}
+			query.Request.OperatorID = queryRequestOperatorIDValue
+		}
+		if s := queryParams.Get("request.creator_id"); s != "" {
+			queryRequestCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.creator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.creator_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.CreatorID = queryRequestCreatorIDValue
+		}
+		if s := queryParams.Get("request.requester_id"); s != "" {
+			queryRequestRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.requester_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.requester_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequesterID = queryRequestRequesterIDValue
+		}
+		if ss := queryParams[request.request_type_ids]; len(ss) != 0 {
+			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.request_type_ids", ss, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.request_type_ids", ss, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
+		}
+		if ss := queryParams[request.request_type_names]; len(ss) == 0 {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequestTypeNames = ss
+		}
+		if s := queryParams.Get("request.name_like"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.NameLike = s
+		}
+		if s := queryParams.Get("request.current_status"); s != "" {
+			queryRequestCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.current_status", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.current_status", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.CurrentStatus = queryRequestCurrentStatusValue
+		}
+		if s := queryParams.Get("request.is_unclosed"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.IsUnclosed.Valid = true
+			query.Request.IsUnclosed.Bool = toBool(s)
+		}
+		if s := queryParams.Get("request.is_overdued"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.IsOverdued.Valid = true
+			query.Request.IsOverdued.Bool = toBool(s)
+		}
+		if s := queryParams.Get("request.is_suspend"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.IsSuspend.Valid = true
+			query.Request.IsSuspend.Bool = toBool(s)
+		}
+		if s := queryParams.Get("request.start_at"); s != "" {
+			queryRequestStartAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.start_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.start_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.StartAt = queryRequestStartAtValue
+		}
+		if s := queryParams.Get("request.end_at"); s != "" {
+			queryRequestEndAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.end_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.end_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.EndAt = queryRequestEndAtValue
+		}
+		if s := queryParams.Get("request.overdue_start"); s != "" {
+			queryRequestOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.overdue_start", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.overdue_start", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.OverdueStart = queryRequestOverdueStartValue
+		}
+		if s := queryParams.Get("request.overdue_end"); s != "" {
+			queryRequestOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.overdue_end", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.overdue_end", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.OverdueEnd = queryRequestOverdueEndValue
+		}
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "request.settings.") {
+				if query == nil {
+					query = &RequestQueryEx3{}
+				}
+				if query.Request.Settings == nil {
+					query.Request.Settings = map[string]string{}
+				}
+				query.Request.Settings[strings.TrimPrefix(key, "request.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "request.ttargstt.") {
+				if query == nil {
+					query = &RequestQueryEx3{}
+				}
+				if query.Request.Args == nil {
+					query.Request.Args = map[string]string{}
+				}
+				query.Request.Args[strings.TrimPrefix(key, "request.ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "request.") {
+				if query == nil {
+					query = &RequestQueryEx3{}
+				}
+				if query.Request.Values == nil {
+					query.Request.Values = url.Values{}
+				}
+
+				query.Request.Values[strings.TrimPrefix(key, "request.")] = values
+			}
+		}
+
+		if s := queryParams.Get("ex_arg"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.ExArg = s
+		}
+		var offset int64
+		if s := queryParams.Get("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("offset", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("offset", s, err))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := queryParams.Get("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("limit", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("limit", s, err))
+				return
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range queryParams {
+			if key == "" ||
+				key == "request.operator_id" ||
+				key == "request.creator_id" ||
+				key == "request.requester_id" ||
+				key == "request.request_type_ids" ||
+				key == "request.request_type_names" ||
+				key == "request.name_like" ||
+				key == "request.current_status" ||
+				key == "request.is_unclosed" ||
+				key == "request.is_overdued" ||
+				key == "request.is_suspend" ||
+				key == "request.start_at" ||
+				key == "request.end_at" ||
+				key == "request.overdue_start" ||
+				key == "request.overdue_end" ||
+				key == "request.settings" ||
+				key == "request.ttargstt" ||
+				key == "request." ||
+				key == "ex_arg" ||
+				key == "offset" ||
+				key == "limit" {
+				continue
+			}
+
+			params[key] = values[len(values)-1]
+		}
+
+		result, err := svc.QueryEx3NoPrefix(r.Context(), query, offset, limit, params)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/queryex4/NoPrefix", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var query *RequestQueryEx4
+		if s := queryParams.Get("request.operator_id"); s != "" {
+			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.operator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.operator_id", s, err))
+				return
+			}
+			query = &RequestQueryEx4{}
+			query.Request = &RequestQueryEx4{}
+			query.Request.OperatorID = queryRequestOperatorIDValue
+		}
+		if s := queryParams.Get("request.creator_id"); s != "" {
+			queryRequestCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.creator_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.creator_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.CreatorID = queryRequestCreatorIDValue
+		}
+		if s := queryParams.Get("request.requester_id"); s != "" {
+			queryRequestRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.requester_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.requester_id", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequesterID = queryRequestRequesterIDValue
+		}
+		if ss := queryParams[request.request_type_ids]; len(ss) != 0 {
+			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.request_type_ids", ss, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.request_type_ids", ss, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
+		}
+		if ss := queryParams[request.request_type_names]; len(ss) == 0 {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequestTypeNames = ss
+		}
+		if s := queryParams.Get("request.name_like"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.NameLike = s
+		}
+		if s := queryParams.Get("request.current_status"); s != "" {
+			queryRequestCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.current_status", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.current_status", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.CurrentStatus = queryRequestCurrentStatusValue
+		}
+		if s := queryParams.Get("request.is_unclosed"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.IsUnclosed.Valid = true
+			query.Request.IsUnclosed.Bool = toBool(s)
+		}
+		if s := queryParams.Get("request.is_overdued"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.IsOverdued.Valid = true
+			query.Request.IsOverdued.Bool = toBool(s)
+		}
+		if s := queryParams.Get("request.is_suspend"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.IsSuspend.Valid = true
+			query.Request.IsSuspend.Bool = toBool(s)
+		}
+		if s := queryParams.Get("request.start_at"); s != "" {
+			queryRequestStartAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.start_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.start_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.StartAt = queryRequestStartAtValue
+		}
+		if s := queryParams.Get("request.end_at"); s != "" {
+			queryRequestEndAtValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.end_at", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.end_at", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.EndAt = queryRequestEndAtValue
+		}
+		if s := queryParams.Get("request.overdue_start"); s != "" {
+			queryRequestOverdueStartValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.overdue_start", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.overdue_start", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.OverdueStart = queryRequestOverdueStartValue
+		}
+		if s := queryParams.Get("request.overdue_end"); s != "" {
+			queryRequestOverdueEndValue, err := toDatetime(s)
+			if err != nil {
+				if he, ok := errors.BadArgument("request.overdue_end", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("request.overdue_end", s, err))
+				return
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.OverdueEnd = queryRequestOverdueEndValue
+		}
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "request.settings.") {
+				if query == nil {
+					query = &RequestQueryEx4{}
+				}
+				if query.Request == nil {
+					query.Request = &models.RequestQuery{}
+				}
+				if query.Request.Settings == nil {
+					query.Request.Settings = map[string]string{}
+				}
+				query.Request.Settings[strings.TrimPrefix(key, "request.settings.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "request.ttargstt.") {
+				if query == nil {
+					query = &RequestQueryEx4{}
+				}
+				if query.Request == nil {
+					query.Request = &models.RequestQuery{}
+				}
+				if query.Request.Args == nil {
+					query.Request.Args = map[string]string{}
+				}
+				query.Request.Args[strings.TrimPrefix(key, "request.ttargstt.")] = values[len(values)-1]
+			}
+		}
+
+		for key, values := range queryParams {
+			if strings.HasPrefix(key, "request.") {
+				if query == nil {
+					query = &RequestQueryEx4{}
+				}
+				if query.Request == nil {
+					query.Request = &models.RequestQuery{}
+				}
+				if query.Request.Values == nil {
+					query.Request.Values = url.Values{}
+				}
+
+				query.Request.Values[strings.TrimPrefix(key, "request.")] = values
+			}
+		}
+
+		if s := queryParams.Get("ex_arg"); s != "" {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			query.ExArg = s
+		}
+		var offset int64
+		if s := queryParams.Get("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("offset", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("offset", s, err))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := queryParams.Get("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("limit", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("limit", s, err))
+				return
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range queryParams {
+			if key == "" ||
+				key == "request.operator_id" ||
+				key == "request.creator_id" ||
+				key == "request.requester_id" ||
+				key == "request.request_type_ids" ||
+				key == "request.request_type_names" ||
+				key == "request.name_like" ||
+				key == "request.current_status" ||
+				key == "request.is_unclosed" ||
+				key == "request.is_overdued" ||
+				key == "request.is_suspend" ||
+				key == "request.start_at" ||
+				key == "request.end_at" ||
+				key == "request.overdue_start" ||
+				key == "request.overdue_end" ||
+				key == "request.settings" ||
+				key == "request.ttargstt" ||
+				key == "request." ||
+				key == "ex_arg" ||
+				key == "offset" ||
+				key == "limit" {
+				continue
+			}
+
+			params[key] = values[len(values)-1]
+		}
+
+		result, err := svc.QueryEx4NoPrefix(r.Context(), query, offset, limit, params)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())

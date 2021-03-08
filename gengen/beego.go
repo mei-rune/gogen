@@ -21,7 +21,9 @@ var beeConfig = map[string]interface{}{
 	"read_body_format":    "json.Unmarshal({{.ctx}}.Input.CopyBody(4 * 1024), &{{.name}})",
 	"bad_argument_format": "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)",
 
-	"ok_func_format":  "ctx.Output.SetStatus({{.statusCode}})\r\n    ctx.Output.JSON({{.data}}, false, false)\r\n    return",
+	"ok_func_format":         "{{if .noreturn}}\r\n return{{else}} ctx.Output.SetStatus({{.statusCode}})\r\n    ctx.Output.JSON({{.data}}, false, false)\r\n    return{{end}}",
+	"plain_text_func_format": "{{if .noreturn}}\r\n return{{else}} ctx.Output.SetStatus({{.statusCode}})\r\n    ctx.Output.Body({{.data}}, false, false)\r\n    return{{end}}",
+
 	"err_func_format": "ctx.Output.SetStatus({{.errCode}})\r\n    ctx.WriteString({{.err}}.Error())\r\n    return",
 
 	"reserved": map[string]string{

@@ -18,7 +18,7 @@ var echoConfig = map[string]interface{}{
 	"read_body_format":      "{{.ctx}}.Bind(&{{.name}})",
 	"bad_argument_format":   "fmt.Errorf(\"argument %%q is invalid - %%q\", \"%s\", %s, %s)",
 	"read_format":           "{{.ctx}}.{{.readMethodName}}(\"{{.name}}\")",
-	"ok_func_format":        "return ctx.JSON({{.statusCode}}, {{.data}})",
+	"ok_func_format":        "{{if .noreturn}}\r\n return nil{{else}}return ctx.JSON({{.statusCode}}, {{.data}}){{end}}",
 	"err_func_format":       "ctx.Error({{.err}})\r\n     return nil",
 
 	"reserved": map[string]string{

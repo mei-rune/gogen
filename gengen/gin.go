@@ -20,8 +20,9 @@ var ginConfig = map[string]interface{}{
 	"read_body_format":    "{{.ctx}}.Bind(&{{.name}})",
 	"bad_argument_format": "fmt.Errorf(\"argument %%q is invalid - %%q\", %s, %s, %s)",
 
-	"ok_func_format":  "ctx.JSON({{.statusCode}}, {{.data}})\r\n    return",
-	"err_func_format": "ctx.String({{.errCode}}, {{.err}}.Error())\r\n    return",
+	"ok_func_format":         "{{if .noreturn}}\r\n return{{else}}ctx.JSON({{.statusCode}}, {{.data}})\r\n    return{{end}}",
+	"plain_text_func_format": "{{if .noreturn}}\r\n return{{else}}ctx.String({{.statusCode}}, \"text/plain\", {{.data}})\r\n    return{{end}}",
+	"err_func_format":        "ctx.String({{.errCode}}, {{.err}}.Error())\r\n    return",
 
 	"reserved": map[string]string{
 		"url.Values":          "ctx.Request.URL.Query()",

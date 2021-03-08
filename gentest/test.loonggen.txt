@@ -711,6 +711,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
+
 		return nil
 	})
 	// Misc: annotation is missing
@@ -2552,9 +2553,6 @@ func InitRequests(mux loong.Party, svc Requests) {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
-			if query.RequestQuery == nil {
-				query.RequestQuery = &models.RequestQuery{}
-			}
 			query.ExArg = s
 		}
 		var offset int64
@@ -3240,9 +3238,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "request.") {
-		if query == nil {
-			query = &RequestQueryEx3{}
-		}
+				if query == nil {
+					query = &RequestQueryEx3{}
+				}
 				if query.Request.Values == nil {
 					query.Request.Values = url.Values{}
 				}
@@ -3503,9 +3501,9 @@ func InitRequests(mux loong.Party, svc Requests) {
 
 		for key, values := range ctx.QueryParams() {
 			if strings.HasPrefix(key, "request.") {
-		if query == nil {
-			query = &RequestQueryEx4{}
-		}
+				if query == nil {
+					query = &RequestQueryEx4{}
+				}
 				if query.Request == nil {
 					query.Request = &models.RequestQuery{}
 				}
