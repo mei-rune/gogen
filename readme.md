@@ -9,10 +9,7 @@
      service Messaging {
        rpc GetMessage(GetMessageRequest) returns (Message) {
          option (google.api.http) = {
-           get: "/v1/messages/{message_id}"
-           additional_bindings {
              get: "/v1/users/{user_id}/messages/{message_id}"
-           }
          };
        }
      }
@@ -24,7 +21,7 @@
     生成生后，interface 应该如下
      ````golang
       type Messaging interface {
-            GetMessage(messageID, userID string) (Message, error)
+            GetMessage(userID, messageID string) (Message, error)
       }
      ````
 2. 或仍然用 interface 定义，但引用 github.com/swaggo/swag 的 annotations 
