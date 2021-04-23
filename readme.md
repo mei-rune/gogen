@@ -32,3 +32,21 @@
 
 ## 当前状态
 生成器的代码很乱，但生成的代码很漂亮, 和手写区别不大(这是当初的目标，也是以后的目标)，生成后的代码不依赖本项目(这是当初的目标，也是以后的目标)。
+
+## 使用方法
+
+1. 定义接口
+····golang
+type MoDomains interface {
+	// @http.GET(path="/by_name?name")
+	GetByName(ctx context.Context, name string) (*MoDomain, error)
+}
+····
+3. 生成代码
+
+生成 github.com/labstack/echo 服务端代码
+gogen server -pre_init_object=true -ext=.server-gen.go -config=@echo domains.go
+
+生成客户端代码
+gogen client -ext=.client-gen.go domains.go
+
