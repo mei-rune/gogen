@@ -44,7 +44,7 @@ type MoDomains interface {
 ····
 3. 生成代码
 
-生成 github.com/labstack/echo 服务端代码，注意你也可以指定生成 chi, gin 等等
+生成 github.com/labstack/echo （由-config=@echo参数指定） 服务端代码，注意你也可以指定生成 chi, gin 等等
 gogen server -pre_init_object=true -ext=.server-gen.go -config=@echo domains.go
 
 生成客户端代码
