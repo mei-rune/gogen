@@ -5,6 +5,7 @@
 ## 重构的想法
 1. 接口用 protocolbuffers 来定义接口, 注意不要像 github.com/twitchtv/twirp, 要支持 google.api.http
      例如：
+     ````
      service Messaging {
        rpc GetMessage(GetMessageRequest) returns (Message) {
          option (google.api.http) = {
@@ -19,12 +20,13 @@
        string message_id = 1;
        string user_id = 2;
     }
-
+    ````
     生成生后，interface 应该如下
+     ````golang
       type Messaging interface {
             GetMessage(messageID, userID string) (Message, error)
       }
-
+     ````
 2. 或仍然用 interface 定义，但引用 github.com/swaggo/swag 的 annotations 
 
 3. 或采用 github.com/tal-tech/go-zero 的语法
