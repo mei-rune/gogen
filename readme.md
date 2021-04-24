@@ -48,6 +48,23 @@ type MoDomains interface {
 
 gogen server -pre_init_object=true -ext=.server-gen.go -config=@echo domains.go
 
+它会生成下面代码
+
+````golang
+func InitMoDomains(mux loong.Party, svc MoDomains) {
+	mux.GET("/by_name", func(ctx *echo.Context) error {
+		var name = ctx.QueryParam("name")
+
+		result, err := svc.GetByName(ctx.StdContext, name)
+		if err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "key", s, err))
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, result)
+	})
+}
+````
+
 生成客户端代码
 
 gogen client -ext=.client-gen.go domains.go
