@@ -36,17 +36,19 @@
 ## 使用方法
 
 1. 定义接口
-····golang
+````golang
 type MoDomains interface {
 	// @http.GET(path="/by_name?name")
 	GetByName(ctx context.Context, name string) (*MoDomain, error)
 }
-····
+````
 3. 生成代码
 
 生成 github.com/labstack/echo （由-config=@echo参数指定） 服务端代码，注意你也可以指定生成 chi, gin 等等
+
 gogen server -pre_init_object=true -ext=.server-gen.go -config=@echo domains.go
 
 生成客户端代码
+
 gogen client -ext=.client-gen.go domains.go
 
