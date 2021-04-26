@@ -1790,7 +1790,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
@@ -2012,7 +2012,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
@@ -2198,7 +2198,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
@@ -2384,7 +2384,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
@@ -2623,7 +2623,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
@@ -2891,7 +2891,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("query.request.request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("query.request.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
@@ -3130,7 +3130,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("query.request.request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("query.request.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx4{}
 			}
@@ -3398,7 +3398,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("request.request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("request.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
@@ -3637,7 +3637,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("request.request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("request.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx4{}
 			}
@@ -3905,7 +3905,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) == 0 {
+		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}

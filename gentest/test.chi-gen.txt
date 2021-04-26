@@ -2777,7 +2777,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := queryParams[query.request_type_names]; len(ss) == 0 {
+		if ss := queryParams[query.request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
@@ -3061,7 +3061,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := queryParams[request_type_names]; len(ss) == 0 {
+		if ss := queryParams[request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
@@ -3309,7 +3309,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := queryParams[request_type_names]; len(ss) == 0 {
+		if ss := queryParams[request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
@@ -3557,7 +3557,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := queryParams[query.request_type_names]; len(ss) == 0 {
+		if ss := queryParams[query.request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
@@ -3858,7 +3858,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := queryParams[query.request_type_names]; len(ss) == 0 {
+		if ss := queryParams[query.request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
@@ -4188,7 +4188,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
-		if ss := queryParams[query.request.request_type_names]; len(ss) == 0 {
+		if ss := queryParams[query.request.request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
@@ -4489,7 +4489,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
-		if ss := queryParams[query.request.request_type_names]; len(ss) == 0 {
+		if ss := queryParams[query.request.request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx4{}
 			}
@@ -4819,7 +4819,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
-		if ss := queryParams[request.request_type_names]; len(ss) == 0 {
+		if ss := queryParams[request.request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
@@ -5120,7 +5120,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
-		if ss := queryParams[request.request_type_names]; len(ss) == 0 {
+		if ss := queryParams[request.request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx4{}
 			}
@@ -5450,7 +5450,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
-		if ss := queryParams[query.request_type_names]; len(ss) == 0 {
+		if ss := queryParams[query.request_type_names]; len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}

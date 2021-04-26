@@ -1101,19 +1101,19 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
   		    {{- if .skipDeclare | not}}var {{.name}} .type {{end -}}
           
           {{- if .isArray}} 
-          if ss := {{readOptional .param .ctx .type .rname}}; len(ss) == 0 {
+          if ss := {{readOptional .param .ctx .type .rname}}; len(ss) != 0 {
       		  {{- .initRootValue}}
             {{.name}} = ss
           }
           {{- else}}
           if s := {{readOptional .param .ctx .type .rname}}; s != "" {
       		  {{- .initRootValue}}
-			{{- if isNull .param.Typ}}
-			{{.name}}.Valid = true
-            {{.name}}.String = s
-			{{- else}}
-            {{.name}} = s
-            {{- end}}
+      		    {{- if isNull .param.Typ}}
+      		      {{.name}}.Valid = true
+      		      {{.name}}.String = s
+      		    {{- else}}
+                {{.name}} = s
+              {{- end}}
           }
           {{- end}}
           
@@ -1137,7 +1137,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		{{- if .skipDeclare | not}}var {{.name}} *{{.type}}{{end -}}
     
     {{- if .isArray}} 
-    if ss := {{readOptional .param .ctx .type .rname}}; len(ss) == 0 {
+    if ss := {{readOptional .param .ctx .type .rname}}; len(ss) != 0 {
 			{{- .initRootValue}}
 			{{.name}} = &ss
 		}
