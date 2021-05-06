@@ -542,7 +542,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		var isRaw bool
 		if s := ctx.QueryParam("is_raw"); s != "" {
-			isRaw = toBool(s)
+			isRaw = ToBool(s)
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
@@ -566,7 +566,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -589,7 +589,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -611,7 +611,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -637,7 +637,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -659,7 +659,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -685,7 +685,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -1240,7 +1240,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 		var isRaw bool
 		if s := ctx.QueryParam("is_raw"); s != "" {
-			isRaw = toBool(s)
+			isRaw = ToBool(s)
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
@@ -1264,7 +1264,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -1287,7 +1287,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -1309,7 +1309,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -1335,7 +1335,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -1357,7 +1357,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -1383,7 +1383,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.ReturnQueryResult(result)
@@ -1632,21 +1632,21 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
 			queryStartAtValue, err := loong.ToDatetime(s)
@@ -1842,21 +1842,21 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("start_at"); s != "" {
 			queryStartAtValue, err := loong.ToDatetime(s)
@@ -2016,21 +2016,21 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query = &AliasRequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("is_overdued"); s != "" {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("is_suspend"); s != "" {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("start_at"); s != "" {
 			queryStartAtValue, err := loong.ToDatetime(s)
@@ -2190,21 +2190,21 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query = &RequestQueryEx1{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
 			queryStartAtValue, err := loong.ToDatetime(s)
@@ -2429,7 +2429,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_overdued"); s != "" {
 			if query == nil {
@@ -2439,7 +2439,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_suspend"); s != "" {
 			if query == nil {
@@ -2449,7 +2449,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
 			queryStartAtValue, err := loong.ToDatetime(s)
@@ -2673,21 +2673,21 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.start_at"); s != "" {
 			queryRequestStartAtValue, err := loong.ToDatetime(s)
@@ -2912,7 +2912,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.is_overdued"); s != "" {
 			if query == nil {
@@ -2922,7 +2922,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.is_suspend"); s != "" {
 			if query == nil {
@@ -2932,7 +2932,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.start_at"); s != "" {
 			queryRequestStartAtValue, err := loong.ToDatetime(s)
@@ -3156,21 +3156,21 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.start_at"); s != "" {
 			queryRequestStartAtValue, err := loong.ToDatetime(s)
@@ -3395,7 +3395,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.is_overdued"); s != "" {
 			if query == nil {
@@ -3405,7 +3405,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.is_suspend"); s != "" {
 			if query == nil {
@@ -3415,7 +3415,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.start_at"); s != "" {
 			queryRequestStartAtValue, err := loong.ToDatetime(s)
@@ -3639,21 +3639,21 @@ func InitRequests(mux loong.Party, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
 			queryStartAtValue, err := loong.ToDatetime(s)

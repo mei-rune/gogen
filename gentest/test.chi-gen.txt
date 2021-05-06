@@ -155,7 +155,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		}
 		args.fstring = queryParams.Get("args.fstring")
 		if s := queryParams.Get("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("args.ftime", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -184,7 +184,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := queryParams.Get("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("args.ftimeptr", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -244,7 +244,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			args.fstring = s
 		}
 		if s := queryParams.Get("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("args.ftime", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -282,7 +282,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := queryParams.Get("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("args.ftimeptr", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -339,7 +339,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		}
 		args.fstring = queryParams.Get("fstring")
 		if s := queryParams.Get("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("ftime", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -368,7 +368,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := queryParams.Get("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("ftimeptr", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -428,7 +428,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			args.fstring = s
 		}
 		if s := queryParams.Get("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("ftime", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -466,7 +466,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := queryParams.Get("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("ftimeptr", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -925,7 +925,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		var a = queryParams.Get("a")
 		var beginAt time.Time
 		if s := queryParams.Get("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("begin_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -939,7 +939,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := queryParams.Get("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -953,7 +953,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		}
 		var isRaw bool
 		if s := queryParams.Get("is_raw"); s != "" {
-			isRaw = toBool(s)
+			isRaw = ToBool(s)
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
@@ -965,7 +965,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		var a = queryParams.Get("a")
 		var beginAt time.Time
 		if s := queryParams.Get("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("begin_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -979,7 +979,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := queryParams.Get("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -991,7 +991,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		render.JSON(w, r, result)
@@ -1002,7 +1002,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		var a = queryParams.Get("a")
 		var beginAt time.Time
 		if s := queryParams.Get("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("begin_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1016,7 +1016,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := queryParams.Get("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1028,7 +1028,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		render.JSON(w, r, result)
@@ -1039,7 +1039,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		var a = queryParams.Get("a")
 		var createdAt TimeRange
 		if s := queryParams.Get("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1052,7 +1052,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1064,7 +1064,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
@@ -1075,7 +1075,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		var a = queryParams.Get("a")
 		var createdAt *TimeRange
 		if s := queryParams.Get("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1089,7 +1089,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1104,7 +1104,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
@@ -1115,7 +1115,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		var a = queryParams.Get("a")
 		var createdAt TimeRange2
 		if s := queryParams.Get("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1128,7 +1128,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1140,7 +1140,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
@@ -1151,7 +1151,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		var a = queryParams.Get("a")
 		var createdAt *TimeRange2
 		if s := queryParams.Get("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1165,7 +1165,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1180,7 +1180,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
@@ -1367,7 +1367,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		}
 		args.fstring = queryParams.Get("args.fstring")
 		if s := queryParams.Get("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("args.ftime", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1396,7 +1396,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := queryParams.Get("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("args.ftimeptr", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1456,7 +1456,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			args.fstring = s
 		}
 		if s := queryParams.Get("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("args.ftime", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1494,7 +1494,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := queryParams.Get("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("args.ftimeptr", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1551,7 +1551,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		}
 		args.fstring = queryParams.Get("fstring")
 		if s := queryParams.Get("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("ftime", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1580,7 +1580,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := queryParams.Get("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("ftimeptr", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1640,7 +1640,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			args.fstring = s
 		}
 		if s := queryParams.Get("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("ftime", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -1678,7 +1678,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := queryParams.Get("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("ftimeptr", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2137,7 +2137,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		var a = queryParams.Get("a")
 		var beginAt time.Time
 		if s := queryParams.Get("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("begin_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2151,7 +2151,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := queryParams.Get("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2165,7 +2165,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		}
 		var isRaw bool
 		if s := queryParams.Get("is_raw"); s != "" {
-			isRaw = toBool(s)
+			isRaw = ToBool(s)
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
@@ -2177,7 +2177,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		var a = queryParams.Get("a")
 		var beginAt time.Time
 		if s := queryParams.Get("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("begin_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2191,7 +2191,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := queryParams.Get("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2203,7 +2203,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		render.JSON(w, r, result)
@@ -2214,7 +2214,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		var a = queryParams.Get("a")
 		var beginAt time.Time
 		if s := queryParams.Get("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("begin_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2228,7 +2228,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := queryParams.Get("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2240,7 +2240,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		render.JSON(w, r, result)
@@ -2251,7 +2251,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		var a = queryParams.Get("a")
 		var createdAt TimeRange
 		if s := queryParams.Get("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2264,7 +2264,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2276,7 +2276,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
@@ -2287,7 +2287,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		var a = queryParams.Get("a")
 		var createdAt *TimeRange
 		if s := queryParams.Get("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2301,7 +2301,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2316,7 +2316,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
@@ -2327,7 +2327,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		var a = queryParams.Get("a")
 		var createdAt TimeRange2
 		if s := queryParams.Get("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2340,7 +2340,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2352,7 +2352,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
@@ -2363,7 +2363,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		var a = queryParams.Get("a")
 		var createdAt *TimeRange2
 		if s := queryParams.Get("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2377,7 +2377,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("created_at.end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2392,7 +2392,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(chi.URLParam(r, "isRaw"))
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
@@ -2810,24 +2810,24 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2843,7 +2843,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := queryParams.Get("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2859,7 +2859,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := queryParams.Get("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -2875,7 +2875,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := queryParams.Get("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3094,24 +3094,24 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3127,7 +3127,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := queryParams.Get("end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3143,7 +3143,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := queryParams.Get("overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3159,7 +3159,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := queryParams.Get("overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3342,24 +3342,24 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query = &AliasRequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("is_overdued"); s != "" {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("is_suspend"); s != "" {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3375,7 +3375,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := queryParams.Get("end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3391,7 +3391,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := queryParams.Get("overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3407,7 +3407,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := queryParams.Get("overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3590,24 +3590,24 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query = &RequestQueryEx1{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3623,7 +3623,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := queryParams.Get("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3639,7 +3639,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := queryParams.Get("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3655,7 +3655,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := queryParams.Get("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3903,7 +3903,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.is_overdued"); s != "" {
 			if query == nil {
@@ -3913,7 +3913,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.is_suspend"); s != "" {
 			if query == nil {
@@ -3923,10 +3923,10 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3945,7 +3945,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := queryParams.Get("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3964,7 +3964,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := queryParams.Get("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -3983,7 +3983,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := queryParams.Get("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4221,24 +4221,24 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.request.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.request.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.request.start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4254,7 +4254,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := queryParams.Get("query.request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.request.end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4270,7 +4270,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := queryParams.Get("query.request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.request.overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4286,7 +4286,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := queryParams.Get("query.request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.request.overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4534,7 +4534,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.request.is_overdued"); s != "" {
 			if query == nil {
@@ -4544,7 +4544,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.request.is_suspend"); s != "" {
 			if query == nil {
@@ -4554,10 +4554,10 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.request.start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4576,7 +4576,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := queryParams.Get("query.request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.request.end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4595,7 +4595,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := queryParams.Get("query.request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.request.overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4614,7 +4614,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := queryParams.Get("query.request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.request.overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4852,24 +4852,24 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("request.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("request.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("request.start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4885,7 +4885,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := queryParams.Get("request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("request.end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4901,7 +4901,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := queryParams.Get("request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("request.overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -4917,7 +4917,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := queryParams.Get("request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("request.overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -5165,7 +5165,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("request.is_overdued"); s != "" {
 			if query == nil {
@@ -5175,7 +5175,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("request.is_suspend"); s != "" {
 			if query == nil {
@@ -5185,10 +5185,10 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("request.start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -5207,7 +5207,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := queryParams.Get("request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("request.end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -5226,7 +5226,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := queryParams.Get("request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("request.overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -5245,7 +5245,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := queryParams.Get("request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("request.overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -5483,24 +5483,24 @@ func InitRequests(mux chi.Router, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := queryParams.Get("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.start_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -5516,7 +5516,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := queryParams.Get("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.end_at", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -5532,7 +5532,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := queryParams.Get("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.overdue_start", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())
@@ -5548,7 +5548,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := queryParams.Get("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				if he, ok := errors.BadArgument("query.overdue_end", s, err).(errors.HTTPError); ok {
 					render.Status(r, he.HTTPCode())

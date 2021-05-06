@@ -130,7 +130,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		}
 		args.fstring = ctx.Input.Query("args.fstring")
 		if s := ctx.Input.Query("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftime, s, err).Error())
@@ -151,7 +151,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := ctx.Input.Query("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftimeptr, s, err).Error())
@@ -195,7 +195,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			args.fstring = s
 		}
 		if s := ctx.Input.Query("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftime, s, err).Error())
@@ -225,7 +225,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := ctx.Input.Query("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftimeptr, s, err).Error())
@@ -266,7 +266,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		}
 		args.fstring = ctx.Input.Query("fstring")
 		if s := ctx.Input.Query("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftime, s, err).Error())
@@ -287,7 +287,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := ctx.Input.Query("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftimeptr, s, err).Error())
@@ -331,7 +331,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			args.fstring = s
 		}
 		if s := ctx.Input.Query("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftime, s, err).Error())
@@ -361,7 +361,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := ctx.Input.Query("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftimeptr, s, err).Error())
@@ -708,7 +708,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
@@ -718,7 +718,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.Input.Query("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
@@ -728,7 +728,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		}
 		var isRaw bool
 		if s := ctx.Input.Query("is_raw"); s != "" {
-			isRaw = toBool(s)
+			isRaw = ToBool(s)
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
@@ -740,7 +740,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
@@ -750,7 +750,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.Input.Query("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
@@ -758,7 +758,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -769,7 +769,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
@@ -779,7 +779,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.Input.Query("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
@@ -787,7 +787,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -798,7 +798,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var a = ctx.Input.Query("a")
 		var createdAt TimeRange
 		if s := ctx.Input.Query("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
@@ -807,7 +807,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
@@ -815,7 +815,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -826,7 +826,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var a = ctx.Input.Query("a")
 		var createdAt *TimeRange
 		if s := ctx.Input.Query("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
@@ -836,7 +836,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
@@ -847,7 +847,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -858,7 +858,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var a = ctx.Input.Query("a")
 		var createdAt TimeRange2
 		if s := ctx.Input.Query("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
@@ -867,7 +867,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
@@ -875,7 +875,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -886,7 +886,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var a = ctx.Input.Query("a")
 		var createdAt *TimeRange2
 		if s := ctx.Input.Query("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
@@ -896,7 +896,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
@@ -907,7 +907,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -1048,7 +1048,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		}
 		args.fstring = ctx.Input.Query("args.fstring")
 		if s := ctx.Input.Query("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftime, s, err).Error())
@@ -1069,7 +1069,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := ctx.Input.Query("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftimeptr, s, err).Error())
@@ -1113,7 +1113,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			args.fstring = s
 		}
 		if s := ctx.Input.Query("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftime, s, err).Error())
@@ -1143,7 +1143,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := ctx.Input.Query("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftimeptr, s, err).Error())
@@ -1184,7 +1184,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		}
 		args.fstring = ctx.Input.Query("fstring")
 		if s := ctx.Input.Query("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftime, s, err).Error())
@@ -1205,7 +1205,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := ctx.Input.Query("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftimeptr, s, err).Error())
@@ -1249,7 +1249,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			args.fstring = s
 		}
 		if s := ctx.Input.Query("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftime, s, err).Error())
@@ -1279,7 +1279,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := ctx.Input.Query("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftimeptr, s, err).Error())
@@ -1626,7 +1626,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
@@ -1636,7 +1636,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.Input.Query("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
@@ -1646,7 +1646,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		}
 		var isRaw bool
 		if s := ctx.Input.Query("is_raw"); s != "" {
-			isRaw = toBool(s)
+			isRaw = ToBool(s)
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
@@ -1658,7 +1658,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
@@ -1668,7 +1668,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.Input.Query("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
@@ -1676,7 +1676,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -1687,7 +1687,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", begin_at, s, err).Error())
@@ -1697,7 +1697,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.Input.Query("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
@@ -1705,7 +1705,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -1716,7 +1716,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var a = ctx.Input.Query("a")
 		var createdAt TimeRange
 		if s := ctx.Input.Query("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
@@ -1725,7 +1725,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
@@ -1733,7 +1733,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -1744,7 +1744,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var a = ctx.Input.Query("a")
 		var createdAt *TimeRange
 		if s := ctx.Input.Query("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
@@ -1754,7 +1754,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
@@ -1765,7 +1765,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -1776,7 +1776,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var a = ctx.Input.Query("a")
 		var createdAt TimeRange2
 		if s := ctx.Input.Query("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
@@ -1785,7 +1785,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
@@ -1793,7 +1793,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -1804,7 +1804,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		var a = ctx.Input.Query("a")
 		var createdAt *TimeRange2
 		if s := ctx.Input.Query("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.start, s, err).Error())
@@ -1814,7 +1814,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.Input.Query("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", created_at.end, s, err).Error())
@@ -1825,7 +1825,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Input.Param("isRaw"))
+		var isRaw = ToBool(ctx.Input.Param("isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
 		ctx.Output.SetStatus(http.StatusOK)
@@ -2150,24 +2150,24 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.start_at, s, err).Error())
@@ -2179,7 +2179,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.Input.Query("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.end_at, s, err).Error())
@@ -2191,7 +2191,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.Input.Query("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_start, s, err).Error())
@@ -2203,7 +2203,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.Input.Query("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_end, s, err).Error())
@@ -2386,24 +2386,24 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", start_at, s, err).Error())
@@ -2415,7 +2415,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.Input.Query("end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
@@ -2427,7 +2427,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.Input.Query("overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", overdue_start, s, err).Error())
@@ -2439,7 +2439,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.Input.Query("overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", overdue_end, s, err).Error())
@@ -2586,24 +2586,24 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query = &AliasRequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("is_overdued"); s != "" {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("is_suspend"); s != "" {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", start_at, s, err).Error())
@@ -2615,7 +2615,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.Input.Query("end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", end_at, s, err).Error())
@@ -2627,7 +2627,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.Input.Query("overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", overdue_start, s, err).Error())
@@ -2639,7 +2639,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.Input.Query("overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", overdue_end, s, err).Error())
@@ -2786,24 +2786,24 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query = &RequestQueryEx1{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.start_at, s, err).Error())
@@ -2815,7 +2815,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.Input.Query("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.end_at, s, err).Error())
@@ -2827,7 +2827,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.Input.Query("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_start, s, err).Error())
@@ -2839,7 +2839,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.Input.Query("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_end, s, err).Error())
@@ -3051,7 +3051,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.is_overdued"); s != "" {
 			if query == nil {
@@ -3061,7 +3061,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.is_suspend"); s != "" {
 			if query == nil {
@@ -3071,10 +3071,10 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.start_at, s, err).Error())
@@ -3089,7 +3089,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.Input.Query("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.end_at, s, err).Error())
@@ -3104,7 +3104,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.Input.Query("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_start, s, err).Error())
@@ -3119,7 +3119,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.Input.Query("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_end, s, err).Error())
@@ -3321,24 +3321,24 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.request.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.request.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request.start_at, s, err).Error())
@@ -3350,7 +3350,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.Input.Query("query.request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request.end_at, s, err).Error())
@@ -3362,7 +3362,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.Input.Query("query.request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request.overdue_start, s, err).Error())
@@ -3374,7 +3374,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.Input.Query("query.request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request.overdue_end, s, err).Error())
@@ -3586,7 +3586,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.request.is_overdued"); s != "" {
 			if query == nil {
@@ -3596,7 +3596,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.request.is_suspend"); s != "" {
 			if query == nil {
@@ -3606,10 +3606,10 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request.start_at, s, err).Error())
@@ -3624,7 +3624,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.Input.Query("query.request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request.end_at, s, err).Error())
@@ -3639,7 +3639,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.Input.Query("query.request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request.overdue_start, s, err).Error())
@@ -3654,7 +3654,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.Input.Query("query.request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.request.overdue_end, s, err).Error())
@@ -3856,24 +3856,24 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("request.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("request.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", request.start_at, s, err).Error())
@@ -3885,7 +3885,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.Input.Query("request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", request.end_at, s, err).Error())
@@ -3897,7 +3897,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.Input.Query("request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", request.overdue_start, s, err).Error())
@@ -3909,7 +3909,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.Input.Query("request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", request.overdue_end, s, err).Error())
@@ -4121,7 +4121,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("request.is_overdued"); s != "" {
 			if query == nil {
@@ -4131,7 +4131,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("request.is_suspend"); s != "" {
 			if query == nil {
@@ -4141,10 +4141,10 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", request.start_at, s, err).Error())
@@ -4159,7 +4159,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.Input.Query("request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", request.end_at, s, err).Error())
@@ -4174,7 +4174,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.Input.Query("request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", request.overdue_start, s, err).Error())
@@ -4189,7 +4189,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.Input.Query("request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", request.overdue_end, s, err).Error())
@@ -4391,24 +4391,24 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.Input.Query("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.start_at, s, err).Error())
@@ -4420,7 +4420,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.Input.Query("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.end_at, s, err).Error())
@@ -4432,7 +4432,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.Input.Query("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_start, s, err).Error())
@@ -4444,7 +4444,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.Input.Query("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Output.SetStatus(http.StatusBadRequest)
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", query.overdue_end, s, err).Error())

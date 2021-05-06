@@ -27,12 +27,12 @@ func BoolToString(value bool) string {
 	return "false"
 }
 
-func toBool(s string) bool {
+func ToBool(s string) bool {
 	s = strings.ToLower(s)
 	return s == "true"
 }
 
-func toDatetime(s string) (time.Time, error) {
+func ToDatetime(s string) (time.Time, error) {
 	return time.Parse(time.RFC3339Nano, s)
 }
 

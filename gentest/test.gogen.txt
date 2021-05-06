@@ -111,7 +111,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		args.fstring = ctx.QueryParam("args.fstring")
 		if s := ctx.QueryParam("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
 				return nil
@@ -130,7 +130,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
 				return nil
@@ -168,7 +168,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			args.fstring = s
 		}
 		if s := ctx.QueryParam("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
 				return nil
@@ -196,7 +196,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
 				return nil
@@ -231,7 +231,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		args.fstring = ctx.QueryParam("fstring")
 		if s := ctx.QueryParam("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
 				return nil
@@ -250,7 +250,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
 				return nil
@@ -288,7 +288,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			args.fstring = s
 		}
 		if s := ctx.QueryParam("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
 				return nil
@@ -316,7 +316,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
 				return nil
@@ -596,7 +596,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
 				return nil
@@ -605,7 +605,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
 				return nil
@@ -614,7 +614,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		var isRaw bool
 		if s := ctx.QueryParam("is_raw"); s != "" {
-			isRaw = toBool(s)
+			isRaw = ToBool(s)
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
@@ -624,7 +624,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
 				return nil
@@ -633,14 +633,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
 				return nil
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -649,7 +649,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
 				return nil
@@ -658,14 +658,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
 				return nil
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -674,7 +674,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
@@ -682,14 +682,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -698,7 +698,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
@@ -707,7 +707,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
@@ -717,7 +717,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -726,7 +726,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
@@ -734,14 +734,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -750,7 +750,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
@@ -759,7 +759,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
@@ -769,7 +769,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -886,7 +886,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		args.fstring = ctx.QueryParam("args.fstring")
 		if s := ctx.QueryParam("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
 				return nil
@@ -905,7 +905,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
 				return nil
@@ -943,7 +943,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			args.fstring = s
 		}
 		if s := ctx.QueryParam("args.ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
 				return nil
@@ -971,7 +971,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
 				return nil
@@ -1006,7 +1006,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		args.fstring = ctx.QueryParam("fstring")
 		if s := ctx.QueryParam("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
 				return nil
@@ -1025,7 +1025,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
 				return nil
@@ -1063,7 +1063,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			args.fstring = s
 		}
 		if s := ctx.QueryParam("ftime"); s != "" {
-			argsFtimeValue, err := toDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
 				return nil
@@ -1091,7 +1091,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			args.fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := toDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
 				return nil
@@ -1371,7 +1371,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
 				return nil
@@ -1380,7 +1380,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
 				return nil
@@ -1389,7 +1389,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		var isRaw bool
 		if s := ctx.QueryParam("is_raw"); s != "" {
-			isRaw = toBool(s)
+			isRaw = ToBool(s)
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
@@ -1399,7 +1399,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
 				return nil
@@ -1408,14 +1408,14 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
 				return nil
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -1424,7 +1424,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := toDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
 				return nil
@@ -1433,14 +1433,14 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := toDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
 				return nil
 			}
 			endAt = endAtValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -1449,7 +1449,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
@@ -1457,14 +1457,14 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -1473,7 +1473,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
@@ -1482,7 +1482,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
@@ -1492,7 +1492,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			}
 			createdAt.End = createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -1501,7 +1501,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
@@ -1509,14 +1509,14 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -1525,7 +1525,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := toDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
 				return nil
@@ -1534,7 +1534,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := toDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
 				return nil
@@ -1544,7 +1544,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			}
 			createdAt.End = &createdAtEndValue
 		}
-		var isRaw = toBool(ctx.Param("isRaw"))
+		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
@@ -1818,24 +1818,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
 				return nil
@@ -1846,7 +1846,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
 				return nil
@@ -1857,7 +1857,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
 				return nil
@@ -1868,7 +1868,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
 				return nil
@@ -2040,24 +2040,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "start_at", s, err))
 				return nil
@@ -2068,7 +2068,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
 				return nil
@@ -2079,7 +2079,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_start", s, err))
 				return nil
@@ -2090,7 +2090,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_end", s, err))
 				return nil
@@ -2226,24 +2226,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &AliasRequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("is_overdued"); s != "" {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("is_suspend"); s != "" {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "start_at", s, err))
 				return nil
@@ -2254,7 +2254,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
 				return nil
@@ -2265,7 +2265,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_start", s, err))
 				return nil
@@ -2276,7 +2276,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_end", s, err))
 				return nil
@@ -2412,24 +2412,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &RequestQueryEx1{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
 				return nil
@@ -2440,7 +2440,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
 				return nil
@@ -2451,7 +2451,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
 				return nil
@@ -2462,7 +2462,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
 				return nil
@@ -2663,7 +2663,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_overdued"); s != "" {
 			if query == nil {
@@ -2673,7 +2673,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_suspend"); s != "" {
 			if query == nil {
@@ -2683,10 +2683,10 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
 				return nil
@@ -2700,7 +2700,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
 				return nil
@@ -2714,7 +2714,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
 				return nil
@@ -2728,7 +2728,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
 				return nil
@@ -2919,24 +2919,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.start_at", s, err))
 				return nil
@@ -2947,7 +2947,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.QueryParam("query.request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.end_at", s, err))
 				return nil
@@ -2958,7 +2958,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.overdue_start", s, err))
 				return nil
@@ -2969,7 +2969,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.overdue_end", s, err))
 				return nil
@@ -3170,7 +3170,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.is_overdued"); s != "" {
 			if query == nil {
@@ -3180,7 +3180,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.is_suspend"); s != "" {
 			if query == nil {
@@ -3190,10 +3190,10 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.start_at", s, err))
 				return nil
@@ -3207,7 +3207,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.QueryParam("query.request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.end_at", s, err))
 				return nil
@@ -3221,7 +3221,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.overdue_start", s, err))
 				return nil
@@ -3235,7 +3235,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.overdue_end", s, err))
 				return nil
@@ -3426,24 +3426,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.is_overdued"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.is_suspend"); s != "" {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.start_at", s, err))
 				return nil
@@ -3454,7 +3454,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.QueryParam("request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.end_at", s, err))
 				return nil
@@ -3465,7 +3465,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.QueryParam("request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.overdue_start", s, err))
 				return nil
@@ -3476,7 +3476,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.QueryParam("request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.overdue_end", s, err))
 				return nil
@@ -3677,7 +3677,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsUnclosed.Valid = true
-			query.Request.IsUnclosed.Bool = toBool(s)
+			query.Request.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.is_overdued"); s != "" {
 			if query == nil {
@@ -3687,7 +3687,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsOverdued.Valid = true
-			query.Request.IsOverdued.Bool = toBool(s)
+			query.Request.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.is_suspend"); s != "" {
 			if query == nil {
@@ -3697,10 +3697,10 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.IsSuspend.Valid = true
-			query.Request.IsSuspend.Bool = toBool(s)
+			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.start_at"); s != "" {
-			queryRequestStartAtValue, err := toDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.start_at", s, err))
 				return nil
@@ -3714,7 +3714,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.QueryParam("request.end_at"); s != "" {
-			queryRequestEndAtValue, err := toDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.end_at", s, err))
 				return nil
@@ -3728,7 +3728,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.QueryParam("request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := toDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.overdue_start", s, err))
 				return nil
@@ -3742,7 +3742,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.QueryParam("request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := toDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.overdue_end", s, err))
 				return nil
@@ -3933,24 +3933,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = toBool(s)
+			query.IsUnclosed.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_overdued"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = toBool(s)
+			query.IsOverdued.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.is_suspend"); s != "" {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
 			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = toBool(s)
+			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
-			queryStartAtValue, err := toDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
 				return nil
@@ -3961,7 +3961,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
-			queryEndAtValue, err := toDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
 				return nil
@@ -3972,7 +3972,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := toDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
 				return nil
@@ -3983,7 +3983,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := toDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
 				return nil
