@@ -90,9 +90,11 @@ func (cmd *WebServerGenerator) Run(args []string) error {
 	}
 
 	if mux := cmd.Mux.(*DefaultStye); mux != nil {
-		mux.reinit(cfg)
 
     mux.ConvertNamespace = cmd.ConvertNamespace
+
+
+		mux.reinit(cfg)
 	}
 
 
