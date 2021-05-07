@@ -428,6 +428,30 @@ type RequestQueryEx4 struct {
 	ExArg string
 }
 
+type Sub1 struct {
+	A1 string `json:"a1"`
+	A2 string `json:"a2"`
+}
+
+type Sub2 struct {
+	B1 string `json:"b1"`
+	B2 string `json:"b2"`
+}
+
+type SubTest1 struct {
+	Sub1 Sub1 `json:"sub1"`
+	Sub2 Sub2 `json:"sub2"`
+
+	ExArg string
+}
+
+type SubTest2 struct {
+	Sub1 *Sub1 `json:"sub1"`
+	Sub2 *Sub2 `json:"sub2"`
+
+	ExArg string
+}
+
 type Requests interface {
 	// @http.GET(path="/query")
 	Query1(ctx context.Context, query *models.RequestQuery, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
@@ -487,4 +511,10 @@ type Requests interface {
 
 	// @http.POST(path="/:id/7", data="params", dataType="map[string]string")
 	Set7ByID(ctx context.Context, id int64, params interface{}) (int64, err error)
+
+	// @http.GET(path="/querysub1")
+	QuerySubTest1(ctx context.Context, query *SubTest1) (requests []map[string]interface{}, err error)
+
+	// @http.GET(path="/querysub2")
+	QuerySubTest2(ctx context.Context, query *SubTest2) (requests []map[string]interface{}, err error)
 }

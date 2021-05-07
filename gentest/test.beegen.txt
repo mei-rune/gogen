@@ -2071,6 +2071,10 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 // RequestQueryEx2 is skipped
 // RequestQueryEx3 is skipped
 // RequestQueryEx4 is skipped
+// Sub1 is skipped
+// Sub2 is skipped
+// SubTest1 is skipped
+// SubTest2 is skipped
 
 func InitRequests(mux *beego.Namespace, svc Requests) {
 	mux.Get("/query", func(ctx *beecontext.Context) {
@@ -4757,6 +4761,96 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 			return
 		}
 		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/querysub1", func(ctx *beecontext.Context) {
+		var query *SubTest1
+		if s := ctx.Input.Query("query.sub1.a1"); s != "" {
+			query = &SubTest1{}
+			query.Sub1.A1 = s
+		}
+		if s := ctx.Input.Query("query.sub1.a2"); s != "" {
+			if query == nil {
+				query = &SubTest1{}
+			}
+			query.Sub1.A2 = s
+		}
+		if s := ctx.Input.Query("query.sub2.b1"); s != "" {
+			if query == nil {
+				query = &SubTest1{}
+			}
+			query.Sub2.B1 = s
+		}
+		if s := ctx.Input.Query("query.sub2.b2"); s != "" {
+			if query == nil {
+				query = &SubTest1{}
+			}
+			query.Sub2.B2 = s
+		}
+		if s := ctx.Input.Query("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &SubTest1{}
+			}
+			query.ExArg = s
+		}
+
+		result, err := svc.QuerySubTest1(ctx.Request.Context(), query)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/querysub2", func(ctx *beecontext.Context) {
+		var query *SubTest2
+		if s := ctx.Input.Query("query.sub1.a1"); s != "" {
+			query = &SubTest2{}
+			query.Sub1 = &SubTest2{}
+			query.Sub1.A1 = s
+		}
+		if s := ctx.Input.Query("query.sub1.a2"); s != "" {
+			if query == nil {
+				query = &SubTest2{}
+			}
+			if query.Sub1 == nil {
+				query.Sub1 = &Sub1{}
+			}
+			query.Sub1.A2 = s
+		}
+		if s := ctx.Input.Query("query.sub2.b1"); s != "" {
+			if query == nil {
+				query = &SubTest2{}
+			}
+			query.Sub2 = &SubTest2{}
+			query.Sub2.B1 = s
+		}
+		if s := ctx.Input.Query("query.sub2.b2"); s != "" {
+			if query == nil {
+				query = &SubTest2{}
+			}
+			if query.Sub2 == nil {
+				query.Sub2 = &Sub2{}
+			}
+			query.Sub2.B2 = s
+		}
+		if s := ctx.Input.Query("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &SubTest2{}
+			}
+			query.ExArg = s
+		}
+
+		result, err := svc.QuerySubTest2(ctx.Request.Context(), query)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
 		ctx.Output.JSON(result, false, false)
 		return
 	})

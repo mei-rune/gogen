@@ -47,10 +47,10 @@ type DefaultStye struct {
 		Required map[string]ReadArgs `json:"required"`
 		Optional map[string]ReadArgs `json:"optional"`
 	} `json:"types"`
-	ConvertNamespace           string                                    `json:"convertNS"`
-	Converts map[string]ConvertArgs                                    `json:"converts"`
-	UrlStyle string                                                    `json:"url_style"`
-	ParseURL func(rawurl string) (string, []string, map[string]string) `json:"-"`
+	ConvertNamespace string                                                    `json:"convertNS"`
+	Converts         map[string]ConvertArgs                                    `json:"converts"`
+	UrlStyle         string                                                    `json:"url_style"`
+	ParseURL         func(rawurl string) (string, []string, map[string]string) `json:"-"`
 
 	bodyReader string
 	// readTemplate *template.Template
@@ -133,10 +133,9 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 	}
 
 	if _, ok := mux.Converts["int"]; !ok {
-		funcName :=  "strconv.Atoi({{.name}})"
+		funcName := "strconv.Atoi({{.name}})"
 		mux.Converts["int"] = ConvertArgs{Format: funcName, HasError: true}
 	}
-
 
 	if _, ok := mux.Converts["[]bool"]; !ok {
 		funcName := mux.ConvertNamespace + "ToBoolArray({{.name}})"
@@ -147,7 +146,7 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		mux.Converts["[]int"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 	if _, ok := mux.Converts["[]int64"]; !ok {
-		funcName := mux.ConvertNamespace +"ToInt64Array({{.name}})"
+		funcName := mux.ConvertNamespace + "ToInt64Array({{.name}})"
 		mux.Converts["[]int64"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 
@@ -156,7 +155,7 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		mux.Converts["[]uint"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 	if _, ok := mux.Converts["[]uint64"]; !ok {
-		funcName :=mux.ConvertNamespace + "ToUint64Array({{.name}})"
+		funcName := mux.ConvertNamespace + "ToUint64Array({{.name}})"
 		mux.Converts["[]uint64"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 
@@ -181,22 +180,22 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		mux.Converts[t] = conv
 	}
 	if _, ok := mux.Converts["bool"]; !ok {
-		funcName := stringWith(values, "features.boolConvert", mux.ConvertNamespace +"ToBool({{.name}})")
+		funcName := stringWith(values, "features.boolConvert", mux.ConvertNamespace+"ToBool({{.name}})")
 		mux.Converts["bool"] = ConvertArgs{Format: funcName, HasError: false}
 	}
 	if _, ok := mux.Converts["time.Time"]; !ok {
-		funcName := stringWith(values, "features.datetimeConvert", mux.ConvertNamespace + "ToDatetime({{.name}})")
+		funcName := stringWith(values, "features.datetimeConvert", mux.ConvertNamespace+"ToDatetime({{.name}})")
 		mux.Converts["time.Time"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 	if _, ok := mux.Converts["time.Duration"]; !ok {
 		mux.Converts["time.Duration"] = ConvertArgs{Format: "time.ParseDuration({{.name}})", HasError: true}
 	}
 	if _, ok := mux.Converts["sql.NullBool"]; !ok {
-		funcName := stringWith(values, "features.boolConvert", mux.ConvertNamespace + "ToBool({{.name}})")
+		funcName := stringWith(values, "features.boolConvert", mux.ConvertNamespace+"ToBool({{.name}})")
 		mux.Converts["sql.NullBool"] = ConvertArgs{Format: funcName, HasError: false}
 	}
 	if _, ok := mux.Converts["sql.NullTime"]; !ok {
-		funcName := stringWith(values, "features.datetimeConvert", mux.ConvertNamespace + "ToDatetime({{.name}})")
+		funcName := stringWith(values, "features.datetimeConvert", mux.ConvertNamespace+"ToDatetime({{.name}})")
 		mux.Converts["sql.NullTime"] = ConvertArgs{Format: funcName, HasError: true}
 	}
 	if _, ok := mux.Converts["sql.NullInt64"]; !ok {
@@ -820,8 +819,8 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 		serverParams := []ServerParam{p1}
 
-		var addStructFields func(string, *Class, ServerParam, []ServerParam)
-		addStructFields = func(paramNamePrefix string, stType *Class, serverParam ServerParam, parents []ServerParam) {
+		var addStructFields func(string, *Class, ServerParam, []int, []ServerParam)
+		addStructFields = func(paramNamePrefix string, stType *Class, serverParam ServerParam, parentIndexs []int, parents []ServerParam) {
 			for fieldIdx, field := range stType.Fields {
 				tag := field.GetTag("gogen")
 				if tag == "ignore" {
@@ -865,7 +864,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					if paramName2 != "" && !strings.HasPrefix(paramName2, ".") {
 						paramName2 = paramName2 + "."
 					}
-					addStructFields(paramName2, stType, p2, append(parents, serverParam))
+					addStructFields(paramName2, stType, p2, append(parentIndexs, fieldIdx), append(parents, serverParam))
 					continue
 				}
 
@@ -884,10 +883,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 						}
 
 						var initRootValue string
-						for _, parent := range parents {
-
+						for idx, parent := range parents {
 							if IsPtrType(parent.Param.Typ) {
-								if fieldIdx == 0 {
+								if parentIndexs[idx] == 0 && fieldIdx == 0 {
 									initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
 								} else {
 									initRootValue += `if ` + parent.InitName + ` == nil {
@@ -933,9 +931,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					p2.ParamName = reservedStr
 
 					var initRootValue string
-					for _, parent := range parents {
+					for idx, parent := range parents {
 						if IsPtrType(parent.Param.Typ) {
-							if fieldIdx == 0 {
+							if parentIndexs[idx] == 0 && fieldIdx == 0 {
 								initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
 							} else {
 								initRootValue += `if ` + parent.InitName + ` == nil {
@@ -976,9 +974,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					}
 
 					var initRootValue string
-					for _, parent := range parents {
+					for idx, parent := range parents {
 						if IsPtrType(parent.Param.Typ) {
-							if fieldIdx == 0 {
+							if parentIndexs[idx] == 0 && fieldIdx == 0 {
 								initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
 							} else {
 								initRootValue += `if ` + parent.InitName + ` == nil {
@@ -1015,9 +1013,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 
 				var initRootValue string
-				for _, parent := range parents {
+				for idx, parent := range parents {
 					if IsPtrType(parent.Param.Typ) {
-						if fieldIdx == 0 {
+						if parentIndexs[idx] == 0 && fieldIdx == 0 {
 							initRootValue += parent.Param.Name.Name + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
 						} else {
 							initRootValue += `if ` + parent.InitName + ` == nil {
@@ -1058,7 +1056,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 
 		serverParam.InitName = serverParam.Param.Name.Name
-		addStructFields(paramNamePrefix, stType, serverParam, nil)
+		addStructFields(paramNamePrefix, stType, serverParam, nil, nil)
 		return serverParams
 	}
 
