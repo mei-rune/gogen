@@ -908,6 +908,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 						var initRootValue string
 						for idx, parent := range parents {
+							if idx == 0 && mux.PreInitObject {
+								continue
+							}
 							if IsPtrType(parent.Param.Typ) {
 								if parentIndexs[idx] == 0 && fieldIdx == 0 {
 									initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
@@ -956,6 +959,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 					var initRootValue string
 					for idx, parent := range parents {
+							if idx == 0 && mux.PreInitObject {
+								continue
+							}
 						if IsPtrType(parent.Param.Typ) {
 							if parentIndexs[idx] == 0 && fieldIdx == 0 {
 								initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
@@ -999,6 +1005,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 					var initRootValue string
 					for idx, parent := range parents {
+							if idx == 0 && mux.PreInitObject {
+								continue
+							}
 						if IsPtrType(parent.Param.Typ) {
 							if parentIndexs[idx] == 0 && fieldIdx == 0 {
 								initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
@@ -1038,6 +1047,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 				var initRootValue string
 				for idx, parent := range parents {
+							if idx == 0 && mux.PreInitObject {
+								continue
+							}
 					if IsPtrType(parent.Param.Typ) {
 						if parentIndexs[idx] == 0 && fieldIdx == 0 {
 							initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
