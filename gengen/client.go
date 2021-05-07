@@ -40,7 +40,7 @@ func (cmd *WebClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.config.WrapperType, "wrapper-type", "loong.Result", "")
 	fs.StringVar(&cmd.config.WrapperData, "wrapper-data", "Data", "")
 	fs.StringVar(&cmd.config.WrapperError, "wrapper-error", "Error", "")
-  fs.StringVar(&convertNS, "convert_ns", "", "转换函数的前缀")
+	fs.StringVar(&convertNS, "convert_ns", "", "转换函数的前缀")
 
 	return fs
 }
@@ -445,6 +445,9 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				fieldQueryName = prefix + field.Name.Name
 			} else {
 				typeName := typePrint(field.Typ)
+				if IsPtrType(field.Typ) {
+					typeName = typePrint(ElemType(field.Typ))
+				}
 				idx := strings.Index(typeName, ".")
 				if idx >= 0 {
 					typeName = typeName[idx+1:]

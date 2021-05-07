@@ -438,6 +438,10 @@ type Sub2 struct {
 	B2 string `json:"b2"`
 }
 
+type Sub3 struct {
+	Sub2
+}
+
 type SubTest1 struct {
 	Sub1 Sub1 `json:"sub1"`
 	Sub2 Sub2 `json:"sub2"`
@@ -448,6 +452,18 @@ type SubTest1 struct {
 type SubTest2 struct {
 	Sub1 *Sub1 `json:"sub1"`
 	Sub2 *Sub2 `json:"sub2"`
+
+	ExArg string
+}
+
+type SubTest3 struct {
+	SubTest2
+
+	ExArg string
+}
+
+type SubTest4 struct {
+	*SubTest2
 
 	ExArg string
 }
@@ -517,4 +533,10 @@ type Requests interface {
 
 	// @http.GET(path="/querysub2")
 	QuerySubTest2(ctx context.Context, query *SubTest2) (requests []map[string]interface{}, err error)
+
+	// @http.GET(path="/querysub3")
+	QuerySubTest3(ctx context.Context, query *SubTest3) (requests []map[string]interface{}, err error)
+
+	// @http.GET(path="/querysub4")
+	QuerySubTest4(ctx context.Context, query *SubTest4) (requests []map[string]interface{}, err error)
 }

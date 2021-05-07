@@ -1565,8 +1565,11 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 // RequestQueryEx4 is skipped
 // Sub1 is skipped
 // Sub2 is skipped
+// Sub3 is skipped
 // SubTest1 is skipped
 // SubTest2 is skipped
+// SubTest3 is skipped
+// SubTest4 is skipped
 
 func InitRequests(mux loong.Party, svc Requests) {
 	mux.GET("/query", func(ctx *loong.Context) error {
@@ -2352,7 +2355,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				return ctx.ReturnError(loong.ErrBadArgument("query.operator_id", s, err), http.StatusBadRequest)
 			}
 			query = &RequestQueryEx2{}
-			query.RequestQuery = &RequestQueryEx2{}
+			query.RequestQuery = &models.RequestQuery{}
 			query.OperatorID = queryOperatorIDValue
 		}
 		if s := ctx.QueryParam("query.creator_id"); s != "" {
@@ -2835,7 +2838,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				return ctx.ReturnError(loong.ErrBadArgument("query.request.operator_id", s, err), http.StatusBadRequest)
 			}
 			query = &RequestQueryEx4{}
-			query.Request = &RequestQueryEx4{}
+			query.Request = &models.RequestQuery{}
 			query.Request.OperatorID = queryRequestOperatorIDValue
 		}
 		if s := ctx.QueryParam("query.request.creator_id"); s != "" {
@@ -3318,7 +3321,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 				return ctx.ReturnError(loong.ErrBadArgument("request.operator_id", s, err), http.StatusBadRequest)
 			}
 			query = &RequestQueryEx4{}
-			query.Request = &RequestQueryEx4{}
+			query.Request = &models.RequestQuery{}
 			query.Request.OperatorID = queryRequestOperatorIDValue
 		}
 		if s := ctx.QueryParam("request.creator_id"); s != "" {
@@ -3963,7 +3966,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 		var query *SubTest2
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest2{}
-			query.Sub1 = &SubTest2{}
+			query.Sub1 = &Sub1{}
 			query.Sub1.A1 = s
 		}
 		if s := ctx.QueryParam("query.sub1.a2"); s != "" {
@@ -3979,7 +3982,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 			if query == nil {
 				query = &SubTest2{}
 			}
-			query.Sub2 = &SubTest2{}
+			query.Sub2 = &Sub2{}
 			query.Sub2.B1 = s
 		}
 		if s := ctx.QueryParam("query.sub2.b2"); s != "" {
@@ -3999,6 +4002,121 @@ func InitRequests(mux loong.Party, svc Requests) {
 		}
 
 		result, err := svc.QuerySubTest2(ctx.StdContext, query)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/querysub3", func(ctx *loong.Context) error {
+		var query *SubTest3
+		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
+			query = &SubTest3{}
+			query.Sub1 = &Sub1{}
+			query.Sub1.A1 = s
+		}
+		if s := ctx.QueryParam("query.sub1.a2"); s != "" {
+			if query == nil {
+				query = &SubTest3{}
+			}
+			if query.Sub1 == nil {
+				query.Sub1 = &Sub1{}
+			}
+			query.Sub1.A2 = s
+		}
+		if s := ctx.QueryParam("query.sub2.b1"); s != "" {
+			if query == nil {
+				query = &SubTest3{}
+			}
+			query.Sub2 = &Sub2{}
+			query.Sub2.B1 = s
+		}
+		if s := ctx.QueryParam("query.sub2.b2"); s != "" {
+			if query == nil {
+				query = &SubTest3{}
+			}
+			if query.Sub2 == nil {
+				query.Sub2 = &Sub2{}
+			}
+			query.Sub2.B2 = s
+		}
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &SubTest3{}
+			}
+			query.ExArg = s
+		}
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &SubTest3{}
+			}
+			query.ExArg = s
+		}
+
+		result, err := svc.QuerySubTest3(ctx.StdContext, query)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/querysub4", func(ctx *loong.Context) error {
+		var query *SubTest4
+		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
+			query = &SubTest4{}
+			query.SubTest2 = &SubTest2{}
+			query.Sub1 = &Sub1{}
+			query.Sub1.A1 = s
+		}
+		if s := ctx.QueryParam("query.sub1.a2"); s != "" {
+			if query == nil {
+				query = &SubTest4{}
+			}
+			if query.SubTest2 == nil {
+				query.SubTest2 = &SubTest2{}
+			}
+			if query.Sub1 == nil {
+				query.Sub1 = &Sub1{}
+			}
+			query.Sub1.A2 = s
+		}
+		if s := ctx.QueryParam("query.sub2.b1"); s != "" {
+			if query == nil {
+				query = &SubTest4{}
+			}
+			if query.SubTest2 == nil {
+				query.SubTest2 = &SubTest2{}
+			}
+			query.Sub2 = &Sub2{}
+			query.Sub2.B1 = s
+		}
+		if s := ctx.QueryParam("query.sub2.b2"); s != "" {
+			if query == nil {
+				query = &SubTest4{}
+			}
+			if query.SubTest2 == nil {
+				query.SubTest2 = &SubTest2{}
+			}
+			if query.Sub2 == nil {
+				query.Sub2 = &Sub2{}
+			}
+			query.Sub2.B2 = s
+		}
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &SubTest4{}
+			}
+			if query.SubTest2 == nil {
+				query.SubTest2 = &SubTest2{}
+			}
+			query.ExArg = s
+		}
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = &SubTest4{}
+			}
+			query.ExArg = s
+		}
+
+		result, err := svc.QuerySubTest4(ctx.StdContext, query)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}

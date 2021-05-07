@@ -1116,8 +1116,11 @@ func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *in
 // RequestQueryEx4 is skipped
 // Sub1 is skipped
 // Sub2 is skipped
+// Sub3 is skipped
 // SubTest1 is skipped
 // SubTest2 is skipped
+// SubTest3 is skipped
+// SubTest4 is skipped
 
 type RequestsClient struct {
 	Proxy *resty.Proxy
@@ -1693,6 +1696,54 @@ func (client RequestsClient) QuerySubTest2(ctx context.Context, query *SubTest2)
 		if query.Sub2 != nil {
 			request = request.SetParam("query.sub2.b1", query.Sub2.B1).
 				SetParam("query.sub2.b2", query.Sub2.B2)
+		}
+		request = request.SetParam("query.ex_arg", query.ExArg)
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client RequestsClient) QuerySubTest3(ctx context.Context, query *SubTest3) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+
+	request := resty.NewRequest(client.Proxy, "/querysub3")
+	if query != nil {
+		if query.Sub1 != nil {
+			request = request.SetParam("query.sub1.a1", query.Sub1.A1).
+				SetParam("query.sub1.a2", query.Sub1.A2)
+		}
+		if query.Sub2 != nil {
+			request = request.SetParam("query.sub2.b1", query.Sub2.B1).
+				SetParam("query.sub2.b2", query.Sub2.B2)
+		}
+		request = request.SetParam("query.ex_arg", query.ExArg).
+			SetParam("query.ex_arg", query.ExArg)
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client RequestsClient) QuerySubTest4(ctx context.Context, query *SubTest4) ([]map[string]interface{}, error) {
+	var result []map[string]interface{}
+
+	request := resty.NewRequest(client.Proxy, "/querysub4")
+	if query != nil {
+		if query.SubTest2 != nil {
+			if query.Sub1 != nil {
+				request = request.SetParam("query.sub1.a1", query.Sub1.A1).
+					SetParam("query.sub1.a2", query.Sub1.A2)
+			}
+			if query.Sub2 != nil {
+				request = request.SetParam("query.sub2.b1", query.Sub2.B1).
+					SetParam("query.sub2.b2", query.Sub2.B2)
+			}
+			request = request.SetParam("query.ex_arg", query.ExArg)
 		}
 		request = request.SetParam("query.ex_arg", query.ExArg)
 	}

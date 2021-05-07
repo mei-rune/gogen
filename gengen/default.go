@@ -364,6 +364,7 @@ type ServerParam struct {
 	ParamName      string
 	InitName       string
 
+	IsAnonymous   bool
 	SkipDeclare   bool
 	IsArray       bool
 	ArgNamePrefix string
@@ -834,15 +835,21 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 				if field.Name == nil {
 					typeName := typePrint(field.Typ)
+					if IsPtrType(field.Typ) {
+						typeName = typePrint(ElemType(field.Typ))
+					}
 					idx := strings.Index(typeName, ".")
 					if idx >= 0 {
 						typeName = typeName[idx+1:]
 					}
 					p2.Param.Name.Name = serverParam.Name.Name
 					p2.InitName = serverParam.Name.Name + "." + typeName
+					p2.IsAnonymous = true
 				} else {
 					p2.Param.Name.Name = serverParam.Name.Name + "." + field.Name.Name
 					p2.InitName = serverParam.Name.Name + "." + field.Name.Name
+
+					p2.IsAnonymous = false
 				}
 
 				paramName2 := strings.TrimSuffix(paramNamePrefix, ".")
@@ -859,12 +866,29 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					}
 				}
 
+				if fieldIdx > 0 && len(parents) > 0 {
+					for idx := len(parents) - 1; idx >= 0; idx-- {
+						if parents[idx].IsAnonymous {
+							parentIndexs[idx] = fieldIdx
+						}
+					}
+				}
+
 				stType := getStructType(p2.Param)
 				if stType != nil {
 					if paramName2 != "" && !strings.HasPrefix(paramName2, ".") {
 						paramName2 = paramName2 + "."
 					}
-					addStructFields(paramName2, stType, p2, append(parentIndexs, fieldIdx), append(parents, serverParam))
+					newParentIndexs := append(parentIndexs, 0)
+					newParents := append(parents, p2)
+
+					// fmt.Println("====")
+					// fmt.Println(method.Name, paramName2, newParentIndexs)
+					// for idx := range newParents {
+					// 	fmt.Println(newParents[idx].InitName)
+					// }
+
+					addStructFields(paramName2, stType, p2, newParentIndexs, newParents)
 					continue
 				}
 
@@ -895,12 +919,12 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 								}
 							}
 						}
-						if IsPtrType(serverParam.Param.Typ) {
-							initRootValue += `if ` + serverParam.InitName + ` == nil {
-								` + serverParam.InitName + ` = &` + typePrint(ElemType(serverParam.Param.Typ)) + `{}
-							}
-							`
-						}
+						// if IsPtrType(serverParam.Param.Typ) {
+						// 	initRootValue += `if ` + serverParam.InitName + ` == nil {
+						// 		` + serverParam.InitName + ` = &` + typePrint(ElemType(serverParam.Param.Typ)) + `{}
+						// 	}
+						// 	`
+						// }
 						if IsPtrType(p2.Param.Typ) {
 							initRootValue += `if ` + p2.InitName + ` == nil {
 								` + p2.InitName + ` = &` + typePrint(ElemType(p2.Param.Typ)) + `{}
@@ -944,13 +968,13 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 						}
 					}
 
-					if !mux.PreInitObject && IsPtrType(serverParam.Typ) && !c.IsParentInited() {
-						if fieldIdx == 0 {
-							initRootValue += name + " = &" + elmType + "{}\r\n"
-						} else {
-							initRootValue += "if " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}\r\n"
-						}
-					}
+					// if !mux.PreInitObject && IsPtrType(serverParam.Typ) && !c.IsParentInited() {
+					// 	if fieldIdx == 0 {
+					// 		initRootValue += name + " = &" + elmType + "{}\r\n"
+					// 	} else {
+					// 		initRootValue += "if " + name + " == nil {\r\n  " + name + " = &" + elmType + "{}\r\n}\r\n"
+					// 	}
+					// }
 
 					p2.InitString = "\r\n" + strings.TrimSpace(initRootValue) + "\r\n" + p2.InitName + " = " + reservedStr
 
@@ -986,12 +1010,12 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 							}
 						}
 					}
-					if IsPtrType(serverParam.Param.Typ) {
-						initRootValue += `if ` + serverParam.InitName + ` == nil {
-								` + serverParam.InitName + ` = &` + typePrint(ElemType(serverParam.Param.Typ)) + `{}
-							}
-							`
-					}
+					// if IsPtrType(serverParam.Param.Typ) {
+					// 	initRootValue += `if ` + serverParam.InitName + ` == nil {
+					// 			` + serverParam.InitName + ` = &` + typePrint(ElemType(serverParam.Param.Typ)) + `{}
+					// 		}
+					// 		`
+					// }
 					if IsPtrType(p2.Param.Typ) {
 						initRootValue += `if ` + p2.InitName + ` == nil {
 								` + p2.InitName + ` = &` + typePrint(ElemType(p2.Param.Typ)) + `{}
@@ -1016,7 +1040,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				for idx, parent := range parents {
 					if IsPtrType(parent.Param.Typ) {
 						if parentIndexs[idx] == 0 && fieldIdx == 0 {
-							initRootValue += parent.Param.Name.Name + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
+							initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
 						} else {
 							initRootValue += `if ` + parent.InitName + ` == nil {
 								` + parent.InitName + ` = &` + typePrint(ElemType(parent.Param.Typ)) + `{}
@@ -1026,13 +1050,13 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 					}
 				}
 
-				if !mux.PreInitObject && IsPtrType(serverParam.Typ) && !c.IsParentInited() {
-					if fieldIdx == 0 {
-						initRootValue += serverParam.InitName + " = &" + elmType + "{}\r\n"
-					} else {
-						initRootValue += "if " + serverParam.InitName + " == nil {\r\n  " + serverParam.InitName + " = &" + typePrint(ElemType(serverParam.Param.Typ)) + "{}\r\n}\r\n"
-					}
-				}
+				// if !mux.PreInitObject && IsPtrType(serverParam.Typ) && !c.IsParentInited() {
+				// 	if fieldIdx == 0 {
+				// 		initRootValue += serverParam.InitName + " = &" + elmType + "{}\r\n"
+				// 	} else {
+				// 		initRootValue += "if " + serverParam.InitName + " == nil {\r\n  " + serverParam.InitName + " = &" + typePrint(ElemType(serverParam.Param.Typ)) + "{}\r\n}\r\n"
+				// 	}
+				// }
 
 				renderArgs["param"] = p2.Param
 				renderArgs["skipDeclare"] = true
@@ -1056,7 +1080,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 		}
 
 		serverParam.InitName = serverParam.Param.Name.Name
-		addStructFields(paramNamePrefix, stType, serverParam, nil, nil)
+		serverParam.IsAnonymous = true
+
+		addStructFields(paramNamePrefix, stType, serverParam, []int{0}, []ServerParam{serverParam})
 		return serverParams
 	}
 
