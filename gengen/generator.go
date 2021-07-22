@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"reflect"
+	"fmt"
 	"strconv"
 	"strings"
 	"text/template"
@@ -55,6 +56,14 @@ func (cmd *GeneratorBase) generateHeader(out io.Writer, file *SourceContext, cb 
 			break
 		}
 	}
+
+	for _, pa := range file.Imports {
+		if (pa.Name != nil && typePrint(pa.Name) == "errors") || strings.HasSuffix(strings.Trim(typePrint(pa.Path), "\""), "/errors") {
+			found = true
+			break
+		}
+	}
+
 	if !found {
 		io.WriteString(out, "\r\n\t\"errors\"")
 	}
@@ -235,6 +244,7 @@ var Funcs = template.FuncMap{
 }
 
 var zeroLits = map[string]string{
+	"bool": "false",
 	"time.Time": "time.Time{}",
 	"string":    "\"\"",
 }
