@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"reflect"
-	"fmt"
 	"strconv"
 	"strings"
 	"text/template"
