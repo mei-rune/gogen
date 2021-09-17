@@ -4,6 +4,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -944,6 +945,63 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			return
 		}
 
+		return
+	})
+	mux.Get("/query9", func(ctx *beecontext.Context) {
+		var itemID sql.NullInt64
+		if s := ctx.Input.Query("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", item_id, s, err).Error())
+				return
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+
+		result, err := svc.Query9(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
+		return
+	})
+	mux.Get("/query10", func(ctx *beecontext.Context) {
+		var itemID sql.NullString
+		if s := ctx.Input.Query("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+
+		result, err := svc.Query10(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
+		return
+	})
+	mux.Get("/query11", func(ctx *beecontext.Context) {
+		var itemID sql.NullBool
+		if s := ctx.Input.Query("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.Bool = ToBool(s)
+		}
+
+		result, err := svc.Query11(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
 		return
 	})
 	// Misc: annotation is missing

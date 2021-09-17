@@ -319,6 +319,7 @@ func (mux *DefaultStye) TypeConvert(param Param, typeName, ctxName, paramName st
 	if !ok {
 		underlying := param.Method.Ctx.GetType(typeName)
 		if underlying == nil {
+			debug.PrintStack()
 			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 1argument '"+param.Name.Name+"' is unsupported type -", typeName)
 		}
 
@@ -428,6 +429,8 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 	defer func() {
 		if o := recover(); o != nil {
+			fmt.Println(o)
+
 			debug.PrintStack()
 			panic(o)
 		}
@@ -1245,25 +1248,29 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 			
 			{{- $suffix := ""}}
 			{{- if isNull .param.Typ}}
-			{{.name}}.Valid = true
+			  {{.name}}.Valid = true
 				{{- if eq .type "sql.NullBool"}}	
-				{{- $suffix = ".Bool"}}
+					{{.name}}.Bool = {{convert .param .ctx "bool" $tmp}}
 				{{- else if eq .type "sql.NullTime"}}	
-				{{- $suffix = ".Time"}}
+					{{.name}}.Time = {{convert .param .ctx "time.Time" $tmp}}
 				{{- else if eq .type "sql.NullInt64"}}	
+					{{.name}}.Int64 = {{convert .param .ctx "int64" $tmp}}
 				{{- $suffix = ".Int64"}}
-				{{- else if eq .type "sql.NullUint64"}}	
-				{{- $suffix = ".Uint64"}}
+				{{- else if eq .type "sql.NullUint64"}}
+					{{.name}}.Uint64 = {{convert .param .ctx "uint64" $tmp}}
 				{{- else if eq .type "sql.NullString"}}	
-				{{- $suffix = ".String"}}
+					{{.name}}.String = {{$tmp}}
 				{{- end}}
-            {{- end}}
-            
-			{{- if .needTransform}}
-			{{.name}}{{$suffix}} = {{.type}}({{convert .param .ctx .type $tmp}})
 			{{- else}}
-			{{.name}}{{$suffix}} = {{convert .param .ctx .type $tmp}}
-			{{- end}}
+
+				{{- if .needTransform}}
+				{{.name}}{{$suffix}} = {{.type}}({{convert .param .ctx .type $tmp}})
+				{{- else}}
+				{{.name}}{{$suffix}} = {{convert .param .ctx .type $tmp}}
+				{{- end}}
+
+      {{- end}}
+            
 		{{- else}}
 			{{goify .name false}}Value, err := {{convert .param .ctx .type $tmp}}
 			if err != nil {
@@ -1285,7 +1292,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 				{{- else if eq .type "sql.NullString"}}	
 				{{- $suffix = ".String"}}
 				{{- end}}
-            {{- end}}
+      {{- end}}
             
 			{{- if .needTransform}}
 			{{.name}}{{$suffix}} = {{.type}}({{goify .name false}}Value)
@@ -1350,43 +1357,69 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		convertArgs, ok := mux.Converts[elmType]
 		if !ok {
 			underlying := method.Ctx.GetType(elmType)
-			if underlying == nil {
-
-				if selectorExpr, ok := param.Typ.(*ast.SelectorExpr); ok {
-					pkgName := typePrint(selectorExpr.X)
-					isSysPkg := false
-					for _, nm := range []string{
-						"time",
-						"net",
-						"sql",
-						"null",
-					} {
-						// fmt.Println(pkgName == nm, pkgName, nm)
-						if pkgName == nm {
-							isSysPkg = true
-							break
-						}
-					}
-					if !isSysPkg {
-						err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name +
-							"' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is unsupported, '" +
-							typePrint(param.Typ) + "' is in another package")
-						log.Fatalln(err)
-					}
+			if underlying != nil {
+				convertArgs, ok = mux.Converts[typePrint(underlying.Type)]
+				if !ok {
+					log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 4argument '"+param.Name.Name+"' is unsupported type -", typeStr, fmt.Sprintf("%T", param.Typ), fmt.Sprintf("%T", underlying.Type))
 				}
 
-				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr, elmType, fmt.Sprintf("%T", param.Typ))
+				convertArgs.NeedTransform = true
+
+			} else {
+
+				selectorExpr, ok := param.Typ.(*ast.SelectorExpr);
+				if  !ok {
+					log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr, elmType, fmt.Sprintf("%T", param.Typ))
+				}
+
+				pkgName := typePrint(selectorExpr.X)
+				isSysPkg := false
+				for _, nm := range []string{
+					"time",
+					"net",
+					"sql",
+					"null",
+				} {
+					// fmt.Println(pkgName == nm, pkgName, nm)
+					if pkgName == nm {
+						isSysPkg = true
+						break
+					}
+				}
+				if !isSysPkg {
+					err := errors.New(strconv.Itoa(int(method.Node.Pos())) + ": argument '" + param.Name.Name +
+						"' of method '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is unsupported, '" +
+						typePrint(param.Typ) + "' is in another package")
+					log.Fatalln(err)
+				}
+
+				// if nm == "sql" || nm == "null" {
+				// 	switch typePrint(selectorExpr.Sel) {
+				// 	case "NullString":
+				// 		convertArgs, ok = mux.Converts["string"]
+				// 		if !ok {
+				// 			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 5argument '"+param.Name.Name+"' is unsupported type -", typeStr, fmt.Sprintf("%T", param.Typ), fmt.Sprintf("%T", underlying.Type))
+				// 		}
+				// 		renderArgs["isNull"] = true
+				// 		renderArgs["FieldName"] = "String"
+				// 	case "NullInt64":
+				// 		convertArgs, ok = mux.Converts["int64"]
+				// 		if !ok {
+				// 			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 5argument '"+param.Name.Name+"' is unsupported type -", typeStr, fmt.Sprintf("%T", param.Typ), fmt.Sprintf("%T", underlying.Type))
+				// 		}
+				// 		renderArgs["isNull"] = true
+				// 		renderArgs["FieldName"] = "Int64"
+				// 	case "NullBool":
+				// 		convertArgs, ok = mux.Converts["bool"]
+				// 		if !ok {
+				// 			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 5argument '"+param.Name.Name+"' is unsupported type -", typeStr, fmt.Sprintf("%T", param.Typ), fmt.Sprintf("%T", underlying.Type))
+				// 		}
+				// 		renderArgs["isNull"] = true
+				// 		renderArgs["FieldName"] = "Bool"
+				// 	default:
+				// 	}
+				// }
 			}
-
-			// elmType = typePrint(underlying.Type)
-
-			convertArgs, ok = mux.Converts[typePrint(underlying.Type)]
-			if !ok {
-				debug.PrintStack()
-				log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 4argument '"+param.Name.Name+"' is unsupported type -", typeStr, fmt.Sprintf("%T", param.Typ), fmt.Sprintf("%T", underlying.Type))
-			}
-
-			convertArgs.NeedTransform = true
 		}
 
 		renderArgs["needTransform"] = convertArgs.NeedTransform

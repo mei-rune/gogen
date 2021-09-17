@@ -4,6 +4,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"io"
 	"net/http"
@@ -832,6 +833,56 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			return
 		}
 
+		return
+	})
+	mux.GET("/query9", func(ctx *gin.Context) {
+		var itemID sql.NullInt64
+		if s := ctx.Query("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", item_id, s, err).Error())
+				return
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+
+		result, err := svc.Query9(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "text/plain", result)
+		return
+	})
+	mux.GET("/query10", func(ctx *gin.Context) {
+		var itemID sql.NullString
+		if s := ctx.Query("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+
+		result, err := svc.Query10(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "text/plain", result)
+		return
+	})
+	mux.GET("/query11", func(ctx *gin.Context) {
+		var itemID sql.NullBool
+		if s := ctx.Query("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.Bool = ToBool(s)
+		}
+
+		result, err := svc.Query11(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "text/plain", result)
 		return
 	})
 	// Misc: annotation is missing

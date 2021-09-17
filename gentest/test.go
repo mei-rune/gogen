@@ -158,6 +158,15 @@ type StringSvc interface {
 	// @http.POST(path="", noreturn="true")
 	Create3(ctx context.Context, request *http.Request, response http.ResponseWriter) error
 
+	// @http.GET(path="/query9", content_type="text")
+	Query9(ctx context.Context, itemID sql.NullInt64) (string, error)
+
+	// @http.GET(path="/query10", content_type="text")
+	Query10(ctx context.Context, itemID sql.NullString) (string, error)
+
+	// @http.GET(path="/query11", content_type="text")
+	Query11(ctx context.Context, itemID sql.NullBool) (string, error)
+
 	Misc() string
 }
 

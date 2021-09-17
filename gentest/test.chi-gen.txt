@@ -4,6 +4,7 @@
 package main
 
 import (
+	"database/sql"
 	"io"
 	"net/http"
 	"net/url"
@@ -1228,6 +1229,79 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			return
 		}
 
+		return
+	})
+	mux.Get("/query9", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullInt64
+		if s := queryParams.Get("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("item_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("item_id", s, err))
+				return
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+
+		result, err := svc.Query9(r.Context(), itemID)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Get("/query10", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullString
+		if s := queryParams.Get("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+
+		result, err := svc.Query10(r.Context(), itemID)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Get("/query11", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullBool
+		if s := queryParams.Get("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.Bool = ToBool(s)
+		}
+
+		result, err := svc.Query11(r.Context(), itemID)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
 		return
 	})
 	// Misc: annotation is missing
