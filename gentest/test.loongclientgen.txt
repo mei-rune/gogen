@@ -844,6 +844,39 @@ func (client TestClient) Query11(ctx context.Context, itemID sql.NullBool) (stri
 	return result, nil
 }
 
+func (client TestClient) Query1WithUpName(ctx context.Context, Name string) (string, error) {
+	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/query12").
+		SetParam("Name", Name).
+		Result(&resultWrap)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
+}
+
+func (client TestClient) Set1WithUpName(ctx context.Context, Name string) error {
+	request := resty.NewRequest(client.Proxy, "/query12").
+		SetBody(map[string]interface{}{
+			"Name": Name,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
 // Misc: annotation is missing
 
 type StringSvcImplClient struct {

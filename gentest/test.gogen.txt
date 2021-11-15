@@ -849,6 +849,32 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		return ctx.String(http.StatusOK, result)
 	})
+	mux.GET("/query12", func(ctx echo.Context) error {
+		var Name = ctx.QueryParam("Name")
+
+		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.String(http.StatusOK, result)
+	})
+	mux.POST("/query12", func(ctx echo.Context) error {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
+		}
+
+		err := svc.Set1WithUpName(ctx.Request().Context(), bindArgs.Name)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusCreated, "OK")
+	})
 	// Misc: annotation is missing
 }
 

@@ -1304,6 +1304,50 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		render.PlainText(w, r, result)
 		return
 	})
+	mux.Get("/query12", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var Name = queryParams.Get("Name")
+
+		result, err := svc.Query1WithUpName(r.Context(), Name)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Post("/query12", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			if he, ok := errors.BadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.BadArgument("bindArgs", "body", err))
+			return
+		}
+
+		err := svc.Set1WithUpName(r.Context(), bindArgs.Name)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
 	// Misc: annotation is missing
 }
 

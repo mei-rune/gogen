@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -166,6 +167,12 @@ type StringSvc interface {
 
 	// @http.GET(path="/query11", content_type="text")
 	Query11(ctx context.Context, itemID sql.NullBool) (string, error)
+
+	// @http.GET(path="/query12?Name=Name", content_type="text")
+	Query1WithUpName(ctx context.Context, Name string) (string, error)
+
+	// @http.POST(path="/query12", auto_underscore="false")
+	Set1WithUpName(ctx context.Context, Name string) error
 
 	Misc() string
 }

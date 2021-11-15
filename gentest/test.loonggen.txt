@@ -758,6 +758,29 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		return ctx.String(http.StatusOK, result)
 	})
+	mux.GET("/query12", func(ctx *loong.Context) error {
+		var Name = ctx.QueryParam("Name")
+
+		result, err := svc.Query1WithUpName(ctx.StdContext, Name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.String(http.StatusOK, result)
+	})
+	mux.POST("/query12", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+
+		err := svc.Set1WithUpName(ctx.StdContext, bindArgs.Name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult("OK")
+	})
 	// Misc: annotation is missing
 }
 

@@ -319,6 +319,26 @@ type ParamConfig struct {
 	Values           []Param
 }
 
+func (param Param) ToJSONName() string {
+	anno := getAnnotation(*param.Method, false)
+	autoUnderscore := anno.Attributes["auto_underscore"]
+
+	if strings.ToLower(autoUnderscore) == "false" {
+		return param.Name.Name
+	}
+	return Underscore(param.Name.Name)
+}
+
+func (param ParamConfig) ToJSONName() string {
+	anno := getAnnotation(*param.Method, false)
+	autoUnderscore := anno.Attributes["auto_underscore"]
+
+	if strings.ToLower(autoUnderscore) == "false" {
+		return param.Name.Name
+	}
+	return Underscore(param.Name.Name)
+}
+
 func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	anno := getAnnotation(method, false)
 	rawurl := anno.Attributes["path"]
@@ -340,7 +360,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 	add := func(param Param, queryName string, isSkipDeclared, isSkipUse bool) ParamConfig {
 		cp := ParamConfig{
 			Param:          param,
-			QueryParamName: queryName,
+			QueryParamName: Underscore(queryName),
 			IsSkipDeclared: isSkipDeclared,
 			IsSkipUse:      isSkipUse,
 		}
@@ -673,7 +693,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
     {{- if $param.Values -}}
     SetBody(map[string]interface{}{
       {{- range $a := $param.Values}}
-      "{{underscore $a.Name.Name}}": {{$a.Name.Name}},
+      "{{$a.ToJSONName}}": {{$a.Name.Name}},
       {{- end}}
     })
     {{- else -}}
@@ -715,19 +735,19 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
 
       {{- else if startWith $typeName "*"}}
         if {{$param.Name.Name}} != nil {
-        	request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+        	request = request.SetParam("{{ $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
         }
         {{- $needAssignment = true -}}
       {{- else -}}
       
         {{- if $param.IsMultQueryValue }}
           for idx := range {{$param.Param.Name.Name}} {
-            request = request.AddParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral2 "[idx]" $param.Param  true}})
+            request = request.AddParam("{{ $param.QueryParamName}}", {{convertToStringLiteral2 "[idx]" $param.Param  true}})
           }
         {{- $needAssignment = true -}}
         {{- else if isNull $param.Param.Typ }}
           if {{$param.Param.Name}}.Valid {
-            request = request.SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+            request = request.SetParam("{{ $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
           }
           {{- $needAssignment = true -}}
         {{- else}}
@@ -736,7 +756,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
           {{- else -}}
           .
           {{end -}}
-          SetParam("{{underscore $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+          SetParam("{{ $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
           {{- $needAssignment = false -}}
         {{- end -}}
       {{- end -}}

@@ -1004,6 +1004,39 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		ctx.Output.Body(result, false, false)
 		return
 	})
+	mux.Get("/query12", func(ctx *beecontext.Context) {
+		var Name = ctx.Input.Query("Name")
+
+		result, err := svc.Query1WithUpName(ctx.Request.Context(), Name)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
+		return
+	})
+	mux.Post("/query12", func(ctx *beecontext.Context) {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &bindArgs); err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		err := svc.Set1WithUpName(ctx.Request.Context(), bindArgs.Name)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
 	// Misc: annotation is missing
 }
 

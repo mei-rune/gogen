@@ -536,6 +536,28 @@ func (client TestClient) Query11(ctx context.Context, itemID sql.NullBool) (stri
 	return result, err
 }
 
+func (client TestClient) Query1WithUpName(ctx context.Context, Name string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/query12").
+		SetParam("Name", Name).
+		Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client TestClient) Set1WithUpName(ctx context.Context, Name string) error {
+	request := resty.NewRequest(client.Proxy, "/query12").
+		SetBody(map[string]interface{}{
+			"Name": Name,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
 // Misc: annotation is missing
 
 type StringSvcImplClient struct {

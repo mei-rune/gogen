@@ -374,6 +374,16 @@ type ServerParam struct {
 	InitString string
 }
 
+func (param ServerParam) ToJSONName() string {
+	anno := getAnnotation(*param.Method, false)
+	autoUnderscore := anno.Attributes["auto_underscore"]
+
+	if strings.ToLower(autoUnderscore) == "false" {
+		return param.Name.Name
+	}
+	return Underscore(param.Name.Name)
+}
+
 type ServerMethod struct {
 	ParamList      []ServerParam
 	IsErrorDefined bool
@@ -406,7 +416,7 @@ func (mux *DefaultStye) ToBindString(method Method, results []ServerParam) strin
 			var bindArgs struct {
 				{{- range $param := .params}}
 					{{- if $param.InBody }}
-  						{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{underscore $param.Param.Name.Name}},omitempty\"`" + `
+  						{{goify $param.Param.Name.Name true}} {{typePrint $param.Param.Typ}} ` + "`json:\"{{$param.ToJSONName}},omitempty\"`" + `
   					{{- end}}
 				{{- end}}
 			}
@@ -544,18 +554,23 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 		}
 	}
 
-	isText := false
-	if len(method.Results.List) == 2 {
-		s := typePrint(method.Results.List[0].Typ)
-		isText = s == "string"
-	} else if len(method.Results.List) == 1 {
-		s := typePrint(method.Results.List[0].Typ)
-		isText = s == "string"
-	}
-
 	isPlainText := ann.Attributes["content_type"] == "text"
-	if !isText && isPlainText {
-		panic("content_type is mismatch, " + typePrint(results[0].Typ))
+	if isPlainText {
+		isText := false
+		if len(method.Results.List) == 2 {
+			// if typePrint(method.Results.List[0].Typ) != "context.Context" {
+			// 	panic("content_type is mismatch - '" + typePrint(method.Results.List[0].Typ) + "' in the '" + method.Name.Name + "'")
+			// }
+			s := typePrint(method.Results.List[0].Typ)
+			isText = s == "string"
+		} else if len(method.Results.List) == 1 {
+			s := typePrint(method.Results.List[0].Typ)
+			isText = s == "string"
+		}
+
+		if !isText {
+			panic("content_type is mismatch - '" + typePrint(method.Results.List[0].Typ) + "' in the '" + method.Name.Name + "'")
+		}
 	}
 
 	return ServerMethod{results, genCtx.IsErrorDefined(), isPlainText}
@@ -962,9 +977,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 					var initRootValue string
 					for idx, parent := range parents {
-							if idx == 0 && mux.PreInitObject {
-								continue
-							}
+						if idx == 0 && mux.PreInitObject {
+							continue
+						}
 						if IsPtrType(parent.Param.Typ) {
 							if parentIndexs[idx] == 0 && fieldIdx == 0 {
 								initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
@@ -1008,9 +1023,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 					var initRootValue string
 					for idx, parent := range parents {
-							if idx == 0 && mux.PreInitObject {
-								continue
-							}
+						if idx == 0 && mux.PreInitObject {
+							continue
+						}
 						if IsPtrType(parent.Param.Typ) {
 							if parentIndexs[idx] == 0 && fieldIdx == 0 {
 								initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
@@ -1050,9 +1065,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 
 				var initRootValue string
 				for idx, parent := range parents {
-							if idx == 0 && mux.PreInitObject {
-								continue
-							}
+					if idx == 0 && mux.PreInitObject {
+						continue
+					}
 					if IsPtrType(parent.Param.Typ) {
 						if parentIndexs[idx] == 0 && fieldIdx == 0 {
 							initRootValue += parent.InitName + " = &" + typePrint(ElemType(parent.Param.Typ)) + "{}\r\n"
@@ -1367,8 +1382,8 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 
 			} else {
 
-				selectorExpr, ok := param.Typ.(*ast.SelectorExpr);
-				if  !ok {
+				selectorExpr, ok := param.Typ.(*ast.SelectorExpr)
+				if !ok {
 					log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 3argument '"+param.Name.Name+"' is unsupported type -", typeStr, elmType, fmt.Sprintf("%T", param.Typ))
 				}
 
