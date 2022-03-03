@@ -56,6 +56,13 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				return nil
 			}
 			times = timesValue
+		} else if ss := ctx.QueryParamArray("times[]"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "times", ss, err))
+				return nil
+			}
+			times = timesValue
 		}
 
 		list, total, err := svc.GetTimes(times)
@@ -1910,8 +1917,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("query.request_type_ids[]"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("query.request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
@@ -2132,8 +2154,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("request_type_ids[]"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}
@@ -2318,8 +2355,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &AliasRequestQuery{}
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("request_type_ids[]"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &AliasRequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &AliasRequestQuery{}
 			}
@@ -2504,8 +2556,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &RequestQueryEx1{}
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("query.request_type_ids[]"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &RequestQueryEx1{}
+			}
+			query.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("query.request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx1{}
 			}
@@ -2743,8 +2810,29 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.RequestQuery = &models.RequestQuery{}
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("query.request_type_ids[]"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &RequestQueryEx2{}
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = &models.RequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("query.request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx2{}
 			}
@@ -3011,8 +3099,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("query.request.request_type_ids[]"); len(ss) != 0 {
+			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("query.request.request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("query.request.request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
@@ -3250,8 +3353,29 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("query.request.request_type_ids[]"); len(ss) != 0 {
+			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("query.request.request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("query.request.request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx4{}
 			}
@@ -3518,8 +3642,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &RequestQueryEx3{}
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("request.request_type_ids[]"); len(ss) != 0 {
+			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("request.request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &RequestQueryEx3{}
+			}
+			query.Request.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("request.request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx3{}
 			}
@@ -3757,8 +3896,29 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query.Request = &models.RequestQuery{}
 			}
 			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("request.request_type_ids[]"); len(ss) != 0 {
+			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequestTypeIDs = queryRequestRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("request.request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &RequestQueryEx4{}
+			}
+			if query.Request == nil {
+				query.Request = &models.RequestQuery{}
+			}
+			query.Request.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("request.request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &RequestQueryEx4{}
 			}
@@ -4025,8 +4185,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				query = &models.RequestQuery{}
 			}
 			query.RequestTypeIDs = queryRequestTypeIDsValue
+		} else if ss := ctx.QueryParamArray("query.request_type_ids[]"); len(ss) != 0 {
+			queryRequestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
+			}
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeIDs = queryRequestTypeIDsValue
 		}
 		if ss := ctx.QueryParamArray("query.request_type_names"); len(ss) != 0 {
+			if query == nil {
+				query = &models.RequestQuery{}
+			}
+			query.RequestTypeNames = ss
+		} else if ss := ctx.QueryParamArray("query.request_type_names[]"); len(ss) != 0 {
 			if query == nil {
 				query = &models.RequestQuery{}
 			}

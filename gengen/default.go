@@ -1164,6 +1164,9 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
           if ss := {{readOptional .param .ctx .type .rname}}; len(ss) != 0 {
       		  {{- .initRootValue}}
             {{.name}} = ss
+          } else if ss := {{readOptional .param .ctx .type (concat .rname "[]") }}; len(ss) != 0 {
+      		  {{- .initRootValue}}
+            {{.name}} = ss
           }
           {{- else}}
           if s := {{readOptional .param .ctx .type .rname}}; s != "" {
@@ -1252,6 +1255,7 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 
 		optionalTxt := template.Must(template.New("optionalTxt").Funcs(Funcs).Funcs(funcs).Parse(`
 		{{- $s := readOptional .param .ctx .type .rname }}
+		{{- $ss := readOptional .param .ctx .type (concat .rname "[]") }}
 		{{- if .skipDeclare | not}}var {{.name}} {{.type}}
 		{{end -}}
     
@@ -1320,6 +1324,20 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 			{{.name}}{{$suffix}} = {{goify .name false}}Value
 			{{- end}}
 		{{- end}}
+
+    {{- if .isArray}}
+    } else if {{$tmp}} := {{ $ss }}; {{$tmpIs}} {
+			{{goify .name false}}Value, err := {{convert .param .ctx .type $tmp}}
+			if err != nil {
+				{{badArgument .rname $tmp "err"}}
+			}
+			{{- .initRootValue}}
+    	{{- if .needTransform}}
+			{{.name}} = {{.type}}({{goify .name false}}Value)
+			{{- else}}
+			{{.name}} = {{goify .name false}}Value
+			{{- end}}
+    {{- end}}
 		}
 		`))
 

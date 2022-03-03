@@ -4,7 +4,11 @@ var loongConfig = map[string]interface{}{
 	// "features.buildTag":     "loong-gen",
 	"features.httpCodeWith": false,
 	// "features.boolConvert":     "toBool({{.name}})",
-	"features.datetimeConvert": "loong.ToDatetime({{.name}})",
+	"features.datetimeConvert":  "loong.ToDatetime({{.name}})",
+	"features.datetimesConvert": "loong.ToDatetimes({{.name}})",
+
+	// "features.intsConvert": "loong.ToInts({{.name}})",
+	// "features.int64sConvert": "loong.ToInt64s({{.name}})",
 	"imports": map[string]string{
 		"github.com/runner-mei/loong": "",
 	},
