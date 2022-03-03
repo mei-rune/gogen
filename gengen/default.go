@@ -158,6 +158,10 @@ func (mux *DefaultStye) reinit(values map[string]interface{}) {
 		funcName := mux.ConvertNamespace + "ToUint64Array({{.name}})"
 		mux.Converts["[]uint64"] = ConvertArgs{Format: funcName, HasError: true}
 	}
+	if _, ok := mux.Converts["[]time.Time"]; !ok {
+		funcName := mux.ConvertNamespace + "ToDatetimes({{.name}})"
+		mux.Converts["[]time.Time"] = ConvertArgs{Format: funcName, HasError: true}
+	}
 
 	for _, t := range []string{"int8", "int16", "int32", "int64"} {
 		if _, ok := mux.Converts[t]; ok {
@@ -769,6 +773,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	}
 
 	getStructType := func(param Param) *Class {
+
 		var stType *Class
 		if starType, ok := param.Typ.(*ast.StarExpr); ok {
 			if identType, ok := starType.X.(*ast.Ident); ok {

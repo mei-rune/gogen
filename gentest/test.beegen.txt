@@ -33,6 +33,53 @@ func httpCodeWith(err error) int {
 // QueryArgs is skipped
 
 func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
+	mux.Get("/files", func(ctx *beecontext.Context) {
+		var filenames = ctx.QueryParamArray("filenames")
+
+		list, total, err := svc.GetFiles(filenames)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/times", func(ctx *beecontext.Context) {
+		var times []time.Time
+		if ss := ctx.QueryParamArray("times"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", times, ss, err).Error())
+				return
+			}
+			times = timesValue
+		}
+
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
 	mux.Get("/allfiles", func(ctx *beecontext.Context) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {

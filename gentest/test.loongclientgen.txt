@@ -23,6 +23,66 @@ type TestClient struct {
 	Proxy *resty.Proxy
 }
 
+func (client TestClient) GetFiles(ctx context.Context, filenames []string) ([]string, int64, error) {
+	var result struct {
+		Elist  []string `json:"list"`
+		Etotal int64    `json:"total"`
+	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/files")
+	for idx := range filenames {
+		request = request.AddParam("filenames", filenames[idx])
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+
+	if err != nil {
+		return nil, 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
+		return nil, 0, resultWrap.Error
+	}
+	return result.Elist, result.Etotal, nil
+}
+
+func (client TestClient) GetTimes(ctx context.Context, times []time.Time) ([]string, int64, error) {
+	var result struct {
+		Elist  []string `json:"list"`
+		Etotal int64    `json:"total"`
+	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
+
+	request := resty.NewRequest(client.Proxy, "/times")
+	for idx := range times {
+		request = request.AddParam("times", times[idx].Format(client.Proxy.TimeFormat))
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+
+	if err != nil {
+		return nil, 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
+		return nil, 0, resultWrap.Error
+	}
+	return result.Elist, result.Etotal, nil
+}
+
 func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, error) {
 	var result struct {
 		Elist  []string `json:"list"`

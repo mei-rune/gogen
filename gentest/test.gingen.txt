@@ -31,6 +31,48 @@ func httpCodeWith(err error) int {
 // QueryArgs is skipped
 
 func InitStringSvc(mux gin.IRouter, svc StringSvc) {
+	mux.GET("/files", func(ctx *gin.Context) {
+		var filenames = ctx.QueryArray("filenames")
+
+		list, total, err := svc.GetFiles(filenames)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
+	mux.GET("/times", func(ctx *gin.Context) {
+		var times []time.Time
+		if ss := ctx.QueryArray("times"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", times, ss, err).Error())
+				return
+			}
+			times = timesValue
+		}
+
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
 	mux.GET("/allfiles", func(ctx *gin.Context) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {

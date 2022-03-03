@@ -57,6 +57,12 @@ type QueryArgs struct {
 
 // @http.Client(name="TestClient", ref="true")
 type StringSvc interface {
+	// @http.GET(path="/files")
+	GetFiles(filenames []string) (list []string, total int64, err error)
+
+	// @http.GET(path="/times")
+	GetTimes(times []time.Time) (list []string, total int64, err error)
+
 	// @http.GET(path="/allfiles")
 	GetAllFiles() (list []string, total int64, err error)
 

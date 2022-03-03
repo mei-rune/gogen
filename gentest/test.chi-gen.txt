@@ -23,6 +23,65 @@ import (
 // QueryArgs is skipped
 
 func InitStringSvc(mux chi.Router, svc StringSvc) {
+	mux.Get("/files", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var filenames = queryParams[filenames]
+
+		list, total, err := svc.GetFiles(filenames)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/times", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var times []time.Time
+		if ss := queryParams[times]; len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				if he, ok := errors.BadArgument("times", ss, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("times", ss, err))
+				return
+			}
+			times = timesValue
+		}
+
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		render.JSON(w, r, result)
+		return
+	})
 	mux.Get("/allfiles", func(w http.ResponseWriter, r *http.Request) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
