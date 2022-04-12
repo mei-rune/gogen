@@ -274,6 +274,12 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
     {{/* generate a empty line*/}}
     {{end}}
 
+
+
+
+
+		{{- /* invoke begin  */ -}}
+
     {{- if gt (len $method.Results.List) 2 }}
       {{range $idx, $result := $method.Results.List -}}
 
@@ -304,6 +310,12 @@ func Init{{.class.Name}}(mux {{.mux.RouteParty}}, svc {{if not .class.IsInterfac
         {{- $param.ParamName }}{{if isEllipsisType $param.Param.Typ}}...{{- end -}}
         {{- end -}}
       {{- end -}})
+
+
+		{{- /* invoke end  */ -}}
+
+
+
 
     {{- if gt (len $method.Results.List) 2 }}
       if err != nil {

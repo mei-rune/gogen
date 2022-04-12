@@ -1,0 +1,346 @@
+//go:build gin
+// +build gin
+
+// Please don't edit this file!
+package main
+
+import (
+	"database/sql"
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+)
+
+// TimeRange is skipped
+// TimeRange2 is skipped
+// QueryArgs is skipped
+
+func InitStringSvc(mux gin.IRouter, svc StringSvc) {
+	mux.GET("/test64/by_name/:name", func(ctx *gin.Context) {
+		var name = ctx.Param("name")
+		err := svc.TestCase1(name)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_name", func(ctx *gin.Context) {
+		var name = ctx.Query("name")
+		err := svc.TestCase2_1(name)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_names", func(ctx *gin.Context) {
+		var name = ctx.QueryArray("name")
+		err := svc.TestCase2_2(name)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id/:id", func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase3_1", "id"))
+			return
+		}
+		err := svc.TestCase3_1(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id/:id", func(ctx *gin.Context) {
+		idValue, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase3_2", "id"))
+			return
+		}
+		id = int32(idValue)
+		err := svc.TestCase3_2(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id/:id", func(ctx *gin.Context) {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase3_3", "id"))
+			return
+		}
+		err := svc.TestCase3_3(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id/:id", func(ctx *gin.Context) {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase4", "id"))
+			return
+		}
+		err := svc.TestCase4(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id", func(ctx *gin.Context) {
+		var id int64
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase5_1", "id"))
+				return
+			}
+			id = idValue
+		}
+		err := svc.TestCase5_1(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id", func(ctx *gin.Context) {
+		var id int32
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase5_2", "id"))
+				return
+			}
+			id = int32(idValue)
+		}
+		err := svc.TestCase5_2(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id", func(ctx *gin.Context) {
+		var idlist []int64
+		if ss := ctx.QueryArray("idlist"); len(ss) != 0 {
+			idlistValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase5_3", "idlist"))
+				return
+			}
+			idlist = idlistValue
+		}
+		err := svc.TestCase5_3(idlist)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id", func(ctx *gin.Context) {
+		var id int64
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase6", "id"))
+				return
+			}
+			id = idValue
+		}
+		err := svc.TestCase6(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id", func(ctx *gin.Context) {
+		var id sql.NullInt64
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase7_1", "id"))
+				return
+			}
+			id.Int64 = idValue
+			id.Valid = true
+		}
+		err := svc.TestCase7_1(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id", func(ctx *gin.Context) {
+		var id sql.NullInt32
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase7_2", "id"))
+				return
+			}
+			id.Int32 = int32(idValue)
+			id.Valid = true
+		}
+		err := svc.TestCase7_2(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id", func(ctx *gin.Context) {
+		var id sql.NullInt64
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase8", "id"))
+				return
+			}
+			id.Int64 = idValue
+			id.Valid = true
+		}
+		err := svc.TestCase8(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id/:id", func(ctx *gin.Context) {
+		var id = ctx.Param("id")
+		err := svc.TestCase9(&id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_name", func(ctx *gin.Context) {
+		var id *string
+		if s := ctx.Query("id"); s != "" {
+			id = &s
+		}
+		err := svc.TestCase10(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/:id", func(ctx *gin.Context) {
+		var id *int
+		if idValue, err = strconv.Atoi(ctx.Param("id")); err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase12", "id"))
+			return
+		} else {
+			id = &idValue
+		}
+		err := svc.TestCase12(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/:id", func(ctx *gin.Context) {
+		var id *int
+		if idValue, err = strconv.Atoi(ctx.Param("id")); err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase13", "id"))
+			return
+		} else {
+			id = &idValue
+		}
+		err := svc.TestCase13(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_id", func(ctx *gin.Context) {
+		var id *int
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase14_1", "id"))
+				return
+			}
+			id = &idValue
+		}
+		err := svc.TestCase14_1(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_name", func(ctx *gin.Context) {
+		var id *int32
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase14_2", "id"))
+				return
+			}
+			id = new(int32)
+			*id = int32(idValue)
+		}
+		err := svc.TestCase14_2(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test64/by_name", func(ctx *gin.Context) {
+		var id *int
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase14_3", "id"))
+				return
+			}
+			id = &idValue
+		}
+		err := svc.TestCase14_3(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+}

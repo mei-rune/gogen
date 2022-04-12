@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/runner-mei/gogen/gengen"
+	"github.com/runner-mei/gogen/v2/gengen"
 )
 
 func usage() {
@@ -20,26 +20,20 @@ func main() {
 	// 	outdirrel = flag.String("target-dir", ".", "base directory to emit into")
 	// )
 
-	flag.Usage = usage
-	flag.Parse()
-	args := flag.Args()
-	if len(args) == 0 {
-		usage()
-		return
-	}
-
-	var gen = &gengen.Generator{}
-	// switch args[0] {
-	// case "server":
-	// 	gen = &gengen.WebServerGenerator{}
-	// case "client":
-	// 	gen = &gengen.WebClientGenerator{}
-	// default:
+	// flag.Usage = usage
+	// flag.Parse()
+	// args := flag.Args()
+	// if len(args) == 0 {
 	// 	usage()
 	// 	return
 	// }
 
-	fset := flag.NewFlagSet(args[0], flag.ExitOnError)
+	// fset := flag.NewFlagSet(args[0], flag.ExitOnError)
+
+	fset := flag.CommandLine
+	args := os.Args
+
+	var gen = &gengen.Generator{}
 	gen.Flags(fset)
 	err := fset.Parse(args[1:])
 	if err != nil {
