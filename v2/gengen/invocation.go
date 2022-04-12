@@ -19,9 +19,11 @@ func defaultValue(typ string, value interface{}) string {
 }
 
 func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param, invocation *Invocation) error {
-	resultExceptedType := invocation.ResultType == astutil.ToString(param.Type()) ||
+	typeStr := astutil.ToString(param.Type())
+	resultExceptedType := invocation.ResultType == typeStr ||
 		(invocation.IsArray && invocation.ResultType == astutil.ToString(param.SliceType())) ||
-		(invocation.IsArray && param.IsVariadic() && invocation.ResultType == astutil.ToString(param.Type()))
+		(invocation.IsArray && param.IsVariadic() && invocation.ResultType == astutil.ToString(param.Type())) ||
+		(isNullableType(typeStr) && !invocation.IsArray && !param.IsVariadic() && invocation.ResultType == nullableType(typeStr))
 
 	var isPtrType = param.IsPtrType()
 
@@ -77,7 +79,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 						fmt.Fprintf(out, invocation.Format, param.Option.Name)
 					}
 
-					io.WriteString(out, "\r\n\tif ok {\r\n")
+					io.WriteString(out, "; ok {\r\n")
 					io.WriteString(out, param.GoVarName()+" = &"+param.GoVarName()+"Value")
 					io.WriteString(out, "\r\n\t} else {\r\n")
 					renderBadArgument(out, plugin, method, param, "nil")
@@ -91,7 +93,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 						fmt.Fprintf(out, invocation.Format, param.Option.Name)
 					}
 
-					io.WriteString(out, "\r\n\tif err == nil {\r\n")
+					io.WriteString(out, "; err == nil {\r\n")
 					io.WriteString(out, param.GoVarName()+" = &"+param.GoVarName()+"Value")
 					io.WriteString(out, "\r\n\t} else {\r\n")
 					renderBadArgument(out, plugin, method, param, "err")
@@ -107,7 +109,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 					} else {
 						fmt.Fprintf(out, invocation.Format, param.Option.Name)
 					}
-					io.WriteString(out, "\r\n\tif ok {\r\n")
+					io.WriteString(out, "; ok {\r\n")
 					io.WriteString(out, param.GoVarName()+" = &"+param.GoVarName()+"Value")
 					io.WriteString(out, "\r\n\t}")
 				} else {
@@ -117,7 +119,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 					} else {
 						fmt.Fprintf(out, invocation.Format, param.Option.Name)
 					}
-					io.WriteString(out, "\r\n\tif err == nil {\r\n")
+					io.WriteString(out, "; err == nil {\r\n")
 					io.WriteString(out, param.GoVarName()+" = &"+param.GoVarName()+"Value")
 					io.WriteString(out, "\r\n\t}")
 				}
@@ -138,16 +140,14 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 		// // 	return
 		// // }
 
-		return errors.New("param '" + param.Param.Name + "' of " + method.Method.Clazz.Name + "." + method.Method.Name + " cannot resolved")
+		return errors.New("param '" + param.Param.Name + "' of " + method.Method.Clazz.Name + "." + method.Method.Name + " cannot resolved for '" + invocation.Format + "'")
 	}
-
 
 	var isStringPtrType = (isPtrType && !invocation.IsArray && invocation.ResultType == astutil.ToString(param.PtrElemType()))
 
 	if resultExceptedType || isStringPtrType {
 		// resultExceptedType = true 时，情况1, 2
 		// isStringPtrType = true 时，情况9, 10
-
 
 		if invocation.Required || !isStringPtrType {
 			// resultExceptedType = true 时，情况1, 2
@@ -177,21 +177,20 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 				fmt.Fprintf(out, invocation.Format, param.Option.Name)
 			}
 			io.WriteString(out, "; s != \"\" {")
-			io.WriteString(out, "\r\n\t"+param.GoVarName() + " = &s")
+			io.WriteString(out, "\r\n\t"+param.GoVarName()+" = &s")
 			io.WriteString(out, "\r\n\t}")
 		}
 		return nil
-	} 
+	}
 
 	if !isPtrType {
-		
-		typeStr := astutil.ToString(param.Type())
-		isNullable := isNullableType(typeStr)
-		typeStr = nullableType(typeStr)
 
-		convertFmt, needCast, err := selectConvert(invocation.IsArray, invocation.ResultType, typeStr)
+		isNullable := isNullableType(typeStr)
+		nullValueTypeStr := nullableType(typeStr)
+
+		convertFmt, needCast, err := selectConvert(invocation.IsArray, invocation.ResultType, nullValueTypeStr)
 		if err != nil {
-			return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' hasnot convert function: "+err.Error())
+			return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' hasnot convert function: " + err.Error())
 		}
 
 		if invocation.Required {
@@ -220,7 +219,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 			if needCast {
 				io.WriteString(out, "\r\n\t")
 				io.WriteString(out, param.GoVarName())
-				io.WriteString(out, " = "+ astutil.ToString(param.Type()) +"(")
+				io.WriteString(out, " = "+astutil.ToString(param.Type())+"(")
 				io.WriteString(out, param.GoVarName())
 				io.WriteString(out, "Value)")
 			}
@@ -253,7 +252,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 			io.WriteString(out, "\r\n\t\t}")
 
 			if needCast {
-				io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"."+FieldNameForNullable(param.Type())+" = "+ typeStr +"("+param.GoVarName()+"Value)")
+				io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"."+FieldNameForNullable(param.Type())+" = "+nullValueTypeStr+"("+param.GoVarName()+"Value)")
 			} else {
 				io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"."+FieldNameForNullable(param.Type())+" = "+param.GoVarName()+"Value")
 			}
@@ -295,14 +294,13 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 		io.WriteString(out, "\r\n\t\t}")
 
 		if needCast {
-			io.WriteString(out, "\r\n\t\t"+param.GoVarName() + " = " +typeStr + "("+ param.GoVarName() + "Value)")
+			io.WriteString(out, "\r\n\t\t"+param.GoVarName()+" = "+typeStr+"("+param.GoVarName()+"Value)")
 		} else {
-			io.WriteString(out, "\r\n\t\t"+param.GoVarName() + " = " + param.GoVarName() + "Value")
+			io.WriteString(out, "\r\n\t\t"+param.GoVarName()+" = "+param.GoVarName()+"Value")
 		}
 		io.WriteString(out, "\r\n\t}")
 		return nil
 	}
-
 
 	elemTypeStr := astutil.ToString(param.PtrElemType())
 
@@ -310,7 +308,6 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 	io.WriteString(out, param.GoVarName())
 	io.WriteString(out, " ")
 	io.WriteString(out, astutil.ToString(param.Type()))
-
 
 	// resultExceptedType := !invocation.IsArray && invocation.ResultType == astutil.ToString(param.PtrElemType())
 	// if resultExceptedType {
@@ -322,7 +319,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 	convertFmt, needCast, err := selectConvert(invocation.IsArray, invocation.ResultType,
 		astutil.ToString(param.PtrElemType()))
 	if err != nil {
-		return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' hasnot convert function: " +err.Error())
+		return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' hasnot convert function: " + err.Error())
 	}
 
 	if invocation.Required {

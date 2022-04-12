@@ -147,9 +147,9 @@ func ConvertMethodNameToCamelCase(name string) string {
 func selectConvert(isArray bool, resultType, paramType string) (string, bool, error) {
 	if isArray {
 		if !strings.HasPrefix(paramType, "[]") {
-			return "", false, errors.New("cannot convert to '"+paramType+"', param type isnot match")
+			return "", false, errors.New("cannot convert to '" + paramType + "', param type isnot match")
 		}
-		paramType = strings.TrimPrefix(paramType, "[]") 
+		paramType = strings.TrimPrefix(paramType, "[]")
 	}
 	switch paramType {
 	case "int":
@@ -239,8 +239,8 @@ func selectConvert(isArray bool, resultType, paramType string) (string, bool, er
 		return "net.ParseMAC(%s)", false, nil
 	default:
 		if isArray {
-			return "", false, errors.New("cannot convert to '[]"+paramType+"'")
+			return "", false, errors.New("cannot convert to '[]" + paramType + "'")
 		}
-		return "", false, errors.New("cannot convert to '"+paramType+"'")
+		return "", false, errors.New("cannot convert to '" + paramType + "'")
 	}
 }

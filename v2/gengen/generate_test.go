@@ -127,14 +127,13 @@ func TestGenerate(t *testing.T) {
 	t.Run("echo", func(t *testing.T) {
 		for _, name := range []string{"test"} {
 			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".gogen.go"))
-			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+			os.Remove(filepath.Join(wd, "gentest", name+".echogen.go"))
 
 			var gen = &Generator{
 				plugin:   "echo",
 				ext:      ".echogen.go",
 				buildTag: "echo",
-					// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
+				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 			}
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)
@@ -144,6 +143,39 @@ func TestGenerate(t *testing.T) {
 
 			actual := readFile(filepath.Join(wd, "gentest", name+".echogen.go"))
 			excepted := readFile(filepath.Join(wd, "gentest", name+".echogen.txt"))
+			if !reflect.DeepEqual(actual, excepted) {
+				results := difflib.Diff(excepted, actual)
+				for _, result := range results {
+					if result.Delta == difflib.Common {
+						continue
+					}
+					t.Error(result)
+				}
+			}
+		}
+	})
+
+
+	t.Run("iris", func(t *testing.T) {
+		for _, name := range []string{"test"} {
+			t.Log("=====================", name)
+			os.Remove(filepath.Join(wd, "gentest", name+".irisgen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+
+			var gen = &Generator{
+				plugin:   "iris",
+				ext:      ".irisgen.go",
+				buildTag: "iris",
+				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
+			}
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+				fmt.Println(err)
+				t.Error(err)
+				continue
+			}
+
+			actual := readFile(filepath.Join(wd, "gentest", name+".irisgen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", name+".irisgen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {

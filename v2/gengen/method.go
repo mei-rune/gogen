@@ -37,8 +37,8 @@ func (method *Method) GetParams() ([]Param, error) {
 		}
 
 		if foundIndex < 0 {
-			return nil, errors.New("param '" + method.Method.Params.List[0].Name + 
-				"' of '" + method.Method.Clazz.Name + "." + method.Method.Name + 
+			return nil, errors.New("param '" + method.Method.Params.List[0].Name +
+				"' of '" + method.Method.Clazz.Name + "." + method.Method.Name +
 				"' not found in the swagger annotation")
 		}
 
@@ -63,8 +63,8 @@ func (param *Param) GoVarName() string {
 
 // GoVarName 函数调用时变量，如变量名为 a, 调用可能是 &a
 func (param *Param) GoArgumentLiteral() string {
-	var isStringPtrType = param.IsPtrType() &&  astutil.ToString(param.PtrElemType()) == "string"
-	if isStringPtrType && param.Option.In == "path"{
+	var isStringPtrType = param.IsPtrType() && astutil.ToString(param.PtrElemType()) == "string"
+	if isStringPtrType && param.Option.In == "path" {
 		return "&" + param.Param.Name
 	}
 	return param.Param.Name

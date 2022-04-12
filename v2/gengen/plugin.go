@@ -20,7 +20,7 @@ type Config struct {
 type Invocation struct {
 	Required    bool
 	WithDefault bool
-	Format        string
+	Format      string
 	IsArray     bool
 	ResultType  string
 	ResultError bool
@@ -35,6 +35,8 @@ func createPlugin(plugin string) (Plugin, error) {
 		return &chiPlugin{}, nil
 	case "echo":
 		return &echoPlugin{}, nil
+	case "iris":
+		return &irisPlugin{}, nil
 	default:
 		return nil, errors.New("plugin '" + plugin + "' is unsupported")
 	}

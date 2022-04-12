@@ -174,7 +174,6 @@ func (cmd *Generator) genImplFuncBody(cfg Plugin, out io.Writer, file *astutil.F
 				return err
 			}
 		}
-
 	}
 
 	return cmd.genImplFuncInvokeAndReturn(cfg, out, file, ts, method)
@@ -200,7 +199,7 @@ func (cmd *Generator) genImplFuncParam(plugin Plugin, out io.Writer, file *astut
 		invocations := plugin.Invocations()
 		foundIndex := -1
 		for idx := range invocations {
-			if  (param.Option.In == "path") != invocations[idx].Required {
+			if (param.Option.In == "path") != invocations[idx].Required {
 				continue
 			}
 			if param.IsArrayType() != invocations[idx].IsArray {
@@ -221,8 +220,10 @@ func (cmd *Generator) genImplFuncParam(plugin Plugin, out io.Writer, file *astut
 					continue
 				}
 
-				foundIndex = idx
-				break
+				if invocations[idx].ResultType == "string" {
+					foundIndex = idx
+					break
+				}
 			}
 
 			if foundIndex < 0 {

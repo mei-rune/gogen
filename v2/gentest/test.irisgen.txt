@@ -1,0 +1,385 @@
+//go:build iris
+// +build iris
+
+// Please don't edit this file!
+package main
+
+import (
+	"database/sql"
+	"net/http"
+	"strconv"
+
+	"github.com/kataras/iris"
+)
+
+// TimeRange is skipped
+// TimeRange2 is skipped
+// QueryArgs is skipped
+
+func InitStringSvc(mux iris.Party, svc StringSvc) {
+	mux.Get("/test64/by_name/:name", func(ctx *iris.Context) {
+		var name = ctx.Params().GetString("name")
+		err := svc.TestCase1(name)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_name", func(ctx *iris.Context) {
+		var name = ctx.URLParam("name")
+		err := svc.TestCase2_1(name)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_names", func(ctx *iris.Context) {
+		queryParams := ctx.Request().URL.Query()
+		var name = queryParams["name"]
+		err := svc.TestCase2_2(name)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id/:id", func(ctx *iris.Context) {
+		id, err = ctx.Params().GetInt64("id")
+		if err != nil {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase3_1", "id"))
+			return
+		}
+		err := svc.TestCase3_1(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id/:id", func(ctx *iris.Context) {
+		idValue, err := strconv.ParseInt(ctx.Params().GetString("id"), 10, 32)
+		if err != nil {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase3_2", "id"))
+			return
+		}
+		id = int32(idValue)
+		err := svc.TestCase3_2(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id/:id", func(ctx *iris.Context) {
+		id, err = ctx.Params().GetInt("id")
+		if err != nil {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase3_3", "id"))
+			return
+		}
+		err := svc.TestCase3_3(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id/:id", func(ctx *iris.Context) {
+		id, err = ctx.Params().GetInt("id")
+		if err != nil {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase4", "id"))
+			return
+		}
+		err := svc.TestCase4(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id", func(ctx *iris.Context) {
+		var id int64
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase5_1", "id"))
+				return
+			}
+			id = idValue
+		}
+		err := svc.TestCase5_1(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id", func(ctx *iris.Context) {
+		var id int32
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase5_2", "id"))
+				return
+			}
+			id = int32(idValue)
+		}
+		err := svc.TestCase5_2(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id", func(ctx *iris.Context) {
+		queryParams := ctx.Request().URL.Query()
+		var idlist []int64
+		if ss := queryParams["idlist"]; len(ss) != 0 {
+			idlistValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase5_3", "idlist"))
+				return
+			}
+			idlist = idlistValue
+		}
+		err := svc.TestCase5_3(idlist)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id", func(ctx *iris.Context) {
+		var id int64
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase6", "id"))
+				return
+			}
+			id = idValue
+		}
+		err := svc.TestCase6(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id", func(ctx *iris.Context) {
+		var id sql.NullInt64
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase7_1", "id"))
+				return
+			}
+			id.Int64 = idValue
+			id.Valid = true
+		}
+		err := svc.TestCase7_1(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id", func(ctx *iris.Context) {
+		var id sql.NullInt32
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase7_2", "id"))
+				return
+			}
+			id.Int32 = int32(idValue)
+			id.Valid = true
+		}
+		err := svc.TestCase7_2(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id", func(ctx *iris.Context) {
+		var id sql.NullInt64
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase8", "id"))
+				return
+			}
+			id.Int64 = idValue
+			id.Valid = true
+		}
+		err := svc.TestCase8(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id/:id", func(ctx *iris.Context) {
+		var id = ctx.Params().GetString("id")
+		err := svc.TestCase9(&id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_name", func(ctx *iris.Context) {
+		var id *string
+		if s := ctx.URLParam("id"); s != "" {
+			id = &s
+		}
+		err := svc.TestCase10(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/:id", func(ctx *iris.Context) {
+		var id *int
+		if idValue, err = ctx.Params().GetInt("id"); err == nil {
+			id = &idValue
+		} else {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase12", "id"))
+			return
+		}
+		err := svc.TestCase12(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/:id", func(ctx *iris.Context) {
+		var id *int
+		if idValue, err = ctx.Params().GetInt("id"); err == nil {
+			id = &idValue
+		} else {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase13", "id"))
+			return
+		}
+		err := svc.TestCase13(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_id", func(ctx *iris.Context) {
+		var id *int
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase14_1", "id"))
+				return
+			}
+			id = &idValue
+		}
+		err := svc.TestCase14_1(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_name", func(ctx *iris.Context) {
+		var id *int32
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase14_2", "id"))
+				return
+			}
+			id = new(int32)
+			*id = int32(idValue)
+		}
+		err := svc.TestCase14_2(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test64/by_name", func(ctx *iris.Context) {
+		var id *int
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase14_3", "id"))
+				return
+			}
+			id = &idValue
+		}
+		err := svc.TestCase14_3(id)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(w, r, err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+}
