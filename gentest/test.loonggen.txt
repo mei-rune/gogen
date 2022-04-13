@@ -1,3 +1,4 @@
+//go:build loong
 // +build loong
 
 // Please don't edit this file!
@@ -88,6 +89,18 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 
 		err := svc.TestByKey(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_by_strkey", func(ctx *loong.Context) error {
+		var key StrKey
+		if s := ctx.QueryParam("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey(key)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}

@@ -1,3 +1,4 @@
+//go:build gin
 // +build gin
 
 // Please don't edit this file!
@@ -107,6 +108,20 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 
 		err := svc.TestByKey(key)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test_by_strkey", func(ctx *gin.Context) {
+		var key StrKey
+		if s := ctx.Query("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey(key)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return

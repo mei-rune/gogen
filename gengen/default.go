@@ -327,6 +327,9 @@ func (mux *DefaultStye) TypeConvert(param Param, typeName, ctxName, paramName st
 			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 1argument '"+param.Name.Name+"' is unsupported type -", typeName)
 		}
 
+		if typePrint(underlying.Type) == "string" {
+			return paramName
+		}
 		format, ok = mux.Converts[typePrint(underlying.Type)]
 		if !ok {
 			log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 2argument '"+param.Name.Name+"' is unsupported type -", typeName)
@@ -1396,12 +1399,16 @@ func (mux *DefaultStye) initString(c *context, method Method, param Param, funcs
 		if !ok {
 			underlying := method.Ctx.GetType(elmType)
 			if underlying != nil {
-				convertArgs, ok = mux.Converts[typePrint(underlying.Type)]
-				if !ok {
-					log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 4argument '"+param.Name.Name+"' is unsupported type -", typeStr, fmt.Sprintf("%T", param.Typ), fmt.Sprintf("%T", underlying.Type))
-				}
+				if typePrint(underlying.Type) == "string" {
+					convertArgs.NeedTransform = true
+				} else {
+					convertArgs, ok = mux.Converts[typePrint(underlying.Type)]
+					if !ok {
+						log.Fatalln(param.Method.Ctx.PostionFor(param.Method.Node.Pos()), ": 4argument '"+param.Name.Name+"' is unsupported type -", typeStr, fmt.Sprintf("%T", param.Typ), fmt.Sprintf("%T", underlying.Type))
+					}
 
-				convertArgs.NeedTransform = true
+					convertArgs.NeedTransform = true
+				}
 
 			} else {
 

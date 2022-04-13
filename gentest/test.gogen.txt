@@ -1,3 +1,4 @@
+//go:build echo
 // +build echo
 
 // Please don't edit this file!
@@ -104,6 +105,19 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 
 		err := svc.TestByKey(key)
+		if err != nil {
+			ctx.Error(err)
+			return nil
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
+	mux.GET("/test_by_strkey", func(ctx echo.Context) error {
+		var key StrKey
+		if s := ctx.QueryParam("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey(key)
 		if err != nil {
 			ctx.Error(err)
 			return nil

@@ -1,3 +1,4 @@
+//go:build beego
 // +build beego
 
 // Please don't edit this file!
@@ -118,6 +119,22 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		}
 
 		err := svc.TestByKey(key)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/test_by_strkey", func(ctx *beecontext.Context) {
+		var key StrKey
+		if s := ctx.Input.Query("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey(key)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())

@@ -19,6 +19,12 @@ func (key Key) String() string {
 	return ""
 }
 
+type StrKey string
+
+func (key StrKey) String() string {
+	return string(key)
+}
+
 const TimeFormat = time.RFC3339
 
 func BoolToString(value bool) string {
@@ -68,6 +74,9 @@ type StringSvc interface {
 
 	// @http.GET(path="/test_by_key")
 	TestByKey(key Key) error
+
+	// @http.GET(path="/test_by_strkey")
+	TestByStrKey(key StrKey) error
 
 	// @http.GET(path="/test64/:id")
 	TestInt64Path(id int64) error

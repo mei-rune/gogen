@@ -1,3 +1,4 @@
+//go:build chi
 // +build chi
 
 // Please don't edit this file!
@@ -132,6 +133,26 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		}
 
 		err := svc.TestByKey(key)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_by_strkey", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var key StrKey
+		if s := queryParams.Get("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey(key)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())

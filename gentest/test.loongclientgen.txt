@@ -118,6 +118,14 @@ func (client TestClient) TestByKey(ctx context.Context, key Key) error {
 	return request.GET(ctx)
 }
 
+func (client TestClient) TestByStrKey(ctx context.Context, key StrKey) error {
+	request := resty.NewRequest(client.Proxy, "/test_by_strkey").
+		SetParam("key", key)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
 func (client TestClient) TestInt64Path(ctx context.Context, id int64) error {
 	request := resty.NewRequest(client.Proxy, "/test64/"+strconv.FormatInt(id, 10)+"")
 
