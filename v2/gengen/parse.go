@@ -116,7 +116,7 @@ func (cmd *Generator) genHeader(cfg Plugin, out io.Writer, file *astutil.File) e
 	return nil
 }
 
-func (cmd *Generator) genInitFunc(cfg Plugin, out io.Writer, file *astutil.File) error {
+func (cmd *Generator) genInitFunc(plugin Plugin, out io.Writer, file *astutil.File) error {
 	for _, ts := range file.TypeList {
 		if ts.Struct == nil && ts.Interface == nil {
 			continue
@@ -134,7 +134,7 @@ func (cmd *Generator) genInitFunc(cfg Plugin, out io.Writer, file *astutil.File)
 			continue
 		}
 
-		io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+cfg.PartyTypeName()+", svc "+star+ts.Name+") {")
+		io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", svc "+star+ts.Name+") {")
 		for _, method := range methods {
 			// RenderFuncHeader 将输出： mux.Get("/allfiles", func(w http.ResponseWriter, r *http.Request) {
 			switch len(method.Operation.RouterProperties) {
@@ -145,12 +145,12 @@ func (cmd *Generator) genInitFunc(cfg Plugin, out io.Writer, file *astutil.File)
 			default:
 				return errors.New("RouterProperties is mult choices")
 			}
-			err := cfg.RenderFuncHeader(out, method, method.Operation.RouterProperties[0])
+			err := plugin.RenderFuncHeader(out, method, method.Operation.RouterProperties[0])
 			if err != nil {
 				return err
 			}
 
-			err = cmd.genImplFuncBody(cfg, out, ts, method)
+			err = method.renderImpl(plugin, out)
 			if err != nil {
 				return err
 			}
@@ -158,129 +158,6 @@ func (cmd *Generator) genInitFunc(cfg Plugin, out io.Writer, file *astutil.File)
 		}
 		io.WriteString(out, "\r\n}")
 	}
-	return nil
-}
-
-func (cmd *Generator) genImplFuncBody(plugin Plugin, out io.Writer, ts *astutil.TypeSpec, method *Method) error {
-	/// 输出参数解析
-	if len(method.Method.Params.List) > 0 {
-		params, err := method.GetParams()
-		if err != nil {
-			return err
-		}
-		for idx := range params {
-			err := params[idx].RenderDeclareAndInit(plugin, out, ts, method)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return cmd.genImplFuncInvokeAndReturn(plugin, out, ts, method)
-}
-
-func (cmd *Generator) genImplFuncInvokeAndReturn(cfg Plugin, out io.Writer, ts *astutil.TypeSpec, method *Method) error {
-	io.WriteString(out, "\r\n")
-	/// 输出返回参数
-	if len(method.Method.Results.List) > 2 {
-		for idx, result := range method.Method.Results.List {
-			if idx > 0 {
-				io.WriteString(out, ", ")
-			}
-			if result.Type().IsErrorType() {
-				io.WriteString(out, "err")
-			} else {
-				io.WriteString(out, result.Name)
-			}
-		}
-		io.WriteString(out, " :=")
-	} else if len(method.Method.Results.List) == 1 {
-		if method.Method.Results.List[0].Type().IsErrorType() {
-			// if isErrorDefined {
-			// 	io.WriteString(out, "err =")
-			// } else {
-			io.WriteString(out, "err :=")
-			// }
-		} else {
-			io.WriteString(out, "result :=")
-		}
-	} else {
-		io.WriteString(out, "result, err :=")
-	}
-
-	/// 输出调用
-	io.WriteString(out, "svc.")
-	io.WriteString(out, method.Method.Name)
-	io.WriteString(out, "(")
-	params, err := method.GetParams()
-	if err != nil {
-		return err
-	}
-	for idx, param := range params {
-		// {{- if $param.IsSkipUse -}}
-		//    {{- continue --}}
-		// {{- end -}}
-		if idx > 0 {
-			io.WriteString(out, ", ")
-		}
-		io.WriteString(out, param.GoArgumentLiteral())
-		if param.IsVariadic() {
-			io.WriteString(out, "...")
-		}
-	}
-	io.WriteString(out, ")")
-
-	/// 输出返回
-
-	if len(method.Method.Results.List) > 2 {
-		io.WriteString(out, "\r\n\tif err != nil {")
-		cfg.RenderReturnError(out, method, "", "err")
-		io.WriteString(out, "\r\n\t}")
-
-		io.WriteString(out, "\r\n\tresult := map[string]interface{}{")
-
-		for _, result := range method.Method.Results.List {
-			if result.Type().IsErrorType() {
-				continue
-			}
-
-			io.WriteString(out, "\r\n\t\"")
-			io.WriteString(out, Underscore(result.Name))
-			io.WriteString(out, "\":")
-			io.WriteString(out, result.Name)
-			io.WriteString(out, ",")
-		}
-		io.WriteString(out, "\r\n\t}\r\n")
-		cfg.RenderReturnOK(out, method, "", "result")
-	} else if len(method.Method.Results.List) == 1 {
-
-		arg := method.Method.Results.List[0]
-		if arg.Type().IsErrorType() {
-			io.WriteString(out, "\r\nif err != nil {\r\n")
-			cfg.RenderReturnError(out, method, "", "err")
-			io.WriteString(out, "\r\n}\r\n")
-			cfg.RenderReturnOK(out, method, "", "\"OK\"")
-		} else {
-			// if methodParams.IsPlainText {
-			//  	{{$.mux.PlainTextFunc $method "result"}}
-			// } else {
-			io.WriteString(out, "\r\n")
-			cfg.RenderReturnOK(out, method, "", "result")
-			// }
-		}
-
-	} else {
-		io.WriteString(out, "\r\n\tif err != nil {\r\n")
-		cfg.RenderReturnError(out, method, "", "err")
-		io.WriteString(out, "\r\n\t}\r\n")
-
-		// {{- if $methodParams.IsPlainText }}
-		//   {{$.mux.PlainTextFunc $method "result"}}
-		// {{- else}}
-		cfg.RenderReturnOK(out, method, "", "result")
-		// {{- end}}
-	}
-
 	return nil
 }
 

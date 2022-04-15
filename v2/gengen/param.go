@@ -70,7 +70,7 @@ func defaultValue(typ string, value interface{}) string {
 	return "0"
 }
 
-func (param *Param) RenderDeclareAndInit(plugin Plugin, out io.Writer, ts *astutil.TypeSpec, method *Method) error {
+func (param *Param) RenderDeclareAndInit(plugin Plugin, out io.Writer, method *Method) error {
 	// isPtr := astutil.IsPtrType(param.Type())
 	typ := param.Type().PtrElemType()
 	if !typ.IsValid() {
