@@ -27,12 +27,12 @@ func TestGenerate(t *testing.T) {
 	wd := getGogen()
 
 	t.Run("chi", func(t *testing.T) {
-		for _, name := range []string{"test"} {
+		for _, name := range []string{"casetest", "test"} {
 			t.Log("=====================", name)
 			os.Remove(filepath.Join(wd, "gentest", name+".chi-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = Generator{
+			var gen = &Generator{
 				plugin:   "chi",
 				ext:      ".chi-gen.go",
 				buildTag: "chi",
@@ -59,14 +59,14 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("gingen", func(t *testing.T) {
-		for _, name := range []string{"test"} {
+		for _, name := range []string{"casetest"} {
 			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".gingen.go"))
+			os.Remove(filepath.Join(wd, "gentest", name+".gin-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = Generator{
+			var gen = &Generator{
 				plugin:   "gin",
-				ext:      ".gingen.go",
+				ext:      ".gin-gen.go",
 				buildTag: "gin",
 				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 			}
@@ -76,8 +76,8 @@ func TestGenerate(t *testing.T) {
 				continue
 			}
 
-			actual := readFile(filepath.Join(wd, "gentest", name+".gingen.go"))
-			excepted := readFile(filepath.Join(wd, "gentest", name+".gingen.txt"))
+			actual := readFile(filepath.Join(wd, "gentest", name+".gin-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", name+".gin-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {
@@ -91,7 +91,7 @@ func TestGenerate(t *testing.T) {
 	})
 
 	// t.Run("loong", func(t *testing.T) {
-	// 	for _, name := range []string{"test"} {
+	// 	for _, name := range []string{"casetest"} {
 	// 		t.Log("=====================", name)
 	// 		os.Remove(filepath.Join(wd, "gentest", name+".loonggen.go"))
 	// 		// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
@@ -125,13 +125,13 @@ func TestGenerate(t *testing.T) {
 	// })
 
 	t.Run("echo", func(t *testing.T) {
-		for _, name := range []string{"test"} {
+		for _, name := range []string{"casetest"} {
 			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".echogen.go"))
+			os.Remove(filepath.Join(wd, "gentest", name+".echo-gen.go"))
 
 			var gen = &Generator{
 				plugin:   "echo",
-				ext:      ".echogen.go",
+				ext:      ".echo-gen.go",
 				buildTag: "echo",
 				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 			}
@@ -141,8 +141,8 @@ func TestGenerate(t *testing.T) {
 				continue
 			}
 
-			actual := readFile(filepath.Join(wd, "gentest", name+".echogen.go"))
-			excepted := readFile(filepath.Join(wd, "gentest", name+".echogen.txt"))
+			actual := readFile(filepath.Join(wd, "gentest", name+".echo-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", name+".echo-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {
@@ -155,16 +155,15 @@ func TestGenerate(t *testing.T) {
 		}
 	})
 
-
 	t.Run("iris", func(t *testing.T) {
-		for _, name := range []string{"test"} {
+		for _, name := range []string{"casetest"} {
 			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".irisgen.go"))
+			os.Remove(filepath.Join(wd, "gentest", name+".iris-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
 			var gen = &Generator{
 				plugin:   "iris",
-				ext:      ".irisgen.go",
+				ext:      ".iris-gen.go",
 				buildTag: "iris",
 				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
 			}
@@ -174,8 +173,8 @@ func TestGenerate(t *testing.T) {
 				continue
 			}
 
-			actual := readFile(filepath.Join(wd, "gentest", name+".irisgen.go"))
-			excepted := readFile(filepath.Join(wd, "gentest", name+".irisgen.txt"))
+			actual := readFile(filepath.Join(wd, "gentest", name+".iris-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", name+".iris-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {

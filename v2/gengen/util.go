@@ -2,7 +2,6 @@ package gengen
 
 import (
 	"errors"
-	"go/ast"
 	"strings"
 
 	"github.com/grsmv/inflect"
@@ -110,20 +109,35 @@ func isBultinType(name string) bool {
 		"time.Duration" == name
 }
 
+// func isUnderlyingBasicType(file *astutil.File, elmType ast.Expr) bool {
+// 	return file.Package.Context.IsBasicType(file, elmType)
+// }
+
+// func underlyingType(file *astutil.File, elmType ast.Expr) (*astutil.File, ast.Expr) {
+// 	return file.Package.Context.GetUnderlyingType(file, elmType)
+// }
+
 func isNullableType(name string) bool {
 	return strings.HasPrefix(name, "sql.Null") || strings.HasPrefix(name, "null.")
 }
 
 func nullableType(name string) string {
-	name = strings.TrimPrefix(name, "sql.Null")
-	name = strings.TrimPrefix(name, "null.")
-	return strings.ToLower(name)
+	if strings.HasPrefix(name, "sql.Null") {
+		name = strings.TrimPrefix(name, "sql.Null")
+		return strings.ToLower(name)
+	}
+	if strings.HasPrefix(name, "null.") {
+		name = strings.TrimPrefix(name, "null.")
+		return strings.ToLower(name)
+	}
+	return name
 }
 
-func FieldNameForNullable(typ ast.Expr) string {
+func FieldNameForNullable(typ astutil.Type) string {
 	// sql.NullBool, sql.NullInt64, sql.NullString, sql.NullTime ......
-	name := astutil.ToString(typ)
+	name := typ.ToString()
 	name = strings.TrimPrefix(name, "sql.Null")
+	name = strings.TrimPrefix(name, "null.")
 	return name
 }
 

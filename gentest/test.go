@@ -72,11 +72,17 @@ type StringSvc interface {
 	// @http.GET(path="/allfiles")
 	GetAllFiles() (list []string, total int64, err error)
 
+	// @http.GET(path="/test_by_key/:key")
+	TestByKey1(key Key) error
+
 	// @http.GET(path="/test_by_key")
-	TestByKey(key Key) error
+	TestByKey2(key Key) error
+
+	// @http.GET(path="/test_by_strkey/:key")
+	TestByStrKey1(key StrKey) error
 
 	// @http.GET(path="/test_by_strkey")
-	TestByStrKey(key StrKey) error
+	TestByStrKey2(key StrKey) error
 
 	// @http.GET(path="/test64/:id")
 	TestInt64Path(id int64) error

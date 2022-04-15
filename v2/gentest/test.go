@@ -12,6 +12,12 @@ func (key Key) String() string {
 	return ""
 }
 
+type StrKey string
+
+func (key StrKey) String() string {
+	return string(key)
+}
+
 const TimeFormat = time.RFC3339
 
 func BoolToString(value bool) string {
@@ -51,290 +57,90 @@ type QueryArgs struct {
 // @http.Client(name="TestClient", ref="true")
 type StringSvc interface {
 
-	// @Summary test by name
-	// @Description test by int64 ID
-	// @ID TestCase1
+	// @Summary get files
+	// @Description get files
+	// @ID GetFiles
 	// @Accept  json
 	// @Produce  json
-	// @Param   name      path   string     true  "Some ID" Format(string)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name/{name} [get]
-	TestCase1(name string) error
+	// @Param   filenames      query   []string     true  "Some ID" Format(string)
+	// @Router /files [get]
+	GetFiles(filenames []string) (list []string, total int64, err error)
 
 
-	// @Summary test by name
-	// @Description test by int64 ID
-	// @ID TestCase2_1
+	// @Summary get files
+	// @Description get files
+	// @ID GetTimes
 	// @Accept  json
 	// @Produce  json
-	// @Param   name      query   string     true  "Some ID" Format(string)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name [get]
-	TestCase2_1(name string) error
+	// @Param   times      query   []string     true  "Some ID" Format(datetime)
+	// @Router /times [get]
+	GetTimes(times []time.Time) (list []string, total int64, err error)
 
 
-	// @Summary test by names
-	// @Description test by int64 ID
-	// @ID TestCase2_2
+	// @Summary get files
+	// @Description get files
+	// @ID GetTimes
 	// @Accept  json
 	// @Produce  json
-	// @Param   name      query   []string     true  "Some ID" Format(string)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_names [get]
-	TestCase2_2(name []string) error
+	// @Router /allfiles [get]
+	GetAllFiles() (list []string, total int64, err error)
 
-
-	// @Summary test by int64 ID
-	// @Description test by int64 ID
-	// @ID TestCase3_1
+	// @Summary test by int key
+	// @Description test by key
+	// @ID TestByKey
+	// @Param   key      path   int     true  "Some ID" Format(int)
 	// @Accept  json
 	// @Produce  json
-	// @Param   id      path   int     true  "Some ID" Format(int64)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
-	TestCase3_1(id int64) error
+	// @Router /test_by_key/:key [get]
+	TestByKey1(key Key) error
 
-
-	// @Summary test by int32 ID
-	// @Description test by int64 ID
-	// @ID TestCase3_2
+	// @Summary test by int key
+	// @Description test by key
+	// @ID TestByKey
+	// @Param   key      query   int     true  "Some ID" Format(int)
 	// @Accept  json
 	// @Produce  json
-	// @Param   id      path   int     true  "Some ID" Format(int32)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
-	TestCase3_2(id int32) error
+	// @Router /test_by_key [get]
+	TestByKey2(key Key) error
 
-
-	// @Summary test by int ID
-	// @Description test by int64 ID
-	// @ID TestCase3_3
+	// @Summary test by str key
+	// @Description test by key
+	// @ID TestByKey
+	// @Param   key      path   string     true  "Some ID" Format(string)
 	// @Accept  json
 	// @Produce  json
-	// @Param   id      path   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
-	TestCase3_3(id int) error
+	// @Router /test_by_strkey/:key [get]
+	TestByStrKey1(key StrKey) error
 
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不好测试， iris 才支持)
-	// @Description test by int64 ID
-	// @ID TestCase4
+	// @Summary test by str key
+	// @Description test by key
+	// @ID TestByKey
+	// @Param   key      query   string     true  "Some ID" Format(string)
 	// @Accept  json
 	// @Produce  json
-	// @Param   id      path   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
-	TestCase4(id int) error
+	// @Router /test_by_strkey [get]
+	TestByStrKey2(key StrKey) error
 
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
-	// @Description test by int64 ID
-	// @ID TestCase5
+	// @Summary test by query
+	// @Description test by query
+	// @ID TestInt64Query
+	// @Param   id      query   int     true  "Some ID" Format(int64)
 	// @Accept  json
 	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
-	TestCase5_1(id int64) error
-
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
-	// @Description test by int64 ID
-	// @ID TestCase5
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
-	TestCase5_2(id int32) error
-
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
-	// @Description test by int64 ID
-	// @ID TestCase5
-	// @Accept  json
-	// @Produce  json
-	// @Param   idlist      query   []int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
-	TestCase5_3(idlist []int64) error
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以无法测试， iris 可以测试)
-	// @Description test by int64 ID
-	// @ID TestCase6
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
-	TestCase6(id int64) error
-
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)
-	// @Description test by int64 ID
-	// @ID TestCase7_1
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
-	TestCase7_1(id sql.NullInt64) error
-
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)
-	// @Description test by int32 ID
-	// @ID TestCase7_2
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
-	TestCase7_2(id sql.NullInt32) error
-
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)
-	// @Description test by int64 ID
-	// @ID TestCase8
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
-	TestCase8(id sql.NullInt64) error
-
-
-	// @Summary test by int ID
-	// @Description test by int64 ID
-	// @ID TestCase9
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      path   string     true  "Some ID" Format(string)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
-	TestCase9(id *string) error
-
-		// @Summary test by id
-	// @Description test by string ID
-	// @ID TestCase10
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   string     true  "Some ID" Format(string)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name [get]
-	TestCase10(id *string) error
-
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)
-	// @Description test by int64 ID
-	// @ID TestCase12
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      path   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/{id} [get]
-	TestCase12(id *int) error
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正确地测试， iris 不能正确测试)
-	// @Description test by int64 ID
-	// @ID TestCase13
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      path   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/{id} [get]
-	TestCase13(id *int) error
-
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)
-	// @Description test by int64 ID
-	// @ID TestCase14_1
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
-	TestCase14_1(id *int) error
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)
-	// @Description test by int64 ID
-	// @ID TestCase14_2
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name [get]
-	TestCase14_2(id *int32) error
-
-	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Query，所以不能正确地测试， iris 可以正确测试)
-	// @Description test by int64 ID
-	// @ID TestCase14_3
-	// @Accept  json
-	// @Produce  json
-	// @Param   id      query   int     true  "Some ID" Format(int)
-	// @Success 200 {string} string	"ok"
-	// @Failure 400 {object} string "We need ID!!"
-	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name [get]
-	TestCase14_3(id *int) error
-
-	// // @http.GET(path="/files")
-	// GetFiles(filenames []string) (list []string, total int64, err error)
-
-	// // @http.GET(path="/times")
-	// GetTimes(times []time.Time) (list []string, total int64, err error)
-
-	// // @http.GET(path="/allfiles")
-	// GetAllFiles() (list []string, total int64, err error)
-
-	// // @http.GET(path="/test_by_key")
-	// TestByKey(key Key) error
-
-	// // @http.GET(path="/test64")
-	// TestInt64Query(id int64) error
+	// @Router /test64 [get]
+	TestInt64Query(id int64) error
 
 	// // @http.GET(path="/test_query_args1/:id")
-	// TestQueryArgs1(id int64, args QueryArgs) error
+
+	// @Summary test by query
+	// @Description test by query
+	// @ID TestInt64Query
+	// @Param   id      query   int     true  "Some ID" Format(int64)
+	// @Param   args    query   int     true  "Some ID" Format(int64)
+	// @Accept  json
+	// @Produce  json
+	// @Router /test_query_args1/{id} [get]
+	TestQueryArgs1(id int64, args QueryArgs) error
 
 	// // @http.GET(path="/test_query_args2/:id")
 	// TestQueryArgs2(id int64, args *QueryArgs) error

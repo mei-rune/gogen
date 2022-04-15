@@ -12,10 +12,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// TimeRange is skipped
-// TimeRange2 is skipped
-// QueryArgs is skipped
-
 func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	mux.GET("/test64/by_name/:name", func(ctx *gin.Context) {
 		var name = ctx.Param("name")

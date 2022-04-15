@@ -12,10 +12,6 @@ import (
 	"github.com/kataras/iris"
 )
 
-// TimeRange is skipped
-// TimeRange2 is skipped
-// QueryArgs is skipped
-
 func InitStringSvc(mux iris.Party, svc StringSvc) {
 	mux.Get("/test64/by_name/:name", func(ctx *iris.Context) {
 		var name = ctx.Params().GetString("name")

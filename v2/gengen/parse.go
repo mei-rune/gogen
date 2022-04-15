@@ -150,7 +150,7 @@ func (cmd *Generator) genInitFunc(cfg Plugin, out io.Writer, file *astutil.File)
 				return err
 			}
 
-			err = cmd.genImplFuncBody(cfg, out, file, ts, method)
+			err = cmd.genImplFuncBody(cfg, out, ts, method)
 			if err != nil {
 				return err
 			}
@@ -161,7 +161,7 @@ func (cmd *Generator) genInitFunc(cfg Plugin, out io.Writer, file *astutil.File)
 	return nil
 }
 
-func (cmd *Generator) genImplFuncBody(cfg Plugin, out io.Writer, file *astutil.File, ts *astutil.TypeSpec, method *Method) error {
+func (cmd *Generator) genImplFuncBody(plugin Plugin, out io.Writer, ts *astutil.TypeSpec, method *Method) error {
 	/// 输出参数解析
 	if len(method.Method.Params.List) > 0 {
 		params, err := method.GetParams()
@@ -169,91 +169,17 @@ func (cmd *Generator) genImplFuncBody(cfg Plugin, out io.Writer, file *astutil.F
 			return err
 		}
 		for idx := range params {
-			err := cmd.genImplFuncParam(cfg, out, file, ts, method, &params[idx])
+			err := params[idx].RenderDeclareAndInit(plugin, out, ts, method)
 			if err != nil {
 				return err
 			}
 		}
 	}
 
-	return cmd.genImplFuncInvokeAndReturn(cfg, out, file, ts, method)
+	return cmd.genImplFuncInvokeAndReturn(plugin, out, ts, method)
 }
 
-func (cmd *Generator) genImplFuncParam(plugin Plugin, out io.Writer, file *astutil.File, ts *astutil.TypeSpec, method *Method, param *Param) error {
-	// isPtr := astutil.IsPtrType(param.Type())
-	typ := astutil.PtrElemType(param.Type())
-	if typ == nil {
-		typ = param.Type()
-	}
-
-	// isSlice := astutil.IsSliceType(typ)
-	elmType := astutil.SliceElemType(typ)
-	if elmType == nil {
-		elmType = typ
-	}
-
-	typeStr := astutil.ToString(elmType)
-
-	if astutil.IsBasicType(elmType) || isBultinType(typeStr) || isNullableType(typeStr) {
-
-		invocations := plugin.Invocations()
-		foundIndex := -1
-		for idx := range invocations {
-			if (param.Option.In == "path") != invocations[idx].Required {
-				continue
-			}
-			if param.IsArrayType() != invocations[idx].IsArray {
-				continue
-			}
-			if invocations[idx].ResultType == typeStr {
-				foundIndex = idx
-				break
-			}
-		}
-
-		if foundIndex < 0 {
-			for idx := range invocations {
-				if (param.Option.In == "path") != invocations[idx].Required {
-					continue
-				}
-				if param.IsArrayType() != invocations[idx].IsArray {
-					continue
-				}
-
-				if invocations[idx].ResultType == "string" {
-					foundIndex = idx
-					break
-				}
-			}
-
-			if foundIndex < 0 {
-				return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' cannot determine a invocation")
-			}
-		}
-
-		io.WriteString(out, "\r\n")
-		err := RenderInvocation(out, plugin, method, param, &invocations[foundIndex])
-		if err != nil {
-			return err
-		}
-		return nil
-	}
-
-	// paramName := param.Option.Name
-	// required := param.Option.Required
-	// var defaultValue string
-	// if param.Option.Default != nil {
-	// 	defaultValue = fmt.Sprint(param.Option.Default)
-	// }
-
-	// typeStr := string(elmType)
-	// isNullable := isNullableType(typeStr)
-	// typeStr = nullableType(strings.ToLower(typeStr))
-
-	return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' unsupported")
-}
-
-func (cmd *Generator) genImplFuncInvokeAndReturn(cfg Plugin, out io.Writer, file *astutil.File, ts *astutil.TypeSpec, method *Method) error {
+func (cmd *Generator) genImplFuncInvokeAndReturn(cfg Plugin, out io.Writer, ts *astutil.TypeSpec, method *Method) error {
 	io.WriteString(out, "\r\n")
 	/// 输出返回参数
 	if len(method.Method.Results.List) > 2 {
@@ -261,7 +187,7 @@ func (cmd *Generator) genImplFuncInvokeAndReturn(cfg Plugin, out io.Writer, file
 			if idx > 0 {
 				io.WriteString(out, ", ")
 			}
-			if astutil.IsErrorType(result.Typ) {
+			if result.Type().IsErrorType() {
 				io.WriteString(out, "err")
 			} else {
 				io.WriteString(out, result.Name)
@@ -269,7 +195,7 @@ func (cmd *Generator) genImplFuncInvokeAndReturn(cfg Plugin, out io.Writer, file
 		}
 		io.WriteString(out, " :=")
 	} else if len(method.Method.Results.List) == 1 {
-		if astutil.IsErrorType(method.Method.Results.List[0].Typ) {
+		if method.Method.Results.List[0].Type().IsErrorType() {
 			// if isErrorDefined {
 			// 	io.WriteString(out, "err =")
 			// } else {
@@ -314,7 +240,7 @@ func (cmd *Generator) genImplFuncInvokeAndReturn(cfg Plugin, out io.Writer, file
 		io.WriteString(out, "\r\n\tresult := map[string]interface{}{")
 
 		for _, result := range method.Method.Results.List {
-			if astutil.IsErrorType(result.Typ) {
+			if result.Type().IsErrorType() {
 				continue
 			}
 
@@ -329,7 +255,7 @@ func (cmd *Generator) genImplFuncInvokeAndReturn(cfg Plugin, out io.Writer, file
 	} else if len(method.Method.Results.List) == 1 {
 
 		arg := method.Method.Results.List[0]
-		if astutil.IsErrorType(arg.Typ) {
+		if arg.Type().IsErrorType() {
 			io.WriteString(out, "\r\nif err != nil {\r\n")
 			cfg.RenderReturnError(out, method, "", "err")
 			io.WriteString(out, "\r\n}\r\n")

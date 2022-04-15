@@ -5,8 +5,60 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/spec"
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
 )
+
+type Param struct {
+	Param  *astutil.Param
+	Option spec.Parameter
+}
+
+// GoVarName 申明时的变量名
+func (param *Param) GoVarName() string {
+	return param.Param.Name
+}
+
+// GoVarName 函数调用时变量，如变量名为 a, 调用可能是 &a
+func (param *Param) GoArgumentLiteral() string {
+	var isStringPtrType = param.IsPtrType() && param.Type().PtrElemType().IsStringType(true)
+	if isStringPtrType && param.Option.In == "path" {
+		return "&" + param.Param.Name
+	}
+	return param.Param.Name
+}
+
+func (param *Param) GoType() string {
+	return param.Param.Type().ToLiteral()
+}
+
+func (param *Param) IsPtrType() bool {
+	return param.Type().IsPtrType()
+}
+
+func (param *Param) IsArrayType() bool {
+	return param.Param.Type().IsSliceType()
+}
+
+func (param *Param) Type() astutil.Type {
+	return param.Param.Type()
+}
+
+// func (param *Param) SliceType() ast.Expr {
+// 	return astutil.SliceElemType(param.Param.Typ)
+// }
+
+// func (param *Param) PtrElemType() ast.Expr {
+// 	return astutil.PtrElemType(param.Param.Typ)
+// }
+
+// func (param *Param) PtrOrSliceElemType() (*astutil.File, ast.Expr) {
+// 	return param.Param.Method.Clazz.File.Package.Context.GetElemType(param.Param.Method.Clazz.File, param.Param.Typ, true)
+// }
+
+func (param *Param) IsVariadic() bool {
+	return param.Param.IsVariadic
+}
 
 func defaultValue(typ string, value interface{}) string {
 	if value != nil {
@@ -18,12 +70,107 @@ func defaultValue(typ string, value interface{}) string {
 	return "0"
 }
 
-func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param, invocation *Invocation) error {
-	typeStr := astutil.ToString(param.Type())
-	resultExceptedType := invocation.ResultType == typeStr ||
-		(invocation.IsArray && invocation.ResultType == astutil.ToString(param.SliceType())) ||
-		(invocation.IsArray && param.IsVariadic() && invocation.ResultType == astutil.ToString(param.Type())) ||
+func (param *Param) RenderDeclareAndInit(plugin Plugin, out io.Writer, ts *astutil.TypeSpec, method *Method) error {
+	// isPtr := astutil.IsPtrType(param.Type())
+	typ := param.Type().PtrElemType()
+	if !typ.IsValid() {
+		typ = param.Type()
+	}
+
+	// isSlice := astutil.IsSliceType(typ)
+	elmType := typ.SliceElemType()
+	if !elmType.IsValid() {
+		elmType = typ
+	}
+
+	typeStr := elmType.ToLiteral()
+	isBasicType := elmType.IsBasicType(false)
+	underlyingType := elmType.GetUnderlyingType()
+	isUnderlyingBasicType := !isBasicType && underlyingType.IsValid() && underlyingType.IsBasicType(true)
+
+	// var underlyingTypeStr string
+	// if underlyingType.IsValid() {
+	// 	underlyingTypeStr = underlyingType.ToString()
+	// }
+
+	if isBasicType || isUnderlyingBasicType || isBultinType(typeStr) || isNullableType(typeStr) {
+
+		invocations := plugin.Invocations()
+		foundIndex := -1
+		for idx := range invocations {
+			if (param.Option.In == "path") != invocations[idx].Required {
+				continue
+			}
+			if param.IsArrayType() != invocations[idx].IsArray {
+				continue
+			}
+			if invocations[idx].ResultType == typeStr {
+				foundIndex = idx
+				break
+			}
+			if underlyingType.IsValid() &&
+				invocations[idx].ResultType == underlyingType.ToString() {
+				foundIndex = idx
+				break
+			}
+		}
+
+		if foundIndex < 0 {
+			for idx := range invocations {
+				if (param.Option.In == "path") != invocations[idx].Required {
+					continue
+				}
+				if param.IsArrayType() != invocations[idx].IsArray {
+					continue
+				}
+
+				if invocations[idx].ResultType == "string" {
+					foundIndex = idx
+					break
+				}
+			}
+
+			if foundIndex < 0 {
+				return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' cannot determine a invocation")
+			}
+		}
+
+		io.WriteString(out, "\r\n")
+		err := param.RenderBasic(out, plugin, method, &invocations[foundIndex])
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	// if param.IsStructType() {
+
+	// }
+
+	return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' unsupported")
+}
+
+func (param *Param) RenderBasic(out io.Writer, plugin Plugin, method *Method, invocation *Invocation) error {
+	typeStr := param.Type().ToString()
+
+	elmType := param.Type().GetElemType(true)
+	isBasicType := elmType.IsBasicType(false)
+
+	underlyingType := elmType.GetUnderlyingType()
+	isUnderlyingBasicType := !isBasicType && underlyingType.IsValid() && underlyingType.IsBasicType(true)
+
+	resultExceptedType := (!invocation.IsArray && invocation.ResultType == typeStr) ||
+		(invocation.IsArray && invocation.ResultType == elmType.ToString()) ||
+		(invocation.IsArray && param.IsVariadic() && invocation.ResultType == param.Type().ToString()) ||
 		(isNullableType(typeStr) && !invocation.IsArray && !param.IsVariadic() && invocation.ResultType == nullableType(typeStr))
+
+	if !resultExceptedType && isUnderlyingBasicType {
+		underlyingTypeStr := underlyingType.ToString()
+
+		resultExceptedType = (!invocation.IsArray && invocation.ResultType == underlyingTypeStr) ||
+			(invocation.IsArray && invocation.ResultType == underlyingTypeStr) ||
+			(invocation.IsArray && param.IsVariadic() && invocation.ResultType == underlyingTypeStr)
+	}
 
 	var isPtrType = param.IsPtrType()
 
@@ -60,13 +207,13 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 			return nil
 		}
 
-		if isPtrType && !invocation.IsArray && invocation.ResultType == astutil.ToString(param.PtrElemType()) {
+		if isPtrType && !invocation.IsArray && invocation.ResultType == param.Type().PtrElemType().ToString() {
 			// 情况11, 12
 			io.WriteString(out, "var ")
 			io.WriteString(out, param.GoVarName())
 
 			io.WriteString(out, " ")
-			io.WriteString(out, astutil.ToString(param.Type()))
+			io.WriteString(out, param.Type().ToString())
 
 			if invocation.Required {
 				// 情况12
@@ -143,7 +290,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 		return errors.New("param '" + param.Param.Name + "' of " + method.Method.Clazz.Name + "." + method.Method.Name + " cannot resolved for '" + invocation.Format + "'")
 	}
 
-	var isStringPtrType = (isPtrType && !invocation.IsArray && invocation.ResultType == astutil.ToString(param.PtrElemType()))
+	var isStringPtrType = (isPtrType && !invocation.IsArray && invocation.ResultType == param.Type().PtrElemType().ToString())
 
 	if resultExceptedType || isStringPtrType {
 		// resultExceptedType = true 时，情况1, 2
@@ -156,10 +303,19 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 			io.WriteString(out, param.GoVarName())
 			io.WriteString(out, " = ")
 
+			if isUnderlyingBasicType {
+				io.WriteString(out, typeStr)
+				io.WriteString(out, "(")
+			}
+
 			if invocation.WithDefault {
 				fmt.Fprintf(out, invocation.Format, param.Option.Name, defaultValue(invocation.ResultType, param.Option.Default))
 			} else {
 				fmt.Fprintf(out, invocation.Format, param.Option.Name)
+			}
+
+			if isUnderlyingBasicType {
+				io.WriteString(out, ")")
 			}
 		} else {
 
@@ -168,7 +324,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 			io.WriteString(out, "var ")
 			io.WriteString(out, param.GoVarName())
 			io.WriteString(out, " ")
-			io.WriteString(out, astutil.ToString(param.Type()))
+			io.WriteString(out, param.Type().ToString())
 
 			io.WriteString(out, "\r\n\tif s := ")
 			if invocation.WithDefault {
@@ -177,20 +333,34 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 				fmt.Fprintf(out, invocation.Format, param.Option.Name)
 			}
 			io.WriteString(out, "; s != \"\" {")
-			io.WriteString(out, "\r\n\t"+param.GoVarName()+" = &s")
+			if isUnderlyingBasicType {
+				io.WriteString(out, "\r\n\t"+param.GoVarName()+" = new(")
+				io.WriteString(out, typeStr)
+				io.WriteString(out, ")")
+				io.WriteString(out, "\r\n\t*"+param.GoVarName()+" = "+typeStr+"(s)")
+			} else {
+				io.WriteString(out, "\r\n\t"+param.GoVarName()+" = &s")
+			}
 			io.WriteString(out, "\r\n\t}")
 		}
 		return nil
 	}
 
 	if !isPtrType {
-
 		isNullable := isNullableType(typeStr)
 		nullValueTypeStr := nullableType(typeStr)
 
 		convertFmt, needCast, err := selectConvert(invocation.IsArray, invocation.ResultType, nullValueTypeStr)
 		if err != nil {
-			return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' hasnot convert function: " + err.Error())
+			underlyingType := elmType.GetUnderlyingType()
+			if underlyingType.IsValid() {
+				convertFmt, needCast, err = selectConvert(invocation.IsArray, invocation.ResultType, underlyingType.ToString())
+			}
+			if err != nil {
+				return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' hasnot convert function: " + err.Error())
+			}
+
+			needCast = true
 		}
 
 		if invocation.Required {
@@ -219,7 +389,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 			if needCast {
 				io.WriteString(out, "\r\n\t")
 				io.WriteString(out, param.GoVarName())
-				io.WriteString(out, " = "+astutil.ToString(param.Type())+"(")
+				io.WriteString(out, " = "+typeStr+"(")
 				io.WriteString(out, param.GoVarName())
 				io.WriteString(out, "Value)")
 			}
@@ -235,7 +405,7 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 			io.WriteString(out, "var ")
 			io.WriteString(out, param.GoVarName())
 			io.WriteString(out, " ")
-			io.WriteString(out, astutil.ToString(param.Type()))
+			io.WriteString(out, param.Type().ToString())
 
 			io.WriteString(out, "\r\n\tif s := ")
 			if invocation.WithDefault {
@@ -302,12 +472,12 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 		return nil
 	}
 
-	elemTypeStr := astutil.ToString(param.PtrElemType())
+	elemTypeStr := param.Type().PtrElemType().ToString()
 
 	io.WriteString(out, "var ")
 	io.WriteString(out, param.GoVarName())
 	io.WriteString(out, " ")
-	io.WriteString(out, astutil.ToString(param.Type()))
+	io.WriteString(out, param.Type().ToString())
 
 	// resultExceptedType := !invocation.IsArray && invocation.ResultType == astutil.ToString(param.PtrElemType())
 	// if resultExceptedType {
@@ -317,9 +487,17 @@ func RenderInvocation(out io.Writer, plugin Plugin, method *Method, param *Param
 	// }
 
 	convertFmt, needCast, err := selectConvert(invocation.IsArray, invocation.ResultType,
-		astutil.ToString(param.PtrElemType()))
+		param.Type().PtrElemType().ToString())
 	if err != nil {
-		return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' hasnot convert function: " + err.Error())
+		underlyingType := elmType.GetUnderlyingType()
+		if underlyingType.IsValid() {
+			convertFmt, needCast, err = selectConvert(invocation.IsArray, invocation.ResultType, underlyingType.ToString())
+		}
+		if err != nil {
+			return errors.New("param '" + param.Param.Name + "' of '" + method.Method.Clazz.Name + "." + method.Method.Name + "' hasnot convert function: " + err.Error())
+		}
+
+		needCast = true
 	}
 
 	if invocation.Required {
