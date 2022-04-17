@@ -198,10 +198,10 @@ type StringSvc interface {
 	// @Router /echo2 [post]
 	EchoBody(body io.Reader) (string, error)
 
-	// @Summary test by query
-	// @Description test by query
+	// @Summary test by body
+	// @Description test by body
 	// @ID Echo3
-	// @Param   a      query   string     false  "Some ID"
+	// @Param   a      body   string     false  "Some ID"
 	// @Accept  json
 	// @Produce  json
 	// @Router /echo3 [post]

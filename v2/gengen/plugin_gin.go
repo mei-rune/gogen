@@ -73,7 +73,9 @@ func (gin *ginPlugin) Features() Config {
 		DatetimeConvert: "toDatetime({{.name}})",
 	}
 }
-
+func (gin *ginPlugin)	ReadBodyFunc(argName string) string {
+	return "ctx.Bind("+argName+")"
+}
 func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {

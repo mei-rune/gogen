@@ -13,8 +13,7 @@ import (
 
 var _ Plugin = &irisPlugin{}
 
-type irisPlugin struct {
-}
+type irisPlugin struct {}
 
 func  (iris *irisPlugin) TypeInContext(name string) (string, bool) {
 	args := map[string]string{
@@ -29,7 +28,6 @@ func  (iris *irisPlugin) TypeInContext(name string) (string, bool) {
 	s, ok := args[name]
 	return s, ok
 }
-
 func (iris *irisPlugin) Invocations() []Invocation {
 	return []Invocation{
 		{
@@ -82,7 +80,6 @@ func (iris *irisPlugin) Invocations() []Invocation {
 		},
 	}
 }
-
 func (iris *irisPlugin) Features() Config {
 	return Config{
 		BuildTag:        "iris",
@@ -91,17 +88,17 @@ func (iris *irisPlugin) Features() Config {
 		DatetimeConvert: "toDatetime({{.name}})",
 	}
 }
-
 func (iris *irisPlugin) Imports() map[string]string {
 	return map[string]string{
 		"github.com/kataras/iris/v12": "iris",
 	}
 }
-
 func (iris *irisPlugin) PartyTypeName() string {
 	return "iris.Party"
 }
-
+func (iris *irisPlugin)	ReadBodyFunc(argName string) string {
+	return "ctx.ReadBody("+argName+")"
+}
 func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {
@@ -121,7 +118,6 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	}
 	return err
 }
-
 func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
@@ -142,7 +138,6 @@ func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	_, err := io.WriteString(out, s)
 	return err
 }
-
 func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
 	if errCode == "" && iris.Features().EnableHttpCode {
 		errCode = "httpCodeWith(err)"

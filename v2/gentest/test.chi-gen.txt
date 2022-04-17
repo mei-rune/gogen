@@ -447,15 +447,10 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			A string `json:"a,omitempty"`
 		}
 		if err := render.Decode(r, &bindArgs); err != nil {
-			if he, ok := errors.BadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
-				render.Status(r, he.HTTPCode())
-			} else {
-				render.Status(r, http.StatusBadRequest)
-			}
-			render.JSON(w, r, errors.BadArgument("bindArgs", "body", err))
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "bindArgs", "body"))
 			return
 		}
-
 		result, err := svc.Echo3(r.Context(), bindArgs.A)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))

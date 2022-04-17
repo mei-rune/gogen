@@ -50,6 +50,18 @@ func (method *Method) SearchSwaggerParameter(structargname, name string) int {
 	return foundIndex
 }
 
+
+func (method *Method) collectBodyParams(plugin Plugin, params []Param) []int {
+	var result []int
+	for idx := range params {
+		if params[idx].Option.In == "body" || 
+			params[idx].Option.In == "formData" {
+				result = append(result, idx)
+		}
+	}
+	return result
+}
+
 func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 	var results []Param
 	for idx := range method.Method.Params.List {
@@ -121,13 +133,57 @@ func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 		}
 	}
 
-	// /// 输出 body 参数的初始化
-	// for idx := range params {
-	// 	xxxxx
-	// }
+	/// 输出 body 参数的初始化
+	list := method.collectBodyParams(plugin, params)
+	if len(list) > 0 {
+		err := method.renderBodyParams(plugin, out, params, list)
+		if err != nil {
+			return err
+		}
+	}
 
 
 	return method.renderInvokeAndReturn(plugin, out, params)
+}
+
+func isEntire(param *Param) bool {
+	ok, _ := param.Option.Extensions.GetBool("x-entire-body")
+	return ok
+}
+
+func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Param, list []int) error {
+	if len(list) == 1  && isEntire(&params[list[0]]) {
+		io.WriteString(out, "\r\n\tvar bindArgs "+params[list[0]].Type().ToLiteral())
+		params[list[0]].goArgumentLiteral = "bindArgs"
+	} else {
+		io.WriteString(out, "\r\n\tvar bindArgs struct{")
+		for _, idx := range list {
+			fieldName := toUpperFirst(params[idx].Param.Name)
+			io.WriteString(out, "\r\n\t\t")
+			io.WriteString(out, fieldName)
+			io.WriteString(out, "\t")
+			io.WriteString(out, params[idx].Param.Type().ToLiteral())
+			io.WriteString(out, "\t`json:\"")
+			if params[idx].Option.Name != "" {
+				io.WriteString(out, toSnakeCase(params[idx].Option.Name))
+			} else {
+				io.WriteString(out, toSnakeCase(params[idx].Param.Name))
+			}
+			io.WriteString(out, ",omitempty\"`")
+
+			params[idx].goArgumentLiteral = "bindArgs." + fieldName
+		}
+		io.WriteString(out, "\r\n\t}")
+	}
+
+	io.WriteString(out, "\r\n\tif err := ")
+	io.WriteString(out, plugin.ReadBodyFunc("&bindArgs"))
+	io.WriteString(out, "; err != nil {\r\n")
+	txt := `NewBadArgument(err, "bindArgs", "body")`
+	plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
+	io.WriteString(out, "\r\n\t}")
+
+	return nil
 }
 
 func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params []Param) error {

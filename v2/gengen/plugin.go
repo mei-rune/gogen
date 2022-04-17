@@ -51,6 +51,7 @@ type Plugin interface {
 
 	Invocations() []Invocation
 
+	ReadBodyFunc(argName string) string
 	RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error
 	RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error
 	RenderReturnError(out io.Writer, method *Method, errCode, err string) error

@@ -293,3 +293,14 @@ func toLowerCamelCase(in string) string {
 
 	return string(out)
 }
+
+
+func toUpperFirst(in string) string {
+	if in == "" {
+		return in
+	}
+
+	runes := []rune(in)
+	runes[0] = unicode.ToUpper(runes[0])
+	return string(runes)
+}

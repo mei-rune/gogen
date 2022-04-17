@@ -74,6 +74,10 @@ func (echo *echoPlugin) Features() Config {
 	}
 }
 
+func (echo *echoPlugin)	ReadBodyFunc(argName string) string {
+	return "ctx.Bind("+argName+")"
+}
+
 func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {
