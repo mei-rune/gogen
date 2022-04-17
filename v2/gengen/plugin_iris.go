@@ -80,7 +80,7 @@ func (iris *irisPlugin) Features() Config {
 
 func (iris *irisPlugin) Imports() map[string]string {
 	return map[string]string{
-		"github.com/kataras/iris": "",
+		"github.com/kataras/iris/v12": "iris",
 	}
 }
 
@@ -94,7 +94,7 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 		return err
 	}
 
-	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx *iris.Context) {")
+	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx iris.Context) {")
 	params, err := method.GetParams()
 	if err != nil {
 		return err
@@ -139,7 +139,7 @@ func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode
   {{else -}}
     ctx.StatusCode(http.StatusInternalServerError)
   {{end -}}
-  ctx.JSON(w, r, {{.err}})
+  ctx.JSON({{.err}})
   return`, map[string]interface{}{
 		"err":              err,
 		"hasRealErrorCode": errCode != "",

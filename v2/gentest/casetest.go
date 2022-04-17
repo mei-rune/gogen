@@ -2,13 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"strings"
-	"time"
 )
 
-
 // @http.Client(name="TestClient", ref="true")
-type StringSvc interface {
+type CaseSvc interface {
 
 	// @Summary test by name
 	// @Description test by int64 ID
@@ -22,7 +19,6 @@ type StringSvc interface {
 	// @Router /test64/by_name/{name} [get]
 	TestCase1(name string) error
 
-
 	// @Summary test by name
 	// @Description test by int64 ID
 	// @ID TestCase2_1
@@ -34,7 +30,6 @@ type StringSvc interface {
 	// @Failure 404 {object} string "Can not find ID"
 	// @Router /test64/by_name [get]
 	TestCase2_1(name string) error
-
 
 	// @Summary test by names
 	// @Description test by int64 ID
@@ -48,7 +43,6 @@ type StringSvc interface {
 	// @Router /test64/by_names [get]
 	TestCase2_2(name []string) error
 
-
 	// @Summary test by int64 ID
 	// @Description test by int64 ID
 	// @ID TestCase3_1
@@ -60,7 +54,6 @@ type StringSvc interface {
 	// @Failure 404 {object} string "Can not find ID"
 	// @Router /test64/by_id/{id} [get]
 	TestCase3_1(id int64) error
-
 
 	// @Summary test by int32 ID
 	// @Description test by int64 ID
@@ -74,7 +67,6 @@ type StringSvc interface {
 	// @Router /test64/by_id/{id} [get]
 	TestCase3_2(id int32) error
 
-
 	// @Summary test by int ID
 	// @Description test by int64 ID
 	// @ID TestCase3_3
@@ -86,7 +78,6 @@ type StringSvc interface {
 	// @Failure 404 {object} string "Can not find ID"
 	// @Router /test64/by_id/{id} [get]
 	TestCase3_3(id int) error
-
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不好测试， iris 才支持)
 	// @Description test by int64 ID
@@ -100,7 +91,6 @@ type StringSvc interface {
 	// @Router /test64/by_id/{id} [get]
 	TestCase4(id int) error
 
-
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
 	// @Description test by int64 ID
 	// @ID TestCase5
@@ -113,7 +103,6 @@ type StringSvc interface {
 	// @Router /test64/by_id [get]
 	TestCase5_1(id int64) error
 
-
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
 	// @Description test by int64 ID
 	// @ID TestCase5
@@ -125,7 +114,6 @@ type StringSvc interface {
 	// @Failure 404 {object} string "Can not find ID"
 	// @Router /test64/by_id [get]
 	TestCase5_2(id int32) error
-
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
 	// @Description test by int64 ID
@@ -151,7 +139,6 @@ type StringSvc interface {
 	// @Router /test64/by_id [get]
 	TestCase6(id int64) error
 
-
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)
 	// @Description test by int64 ID
 	// @ID TestCase7_1
@@ -163,7 +150,6 @@ type StringSvc interface {
 	// @Failure 404 {object} string "Can not find ID"
 	// @Router /test64/by_id [get]
 	TestCase7_1(id sql.NullInt64) error
-
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)
 	// @Description test by int32 ID
@@ -177,7 +163,6 @@ type StringSvc interface {
 	// @Router /test64/by_id [get]
 	TestCase7_2(id sql.NullInt32) error
 
-
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)
 	// @Description test by int64 ID
 	// @ID TestCase8
@@ -189,7 +174,6 @@ type StringSvc interface {
 	// @Failure 404 {object} string "Can not find ID"
 	// @Router /test64/by_id [get]
 	TestCase8(id sql.NullInt64) error
-
 
 	// @Summary test by int ID
 	// @Description test by int64 ID
@@ -203,7 +187,7 @@ type StringSvc interface {
 	// @Router /test64/by_id/{id} [get]
 	TestCase9(id *string) error
 
-		// @Summary test by id
+	// @Summary test by id
 	// @Description test by string ID
 	// @ID TestCase10
 	// @Accept  json
@@ -214,7 +198,6 @@ type StringSvc interface {
 	// @Failure 404 {object} string "Can not find ID"
 	// @Router /test64/by_name [get]
 	TestCase10(id *string) error
-
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)
 	// @Description test by int64 ID
@@ -239,7 +222,6 @@ type StringSvc interface {
 	// @Failure 404 {object} string "Can not find ID"
 	// @Router /test64/{id} [get]
 	TestCase13(id *int) error
-
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)
 	// @Description test by int64 ID

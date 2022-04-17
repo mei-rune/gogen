@@ -77,9 +77,9 @@ type Plugin interface {
 	RenderReturnError(out io.Writer, method *Method, errCode, err string) error
 }
 
-func renderBadArgument(out io.Writer, plugin Plugin, method *Method, param *Param, err string) error {
-	txt := "NewBadArgument(" + err + ", \"" + method.Method.Clazz.Name + "." + method.Method.Name + "\", \"" + param.Param.Name + "\")"
-	return plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
+func renderBadArgument(out io.Writer, plugin Plugin, param *Param, err string) error {
+	txt := "NewBadArgument(" + err + ", \"" + param.Method.Method.Clazz.Name + "." + param.Method.Method.Name + "\", \"" + param.Param.Name + "\")"
+	return plugin.RenderReturnError(out, param.Method, "http.StatusBadRequest", txt)
 }
 
 func renderText(txt *template.Template, out io.Writer, renderArgs interface{}) {

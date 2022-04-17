@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-func InitStringSvc(mux chi.Router, svc StringSvc) {
+func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 	mux.Get("/test64/by_name/:name", func(w http.ResponseWriter, r *http.Request) {
 		var name = chi.URLParam(r, "name")
 		err := svc.TestCase1(name)
@@ -53,10 +53,10 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase3_1", "id"))
+			render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase3_1", "id"))
 			return
 		}
-		err := svc.TestCase3_1(id)
+		err = svc.TestCase3_1(id)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
@@ -69,11 +69,11 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		idValue, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 32)
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase3_2", "id"))
+			render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase3_2", "id"))
 			return
 		}
-		id = int32(idValue)
-		err := svc.TestCase3_2(id)
+		var id = int32(idValue)
+		err = svc.TestCase3_2(id)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
@@ -86,10 +86,10 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase3_3", "id"))
+			render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase3_3", "id"))
 			return
 		}
-		err := svc.TestCase3_3(id)
+		err = svc.TestCase3_3(id)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
@@ -102,10 +102,10 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		id, err := strconv.Atoi(chi.URLParam(r, "id"))
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase4", "id"))
+			render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase4", "id"))
 			return
 		}
-		err := svc.TestCase4(id)
+		err = svc.TestCase4(id)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
@@ -121,7 +121,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase5_1", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase5_1", "id"))
 				return
 			}
 			id = idValue
@@ -142,7 +142,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.ParseInt(s, 10, 32)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase5_2", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase5_2", "id"))
 				return
 			}
 			id = int32(idValue)
@@ -163,7 +163,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idlistValue, err := ToInt64Array(ss)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase5_3", "idlist"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase5_3", "idlist"))
 				return
 			}
 			idlist = idlistValue
@@ -184,7 +184,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase6", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase6", "id"))
 				return
 			}
 			id = idValue
@@ -205,7 +205,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase7_1", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase7_1", "id"))
 				return
 			}
 			id.Int64 = idValue
@@ -227,7 +227,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.ParseInt(s, 10, 32)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase7_2", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase7_2", "id"))
 				return
 			}
 			id.Int32 = int32(idValue)
@@ -249,7 +249,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase8", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase8", "id"))
 				return
 			}
 			id.Int64 = idValue
@@ -292,9 +292,9 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 	})
 	mux.Get("/test64/:id", func(w http.ResponseWriter, r *http.Request) {
 		var id *int
-		if idValue, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
+		if idValue, err := strconv.Atoi(chi.URLParam(r, "id")); err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase12", "id"))
+			render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase12", "id"))
 			return
 		} else {
 			id = &idValue
@@ -310,9 +310,9 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 	})
 	mux.Get("/test64/:id", func(w http.ResponseWriter, r *http.Request) {
 		var id *int
-		if idValue, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
+		if idValue, err := strconv.Atoi(chi.URLParam(r, "id")); err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase13", "id"))
+			render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase13", "id"))
 			return
 		} else {
 			id = &idValue
@@ -333,7 +333,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase14_1", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase14_1", "id"))
 				return
 			}
 			id = &idValue
@@ -354,7 +354,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.ParseInt(s, 10, 32)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase14_2", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase14_2", "id"))
 				return
 			}
 			id = new(int32)
@@ -376,7 +376,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			idValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestCase14_3", "id"))
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase14_3", "id"))
 				return
 			}
 			id = &idValue

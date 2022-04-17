@@ -3,6 +3,7 @@ package gengen
 import (
 	"errors"
 	"strings"
+	"unicode"
 
 	"github.com/grsmv/inflect"
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
@@ -257,4 +258,38 @@ func selectConvert(isArray bool, resultType, paramType string) (string, bool, er
 		}
 		return "", false, errors.New("cannot convert to '" + paramType + "'")
 	}
+}
+
+func toSnakeCase(in string) string {
+	runes := []rune(in)
+	length := len(runes)
+
+	var out []rune
+	for i := 0; i < length; i++ {
+		if i > 0 && unicode.IsUpper(runes[i]) &&
+			((i+1 < length && unicode.IsLower(runes[i+1])) || unicode.IsLower(runes[i-1])) {
+			out = append(out, '_')
+		}
+		out = append(out, unicode.ToLower(runes[i]))
+	}
+
+	return string(out)
+}
+
+func toLowerCamelCase(in string) string {
+	runes := []rune(in)
+
+	var out []rune
+	flag := false
+	for i, curr := range runes {
+		if (i == 0 && unicode.IsUpper(curr)) || (flag && unicode.IsUpper(curr)) {
+			out = append(out, unicode.ToLower(curr))
+			flag = true
+		} else {
+			out = append(out, curr)
+			flag = false
+		}
+	}
+
+	return string(out)
 }

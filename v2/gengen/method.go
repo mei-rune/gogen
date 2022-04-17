@@ -13,6 +13,20 @@ import (
 type Method struct {
 	Method    *astutil.Method
 	Operation *swag.Operation
+
+	errorDeclared bool
+}
+
+func (method *Method) SetErrorDeclared() {
+	method.errorDeclared = true
+}
+
+func (method *Method) IsErrorDeclared() bool {
+	return method.errorDeclared
+}
+
+func (method *Method) FullName() string {
+	return method.Method.Clazz.Name + "." + method.Method.Name
 }
 
 func (method *Method) NoReturn() bool {
@@ -20,30 +34,64 @@ func (method *Method) NoReturn() bool {
 	return false
 }
 
+func (method *Method) SearchSwaggerParameter(structargname, name string) int {
+	foundIndex := -1
+	for idx := range method.Operation.Parameters {
+		localstructargname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-extend-struct")
+		localname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-extend-field")	
+
+		if strings.EqualFold(structargname, localstructargname) &&
+		    strings.EqualFold(name, localname) {
+			
+			foundIndex = idx
+			break
+		}
+	}
+	return foundIndex
+}
+
 func (method *Method) GetParams() ([]Param, error) {
 	var results []Param
 	for idx := range method.Method.Params.List {
 		foundIndex := -1
 		for i := range method.Operation.Parameters {
-			if method.Operation.Parameters[i].Name == method.Method.Params.List[idx].Name {
+			oname := method.Operation.Parameters[i].Name
+			pname := method.Method.Params.List[idx].Name
+			if strings.EqualFold(oname, pname) {
 				foundIndex = i
 				break
 			}
-			if strings.ToLower(method.Operation.Parameters[i].Name) == strings.ToLower(method.Method.Params.List[idx].Name) {
-				foundIndex = i
-				break
+		}
+
+		if foundIndex >= 0 {
+			results = append(results, Param{
+				Method: method,
+				Param:  &method.Method.Params.List[idx],
+				Option: method.Operation.Parameters[foundIndex],
+			})
+			continue
+		}
+
+		if foundIndex < 0 {
+			for i := range method.Operation.Parameters {
+				structargname, _ := method.Operation.Parameters[i].Extensions.GetString("x-extend-struct")
+				pname := method.Method.Params.List[idx].Name
+				if strings.EqualFold(structargname, pname) {
+					foundIndex = i
+					break
+				}
 			}
 		}
 
 		if foundIndex < 0 {
-			return nil, errors.New("param '" + method.Method.Params.List[0].Name +
-				"' of '" + method.Method.Clazz.Name + "." + method.Method.Name +
-				"' not found in the swagger annotation")
+			return nil, errors.New("param '" + method.Method.Params.List[idx].Name +
+				"' of '" + method.FullName() +
+				"' not found in the swagger annotations")
 		}
 
 		results = append(results, Param{
+			Method: method,
 			Param:  &method.Method.Params.List[idx],
-			Option: method.Operation.Parameters[foundIndex],
 		})
 	}
 
@@ -58,7 +106,7 @@ func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 			return err
 		}
 		for idx := range params {
-			err := params[idx].RenderDeclareAndInit(plugin, out, method)
+			err := params[idx].RenderDeclareAndInit(plugin, out)
 			if err != nil {
 				return err
 			}
@@ -85,11 +133,11 @@ func (method *Method) renderInvokeAndReturn(cfg Plugin, out io.Writer) error {
 		io.WriteString(out, " :=")
 	} else if len(method.Method.Results.List) == 1 {
 		if method.Method.Results.List[0].Type().IsErrorType() {
-			// if isErrorDefined {
-			// 	io.WriteString(out, "err =")
-			// } else {
-			io.WriteString(out, "err :=")
-			// }
+			if method.IsErrorDeclared() {
+			 	io.WriteString(out, "err =")
+			} else {
+				io.WriteString(out, "err :=")
+			}
 		} else {
 			io.WriteString(out, "result :=")
 		}
@@ -173,7 +221,7 @@ func (method *Method) renderInvokeAndReturn(cfg Plugin, out io.Writer) error {
 	return nil
 }
 
-func resolveMethods(ts *astutil.TypeSpec) ([]*Method, error) {
+func resolveMethods(swaggerParser *swag.Parser, ts *astutil.TypeSpec) ([]*Method, error) {
 	var methods []*Method
 	list := ts.Methods()
 	for idx, method := range list {
@@ -181,7 +229,7 @@ func resolveMethods(ts *astutil.TypeSpec) ([]*Method, error) {
 		if doc == nil || len(doc.List) == 0 {
 			continue
 		}
-		operation := swag.NewOperation(nil)
+		operation := swag.NewOperation(swaggerParser)
 		for _, comment := range doc.List {
 			err := operation.ParseComment(comment.Text, ts.File.AstFile)
 			if err != nil {

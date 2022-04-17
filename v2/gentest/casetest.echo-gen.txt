@@ -12,7 +12,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 )
 
-func InitStringSvc(mux echo.Group, svc StringSvc) {
+func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 	mux.GET("/test64/by_name/:name", func(ctx echo.Context) error {
 		var name = ctx.Param("name")
 		err := svc.TestCase1(name)
@@ -40,9 +40,9 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase3_1", "id"))
+			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_1", "id"))
 		}
-		err := svc.TestCase3_1(id)
+		err = svc.TestCase3_1(id)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
@@ -51,10 +51,10 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
 		idValue, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase3_2", "id"))
+			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_2", "id"))
 		}
-		id = int32(idValue)
-		err := svc.TestCase3_2(id)
+		var id = int32(idValue)
+		err = svc.TestCase3_2(id)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
@@ -63,9 +63,9 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase3_3", "id"))
+			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_3", "id"))
 		}
-		err := svc.TestCase3_3(id)
+		err = svc.TestCase3_3(id)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
@@ -74,9 +74,9 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
-			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase4", "id"))
+			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase4", "id"))
 		}
-		err := svc.TestCase4(id)
+		err = svc.TestCase4(id)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
@@ -87,7 +87,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase5_1", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase5_1", "id"))
 			}
 			id = idValue
 		}
@@ -102,7 +102,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase5_2", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase5_2", "id"))
 			}
 			id = int32(idValue)
 		}
@@ -117,7 +117,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if ss := ctx.QueryParams()["idlist"]; len(ss) != 0 {
 			idlistValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase5_3", "idlist"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase5_3", "idlist"))
 			}
 			idlist = idlistValue
 		}
@@ -132,7 +132,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase6", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase6", "id"))
 			}
 			id = idValue
 		}
@@ -147,7 +147,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase7_1", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase7_1", "id"))
 			}
 			id.Int64 = idValue
 			id.Valid = true
@@ -163,7 +163,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase7_2", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase7_2", "id"))
 			}
 			id.Int32 = int32(idValue)
 			id.Valid = true
@@ -179,7 +179,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase8", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase8", "id"))
 			}
 			id.Int64 = idValue
 			id.Valid = true
@@ -211,8 +211,8 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 	})
 	mux.GET("/test64/:id", func(ctx echo.Context) error {
 		var id *int
-		if idValue, err = strconv.Atoi(ctx.Param("id")); err != nil {
-			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase12", "id"))
+		if idValue, err := strconv.Atoi(ctx.Param("id")); err != nil {
+			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase12", "id"))
 		} else {
 			id = &idValue
 		}
@@ -224,8 +224,8 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 	})
 	mux.GET("/test64/:id", func(ctx echo.Context) error {
 		var id *int
-		if idValue, err = strconv.Atoi(ctx.Param("id")); err != nil {
-			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase13", "id"))
+		if idValue, err := strconv.Atoi(ctx.Param("id")); err != nil {
+			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase13", "id"))
 		} else {
 			id = &idValue
 		}
@@ -240,7 +240,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase14_1", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase14_1", "id"))
 			}
 			id = &idValue
 		}
@@ -255,7 +255,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase14_2", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase14_2", "id"))
 			}
 			id = new(int32)
 			*id = int32(idValue)
@@ -271,7 +271,7 @@ func InitStringSvc(mux echo.Group, svc StringSvc) {
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestCase14_3", "id"))
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase14_3", "id"))
 			}
 			id = &idValue
 		}

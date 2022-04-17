@@ -45,13 +45,13 @@ type TimeRange2 struct {
 }
 
 type QueryArgs struct {
-	fint    int
-	fstring string
-	ftime   time.Time
+	Fint    int
+	Fstring string
+	Ftime   time.Time
 
-	fintptr    *int
-	fstringptr *string
-	ftimeptr   *time.Time
+	Fintptr    *int
+	Fstringptr *string
+	Ftimeptr   *time.Time
 }
 
 // @http.Client(name="TestClient", ref="true")
@@ -66,7 +66,6 @@ type StringSvc interface {
 	// @Router /files [get]
 	GetFiles(filenames []string) (list []string, total int64, err error)
 
-
 	// @Summary get files
 	// @Description get files
 	// @ID GetTimes
@@ -75,7 +74,6 @@ type StringSvc interface {
 	// @Param   times      query   []string     true  "Some ID" Format(datetime)
 	// @Router /times [get]
 	GetTimes(times []time.Time) (list []string, total int64, err error)
-
 
 	// @Summary get files
 	// @Description get files
@@ -136,14 +134,21 @@ type StringSvc interface {
 	// @Description test by query
 	// @ID TestInt64Query
 	// @Param   id      query   int     true  "Some ID" Format(int64)
-	// @Param   args    query   int     true  "Some ID" Format(int64)
+	// @Param   args    query   QueryArgs     true  "Some ID" Format(int64)
 	// @Accept  json
 	// @Produce  json
 	// @Router /test_query_args1/{id} [get]
 	TestQueryArgs1(id int64, args QueryArgs) error
 
-	// // @http.GET(path="/test_query_args2/:id")
-	// TestQueryArgs2(id int64, args *QueryArgs) error
+	// @Summary test by query
+	// @Description test by query
+	// @ID TestInt64Query
+	// @Param   id      query   int     true  "Some ID" Format(int64)
+	// @Param   args    query   QueryArgs     true  "Some ID" Format(int64)
+	// @Accept  json
+	// @Produce  json
+	// @Router /test_query_args2/{id} [get]
+	TestQueryArgs2(id int64, args *QueryArgs) error
 
 	// // @http.GET(path="/test_query_args3/:id?args=<none>")
 	// TestQueryArgs3(id int64, args QueryArgs) error

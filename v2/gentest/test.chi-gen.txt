@@ -1,0 +1,288 @@
+//go:build chi
+// +build chi
+
+// Please don't edit this file!
+package main
+
+import (
+	"net/http"
+	"strconv"
+	"time"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
+)
+
+// TimeRange is skipped
+// TimeRange2 is skipped
+// QueryArgs is skipped
+
+func InitStringSvc(mux chi.Router, svc StringSvc) {
+	mux.Get("/files", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var filenames = queryParams["filenames"]
+		list, total, err := svc.GetFiles(filenames)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/times", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var times []time.Time
+		if ss := queryParams["times"]; len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.GetTimes", "times"))
+				return
+			}
+			times = timesValue
+		}
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/allfiles", func(w http.ResponseWriter, r *http.Request) {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/test_by_key/:key", func(w http.ResponseWriter, r *http.Request) {
+		keyValue, err := strconv.ParseInt(chi.URLParam(r, "key"), 10, 64)
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.TestByKey1", "key"))
+			return
+		}
+		var key = Key(keyValue)
+		err = svc.TestByKey1(key)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_by_key", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var key Key
+		if s := queryParams.Get("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestByKey2", "key"))
+				return
+			}
+			key = Key(keyValue)
+		}
+		err := svc.TestByKey2(key)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_by_strkey/:key", func(w http.ResponseWriter, r *http.Request) {
+		var key = StrKey(chi.URLParam(r, "key"))
+		err := svc.TestByStrKey1(key)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_by_strkey", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var key = StrKey(queryParams.Get("key"))
+		err := svc.TestByStrKey2(key)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test64", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var id int64
+		if s := queryParams.Get("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestInt64Query", "id"))
+				return
+			}
+			id = idValue
+		}
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_query_args1/:id", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var id int64
+		if s := queryParams.Get("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "id"))
+				return
+			}
+			id = idValue
+		}
+		var args QueryArgs
+		if s := queryParams.Get("args.fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "Fint"))
+				return
+			}
+			args.Fint = fintValue
+		}
+		args.Fstring = queryParams.Get("args.fstring")
+		if s := queryParams.Get("args.ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "Ftime"))
+				return
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := queryParams.Get("args.fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "Fintptr"))
+				return
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := queryParams.Get("args.fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := queryParams.Get("args.ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "Ftimeptr"))
+				return
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err := svc.TestQueryArgs1(id, args)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_query_args2/:id", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var id int64
+		if s := queryParams.Get("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "id"))
+				return
+			}
+			id = idValue
+		}
+		var args *QueryArgs
+		if s := queryParams.Get("args.fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "Fint"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Fint = fintValue
+		}
+		if args == nil {
+			args = new(QueryArgs)
+		}
+		args.Fstring = queryParams.Get("args.fstring")
+		if s := queryParams.Get("args.ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "Ftime"))
+				return
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := queryParams.Get("args.fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "Fintptr"))
+				return
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := queryParams.Get("args.fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := queryParams.Get("args.ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "Ftimeptr"))
+				return
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err := svc.TestQueryArgs2(id, args)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+}

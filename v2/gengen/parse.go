@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
+	"github.com/swaggo/swag"
 )
 
 type Generator struct {
@@ -35,23 +36,41 @@ func (cmd *Generator) Run(args []string) error {
 	if err != nil {
 		return err
 	}
+
+	swaggerParser := swag.New()
+
+	var files []*astutil.File
 	for _, filename := range args {
 		file, err := ParseFile(nil, filename)
 		if err != nil {
 			return err
 		}
+		err = swaggerParser.Packages().CollectAstFile(file.Package.ImportPath, file.Filename, file.AstFile)
+		if err != nil {
+			return errors.New("collect astFile: " + err.Error())
+		}
+		files = append(files, file)
+	}
+	_, err = swaggerParser.Packages().ParseTypes()
+	if err != nil {
+		return errors.New("parse types: " + err.Error())
+	}
+
+	for idx, file := range files {
+		filename := args[idx]
+
 		targetFile := strings.TrimSuffix(filename, ".go") + cmd.ext
 		out, err := os.Create(targetFile)
 		if err != nil {
 			return err
 		}
 
-		err = cmd.genHeader(plugin, out, file)
+		err = cmd.genHeader(plugin, out, swaggerParser, file)
 		if err != nil {
 			return err
 		}
 
-		err = cmd.genInitFunc(plugin, out, file)
+		err = cmd.genInitFunc(plugin, out, swaggerParser, file)
 		if err != nil {
 			return err
 		}
@@ -67,7 +86,7 @@ func (cmd *Generator) Run(args []string) error {
 	return nil
 }
 
-func (cmd *Generator) genHeader(cfg Plugin, out io.Writer, file *astutil.File) error {
+func (cmd *Generator) genHeader(cfg Plugin, out io.Writer, swaggerParser *swag.Parser, file *astutil.File) error {
 	if cmd.buildTag != "" {
 		io.WriteString(out, "// +build ")
 		io.WriteString(out, cmd.buildTag)
@@ -116,7 +135,7 @@ func (cmd *Generator) genHeader(cfg Plugin, out io.Writer, file *astutil.File) e
 	return nil
 }
 
-func (cmd *Generator) genInitFunc(plugin Plugin, out io.Writer, file *astutil.File) error {
+func (cmd *Generator) genInitFunc(plugin Plugin, out io.Writer, swaggerParser *swag.Parser, file *astutil.File) error {
 	for _, ts := range file.TypeList {
 		if ts.Struct == nil && ts.Interface == nil {
 			continue
@@ -125,7 +144,7 @@ func (cmd *Generator) genInitFunc(plugin Plugin, out io.Writer, file *astutil.Fi
 		if ts.Struct != nil {
 			star = "*"
 		}
-		methods, err := resolveMethods(ts)
+		methods, err := resolveMethods(swaggerParser, ts)
 		if err != nil {
 			return err
 		}
