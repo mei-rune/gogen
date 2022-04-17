@@ -16,6 +16,20 @@ var _ Plugin = &irisPlugin{}
 type irisPlugin struct {
 }
 
+func  (iris *irisPlugin) TypeInContext(name string) (string, bool) {
+	args := map[string]string{
+		"url.Values":          "ctx.Request().URL.Query()",
+		"*http.Request":       "ctx.Request()",
+		"io.Reader":           "ctx.Request().Body",
+		"http.ResponseWriter": "ctx.ResponseWriter()",
+		"io.Writer":           "ctx.ResponseWriter()",
+		"context.Context":     "ctx.Request.Context()",
+		"*iris.Context":        "ctx",
+	}
+	s, ok := args[name]
+	return s, ok
+}
+
 func (iris *irisPlugin) Invocations() []Invocation {
 	return []Invocation{
 		{
@@ -95,7 +109,7 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	}
 
 	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx iris.Context) {")
-	params, err := method.GetParams()
+	params, err := method.GetParams(iris)
 	if err != nil {
 		return err
 	}

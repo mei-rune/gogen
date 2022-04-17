@@ -47,28 +47,7 @@ type Plugin interface {
 	Imports() map[string]string
 	PartyTypeName() string
 
-	// 用于返回一个获取参数的函数调用，如
-	//         ctx.PathParam("a")
-	//      或 ctx.QueryParam("a")
-	//      或 ctx.GetInt64PathParam("id")
-	//      或 ctx.GetInt64PathParamWithDefault("id", 0)
-	//      或 ctx.GetInt64QueryParam("id")
-	//      或 ctx.GetInt64QueryParamWithDefault("id", 0)
-	//      或 ctx.GetQueryArray("id")
-	//
-	// 参数说明：
-	//      param        参数名，上面例子中的 "a" 或 "id"
-	//      typ          表示期望函数调用返回值的数型，这个只能是一个建议，
-	//                   因为像 gin 等不支持 GetInt64PathParam() 之类的函数
-	//      isArray      表示期望函数调用返回值是一个数组
-	//      defaultValue 表示期望函数调用中的默认值，就是上面的ctx.GetInt64PathParamWithDefault("id", 0) 中最后一个参数的 "0"
-	//
-	// 返回:
-	//     content 返回函数调用呈现的字符串
-	//     isTransformed 返回函数调用返回值的类型是不是已经转换好了, 见 typ 参数
-	//     hasError 表示函数调用时是否会返回参数
-	//     err      发生错误
-	// RenderInvocation(param, typ string, required bool, isArray bool, defaultValue string) (content string, isTransformed, hasError bool, err error)
+ 	TypeInContext(name string)  (string, bool)
 
 	Invocations() []Invocation
 

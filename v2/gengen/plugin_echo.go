@@ -11,6 +11,21 @@ var _ Plugin = &echoPlugin{}
 
 type echoPlugin struct{}
 
+
+func (echo *echoPlugin) TypeInContext(name string) (string, bool) {
+	args := map[string]string{
+		"url.Values":          "ctx.QueryParams()",
+		"*http.Request":       "ctx.Request()",
+		"io.Reader":           "ctx.Request().Body",
+		"http.ResponseWriter": "ctx.Response().Writer",
+		"io.Writer":           "ctx.Response().Writer",
+		"context.Context":     "ctx.Request().Context()",
+		"echo.Context":        "ctx",
+	}
+	s, ok := args[name]
+	return s, ok
+}
+
 func (echo *echoPlugin) Invocations() []Invocation {
 	return []Invocation{
 		{

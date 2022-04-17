@@ -11,6 +11,21 @@ var _ Plugin = &ginPlugin{}
 
 type ginPlugin struct{}
 
+
+func  (gin *ginPlugin) TypeInContext(name string) (string, bool) {
+	args := map[string]string{
+		"url.Values":          "ctx.Request.URL.Query()",
+		"*http.Request":       "ctx.Request",
+		"io.Reader":           "ctx.Request.Body",
+		"http.ResponseWriter": "ctx.Writer",
+		"io.Writer":           "ctx.Writer",
+		"context.Context":     "ctx.Request.Context()",
+		"*gin.Context":        "ctx",
+	}
+	s, ok := args[name]
+	return s, ok
+}
+
 func (gin *ginPlugin) Invocations() []Invocation {
 	return []Invocation{
 		{

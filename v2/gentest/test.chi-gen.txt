@@ -285,4 +285,262 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	mux.Get("/test_query_args3/:id", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var id int64
+		if s := queryParams.Get("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "id"))
+				return
+			}
+			id = idValue
+		}
+		var args QueryArgs
+		if s := queryParams.Get("fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "Fint"))
+				return
+			}
+			args.Fint = fintValue
+		}
+		args.Fstring = queryParams.Get("fstring")
+		if s := queryParams.Get("ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "Ftime"))
+				return
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := queryParams.Get("fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "Fintptr"))
+				return
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := queryParams.Get("fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := queryParams.Get("ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "Ftimeptr"))
+				return
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err := svc.TestQueryArgs3(id, args)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_query_args4/:id", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var id int64
+		if s := queryParams.Get("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "id"))
+				return
+			}
+			id = idValue
+		}
+		var args *QueryArgs
+		if s := queryParams.Get("fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "Fint"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Fint = fintValue
+		}
+		if args == nil {
+			args = new(QueryArgs)
+		}
+		args.Fstring = queryParams.Get("fstring")
+		if s := queryParams.Get("ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "Ftime"))
+				return
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := queryParams.Get("fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "Fintptr"))
+				return
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := queryParams.Get("fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := queryParams.Get("ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "Ftimeptr"))
+				return
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err := svc.TestQueryArgs4(id, args)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+		err := svc.Ping()
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/echo", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		result := svc.Echo(a)
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/echo2", func(w http.ResponseWriter, r *http.Request) {
+		result, err := svc.EchoBody(r.Body)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/echo3", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			if he, ok := errors.BadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.BadArgument("bindArgs", "body", err))
+			return
+		}
+
+		result, err := svc.Echo3(r.Context(), bindArgs.A)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/concat", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var b = queryParams.Get("b")
+		result, err := svc.Concat(a, b)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/concat1", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a *string
+		if s := queryParams.Get("a"); s != "" {
+			a = &s
+		}
+		var b *string
+		if s := queryParams.Get("b"); s != "" {
+			b = &s
+		}
+		result, err := svc.Concat1(a, b)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/concat2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+		var a = chi.URLParam(r, "a")
+		var b = chi.URLParam(r, "b")
+		result, err := svc.Concat2(a, b)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/concat3/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+		var a = chi.URLParam(r, "a")
+		var b = chi.URLParam(r, "b")
+		result, err := svc.Concat3(&a, &b)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/sub", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var start int64
+		if s := queryParams.Get("start"); s != "" {
+			startValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Sub", "start"))
+				return
+			}
+			start = startValue
+		}
+		result, err := svc.Sub(a, start)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
 }

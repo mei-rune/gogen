@@ -16,6 +16,7 @@ type Param struct {
 	Method      *Method
 	Param       *astutil.Param
 	Option      spec.Parameter
+	goArgumentLiteral string
 
 	isInitialized bool
 }
@@ -52,6 +53,10 @@ func (param *Param) GoMethodParamName() string {
 
 // GoVarName 函数调用时变量，如变量名为 a, 调用可能是 &a
 func (param *Param) GoArgumentLiteral() string {
+	if param.goArgumentLiteral != "" {
+		return param.goArgumentLiteral
+	}
+
 	var isStringPtrType = param.Type().IsPtrType() && param.Type().PtrElemType().IsStringType(true)
 	if isStringPtrType && param.Option.In == "path" {
 		return "&" + param.Param.Name
@@ -126,6 +131,24 @@ func (param *Param) renderParentInit(plugin Plugin, out io.Writer, noCRCF ...boo
 }
 
 func (param *Param) RenderDeclareAndInit(plugin Plugin, out io.Writer) error {
+	if s, ok := plugin.TypeInContext(param.Type().ToLiteral()); ok {
+		param.goArgumentLiteral = s
+		return nil
+	}
+
+
+	isStructType := param.Type().IsStructType() || (param.Type().IsPtrType() && param.Type().PtrElemType().IsStructType())
+
+	if param.Option.Name == "" {
+		if !isStructType {
+			return errors.New("param '" + param.GoMethodParamName() + "' of '" +
+				param.GoMethodFullName() +
+				"' missing in the swagger annotations")
+		}
+	} else if param.Option.In != "path" && param.Option.In != "query"  {
+		return nil
+	}
+
 	// isPtr := astutil.IsPtrType(param.Type())
 	typ := param.Type().PtrElemType()
 	if !typ.IsValid() {
@@ -153,11 +176,7 @@ func (param *Param) RenderDeclareAndInit(plugin Plugin, out io.Writer) error {
 		isBultinType(typeStr) ||
 		isNullableType(typeStr) {
 
-		if param.Option.Name == "" {
-			return errors.New("param '" + param.GoMethodParamName() + "' of '" +
-				param.GoMethodFullName() +
-				"' missing in the swagger annotations")
-		}
+
 		var err error
 		if underlyingType.IsValid() {
 			err = param.renderBySimpleType(out, plugin, underlyingType.ToString())
@@ -170,7 +189,7 @@ func (param *Param) RenderDeclareAndInit(plugin Plugin, out io.Writer) error {
 		return nil
 	}
 
-	if param.Type().IsStructType() || (param.Type().IsPtrType() && param.Type().PtrElemType().IsStructType()) {
+	if isStructType {
 
 		typ := param.Type()
 		if typ.IsPtrType() {

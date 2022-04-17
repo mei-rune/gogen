@@ -50,9 +50,18 @@ func (method *Method) SearchSwaggerParameter(structargname, name string) int {
 	return foundIndex
 }
 
-func (method *Method) GetParams() ([]Param, error) {
+func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 	var results []Param
 	for idx := range method.Method.Params.List {
+		if _, ok := plugin.TypeInContext(method.Method.Params.List[idx].Type().ToLiteral()); ok {
+			results = append(results, Param{
+				Method: method,
+				Param:  &method.Method.Params.List[idx],
+			})
+			continue
+		}
+
+
 		foundIndex := -1
 		for i := range method.Operation.Parameters {
 			oname := method.Operation.Parameters[i].Name
@@ -99,24 +108,29 @@ func (method *Method) GetParams() ([]Param, error) {
 }
 
 func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
+	params, err := method.GetParams(plugin)
+	if err != nil {
+		return err
+	}
+
 	/// 输出参数解析
-	if len(method.Method.Params.List) > 0 {
-		params, err := method.GetParams()
+	for idx := range params {
+		err := params[idx].RenderDeclareAndInit(plugin, out)
 		if err != nil {
 			return err
 		}
-		for idx := range params {
-			err := params[idx].RenderDeclareAndInit(plugin, out)
-			if err != nil {
-				return err
-			}
-		}
 	}
 
-	return method.renderInvokeAndReturn(plugin, out)
+	// /// 输出 body 参数的初始化
+	// for idx := range params {
+	// 	xxxxx
+	// }
+
+
+	return method.renderInvokeAndReturn(plugin, out, params)
 }
 
-func (method *Method) renderInvokeAndReturn(cfg Plugin, out io.Writer) error {
+func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params []Param) error {
 	io.WriteString(out, "\r\n")
 	/// 输出返回参数
 	if len(method.Method.Results.List) > 2 {
@@ -149,10 +163,7 @@ func (method *Method) renderInvokeAndReturn(cfg Plugin, out io.Writer) error {
 	io.WriteString(out, "svc.")
 	io.WriteString(out, method.Method.Name)
 	io.WriteString(out, "(")
-	params, err := method.GetParams()
-	if err != nil {
-		return err
-	}
+
 	for idx, param := range params {
 		// {{- if $param.IsSkipUse -}}
 		//    {{- continue --}}
@@ -171,7 +182,7 @@ func (method *Method) renderInvokeAndReturn(cfg Plugin, out io.Writer) error {
 
 	if len(method.Method.Results.List) > 2 {
 		io.WriteString(out, "\r\n\tif err != nil {")
-		cfg.RenderReturnError(out, method, "", "err")
+		plugin.RenderReturnError(out, method, "", "err")
 		io.WriteString(out, "\r\n\t}")
 
 		io.WriteString(out, "\r\n\tresult := map[string]interface{}{")
@@ -188,33 +199,33 @@ func (method *Method) renderInvokeAndReturn(cfg Plugin, out io.Writer) error {
 			io.WriteString(out, ",")
 		}
 		io.WriteString(out, "\r\n\t}\r\n")
-		cfg.RenderReturnOK(out, method, "", "result")
+		plugin.RenderReturnOK(out, method, "", "result")
 	} else if len(method.Method.Results.List) == 1 {
 
 		arg := method.Method.Results.List[0]
 		if arg.Type().IsErrorType() {
 			io.WriteString(out, "\r\nif err != nil {\r\n")
-			cfg.RenderReturnError(out, method, "", "err")
+			plugin.RenderReturnError(out, method, "", "err")
 			io.WriteString(out, "\r\n}\r\n")
-			cfg.RenderReturnOK(out, method, "", "\"OK\"")
+			plugin.RenderReturnOK(out, method, "", "\"OK\"")
 		} else {
 			// if methodParams.IsPlainText {
 			//  	{{$.mux.PlainTextFunc $method "result"}}
 			// } else {
 			io.WriteString(out, "\r\n")
-			cfg.RenderReturnOK(out, method, "", "result")
+			plugin.RenderReturnOK(out, method, "", "result")
 			// }
 		}
 
 	} else {
 		io.WriteString(out, "\r\n\tif err != nil {\r\n")
-		cfg.RenderReturnError(out, method, "", "err")
+		plugin.RenderReturnError(out, method, "", "err")
 		io.WriteString(out, "\r\n\t}\r\n")
 
 		// {{- if $methodParams.IsPlainText }}
 		//   {{$.mux.PlainTextFunc $method "result"}}
 		// {{- else}}
-		cfg.RenderReturnOK(out, method, "", "result")
+		plugin.RenderReturnOK(out, method, "", "result")
 		// {{- end}}
 	}
 

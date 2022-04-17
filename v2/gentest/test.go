@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 	"time"
+	"io"
 )
 
 // 用于测试 parse() 方法
@@ -62,7 +63,7 @@ type StringSvc interface {
 	// @ID GetFiles
 	// @Accept  json
 	// @Produce  json
-	// @Param   filenames      query   []string     true  "Some ID" Format(string)
+	// @Param   filenames      query   []string     false  "Some ID" Format(string)
 	// @Router /files [get]
 	GetFiles(filenames []string) (list []string, total int64, err error)
 
@@ -71,7 +72,7 @@ type StringSvc interface {
 	// @ID GetTimes
 	// @Accept  json
 	// @Produce  json
-	// @Param   times      query   []string     true  "Some ID" Format(datetime)
+	// @Param   times      query   []string     false  "Some ID" Format(datetime)
 	// @Router /times [get]
 	GetTimes(times []time.Time) (list []string, total int64, err error)
 
@@ -95,7 +96,7 @@ type StringSvc interface {
 	// @Summary test by int key
 	// @Description test by key
 	// @ID TestByKey
-	// @Param   key      query   int     true  "Some ID" Format(int)
+	// @Param   key      query   int     false  "Some ID" Format(int)
 	// @Accept  json
 	// @Produce  json
 	// @Router /test_by_key [get]
@@ -113,7 +114,7 @@ type StringSvc interface {
 	// @Summary test by str key
 	// @Description test by key
 	// @ID TestByKey
-	// @Param   key      query   string     true  "Some ID" Format(string)
+	// @Param   key      query   string     false  "Some ID" Format(string)
 	// @Accept  json
 	// @Produce  json
 	// @Router /test_by_strkey [get]
@@ -132,9 +133,9 @@ type StringSvc interface {
 
 	// @Summary test by query
 	// @Description test by query
-	// @ID TestInt64Query
+	// @ID TestQueryArgs1
 	// @Param   id      query   int     true  "Some ID" Format(int64)
-	// @Param   args    query   QueryArgs     true  "Some ID" Format(int64)
+	// @Param   args    query   QueryArgs     false  "Some ID" Format(int64)
 	// @Accept  json
 	// @Produce  json
 	// @Router /test_query_args1/{id} [get]
@@ -142,46 +143,121 @@ type StringSvc interface {
 
 	// @Summary test by query
 	// @Description test by query
-	// @ID TestInt64Query
+	// @ID TestQueryArgs2
 	// @Param   id      query   int     true  "Some ID" Format(int64)
-	// @Param   args    query   QueryArgs     true  "Some ID" Format(int64)
+	// @Param   args    query   QueryArgs     false  "Some ID" Format(int64)
 	// @Accept  json
 	// @Produce  json
 	// @Router /test_query_args2/{id} [get]
 	TestQueryArgs2(id int64, args *QueryArgs) error
 
-	// // @http.GET(path="/test_query_args3/:id?args=<none>")
-	// TestQueryArgs3(id int64, args QueryArgs) error
 
-	// // @http.GET(path="/test_query_args4/:id?<none>=args")
-	// TestQueryArgs4(id int64, args *QueryArgs) error
+	// @Summary test by query
+	// @Description test by query
+	// @ID TestQueryArgs3
+	// @Param   id      query   int     true  "Some ID" Format(int64)
+	// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-extend=inline)
+	// @Accept  json
+	// @Produce  json
+	// @Router /test_query_args3/{id} [get]
+	TestQueryArgs3(id int64, args QueryArgs) error
 
-	// // @http.GET(path="/ping")
-	// Ping() error
+	// @Summary test by query
+	// @Description test by query
+	// @ID TestQueryArgs4
+	// @Param   id      query   int     true  "Some ID" Format(int64)
+	// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-extend=inline)
+	// @Accept  json
+	// @Produce  json
+	// @Router /test_query_args4/{id} [get]
+	TestQueryArgs4(id int64, args *QueryArgs) error
 
-	// // @http.GET(path="/echo")
-	// Echo(a string) string
+	// @Summary test by query
+	// @Description test by query
+	// @ID Ping
+	// @Accept  json
+	// @Produce  json
+	// @Router /ping [get]
+	Ping() error
 
-	// // @http.POST(path="/echo2", data="body")
-	// EchoBody(body io.Reader) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Echo
+	// @Param   a      query   string     false  "Some ID" Format(int64)
+	// @Accept  json
+	// @Produce  json
+	// @Router /echo [get]
+	Echo(a string) string
 
-	// // @http.POST(path="/echo3")
-	// Echo3(context context.Context, a string) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID EchoBody
+	// @Param   body      body   string     false  "Some ID"
+	// @Accept  json
+	// @Produce  json
+	// @Router /echo2 [post]
+	EchoBody(body io.Reader) (string, error)
 
-	// // @http.GET(path="/concat")
-	// Concat(a, b string) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Echo3
+	// @Param   a      query   string     false  "Some ID"
+	// @Accept  json
+	// @Produce  json
+	// @Router /echo3 [post]
+	Echo3(context context.Context, a string) (string, error)
 
-	// // @http.GET(path="/concat1")
-	// Concat1(a, b *string) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Concat
+	// @Param   a      query   string     false  "Some ID"
+	// @Param   b      query   string     false  "Some ID"
+	// @Accept  json
+	// @Produce  json
+	// @Router /concat [get]
+	Concat(a, b string) (string, error)
 
-	// // @http.GET(path="/concat2/:a/:b")
-	// Concat2(a, b string) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Concat1
+	// @Param   a      query   string     false  "arg a"
+	// @Param   b      query   string     false  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /concat1 [get]
+	Concat1(a, b *string) (string, error)
 
-	// // @http.GET(path="/concat3/:a/:b")
-	// Concat3(a, b *string) (string, error)
 
-	// // @http.GET(path="/sub")
-	// Sub(a string, start int64) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Concat2
+	// @Param   a      path   string     true  "arg a"
+	// @Param   b      path   string    true  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /concat2/{a}/{b} [get]
+	Concat2(a, b string) (string, error)
+
+
+	// @Summary test by query
+	// @Description test by query
+	// @ID Concat2
+	// @Param   a      path   string     true  "arg a"
+	// @Param   b      path   string    true  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /concat3/{a}/{b} [get]
+	Concat3(a, b *string) (string, error)
+
+	// @Summary test by query
+	// @Description test by query
+	// @ID Sub
+	// @Param   a      query   string     true  "arg a"
+	// @Param   start      query   int64    true  "arg start"
+	// @Accept  json
+	// @Produce  json
+	// @Router /sub [get]
+	Sub(a string, start int64) (string, error)
 
 	// // @http.POST(path="/save/:a", data="b")
 	// Save(a, b string) (string, error)

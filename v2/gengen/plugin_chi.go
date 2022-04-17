@@ -65,6 +65,19 @@ func (chi *chiPlugin) PartyTypeName() string {
 	return "chi.Router"
 }
 
+func (chi *chiPlugin) TypeInContext(name string) (string, bool) {
+	args := map[string]string{
+		"url.Values":          "r.URL.Query()",
+		"*http.Request":       "r",
+		"http.ResponseWriter": "w",
+		"io.Writer":           "w",
+		"io.Reader":           "r.Body",
+		"context.Context":     "r.Context()",
+	}
+	s, ok := args[name]
+	return s, ok
+}
+
 func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {
@@ -72,7 +85,7 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	}
 
 	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(w http.ResponseWriter, r *http.Request) {")
-	params, err := method.GetParams()
+	params, err := method.GetParams(chi)
 	if err != nil {
 		return err
 	}
