@@ -91,18 +91,6 @@ func parseURL(rawurl string) ([]PathSegement, error) {
 	return segements, nil
 }
 
-func UnderscoreSimple(name string) string {
-	return strings.Replace(inflect.Underscore(name), "_i_d", "_id", -1)
-}
-
-func Underscore(name string) string {
-	ss := strings.Split(name, ".")
-	for idx := range ss {
-		ss[idx] = UnderscoreSimple(ss[idx])
-	}
-	return strings.Join(ss, ".")
-}
-
 func isBultinType(name string) bool {
 	return "net.IP" == name ||
 		"net.HardwareAddr" == name ||
@@ -159,121 +147,121 @@ func ConvertMethodNameToCamelCase(name string) string {
 	return newname
 }
 
-func selectConvert(isArray bool, resultType, paramType string) (string, bool, error) {
+func selectConvert(isArray bool, resultType, paramType string) (string, bool, bool, error) {
 	if isArray {
 		if !strings.HasPrefix(paramType, "[]") {
-			return "", false, errors.New("cannot convert to '" + paramType + "', param type isnot match")
+			return "", false, false, errors.New("cannot convert to '" + paramType + "', param type isnot match")
 		}
 		paramType = strings.TrimPrefix(paramType, "[]")
 	}
 	switch paramType {
 	case "int":
 		if isArray {
-			return "ToIntArray(%s)", false, nil
+			return "ToIntArray(%s)", false, true, nil
 		}
-		return "strconv.Atoi(%s)", false, nil
+		return "strconv.Atoi(%s)", false, true, nil
 	case "int64":
 		if isArray {
-			return "ToInt64Array(%s)", false, nil
+			return "ToInt64Array(%s)", false, true, nil
 		}
-		return "strconv.ParseInt(%s, 10, 64)", false, nil
+		return "strconv.ParseInt(%s, 10, 64)", false, true, nil
 	case "int32":
 		if isArray {
-			return "ToInt32Array(%s)", false, nil
+			return "ToInt32Array(%s)", false, true, nil
 		}
-		return "strconv.ParseInt(%s, 10, 32)", true, nil
+		return "strconv.ParseInt(%s, 10, 32)", true, true, nil
 	case "int16":
 		if isArray {
-			return "ToInt16Array(%s)", false, nil
+			return "ToInt16Array(%s)", false, true, nil
 		}
-		return "strconv.ParseInt(%s, 10, 16)", true, nil
+		return "strconv.ParseInt(%s, 10, 16)", true, true, nil
 	case "int8":
 		if isArray {
-			return "ToInt8Array(%s)", false, nil
+			return "ToInt8Array(%s)", false, true, nil
 		}
-		return "strconv.ParseInt(%s, 10, 8)", true, nil
+		return "strconv.ParseInt(%s, 10, 8)", true, true, nil
 	case "uint":
 		if isArray {
-			return "ToUintArray(%s)", false, nil
+			return "ToUintArray(%s)", false, true, nil
 		}
-		return "strconv.ParseUint(%s, 10, 64)", true, nil
+		return "strconv.ParseUint(%s, 10, 64)", true, true, nil
 	case "uint64":
 		if isArray {
-			return "ToUint64Array(%s)", false, nil
+			return "ToUint64Array(%s)", false, true, nil
 		}
-		return "strconv.ParseUint(%s, 10, 64)", false, nil
+		return "strconv.ParseUint(%s, 10, 64)", false, true, nil
 	case "uint32":
 		if isArray {
-			return "ToUint32Array(%s)", false, nil
+			return "ToUint32Array(%s)", false, true, nil
 		}
-		return "strconv.ParseUint(%s, 10, 32)", true, nil
+		return "strconv.ParseUint(%s, 10, 32)", true, true, nil
 	case "uint16":
 		if isArray {
-			return "ToUint16Array(%s)", false, nil
+			return "ToUint16Array(%s)", false, true, nil
 		}
-		return "strconv.ParseUint(%s, 10, 16)", true, nil
+		return "strconv.ParseUint(%s, 10, 16)", true, true, nil
 	case "uint8":
 		if isArray {
-			return "ToUint8Array(%s)", false, nil
+			return "ToUint8Array(%s)", false, true, nil
 		}
-		return "strconv.ParseUint(%s, 10, 8)", true, nil
+		return "strconv.ParseUint(%s, 10, 8)", true, true, nil
 	case "bool":
 		if isArray {
-			return "ToBoolArray(%s)", false, nil
+			return "ToBoolArray(%s)", false, true, nil
 		}
-		return "strconv.ParseBool(%s)", true, nil
+		return "strconv.ParseBool(%s)", true, true, nil
 	case "float64":
 		if isArray {
-			return "ToFloat64Array(%s)", false, nil
+			return "ToFloat64Array(%s)", false, true, nil
 		}
-		return "strconv.ParseFloat(%s, 64)", false, nil
+		return "strconv.ParseFloat(%s, 64)", false, true, nil
 	case "float32":
 		if isArray {
-			return "ToFloat32Array(%s)", false, nil
+			return "ToFloat32Array(%s)", false, true, nil
 		}
-		return "strconv.ParseFloat(%s, 32)", true, nil
+		return "strconv.ParseFloat(%s, 32)", true, true, nil
 	case "time.Time":
 		if isArray {
-			return "ToDatetimes(%s)", false, nil
+			return "ToDatetimes(%s)", false, true, nil
 		}
-		return "ToDatetime(%s)", false, nil
+		return "ToDatetime(%s)", false, true, nil
 	case "time.Duration":
 		if isArray {
-			return "ToDurations(%s)", false, nil
+			return "ToDurations(%s)", false, true, nil
 		}
-		return "time.ParseDuration(%s)", false, nil
+		return "time.ParseDuration(%s)", false, true, nil
 	case "net.IP":
 		if isArray {
-			return "ToIPList(%s)", false, nil
+			return "ToIPList(%s)", false, true, nil
 		}
-		return "ToIPAddr(%s)", false, nil
+		return "ToIPAddr(%s)", false, true, nil
 	case "net.HardwareAddr":
 		if isArray {
-			return "ToMacList(%s)", false, nil
+			return "ToMacList(%s)", false, true, nil
 		}
-		return "net.ParseMAC(%s)", false, nil
+		return "net.ParseMAC(%s)", false, true, nil
 	default:
 		if isArray {
-			return "", false, errors.New("cannot convert to '[]" + paramType + "'")
+			return "", false, false, errors.New("cannot convert to '[]" + paramType + "'")
 		}
-		return "", false, errors.New("cannot convert to '" + paramType + "'")
+		return "", false, false, errors.New("cannot convert to '" + paramType + "'")
 	}
 }
 
-func toSnakeCase(in string) string {
-	runes := []rune(in)
-	length := len(runes)
+func UnderscoreSimple(name string) string {
+	return strings.Replace(inflect.Underscore(name), "_i_d", "_id", -1)
+}
 
-	var out []rune
-	for i := 0; i < length; i++ {
-		if i > 0 && unicode.IsUpper(runes[i]) &&
-			((i+1 < length && unicode.IsLower(runes[i+1])) || unicode.IsLower(runes[i-1])) {
-			out = append(out, '_')
-		}
-		out = append(out, unicode.ToLower(runes[i]))
+func Underscore(name string) string {
+	ss := strings.Split(name, ".")
+	for idx := range ss {
+		ss[idx] = UnderscoreSimple(ss[idx])
 	}
+	return strings.Join(ss, ".")
+}
 
-	return string(out)
+func toSnakeCase(in string) string {
+	return Underscore(in)
 }
 
 func toLowerCamelCase(in string) string {
@@ -293,7 +281,6 @@ func toLowerCamelCase(in string) string {
 
 	return string(out)
 }
-
 
 func toUpperFirst(in string) string {
 	if in == "" {

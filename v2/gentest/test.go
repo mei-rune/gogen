@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
+	"database/sql"
+	"io"
+	"net/http"
 	"strings"
 	"time"
-	"io"
 )
 
 // 用于测试 parse() 方法
@@ -38,11 +41,13 @@ func ToDatetime(s string) (time.Time, error) {
 }
 
 type TimeRange struct {
-	Start, End time.Time
+	Start time.Time `json:"start"`
+	End   time.Time `json:"end"`
 }
 
 type TimeRange2 struct {
-	Start, End *time.Time
+	Start *time.Time `json:"start"`
+	End   *time.Time `json:"end"`
 }
 
 type QueryArgs struct {
@@ -151,7 +156,6 @@ type StringSvc interface {
 	// @Router /test_query_args2/{id} [get]
 	TestQueryArgs2(id int64, args *QueryArgs) error
 
-
 	// @Summary test by query
 	// @Description test by query
 	// @ID TestQueryArgs3
@@ -227,7 +231,6 @@ type StringSvc interface {
 	// @Router /concat1 [get]
 	Concat1(a, b *string) (string, error)
 
-
 	// @Summary test by query
 	// @Description test by query
 	// @ID Concat2
@@ -237,7 +240,6 @@ type StringSvc interface {
 	// @Produce  json
 	// @Router /concat2/{a}/{b} [get]
 	Concat2(a, b string) (string, error)
-
 
 	// @Summary test by query
 	// @Description test by query
@@ -259,71 +261,229 @@ type StringSvc interface {
 	// @Router /sub [get]
 	Sub(a string, start int64) (string, error)
 
-	// // @http.POST(path="/save/:a", data="b")
-	// Save(a, b string) (string, error)
+	// @Summary test save
+	// @Description test save
+	// @ID Save
+	// @Param   a      path   string     true  "arg a"
+	// @Param   b      body   string    true  "arg b" extensions(x-entire-body=true)
+	// @Accept  json
+	// @Produce  json
+	// @Router /save/{a} [get]
+	Save(a, b string) (string, error)
 
-	// // @http.POST(path="/save2/:a", data="b")
-	// Save2(a, b *string) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Save2
+	// @Param   a      path   string     true  "arg a"
+	// @Param   b      body   string    true  "arg b" extensions(x-entire-body=true)
+	// @Accept  json
+	// @Produce  json
+	// @Router /save2/{a} [post]
+	Save2(a, b *string) (string, error)
 
-	// // @http.POST(path="/save3")
-	// Save3(a, b *string) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Save3
+	// @Param   a      body   string     true  "arg a"
+	// @Param   b      body   string    true  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /save3 [post]
+	Save3(a, b *string) (string, error)
 
-	// // @http.POST(path="/save4")
-	// Save4(a, b string) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Save3
+	// @Param   a      body   string     true  "arg a"
+	// @Param   b      body   string    true  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /save4 [post]
+	Save4(a, b string) (string, error)
 
-	// // @http.POST(path="/save5")
-	// Save5(context context.Context, a, b string) (string, error)
+	// @Summary test by query
+	// @Description test by query
+	// @ID Save3
+	// @Param   a      body   string     true  "arg a"
+	// @Param   b      body   string    true  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /save5 [post]
+	Save5(context context.Context, a, b string) (string, error)
 
-	// // @http.GET(path="/add/:a/:b")
-	// Add(a, b int) (int, error)
+	// @Summary add by path
+	// @Description add by path
+	// @ID Add
+	// @Param   a      path   int     true  "arg a"
+	// @Param   b      path   int    true  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /add/{a}/{b} [get]
+	Add(a, b int) (int, error)
 
-	// // @http.GET(path="/add2/:a/:b")
-	// Add2(a, b *int) (int, error)
+	// @Summary add by path
+	// @Description add by path
+	// @ID Add2
+	// @Param   a      path   int     true  "arg a"
+	// @Param   b      path   int    true  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /add2/{a}/{b} [get]
+	Add2(a, b *int) (int, error)
 
 	// // @http.GET(path="/add3")
-	// Add3(a, b *int) (int, error)
 
-	// // @http.GET(path="/query1")
-	// Query1(a string, beginAt, endAt time.Time, isRaw bool) string
+	// @Summary add by path
+	// @Description add by path
+	// @ID Add3
+	// @Param   a      query   int     true  "arg a"
+	// @Param   b      query   int    true  "arg b"
+	// @Accept  json
+	// @Produce  json
+	// @Router /add3 [get]
+	Add3(a, b *int) (int, error)
 
-	// // @http.GET(path="/query2/:isRaw")
-	// Query2(a string, beginAt, endAt time.Time, isRaw bool) string
+	// @Summary add by path
+	// @Description add by path
+	// @ID Query1
+	// @Param   a      query   int     true  "arg a"
+	// @Param   begin_at      query   string    true  "arg beginAt" Format(time)
+	// @Param   end_at      query   string    true  "arg endAt" Format(time)
+	// @Param   is_raw      query   boolean    true  "arg isRaw"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query1 [get]
+	Query1(a string, beginAt, endAt time.Time, isRaw bool) string
 
-	// // @http.GET(path="/query3/:isRaw")
-	// Query3(a string, beginAt, endAt time.Time, isRaw *bool) string
+	// @Summary add by path
+	// @Description add by path
+	// @ID Query2
+	// @Param   a      query   int     true  "arg a"
+	// @Param   begin_at      query   string    true  "arg beginAt" Format(time)
+	// @Param   end_at      query   string    true  "arg endAt" Format(time)
+	// @Param   is_raw      path   boolean    true  "arg isRaw"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query2/{isRaw} [get]
+	Query2(a string, beginAt, endAt time.Time, isRaw bool) string
 
-	// // @http.GET(path="/query4/:isRaw")
-	// Query4(a string, createdAt TimeRange, isRaw *bool) string
+	// @Summary add by path
+	// @Description add by path
+	// @ID Query3
+	// @Param   a      query   int     true  "arg a"
+	// @Param   begin_at      query   string    true  "arg beginAt" Format(time)
+	// @Param   end_at      query   string    true  "arg endAt" Format(time)
+	// @Param   is_raw      path   boolean    true  "arg isRaw"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query3/{isRaw} [get]
+	Query3(a string, beginAt, endAt time.Time, isRaw *bool) string
 
-	// // @http.GET(path="/query5/:isRaw")
-	// Query5(a string, createdAt *TimeRange, isRaw *bool) string
+	// @Summary add by path
+	// @Description add by path
+	// @ID Query4
+	// @Param   a      query   int     true  "arg a"
+	// @Param   created_at      query   TimeRange    true  "arg beginAt" Format(time)
+	// @Param   is_raw      path   boolean    true  "arg isRaw"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query4/{isRaw} [get]
+	Query4(a string, createdAt TimeRange, isRaw *bool) string
 
-	// // @http.GET(path="/query6/:isRaw")
-	// Query6(a string, createdAt TimeRange2, isRaw *bool) string
+	// @Summary add by path
+	// @Description add by path
+	// @ID Query5
+	// @Param   a      query   int     true  "arg a"
+	// @Param   created_at      query   TimeRange    true  "arg beginAt" Format(time)
+	// @Param   is_raw      path   boolean    true  "arg isRaw"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query5/{isRaw} [get]
+	Query5(a string, createdAt *TimeRange, isRaw *bool) string
 
-	// // @http.GET(path="/query7/:isRaw")
-	// Query7(a string, createdAt *TimeRange2, isRaw *bool) string
+	// @Summary add by path
+	// @Description add by path
+	// @ID Query6
+	// @Param   a      query   int     true  "arg a"
+	// @Param   created_at      query   TimeRange2    true  "arg beginAt" Format(time)
+	// @Param   is_raw      path   boolean    true  "arg isRaw"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query6/{isRaw} [get]
+	Query6(a string, createdAt TimeRange2, isRaw *bool) string
 
-	// // @http.GET(path="/query8", content_type="text")
-	// Query8(ctx context.Context, itemID int64) (string, error)
+	// @Summary add by path
+	// @Description add by path
+	// @ID Query6
+	// @Param   a      query   int     true  "arg a"
+	// @Param   created_at      query   TimeRange2    true  "arg beginAt" Format(time)
+	// @Param   is_raw      path   boolean    true  "arg isRaw"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query7/{isRaw} [get]
+	Query7(a string, createdAt *TimeRange2, isRaw *bool) string
 
-	// // @http.POST(path="", noreturn="true")
-	// Create3(ctx context.Context, request *http.Request, response http.ResponseWriter) error
+	// @Summary content_type="text"
+	// @Description content_type="text"
+	// @ID Query6
+	// @Param   item_id      query   int     true  "arg a"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query8 [get]
+	Query8(ctx context.Context, itemID int64) (string, error)
 
-	// // @http.GET(path="/query9", content_type="text")
-	// Query9(ctx context.Context, itemID sql.NullInt64) (string, error)
+	// @Summary noreturn="true"
+	// @Description noreturn="true"
+	// @ID Create3
+	// @Accept  json
+	// @Produce  json
+	// @Router / [post]
+	Create3(ctx context.Context, request *http.Request, response http.ResponseWriter) error
 
-	// // @http.GET(path="/query10", content_type="text")
-	// Query10(ctx context.Context, itemID sql.NullString) (string, error)
+	// @Summary query9
+	// @Description query9
+	// @ID Query9
+	// @Param   item_id      query   int     true  "arg a"
+	// @Accept  json
+	// @Produce  json
+	// @Router / [get]
+	Query9(ctx context.Context, itemID sql.NullInt64) (string, error)
 
-	// // @http.GET(path="/query11", content_type="text")
-	// Query11(ctx context.Context, itemID sql.NullBool) (string, error)
+	// @Summary query10 content_type="text"
+	// @Description query10 content_type="text"
+	// @ID Query10
+	// @Param   item_id      query   int     true  "arg a"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query10 [get]
+	Query10(ctx context.Context, itemID sql.NullString) (string, error)
 
-	// // @http.GET(path="/query12?Name=Name", content_type="text")
-	// Query1WithUpName(ctx context.Context, Name string) (string, error)
+	// @Summary query11 content_type="text"
+	// @Description query11 content_type="text"
+	// @ID Query10
+	// @Param   item_id      query   bool     true  "arg a"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query11 [get]
+	Query11(ctx context.Context, itemID sql.NullBool) (string, error)
 
-	// // @http.POST(path="/query12", auto_underscore="false")
-	// Set1WithUpName(ctx context.Context, Name string) error
+	// @Summary query12 Name is Upper
+	// @Description query12 Name is Upper
+	// @ID Query1WithUpName
+	// @Param   Name      query   string     true  "arg a"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query12 [get]
+	Query1WithUpName(ctx context.Context, Name string) (string, error)
+
+	// @Summary query12 Name is Upper
+	// @Description query12 Name is Upper
+	// @ID Query1WithUpName
+	// @Param   Name      body   string     true  "arg a"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query12 [post]
+	Set1WithUpName(ctx context.Context, Name string) error
 
 	// Misc() string
 }

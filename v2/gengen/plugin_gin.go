@@ -11,8 +11,7 @@ var _ Plugin = &ginPlugin{}
 
 type ginPlugin struct{}
 
-
-func  (gin *ginPlugin) TypeInContext(name string) (string, bool) {
+func (gin *ginPlugin) TypeInContext(name string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "ctx.Request.URL.Query()",
 		"*http.Request":       "ctx.Request",
@@ -73,8 +72,8 @@ func (gin *ginPlugin) Features() Config {
 		DatetimeConvert: "toDatetime({{.name}})",
 	}
 }
-func (gin *ginPlugin)	ReadBodyFunc(argName string) string {
-	return "ctx.Bind("+argName+")"
+func (gin *ginPlugin) ReadBodyFunc(argName string) string {
+	return "ctx.Bind(" + argName + ")"
 }
 func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)

@@ -78,8 +78,8 @@ func (chi *chiPlugin) TypeInContext(name string) (string, bool) {
 	return s, ok
 }
 
-func (chi *chiPlugin)	ReadBodyFunc(argName string) string {
-	return "render.Decode(r, "+argName+")"
+func (chi *chiPlugin) ReadBodyFunc(argName string) string {
+	return "render.Decode(r, " + argName + ")"
 }
 
 func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {

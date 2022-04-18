@@ -35,14 +35,15 @@ func (method *Method) NoReturn() bool {
 }
 
 func (method *Method) SearchSwaggerParameter(structargname, name string) int {
+	snakeCaseStructArgName := toSnakeCase(structargname)
 	foundIndex := -1
 	for idx := range method.Operation.Parameters {
 		localstructargname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-extend-struct")
-		localname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-extend-field")	
+		localname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-extend-field")
 
-		if strings.EqualFold(structargname, localstructargname) &&
-		    strings.EqualFold(name, localname) {
-			
+		if strings.EqualFold(name, localname) &&
+			(strings.EqualFold(structargname, localstructargname) ||
+				strings.EqualFold(snakeCaseStructArgName, localstructargname)) {
 			foundIndex = idx
 			break
 		}
@@ -50,13 +51,12 @@ func (method *Method) SearchSwaggerParameter(structargname, name string) int {
 	return foundIndex
 }
 
-
 func (method *Method) collectBodyParams(plugin Plugin, params []Param) []int {
 	var result []int
 	for idx := range params {
-		if params[idx].Option.In == "body" || 
+		if params[idx].Option.In == "body" ||
 			params[idx].Option.In == "formData" {
-				result = append(result, idx)
+			result = append(result, idx)
 		}
 	}
 	return result
@@ -73,7 +73,6 @@ func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 			continue
 		}
 
-
 		foundIndex := -1
 		for i := range method.Operation.Parameters {
 			oname := method.Operation.Parameters[i].Name
@@ -81,6 +80,18 @@ func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 			if strings.EqualFold(oname, pname) {
 				foundIndex = i
 				break
+			}
+		}
+
+		if foundIndex < 0 {
+			for i := range method.Operation.Parameters {
+				oname := method.Operation.Parameters[i].Name
+				pname := toSnakeCase(method.Method.Params.List[idx].Name)
+
+				if strings.EqualFold(oname, pname) {
+					foundIndex = i
+					break
+				}
 			}
 		}
 
@@ -93,18 +104,24 @@ func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 			continue
 		}
 
-		if foundIndex < 0 {
-			for i := range method.Operation.Parameters {
-				structargname, _ := method.Operation.Parameters[i].Extensions.GetString("x-extend-struct")
-				pname := method.Method.Params.List[idx].Name
-				if strings.EqualFold(structargname, pname) {
-					foundIndex = i
-					break
-				}
+		for i := range method.Operation.Parameters {
+			structargname, _ := method.Operation.Parameters[i].Extensions.GetString("x-extend-struct")
+			pname := method.Method.Params.List[idx].Name
+
+			if strings.EqualFold(structargname, pname) {
+				foundIndex = i
+				break
+			}
+
+			pname = toSnakeCase(pname)
+			if strings.EqualFold(structargname, pname) {
+				foundIndex = i
+				break
 			}
 		}
 
 		if foundIndex < 0 {
+
 			return nil, errors.New("param '" + method.Method.Params.List[idx].Name +
 				"' of '" + method.FullName() +
 				"' not found in the swagger annotations")
@@ -142,19 +159,54 @@ func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 		}
 	}
 
-
 	return method.renderInvokeAndReturn(plugin, out, params)
 }
 
 func isEntire(param *Param) bool {
-	ok, _ := param.Option.Extensions.GetBool("x-entire-body")
-	return ok
+	s, _ := param.Option.Extensions.GetString("x-entire-body")
+	return strings.ToLower(s) == "true"
 }
 
 func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Param, list []int) error {
-	if len(list) == 1  && isEntire(&params[list[0]]) {
-		io.WriteString(out, "\r\n\tvar bindArgs "+params[list[0]].Type().ToLiteral())
-		params[list[0]].goArgumentLiteral = "bindArgs"
+	if len(list) == 1 && isEntire(&params[list[0]]) {
+
+		isString := params[list[0]].Type().IsStringType(false)
+		isStringPtr := params[list[0]].Type().PtrElemType().IsValid() && params[list[0]].Type().PtrElemType().IsStringType(false)
+
+		if isString || isStringPtr {
+
+			varName := params[list[0]].Param.Name
+			io.WriteString(out, "\r\n\tvar ")
+			io.WriteString(out, varName)
+			if isStringPtr {
+				io.WriteString(out, "Builder")
+				varName = varName + "Builder"
+			}
+			io.WriteString(out, " strings.Builder")
+
+			s, _ := plugin.TypeInContext("io.Reader")
+
+			io.WriteString(out, "\r\n\tif _, err := io.Copy(&"+varName+", "+s+"); err != nil {\r\n\t\t")
+			txt := `NewBadArgument(err, "` + params[list[0]].Param.Name + `", "body")`
+			plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
+			io.WriteString(out, "\r\n}")
+
+			if isStringPtr {
+				io.WriteString(out, "\r\n\tvar ")
+				io.WriteString(out, params[list[0]].Param.Name)
+				io.WriteString(out, " = ")
+				io.WriteString(out, varName)
+				io.WriteString(out, ".String()")
+				params[list[0]].goArgumentLiteral = "&" + params[list[0]].Param.Name
+			} else {
+				params[list[0]].goArgumentLiteral = varName + ".String()"
+			}
+
+			return nil
+		} else {
+			io.WriteString(out, "\r\n\tvar bindArgs "+params[list[0]].Type().ToLiteral())
+			params[list[0]].goArgumentLiteral = "bindArgs"
+		}
 	} else {
 		io.WriteString(out, "\r\n\tvar bindArgs struct{")
 		for _, idx := range list {
@@ -204,7 +256,7 @@ func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params
 	} else if len(method.Method.Results.List) == 1 {
 		if method.Method.Results.List[0].Type().IsErrorType() {
 			if method.IsErrorDeclared() {
-			 	io.WriteString(out, "err =")
+				io.WriteString(out, "err =")
 			} else {
 				io.WriteString(out, "err :=")
 			}

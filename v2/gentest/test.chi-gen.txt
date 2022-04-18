@@ -5,8 +5,11 @@
 package main
 
 import (
+	"database/sql"
+	"io"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -172,7 +175,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			fintValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "Fint"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "args.fint"))
 				return
 			}
 			args.Fint = fintValue
@@ -182,7 +185,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			ftimeValue, err := ToDatetime(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "Ftime"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "args.ftime"))
 				return
 			}
 			args.Ftime = ftimeValue
@@ -191,7 +194,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			fintptrValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "Fintptr"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "args.fintptr"))
 				return
 			}
 			args.Fintptr = &fintptrValue
@@ -203,7 +206,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			ftimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "Ftimeptr"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs1", "args.ftimeptr"))
 				return
 			}
 			args.Ftimeptr = &ftimeptrValue
@@ -234,7 +237,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			fintValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "Fint"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.fint"))
 				return
 			}
 			if args == nil {
@@ -250,7 +253,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			ftimeValue, err := ToDatetime(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "Ftime"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.ftime"))
 				return
 			}
 			args.Ftime = ftimeValue
@@ -259,7 +262,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			fintptrValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "Fintptr"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.fintptr"))
 				return
 			}
 			args.Fintptr = &fintptrValue
@@ -271,7 +274,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			ftimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "Ftimeptr"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.ftimeptr"))
 				return
 			}
 			args.Ftimeptr = &ftimeptrValue
@@ -302,7 +305,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			fintValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "Fint"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "fint"))
 				return
 			}
 			args.Fint = fintValue
@@ -312,7 +315,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			ftimeValue, err := ToDatetime(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "Ftime"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "ftime"))
 				return
 			}
 			args.Ftime = ftimeValue
@@ -321,7 +324,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			fintptrValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "Fintptr"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "fintptr"))
 				return
 			}
 			args.Fintptr = &fintptrValue
@@ -333,7 +336,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			ftimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "Ftimeptr"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs3", "ftimeptr"))
 				return
 			}
 			args.Ftimeptr = &ftimeptrValue
@@ -364,7 +367,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			fintValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "Fint"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "fint"))
 				return
 			}
 			if args == nil {
@@ -380,7 +383,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			ftimeValue, err := ToDatetime(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "Ftime"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "ftime"))
 				return
 			}
 			args.Ftime = ftimeValue
@@ -389,7 +392,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			fintptrValue, err := strconv.Atoi(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "Fintptr"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "fintptr"))
 				return
 			}
 			args.Fintptr = &fintptrValue
@@ -401,7 +404,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			ftimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "Ftimeptr"))
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "ftimeptr"))
 				return
 			}
 			args.Ftimeptr = &ftimeptrValue
@@ -536,6 +539,513 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			return
 		}
 		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/save/:a", func(w http.ResponseWriter, r *http.Request) {
+		var a = chi.URLParam(r, "a")
+		var b strings.Builder
+		if _, err := io.Copy(&b, r.Body); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "b", "body"))
+			return
+		}
+		result, err := svc.Save(a, b.String())
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/save2/:a", func(w http.ResponseWriter, r *http.Request) {
+		var a = chi.URLParam(r, "a")
+		var bBuilder strings.Builder
+		if _, err := io.Copy(&bBuilder, r.Body); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "b", "body"))
+			return
+		}
+		var b = bBuilder.String()
+		result, err := svc.Save2(&a, &b)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/save3", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "bindArgs", "body"))
+			return
+		}
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/save4", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "bindArgs", "body"))
+			return
+		}
+		result, err := svc.Save4(bindArgs.A, bindArgs.B)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/save5", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "bindArgs", "body"))
+			return
+		}
+		result, err := svc.Save5(r.Context(), bindArgs.A, bindArgs.B)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/add/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+		a, err := strconv.Atoi(chi.URLParam(r, "a"))
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add", "a"))
+			return
+		}
+		b, err := strconv.Atoi(chi.URLParam(r, "b"))
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add", "b"))
+			return
+		}
+		result, err := svc.Add(a, b)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/add2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+		var a *int
+		if aValue, err := strconv.Atoi(chi.URLParam(r, "a")); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add2", "a"))
+			return
+		} else {
+			a = &aValue
+		}
+		var b *int
+		if bValue, err := strconv.Atoi(chi.URLParam(r, "b")); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add2", "b"))
+			return
+		} else {
+			b = &bValue
+		}
+		result, err := svc.Add2(a, b)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/add3", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a *int
+		if s := queryParams.Get("a"); s != "" {
+			aValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Add3", "a"))
+				return
+			}
+			a = &aValue
+		}
+		var b *int
+		if s := queryParams.Get("b"); s != "" {
+			bValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Add3", "b"))
+				return
+			}
+			b = &bValue
+		}
+		result, err := svc.Add3(a, b)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/query1", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var beginAt time.Time
+		if s := queryParams.Get("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query1", "begin_at"))
+				return
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := queryParams.Get("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query1", "end_at"))
+				return
+			}
+			endAt = endAtValue
+		}
+		var isRaw bool
+		if s := queryParams.Get("is_raw"); s != "" {
+			isRawValue, err := strconv.ParseBool(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query1", "is_raw"))
+				return
+			}
+			isRaw = bool(isRawValue)
+		}
+		result := svc.Query1(a, beginAt, endAt, isRaw)
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/query2/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var beginAt time.Time
+		if s := queryParams.Get("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query2", "begin_at"))
+				return
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := queryParams.Get("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query2", "end_at"))
+				return
+			}
+			endAt = endAtValue
+		}
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
+
+		result := svc.Query2(a, beginAt, endAt, isRaw)
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/query3/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var beginAt time.Time
+		if s := queryParams.Get("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query3", "begin_at"))
+				return
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := queryParams.Get("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query3", "end_at"))
+				return
+			}
+			endAt = endAtValue
+		}
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
+
+		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/query4/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var createdAt TimeRange
+		if s := queryParams.Get("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query4", "created_at.start"))
+				return
+			}
+			createdAt.Start = startValue
+		}
+		if s := queryParams.Get("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query4", "created_at.end"))
+				return
+			}
+			createdAt.End = endValue
+		}
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
+
+		result := svc.Query4(a, createdAt, &isRaw)
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/query5/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var createdAt *TimeRange
+		if s := queryParams.Get("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query5", "created_at.start"))
+				return
+			}
+			createdAt = &TimeRange{}
+			createdAt.Start = startValue
+		}
+		if s := queryParams.Get("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query5", "created_at.end"))
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange{}
+			}
+			createdAt.End = endValue
+		}
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
+
+		result := svc.Query5(a, createdAt, &isRaw)
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/query6/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var createdAt TimeRange2
+		if s := queryParams.Get("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query6", "created_at.start"))
+				return
+			}
+			createdAt.Start = &startValue
+		}
+		if s := queryParams.Get("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query6", "created_at.end"))
+				return
+			}
+			createdAt.End = &endValue
+		}
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
+
+		result := svc.Query6(a, createdAt, &isRaw)
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/query7/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var a = queryParams.Get("a")
+		var createdAt *TimeRange2
+		if s := queryParams.Get("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query7", "created_at.start"))
+				return
+			}
+			createdAt = &TimeRange2{}
+			createdAt.Start = &startValue
+		}
+		if s := queryParams.Get("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query7", "created_at.end"))
+				return
+			}
+			if createdAt == nil {
+				createdAt = &TimeRange2{}
+			}
+			createdAt.End = &endValue
+		}
+		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
+
+		result := svc.Query7(a, createdAt, &isRaw)
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/query8", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID int64
+		if s := queryParams.Get("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query8", "item_id"))
+				return
+			}
+			itemID = itemIDValue
+		}
+
+		result, err := svc.Query8(r.Context(), itemID)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Post("", func(w http.ResponseWriter, r *http.Request) {
+		err := svc.Create3(r.Context(), r, w)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+
+		return
+	})
+	mux.Get("/query9", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullInt64
+		if s := queryParams.Get("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, errors.BadArgument("item_id", s, err))
+				return
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+
+		result, err := svc.Query9(r.Context(), itemID)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Get("/query10", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullString
+		if s := queryParams.Get("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+
+		result, err := svc.Query10(r.Context(), itemID)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Get("/query11", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullBool
+		if s := queryParams.Get("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.Bool = ToBool(s)
+		}
+
+		result, err := svc.Query11(r.Context(), itemID)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Get("/query12", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var Name = queryParams.Get("Name")
+
+		result, err := svc.Query1WithUpName(r.Context(), Name)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Post("/query12", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "bindArgs", "body"))
+			return
+		}
+
+		err := svc.Set1WithUpName(r.Context(), bindArgs.Name)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
 		return
 	})
 }

@@ -13,9 +13,9 @@ import (
 
 var _ Plugin = &irisPlugin{}
 
-type irisPlugin struct {}
+type irisPlugin struct{}
 
-func  (iris *irisPlugin) TypeInContext(name string) (string, bool) {
+func (iris *irisPlugin) TypeInContext(name string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "ctx.Request().URL.Query()",
 		"*http.Request":       "ctx.Request()",
@@ -23,7 +23,7 @@ func  (iris *irisPlugin) TypeInContext(name string) (string, bool) {
 		"http.ResponseWriter": "ctx.ResponseWriter()",
 		"io.Writer":           "ctx.ResponseWriter()",
 		"context.Context":     "ctx.Request.Context()",
-		"*iris.Context":        "ctx",
+		"*iris.Context":       "ctx",
 	}
 	s, ok := args[name]
 	return s, ok
@@ -96,8 +96,8 @@ func (iris *irisPlugin) Imports() map[string]string {
 func (iris *irisPlugin) PartyTypeName() string {
 	return "iris.Party"
 }
-func (iris *irisPlugin)	ReadBodyFunc(argName string) string {
-	return "ctx.ReadBody("+argName+")"
+func (iris *irisPlugin) ReadBodyFunc(argName string) string {
+	return "ctx.ReadBody(" + argName + ")"
 }
 func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)

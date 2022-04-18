@@ -47,7 +47,7 @@ type Plugin interface {
 	Imports() map[string]string
 	PartyTypeName() string
 
- 	TypeInContext(name string)  (string, bool)
+	TypeInContext(name string) (string, bool)
 
 	Invocations() []Invocation
 
@@ -58,7 +58,7 @@ type Plugin interface {
 }
 
 func renderBadArgument(out io.Writer, plugin Plugin, param *Param, err string) error {
-	txt := "NewBadArgument(" + err + ", \"" + param.Method.Method.Clazz.Name + "." + param.Method.Method.Name + "\", \"" + param.Param.Name + "\")"
+	txt := "NewBadArgument(" + err + ", \"" + param.Method.Method.Clazz.Name + "." + param.Method.Method.Name + "\", \"" + param.WebParamName() + "\")"
 	return plugin.RenderReturnError(out, param.Method, "http.StatusBadRequest", txt)
 }
 

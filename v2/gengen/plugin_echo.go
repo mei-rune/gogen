@@ -11,7 +11,6 @@ var _ Plugin = &echoPlugin{}
 
 type echoPlugin struct{}
 
-
 func (echo *echoPlugin) TypeInContext(name string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "ctx.QueryParams()",
@@ -74,8 +73,8 @@ func (echo *echoPlugin) Features() Config {
 	}
 }
 
-func (echo *echoPlugin)	ReadBodyFunc(argName string) string {
-	return "ctx.Bind("+argName+")"
+func (echo *echoPlugin) ReadBodyFunc(argName string) string {
+	return "ctx.Bind(" + argName + ")"
 }
 
 func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
