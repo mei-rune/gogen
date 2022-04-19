@@ -104,6 +104,13 @@
 		id.Valid = true
 
 
+		var id sql.NullString
+		if s := ctx.GetQuery("id");  s != "" {
+			id.Valid = true
+			id.String = s
+		}
+
+
 
 		情况9
 		// 这个情况不存在，

@@ -1,0 +1,1728 @@
+info:
+  contact: {}
+paths:
+  /:
+    post:
+      consumes:
+      - application/json
+      description: noreturn="true"
+      operationId: CreateWithNoReturn
+      produces:
+      - application/json
+      responses: {}
+      summary: noreturn="true"
+      x-gogen-noreturn: true
+  /add/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Add1
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /add2/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Add2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /add3:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Add3
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: query
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /allfiles:
+    get:
+      consumes:
+      - application/json
+      description: get files
+      operationId: GetAllFiles
+      produces:
+      - application/json
+      responses: {}
+      summary: get files
+  /case1/by_name/{name}:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase1
+      parameters:
+      - description: Some ID
+        format: string
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by name
+  /case2_1/by_name:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase2_1
+      parameters:
+      - description: Some ID
+        format: string
+        in: query
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by name
+  /case2_2/by_names:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase2_2
+      parameters:
+      - description: Some ID
+        format: string
+        in: query
+        items:
+          type: string
+        name: name
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by names
+  /case3_1/by_id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase3_1
+      parameters:
+      - description: Some ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int64 ID
+  /case3_2/by_id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase3_2
+      parameters:
+      - description: Some ID
+        format: int32
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int32 ID
+  /case3_3/by_id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase3_3
+      parameters:
+      - description: Some ID
+        format: int
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID
+  /case4/by_id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase4
+      parameters:
+      - description: Some ID
+        format: int
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不好测试， iris 才支持)
+  /case5_1/by_id:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase5_1
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
+  /case5_2/by_id:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase5_2
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
+  /case5_3/by_id:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase5_3
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        items:
+          type: integer
+        name: idlist
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
+  /case6/by_id:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase6
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以无法测试， iris 可以测试)
+  /case7_1/by_id:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase7_1
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)
+  /case7_2/by_id:
+    get:
+      consumes:
+      - application/json
+      description: test by int32 ID
+      operationId: TestCase7_2
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)
+  /case8/by_id:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase8
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)
+  /case9/by_id/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase9
+      parameters:
+      - description: Some ID
+        format: string
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID
+  /case10/by_name:
+    get:
+      consumes:
+      - application/json
+      description: test by string ID
+      operationId: TestCase10
+      parameters:
+      - description: Some ID
+        format: string
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by id
+  /case12/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase12
+      parameters:
+      - description: Some ID
+        format: int
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)
+  /case13/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase13
+      parameters:
+      - description: Some ID
+        format: int
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正确地测试， iris 不能正确测试)
+  /case14_1/by_id:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase14_1
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)
+  /case14_2/by_name:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase14_2
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)
+  /case14_3/by_name:
+    get:
+      consumes:
+      - application/json
+      description: test by int64 ID
+      operationId: TestCase14_3
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            type: string
+        "404":
+          description: Can not find ID
+          schema:
+            type: string
+      summary: test by int ID (注意 gin, chi 不支持 GetInt64Query，所以不能正确地测试， iris 可以正确测试)
+  /concat:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Concat0
+      parameters:
+      - description: Some ID
+        in: query
+        name: a
+        type: string
+      - description: Some ID
+        in: query
+        name: b
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /concat1:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Concat1
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        type: string
+      - description: arg b
+        in: query
+        name: b
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /concat2/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Concat2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /concat3/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Concat3
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /echo:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Echo
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: a
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /echo2:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: EchoBody
+      parameters:
+      - description: Some ID
+        in: body
+        name: body
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /echo3:
+    post:
+      consumes:
+      - application/json
+      description: test by body
+      operationId: Echo3
+      parameters:
+      - description: Some ID
+        in: body
+        name: a
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by body
+  /files:
+    get:
+      consumes:
+      - application/json
+      description: get files
+      operationId: GetFiles
+      parameters:
+      - description: Some ID
+        format: string
+        in: query
+        items:
+          type: string
+        name: filenames
+        type: array
+      produces:
+      - application/json
+      responses: {}
+      summary: get files
+  /ping:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Ping
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /query1:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Query1
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg beginAt
+        format: time
+        in: query
+        name: begin_at
+        required: true
+        type: string
+      - description: arg endAt
+        format: time
+        in: query
+        name: end_at
+        required: true
+        type: string
+      - description: arg isRaw
+        in: query
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /query2/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Query2
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg beginAt
+        format: time
+        in: query
+        name: begin_at
+        required: true
+        type: string
+      - description: arg endAt
+        format: time
+        in: query
+        name: end_at
+        required: true
+        type: string
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /query3/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Query3
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg beginAt
+        format: time
+        in: query
+        name: begin_at
+        required: true
+        type: string
+      - description: arg endAt
+        format: time
+        in: query
+        name: end_at
+        required: true
+        type: string
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /query4/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Query4
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - in: query
+        name: created_at.end
+        type: string
+        x-gogen-extend-field: end
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - in: query
+        name: created_at.start
+        type: string
+        x-gogen-extend-field: start
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /query5/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Query5
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - in: query
+        name: created_at.end
+        type: string
+        x-gogen-extend-field: end
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - in: query
+        name: created_at.start
+        type: string
+        x-gogen-extend-field: start
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /query6/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Query6
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - in: query
+        name: created_at.end
+        type: string
+        x-gogen-extend-field: end
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - in: query
+        name: created_at.start
+        type: string
+        x-gogen-extend-field: start
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /query7/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: Query7
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - in: query
+        name: created_at.end
+        type: string
+        x-gogen-extend-field: end
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - in: query
+        name: created_at.start
+        type: string
+        x-gogen-extend-field: start
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /query8:
+    get:
+      consumes:
+      - application/json
+      description: content_type="text"
+      operationId: Query8
+      parameters:
+      - description: arg a
+        in: query
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses: {}
+      summary: content_type="text"
+  /query9:
+    get:
+      consumes:
+      - application/json
+      description: query9 content_type="text"
+      operationId: Query9
+      parameters:
+      - description: arg a
+        in: query
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses: {}
+      summary: query9 content_type="text"
+  /query10:
+    get:
+      consumes:
+      - application/json
+      description: query10 content_type="text"
+      operationId: Query10
+      parameters:
+      - description: arg a
+        in: query
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses: {}
+      summary: query10 content_type="text"
+  /query11:
+    get:
+      consumes:
+      - application/json
+      description: query11 content_type="text"
+      operationId: Query11
+      parameters:
+      - description: arg a
+        in: query
+        name: item_id
+        required: true
+        type: boolean
+      produces:
+      - text/plain
+      responses: {}
+      summary: query11 content_type="text"
+  /query12:
+    get:
+      consumes:
+      - application/json
+      description: query12 Name is Upper
+      operationId: Query1WithUpName
+      parameters:
+      - description: arg a
+        in: query
+        name: Name
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses: {}
+      summary: query12 Name is Upper
+    post:
+      consumes:
+      - application/json
+      description: query12 Name is Upper
+      operationId: Query1WithUpName
+      parameters:
+      - description: arg a
+        in: body
+        name: Name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: query12 Name is Upper
+  /requests/query1:
+    get:
+      consumes:
+      - application/json
+      description: Query1
+      operationId: Requests.Query1
+      parameters:
+      - in: query
+        name: query.creatorID
+        type: integer
+        x-gogen-extend-field: creatorID
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.currentStatus
+        type: integer
+        x-gogen-extend-field: currentStatus
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.endAt
+        type: string
+        x-gogen-extend-field: endAt
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.isOverdued
+        type: boolean
+        x-gogen-extend-field: isOverdued
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.isSuspend
+        type: boolean
+        x-gogen-extend-field: isSuspend
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.isUnclosed
+        type: boolean
+        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.nameLike
+        type: string
+        x-gogen-extend-field: nameLike
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.operatorID
+        type: integer
+        x-gogen-extend-field: operatorID
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.overdueEnd
+        type: string
+        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.overdueStart
+        type: string
+        x-gogen-extend-field: overdueStart
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        items:
+          type: integer
+        name: query.requestTypeIDs
+        type: array
+        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        items:
+          type: string
+        name: query.requestTypeNames
+        type: array
+        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.requesterID
+        type: integer
+        x-gogen-extend-field: requesterID
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.startAt
+        type: string
+        x-gogen-extend-field: startAt
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: Query1
+  /save/{a}:
+    get:
+      consumes:
+      - application/json
+      description: test save
+      operationId: Save1
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+        x-gogen-entire-body: "true"
+      produces:
+      - application/json
+      responses: {}
+      summary: test save
+  /save2/{a}:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Save2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+        x-gogen-entire-body: "true"
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /save3:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Save3
+      parameters:
+      - description: arg a
+        in: body
+        name: a
+        required: true
+        schema:
+          type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /save4:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Save4
+      parameters:
+      - description: arg a
+        in: body
+        name: a
+        required: true
+        schema:
+          type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /save5:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Save5
+      parameters:
+      - description: arg a
+        in: body
+        name: a
+        required: true
+        schema:
+          type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /sub:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: Sub
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: string
+      - description: arg start
+        in: query
+        name: start
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /test_by_key:
+    get:
+      consumes:
+      - application/json
+      description: test by key
+      operationId: TestByKey2
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: key
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by int key
+  /test_by_key/:key:
+    get:
+      consumes:
+      - application/json
+      description: test by key
+      operationId: TestByKey1
+      parameters:
+      - description: Some ID
+        format: int
+        in: path
+        name: key
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by int key
+  /test_by_strkey:
+    get:
+      consumes:
+      - application/json
+      description: test by key
+      operationId: TestByStrKey2
+      parameters:
+      - description: Some ID
+        format: string
+        in: query
+        name: key
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by str key
+  /test_by_strkey/:key:
+    get:
+      consumes:
+      - application/json
+      description: test by key
+      operationId: TestByStrKey1
+      parameters:
+      - description: Some ID
+        format: string
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by str key
+  /test_query_args1/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: TestQueryArgs1
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: id
+        required: true
+        type: integer
+      - in: query
+        name: args.fint
+        type: integer
+        x-gogen-extend-field: fint
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fintptr
+        type: integer
+        x-gogen-extend-field: fintptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fstring
+        type: string
+        x-gogen-extend-field: fstring
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fstringptr
+        type: string
+        x-gogen-extend-field: fstringptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.ftime
+        type: string
+        x-gogen-extend-field: ftime
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.ftimeptr
+        type: string
+        x-gogen-extend-field: ftimeptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /test_query_args2/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: TestQueryArgs2
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: id
+        required: true
+        type: integer
+      - in: query
+        name: args.fint
+        type: integer
+        x-gogen-extend-field: fint
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fintptr
+        type: integer
+        x-gogen-extend-field: fintptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fstring
+        type: string
+        x-gogen-extend-field: fstring
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fstringptr
+        type: string
+        x-gogen-extend-field: fstringptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.ftime
+        type: string
+        x-gogen-extend-field: ftime
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.ftimeptr
+        type: string
+        x-gogen-extend-field: ftimeptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /test_query_args3/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: TestQueryArgs3
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: id
+        required: true
+        type: integer
+      - in: query
+        name: fint
+        type: integer
+        x-gogen-extend-field: fint
+        x-gogen-extend-struct: args
+      - in: query
+        name: fintptr
+        type: integer
+        x-gogen-extend-field: fintptr
+        x-gogen-extend-struct: args
+      - in: query
+        name: fstring
+        type: string
+        x-gogen-extend-field: fstring
+        x-gogen-extend-struct: args
+      - in: query
+        name: fstringptr
+        type: string
+        x-gogen-extend-field: fstringptr
+        x-gogen-extend-struct: args
+      - in: query
+        name: ftime
+        type: string
+        x-gogen-extend-field: ftime
+        x-gogen-extend-struct: args
+      - in: query
+        name: ftimeptr
+        type: string
+        x-gogen-extend-field: ftimeptr
+        x-gogen-extend-struct: args
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /test_query_args4/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: TestQueryArgs4
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: id
+        required: true
+        type: integer
+      - in: query
+        name: fint
+        type: integer
+        x-gogen-extend-field: fint
+        x-gogen-extend-struct: args
+      - in: query
+        name: fintptr
+        type: integer
+        x-gogen-extend-field: fintptr
+        x-gogen-extend-struct: args
+      - in: query
+        name: fstring
+        type: string
+        x-gogen-extend-field: fstring
+        x-gogen-extend-struct: args
+      - in: query
+        name: fstringptr
+        type: string
+        x-gogen-extend-field: fstringptr
+        x-gogen-extend-struct: args
+      - in: query
+        name: ftime
+        type: string
+        x-gogen-extend-field: ftime
+        x-gogen-extend-struct: args
+      - in: query
+        name: ftimeptr
+        type: string
+        x-gogen-extend-field: ftimeptr
+        x-gogen-extend-struct: args
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /test64:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: TestInt64Query
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /times:
+    get:
+      consumes:
+      - application/json
+      description: get files
+      operationId: GetTimes
+      parameters:
+      - description: Some ID
+        format: datetime
+        in: query
+        items:
+          type: string
+        name: times
+        type: array
+      produces:
+      - application/json
+      responses: {}
+      summary: get files
+swagger: "2.0"

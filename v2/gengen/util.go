@@ -2,6 +2,7 @@ package gengen
 
 import (
 	"errors"
+	"reflect"
 	"strings"
 	"unicode"
 
@@ -147,6 +148,14 @@ func ConvertMethodNameToCamelCase(name string) string {
 	return newname
 }
 
+type ConvertFunc struct {
+	Format      string
+	NeedCast    bool
+	HasRetError bool
+}
+
+var ConvertHook func(isArray bool, paramType string) *ConvertFunc
+
 func selectConvert(isArray bool, resultType, paramType string) (string, bool, bool, error) {
 	if isArray {
 		if !strings.HasPrefix(paramType, "[]") {
@@ -154,6 +163,13 @@ func selectConvert(isArray bool, resultType, paramType string) (string, bool, bo
 		}
 		paramType = strings.TrimPrefix(paramType, "[]")
 	}
+	if ConvertHook != nil {
+		r := ConvertHook(isArray, paramType)
+		if r != nil {
+			return r.Format, r.NeedCast, r.HasRetError, nil
+		}
+	}
+
 	switch paramType {
 	case "int":
 		if isArray {
@@ -209,7 +225,7 @@ func selectConvert(isArray bool, resultType, paramType string) (string, bool, bo
 		if isArray {
 			return "ToBoolArray(%s)", false, true, nil
 		}
-		return "strconv.ParseBool(%s)", true, true, nil
+		return "strconv.ParseBool(%s)", false, true, nil
 	case "float64":
 		if isArray {
 			return "ToFloat64Array(%s)", false, true, nil
@@ -290,4 +306,13 @@ func toUpperFirst(in string) string {
 	runes := []rune(in)
 	runes[0] = unicode.ToUpper(runes[0])
 	return string(runes)
+}
+
+func getTagValue(field *astutil.Field, name string) (string, bool) {
+	if field.Tag == nil {
+		return "", false
+	}
+	s := strings.Trim(field.Tag.Value, "`")
+	value, ok := reflect.StructTag(s).Lookup(name)
+	return strings.Trim(value,"\""), ok
 }

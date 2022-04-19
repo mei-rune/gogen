@@ -16,7 +16,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name/{name} [get]
+	// @Router /case1/by_name/{name} [get]
 	TestCase1(name string) error
 
 	// @Summary test by name
@@ -28,7 +28,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name [get]
+	// @Router /case2_1/by_name [get]
 	TestCase2_1(name string) error
 
 	// @Summary test by names
@@ -40,7 +40,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_names [get]
+	// @Router /case2_2/by_names [get]
 	TestCase2_2(name []string) error
 
 	// @Summary test by int64 ID
@@ -52,7 +52,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
+	// @Router /case3_1/by_id/{id} [get]
 	TestCase3_1(id int64) error
 
 	// @Summary test by int32 ID
@@ -64,7 +64,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
+	// @Router /case3_2/by_id/{id} [get]
 	TestCase3_2(id int32) error
 
 	// @Summary test by int ID
@@ -76,7 +76,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
+	// @Router /case3_3/by_id/{id} [get]
 	TestCase3_3(id int) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不好测试， iris 才支持)
@@ -88,43 +88,43 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
+	// @Router /case4/by_id/{id} [get]
 	TestCase4(id int) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
 	// @Description test by int64 ID
-	// @ID TestCase5
+	// @ID TestCase5_1
 	// @Accept  json
 	// @Produce  json
 	// @Param   id      query   int     true  "Some ID" Format(int)
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
+	// @Router /case5_1/by_id [get]
 	TestCase5_1(id int64) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
 	// @Description test by int64 ID
-	// @ID TestCase5
+	// @ID TestCase5_2
 	// @Accept  json
 	// @Produce  json
 	// @Param   id      query   int     true  "Some ID" Format(int)
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
+	// @Router /case5_2/by_id [get]
 	TestCase5_2(id int32) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)
 	// @Description test by int64 ID
-	// @ID TestCase5
+	// @ID TestCase5_3
 	// @Accept  json
 	// @Produce  json
 	// @Param   idlist      query   []int     true  "Some ID" Format(int)
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
+	// @Router /case5_3/by_id [get]
 	TestCase5_3(idlist []int64) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以无法测试， iris 可以测试)
@@ -136,7 +136,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
+	// @Router /case6/by_id [get]
 	TestCase6(id int64) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)
@@ -148,7 +148,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
+	// @Router /case7_1/by_id [get]
 	TestCase7_1(id sql.NullInt64) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)
@@ -160,7 +160,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
+	// @Router /case7_2/by_id [get]
 	TestCase7_2(id sql.NullInt32) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)
@@ -172,7 +172,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
+	// @Router /case8/by_id [get]
 	TestCase8(id sql.NullInt64) error
 
 	// @Summary test by int ID
@@ -184,7 +184,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id/{id} [get]
+	// @Router /case9/by_id/{id} [get]
 	TestCase9(id *string) error
 
 	// @Summary test by id
@@ -196,7 +196,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name [get]
+	// @Router /case10/by_name [get]
 	TestCase10(id *string) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)
@@ -208,7 +208,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/{id} [get]
+	// @Router /case12/{id} [get]
 	TestCase12(id *int) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正确地测试， iris 不能正确测试)
@@ -220,7 +220,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/{id} [get]
+	// @Router /case13/{id} [get]
 	TestCase13(id *int) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)
@@ -232,7 +232,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_id [get]
+	// @Router /case14_1/by_id [get]
 	TestCase14_1(id *int) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)
@@ -244,7 +244,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name [get]
+	// @Router /case14_2/by_name [get]
 	TestCase14_2(id *int32) error
 
 	// @Summary test by int ID (注意 gin, chi 不支持 GetInt64Query，所以不能正确地测试， iris 可以正确测试)
@@ -256,7 +256,7 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Failure 400 {object} string "We need ID!!"
 	// @Failure 404 {object} string "Can not find ID"
-	// @Router /test64/by_name [get]
+	// @Router /case14_3/by_name [get]
 	TestCase14_3(id *int) error
 
 	// Misc() string

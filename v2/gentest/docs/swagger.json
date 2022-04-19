@@ -1,0 +1,2487 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/": {
+            "post": {
+                "description": "noreturn=\"true\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "noreturn=\"true\"",
+                "operationId": "CreateWithNoReturn",
+                "responses": {},
+                "x-gogen-noreturn": true
+            }
+        },
+        "/add/{a}/{b}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Add1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/add2/{a}/{b}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Add2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/add3": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Add3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/allfiles": {
+            "get": {
+                "description": "get files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get files",
+                "operationId": "GetAllFiles",
+                "responses": {}
+            }
+        },
+        "/case1/by_name/{name}": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by name",
+                "operationId": "TestCase1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Some ID",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case10/by_name": {
+            "get": {
+                "description": "test by string ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by id",
+                "operationId": "TestCase10",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case12/{id}": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)",
+                "operationId": "TestCase12",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case13/{id}": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正确地测试， iris 不能正确测试)",
+                "operationId": "TestCase13",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case14_1/by_id": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)",
+                "operationId": "TestCase14_1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case14_2/by_name": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Query，所以可以正确地测试， iris 不能正确测试)",
+                "operationId": "TestCase14_2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case14_3/by_name": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Query，所以不能正确地测试， iris 可以正确测试)",
+                "operationId": "TestCase14_3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case2_1/by_name": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by name",
+                "operationId": "TestCase2_1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Some ID",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case2_2/by_names": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by names",
+                "operationId": "TestCase2_2",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "format": "string",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Some ID",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case3_1/by_id/{id}": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int64 ID",
+                "operationId": "TestCase3_1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case3_2/by_id/{id}": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int32 ID",
+                "operationId": "TestCase3_2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case3_3/by_id/{id}": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID",
+                "operationId": "TestCase3_3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case4/by_id/{id}": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不好测试， iris 才支持)",
+                "operationId": "TestCase4",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case5_1/by_id": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)",
+                "operationId": "TestCase5_1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case5_2/by_id": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)",
+                "operationId": "TestCase5_2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case5_3/by_id": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以正常测试， iris 无法测试)",
+                "operationId": "TestCase5_3",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "format": "int",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "Some ID",
+                        "name": "idlist",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case6/by_id": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以无法测试， iris 可以测试)",
+                "operationId": "TestCase6",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case7_1/by_id": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)",
+                "operationId": "TestCase7_1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case7_2/by_id": {
+            "get": {
+                "description": "test by int32 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以可以测试， iris 不能正确测试)",
+                "operationId": "TestCase7_2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case8/by_id": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID (注意 gin, chi 不支持 GetInt64Param，所以不能正确地测试， iris 能正确测试)",
+                "operationId": "TestCase8",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/case9/by_id/{id}": {
+            "get": {
+                "description": "test by int64 ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int ID",
+                "operationId": "TestCase9",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "We need ID!!",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Can not find ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/concat": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Concat0",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Some ID",
+                        "name": "a",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Some ID",
+                        "name": "b",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/concat1": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Concat1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/concat2/{a}/{b}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Concat2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/concat3/{a}/{b}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Concat3",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/echo": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Echo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "a",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/echo2": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "EchoBody",
+                "parameters": [
+                    {
+                        "description": "Some ID",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/echo3": {
+            "post": {
+                "description": "test by body",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by body",
+                "operationId": "Echo3",
+                "parameters": [
+                    {
+                        "description": "Some ID",
+                        "name": "a",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/files": {
+            "get": {
+                "description": "get files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get files",
+                "operationId": "GetFiles",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "format": "string",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Some ID",
+                        "name": "filenames",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ping": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Ping",
+                "responses": {}
+            }
+        },
+        "/query1": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Query1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg beginAt",
+                        "name": "begin_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg endAt",
+                        "name": "end_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query10": {
+            "get": {
+                "description": "query10 content_type=\"text\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "query10 content_type=\"text\"",
+                "operationId": "Query10",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "item_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query11": {
+            "get": {
+                "description": "query11 content_type=\"text\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "query11 content_type=\"text\"",
+                "operationId": "Query11",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "arg a",
+                        "name": "item_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query12": {
+            "get": {
+                "description": "query12 Name is Upper",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "query12 Name is Upper",
+                "operationId": "Query1WithUpName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "Name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "query12 Name is Upper",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "query12 Name is Upper",
+                "operationId": "Query1WithUpName",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "Name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query2/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Query2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg beginAt",
+                        "name": "begin_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg endAt",
+                        "name": "end_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query3/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Query3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg beginAt",
+                        "name": "begin_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg endAt",
+                        "name": "end_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query4/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Query4",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "start",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query5/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Query5",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "start",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query6/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Query6",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "start",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query7/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "Query7",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "start",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query8": {
+            "get": {
+                "description": "content_type=\"text\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "content_type=\"text\"",
+                "operationId": "Query8",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "item_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/query9": {
+            "get": {
+                "description": "query9 content_type=\"text\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "query9 content_type=\"text\"",
+                "operationId": "Query9",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "item_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/requests/query1": {
+            "get": {
+                "description": "Query1",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Query1",
+                "operationId": "Requests.Query1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.creatorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.currentStatus",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.endAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.isOverdued",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.isSuspend",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.isUnclosed",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.nameLike",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.operatorID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.overdueEnd",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.overdueStart",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.requestTypeIDs",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.requestTypeNames",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.requesterID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.startAt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "offset",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/save/{a}": {
+            "get": {
+                "description": "test save",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test save",
+                "operationId": "Save1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "x-gogen-entire-body": "true",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/save2/{a}": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Save2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "x-gogen-entire-body": "true",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/save3": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Save3",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/save4": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Save4",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/save5": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Save5",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/sub": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "Sub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg start",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test64": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "TestInt64Query",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test_by_key": {
+            "get": {
+                "description": "test by key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int key",
+                "operationId": "TestByKey2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "key",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test_by_key/:key": {
+            "get": {
+                "description": "test by key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int key",
+                "operationId": "TestByKey1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test_by_strkey": {
+            "get": {
+                "description": "test by key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by str key",
+                "operationId": "TestByStrKey2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Some ID",
+                        "name": "key",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test_by_strkey/:key": {
+            "get": {
+                "description": "test by key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by str key",
+                "operationId": "TestByStrKey1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Some ID",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test_query_args1/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "TestQueryArgs1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fint",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fint",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fintptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fintptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstring",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fstring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstringptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fstringptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftime",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.ftime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftimeptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.ftimeptr",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test_query_args2/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "TestQueryArgs2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fint",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fint",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fintptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fintptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstring",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fstring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstringptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fstringptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftime",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.ftime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftimeptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.ftimeptr",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test_query_args3/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "TestQueryArgs3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fint",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fint",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fintptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fintptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstring",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fstring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstringptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fstringptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftime",
+                        "x-gogen-extend-struct": "args",
+                        "name": "ftime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftimeptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "ftimeptr",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/test_query_args4/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "TestQueryArgs4",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fint",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fint",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fintptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fintptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstring",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fstring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstringptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fstringptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftime",
+                        "x-gogen-extend-struct": "args",
+                        "name": "ftime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftimeptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "ftimeptr",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/times": {
+            "get": {
+                "description": "get files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get files",
+                "operationId": "GetTimes",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "format": "datetime",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Some ID",
+                        "name": "times",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    }
+}

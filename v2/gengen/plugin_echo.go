@@ -82,6 +82,9 @@ func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	if err != nil {
 		return err
 	}
+	if urlstr == "/" {
+		urlstr = ""
+	}
 	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx echo.Context) error {")
 	return err
 }
@@ -91,10 +94,18 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 		errCode = "httpCodeWith(err)"
 	}
 
+	renderFunc := "JSON"
+	errText := ""
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+		renderFunc = "String"
+		errText = ".Error()"
+	}
+
 	s := renderString(`{{- if .hasRealErrorCode -}}
-    return ctx.JSON({{.errCode}}, {{.err}})
+    return ctx.`+renderFunc+`({{.errCode}}, {{.err}}`+errText+`)
   {{- else -}}
-    return ctx.JSON(http.StatusInternalServerError, {{.err}})
+    return ctx.`+renderFunc+`(http.StatusInternalServerError, {{.err}}`+errText+`)
   {{- end}}`, map[string]interface{}{
 		"err":              err,
 		"hasRealErrorCode": errCode != "",

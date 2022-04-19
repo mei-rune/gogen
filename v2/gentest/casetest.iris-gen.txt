@@ -13,7 +13,7 @@ import (
 )
 
 func InitCaseSvc(mux iris.Party, svc CaseSvc) {
-	mux.Get("/test64/by_name/:name", func(ctx iris.Context) {
+	mux.Get("/case1/by_name/:name", func(ctx iris.Context) {
 		var name = ctx.Params().GetString("name")
 		err := svc.TestCase1(name)
 		if err != nil {
@@ -24,7 +24,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_name", func(ctx iris.Context) {
+	mux.Get("/case2_1/by_name", func(ctx iris.Context) {
 		var name = ctx.URLParam("name")
 		err := svc.TestCase2_1(name)
 		if err != nil {
@@ -35,7 +35,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_names", func(ctx iris.Context) {
+	mux.Get("/case2_2/by_names", func(ctx iris.Context) {
 		queryParams := ctx.Request().URL.Query()
 		var name = queryParams["name"]
 		err := svc.TestCase2_2(name)
@@ -47,7 +47,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id/:id", func(ctx iris.Context) {
+	mux.Get("/case3_1/by_id/:id", func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -63,7 +63,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id/:id", func(ctx iris.Context) {
+	mux.Get("/case3_2/by_id/:id", func(ctx iris.Context) {
 		idValue, err := strconv.ParseInt(ctx.Params().GetString("id"), 10, 32)
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -80,7 +80,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id/:id", func(ctx iris.Context) {
+	mux.Get("/case3_3/by_id/:id", func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -96,7 +96,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id/:id", func(ctx iris.Context) {
+	mux.Get("/case4/by_id/:id", func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -112,7 +112,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id", func(ctx iris.Context) {
+	mux.Get("/case5_1/by_id", func(ctx iris.Context) {
 		var id int64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -132,7 +132,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id", func(ctx iris.Context) {
+	mux.Get("/case5_2/by_id", func(ctx iris.Context) {
 		var id int32
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -152,7 +152,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id", func(ctx iris.Context) {
+	mux.Get("/case5_3/by_id", func(ctx iris.Context) {
 		queryParams := ctx.Request().URL.Query()
 		var idlist []int64
 		if ss := queryParams["idlist"]; len(ss) != 0 {
@@ -173,7 +173,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id", func(ctx iris.Context) {
+	mux.Get("/case6/by_id", func(ctx iris.Context) {
 		var id int64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -193,7 +193,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id", func(ctx iris.Context) {
+	mux.Get("/case7_1/by_id", func(ctx iris.Context) {
 		var id sql.NullInt64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -202,8 +202,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 				ctx.JSON(NewBadArgument(err, "CaseSvc.TestCase7_1", "id"))
 				return
 			}
-			id.Int64 = idValue
 			id.Valid = true
+			id.Int64 = idValue
 		}
 		err := svc.TestCase7_1(id)
 		if err != nil {
@@ -214,7 +214,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id", func(ctx iris.Context) {
+	mux.Get("/case7_2/by_id", func(ctx iris.Context) {
 		var id sql.NullInt32
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -223,8 +223,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 				ctx.JSON(NewBadArgument(err, "CaseSvc.TestCase7_2", "id"))
 				return
 			}
-			id.Int32 = int32(idValue)
 			id.Valid = true
+			id.Int32 = int32(idValue)
 		}
 		err := svc.TestCase7_2(id)
 		if err != nil {
@@ -235,7 +235,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id", func(ctx iris.Context) {
+	mux.Get("/case8/by_id", func(ctx iris.Context) {
 		var id sql.NullInt64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -244,8 +244,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 				ctx.JSON(NewBadArgument(err, "CaseSvc.TestCase8", "id"))
 				return
 			}
-			id.Int64 = idValue
 			id.Valid = true
+			id.Int64 = idValue
 		}
 		err := svc.TestCase8(id)
 		if err != nil {
@@ -256,7 +256,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id/:id", func(ctx iris.Context) {
+	mux.Get("/case9/by_id/:id", func(ctx iris.Context) {
 		var id = ctx.Params().GetString("id")
 		err := svc.TestCase9(&id)
 		if err != nil {
@@ -267,7 +267,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_name", func(ctx iris.Context) {
+	mux.Get("/case10/by_name", func(ctx iris.Context) {
 		var id *string
 		if s := ctx.URLParam("id"); s != "" {
 			id = &s
@@ -281,7 +281,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/:id", func(ctx iris.Context) {
+	mux.Get("/case12/:id", func(ctx iris.Context) {
 		var id *int
 		if idValue, err := ctx.Params().GetInt("id"); err == nil {
 			id = &idValue
@@ -299,7 +299,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/:id", func(ctx iris.Context) {
+	mux.Get("/case13/:id", func(ctx iris.Context) {
 		var id *int
 		if idValue, err := ctx.Params().GetInt("id"); err == nil {
 			id = &idValue
@@ -317,7 +317,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_id", func(ctx iris.Context) {
+	mux.Get("/case14_1/by_id", func(ctx iris.Context) {
 		var id *int
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
@@ -337,7 +337,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_name", func(ctx iris.Context) {
+	mux.Get("/case14_2/by_name", func(ctx iris.Context) {
 		var id *int32
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -358,7 +358,7 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test64/by_name", func(ctx iris.Context) {
+	mux.Get("/case14_3/by_name", func(ctx iris.Context) {
 		var id *int
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)

@@ -80,6 +80,9 @@ func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	if err != nil {
 		return err
 	}
+	if urlstr == "/" {
+		urlstr = ""
+	}
 	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx *gin.Context) {")
 	return err
 }
@@ -88,11 +91,18 @@ func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 	if errCode == "" && gin.Features().EnableHttpCode {
 		errCode = "httpCodeWith(err)"
 	}
+	renderFunc := "JSON"
+	errText := ""
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+		renderFunc = "String"
+		errText = ".Error()"
+	}
 
 	s := renderString(`{{- if .hasRealErrorCode -}}
-    ctx.JSON({{.errCode}}, {{.err}})
+    ctx.`+renderFunc+`({{.errCode}}, {{.err}}`+errText+`)
   {{- else -}}
-    ctx.JSON(http.StatusInternalServerError, {{.err}})
+    ctx.`+renderFunc+`(http.StatusInternalServerError, {{.err}}`+errText+`)
   {{- end}}
     return`, map[string]interface{}{
 		"err":              err,
@@ -113,10 +123,16 @@ func (gin *ginPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, 
 	} else {
 		args["statusCode"] = "http.StatusOK"
 	}
+
+	renderFunc := "JSON"
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+		renderFunc = "String"
+	}
 	s := renderString(`{{- if .noreturn -}}
   return
 {{- else -}}
-  ctx.JSON({{.statusCode}}, {{.data}})
+  ctx.`+renderFunc+`({{.statusCode}}, {{.data}})
   return
 {{- end}}`, args)
 	_, e := io.WriteString(out, s)

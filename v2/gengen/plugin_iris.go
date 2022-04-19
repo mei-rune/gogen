@@ -104,6 +104,9 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	if err != nil {
 		return err
 	}
+	if urlstr == "/" {
+		urlstr = ""
+	}
 
 	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx iris.Context) {")
 	params, err := method.GetParams(iris)
@@ -126,13 +129,19 @@ func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	if statusCode != "" {
 		args["statusCode"] = statusCode
 	}
+	renderFunc := "JSON"
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+		renderFunc = "TEXT"
+	}
+
 	s := renderString(`{{- if .noreturn -}}
   return
 {{- else -}}
   {{- if .statusCode -}}
 	ctx.StatusCode(r, {{.statusCode}})
   {{- end -}}
-	ctx.JSON({{.data}})
+	ctx.`+renderFunc+`({{.data}})
   return
 {{- end}}`, args)
 	_, err := io.WriteString(out, s)
@@ -143,12 +152,20 @@ func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 		errCode = "httpCodeWith(err)"
 	}
 
+	renderFunc := "JSON"
+	errText := ""
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+		renderFunc = "TEXT"
+		errText = ".Error()"
+	}
+
 	s := renderString(`{{- if .hasRealErrorCode -}}
     ctx.StatusCode({{.errCode}})
   {{else -}}
     ctx.StatusCode(http.StatusInternalServerError)
   {{end -}}
-  ctx.JSON({{.err}})
+  ctx.`+renderFunc+`({{.err}}`+errText+`)
   return`, map[string]interface{}{
 		"err":              err,
 		"hasRealErrorCode": errCode != "",

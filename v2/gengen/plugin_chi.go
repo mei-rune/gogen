@@ -87,6 +87,9 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	if err != nil {
 		return err
 	}
+	if urlstr == "/" {
+		urlstr = ""
+	}
 
 	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(w http.ResponseWriter, r *http.Request) {")
 	params, err := method.GetParams(chi)
@@ -110,13 +113,20 @@ func (chi *chiPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, 
 	if statusCode != "" {
 		args["statusCode"] = statusCode
 	}
+
+	renderFunc := "JSON"
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+		renderFunc = "PlainText"
+	}
+
 	s := renderString(`{{- if .noreturn -}}
   return
 {{- else -}}
   {{- if .statusCode -}}
 		render.Status(r, {{.statusCode}})
   {{- end -}}
-	render.JSON(w, r, {{.data}})
+	render.`+renderFunc+`(w, r, {{.data}})
   return
 {{- end}}`, args)
 	_, err := io.WriteString(out, s)
@@ -128,12 +138,20 @@ func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 		errCode = "httpCodeWith(err)"
 	}
 
+	renderFunc := "JSON"
+	errText := ""
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+		renderFunc = "PlainText"
+		errText = ".Error()"
+	}
+
 	s := renderString(`{{- if .hasRealErrorCode -}}
     render.Status(r, {{.errCode}})
   {{else -}}
     render.Status(r, http.StatusInternalServerError)
   {{end -}}
-  render.JSON(w, r, {{.err}})
+  render.`+renderFunc+`(w, r, {{.err}}`+errText+`)
   return`, map[string]interface{}{
 		"err":              err,
 		"hasRealErrorCode": errCode != "",

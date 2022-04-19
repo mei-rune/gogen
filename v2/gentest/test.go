@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/runner-mei/gogen/v2/gentest/models"
 )
 
 // 用于测试 parse() 方法
@@ -83,7 +85,7 @@ type StringSvc interface {
 
 	// @Summary get files
 	// @Description get files
-	// @ID GetTimes
+	// @ID GetAllFiles
 	// @Accept  json
 	// @Produce  json
 	// @Router /allfiles [get]
@@ -91,7 +93,7 @@ type StringSvc interface {
 
 	// @Summary test by int key
 	// @Description test by key
-	// @ID TestByKey
+	// @ID TestByKey1
 	// @Param   key      path   int     true  "Some ID" Format(int)
 	// @Accept  json
 	// @Produce  json
@@ -100,7 +102,7 @@ type StringSvc interface {
 
 	// @Summary test by int key
 	// @Description test by key
-	// @ID TestByKey
+	// @ID TestByKey2
 	// @Param   key      query   int     false  "Some ID" Format(int)
 	// @Accept  json
 	// @Produce  json
@@ -109,7 +111,7 @@ type StringSvc interface {
 
 	// @Summary test by str key
 	// @Description test by key
-	// @ID TestByKey
+	// @ID TestByStrKey1
 	// @Param   key      path   string     true  "Some ID" Format(string)
 	// @Accept  json
 	// @Produce  json
@@ -118,7 +120,7 @@ type StringSvc interface {
 
 	// @Summary test by str key
 	// @Description test by key
-	// @ID TestByKey
+	// @ID TestByStrKey2
 	// @Param   key      query   string     false  "Some ID" Format(string)
 	// @Accept  json
 	// @Produce  json
@@ -160,7 +162,7 @@ type StringSvc interface {
 	// @Description test by query
 	// @ID TestQueryArgs3
 	// @Param   id      query   int     true  "Some ID" Format(int64)
-	// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-extend=inline)
+	// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-gogen-extend=inline)
 	// @Accept  json
 	// @Produce  json
 	// @Router /test_query_args3/{id} [get]
@@ -170,7 +172,7 @@ type StringSvc interface {
 	// @Description test by query
 	// @ID TestQueryArgs4
 	// @Param   id      query   int     true  "Some ID" Format(int64)
-	// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-extend=inline)
+	// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-gogen-extend=inline)
 	// @Accept  json
 	// @Produce  json
 	// @Router /test_query_args4/{id} [get]
@@ -213,13 +215,13 @@ type StringSvc interface {
 
 	// @Summary test by query
 	// @Description test by query
-	// @ID Concat
+	// @ID Concat0
 	// @Param   a      query   string     false  "Some ID"
 	// @Param   b      query   string     false  "Some ID"
 	// @Accept  json
 	// @Produce  json
 	// @Router /concat [get]
-	Concat(a, b string) (string, error)
+	Concat0(a, b string) (string, error)
 
 	// @Summary test by query
 	// @Description test by query
@@ -243,7 +245,7 @@ type StringSvc interface {
 
 	// @Summary test by query
 	// @Description test by query
-	// @ID Concat2
+	// @ID Concat3
 	// @Param   a      path   string     true  "arg a"
 	// @Param   b      path   string    true  "arg b"
 	// @Accept  json
@@ -263,9 +265,9 @@ type StringSvc interface {
 
 	// @Summary test save
 	// @Description test save
-	// @ID Save
+	// @ID Save1
 	// @Param   a      path   string     true  "arg a"
-	// @Param   b      body   string    true  "arg b" extensions(x-entire-body=true)
+	// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
 	// @Accept  json
 	// @Produce  json
 	// @Router /save/{a} [get]
@@ -275,7 +277,7 @@ type StringSvc interface {
 	// @Description test by query
 	// @ID Save2
 	// @Param   a      path   string     true  "arg a"
-	// @Param   b      body   string    true  "arg b" extensions(x-entire-body=true)
+	// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
 	// @Accept  json
 	// @Produce  json
 	// @Router /save2/{a} [post]
@@ -293,7 +295,7 @@ type StringSvc interface {
 
 	// @Summary test by query
 	// @Description test by query
-	// @ID Save3
+	// @ID Save4
 	// @Param   a      body   string     true  "arg a"
 	// @Param   b      body   string    true  "arg b"
 	// @Accept  json
@@ -303,7 +305,7 @@ type StringSvc interface {
 
 	// @Summary test by query
 	// @Description test by query
-	// @ID Save3
+	// @ID Save5
 	// @Param   a      body   string     true  "arg a"
 	// @Param   b      body   string    true  "arg b"
 	// @Accept  json
@@ -313,13 +315,13 @@ type StringSvc interface {
 
 	// @Summary add by path
 	// @Description add by path
-	// @ID Add
+	// @ID Add1
 	// @Param   a      path   int     true  "arg a"
 	// @Param   b      path   int    true  "arg b"
 	// @Accept  json
 	// @Produce  json
 	// @Router /add/{a}/{b} [get]
-	Add(a, b int) (int, error)
+	Add1(a, b int) (int, error)
 
 	// @Summary add by path
 	// @Description add by path
@@ -414,7 +416,7 @@ type StringSvc interface {
 
 	// @Summary add by path
 	// @Description add by path
-	// @ID Query6
+	// @ID Query7
 	// @Param   a      query   int     true  "arg a"
 	// @Param   created_at      query   TimeRange2    true  "arg beginAt" Format(time)
 	// @Param   is_raw      path   boolean    true  "arg isRaw"
@@ -425,28 +427,29 @@ type StringSvc interface {
 
 	// @Summary content_type="text"
 	// @Description content_type="text"
-	// @ID Query6
+	// @ID Query8
 	// @Param   item_id      query   int     true  "arg a"
 	// @Accept  json
-	// @Produce  json
+	// @Produce  plain
 	// @Router /query8 [get]
 	Query8(ctx context.Context, itemID int64) (string, error)
 
 	// @Summary noreturn="true"
 	// @Description noreturn="true"
-	// @ID Create3
+	// @ID CreateWithNoReturn
 	// @Accept  json
 	// @Produce  json
 	// @Router / [post]
-	Create3(ctx context.Context, request *http.Request, response http.ResponseWriter) error
+	// @x-gogen-noreturn true
+	CreateWithNoReturn(ctx context.Context, request *http.Request, response http.ResponseWriter) error
 
-	// @Summary query9
-	// @Description query9
+	// @Summary query9 content_type="text"
+	// @Description query9 content_type="text"
 	// @ID Query9
 	// @Param   item_id      query   int     true  "arg a"
 	// @Accept  json
-	// @Produce  json
-	// @Router / [get]
+	// @Produce  plain
+	// @Router /query9 [get]
 	Query9(ctx context.Context, itemID sql.NullInt64) (string, error)
 
 	// @Summary query10 content_type="text"
@@ -454,16 +457,16 @@ type StringSvc interface {
 	// @ID Query10
 	// @Param   item_id      query   int     true  "arg a"
 	// @Accept  json
-	// @Produce  json
+	// @Produce  plain
 	// @Router /query10 [get]
 	Query10(ctx context.Context, itemID sql.NullString) (string, error)
 
 	// @Summary query11 content_type="text"
 	// @Description query11 content_type="text"
-	// @ID Query10
+	// @ID Query11
 	// @Param   item_id      query   bool     true  "arg a"
 	// @Accept  json
-	// @Produce  json
+	// @Produce  plain
 	// @Router /query11 [get]
 	Query11(ctx context.Context, itemID sql.NullBool) (string, error)
 
@@ -472,7 +475,7 @@ type StringSvc interface {
 	// @ID Query1WithUpName
 	// @Param   Name      query   string     true  "arg a"
 	// @Accept  json
-	// @Produce  json
+	// @Produce  plain
 	// @Router /query12 [get]
 	Query1WithUpName(ctx context.Context, Name string) (string, error)
 
@@ -726,144 +729,153 @@ type StringSvc interface {
 // 	return ""
 // }
 
-// // 用于测试 Parse() 不会 panic
-// func notpanic() {}
+// 用于测试 Parse() 不会 panic
+func notpanic() {}
 
-// type AliasRequestQuery = models.RequestQuery
+type AliasRequestQuery = models.RequestQuery
 
-// type RequestQueryEx1 struct {
-// 	models.RequestQuery
+type RequestQueryEx1 struct {
+	models.RequestQuery
 
-// 	ExArg string
-// }
+	ExArg string
+}
 
-// type RequestQueryEx2 struct {
-// 	*models.RequestQuery
+type RequestQueryEx2 struct {
+	*models.RequestQuery
 
-// 	ExArg string
-// }
+	ExArg string
+}
 
-// type RequestQueryEx3 struct {
-// 	Request models.RequestQuery `json:"request"`
+type RequestQueryEx3 struct {
+	Request models.RequestQuery `json:"request"`
 
-// 	ExArg string
-// }
+	ExArg string
+}
 
-// type RequestQueryEx4 struct {
-// 	Request *models.RequestQuery `json:"request"`
+type RequestQueryEx4 struct {
+	Request *models.RequestQuery `json:"request"`
 
-// 	ExArg string
-// }
+	ExArg string
+}
 
-// type Sub1 struct {
-// 	A1 string `json:"a1"`
-// 	A2 string `json:"a2"`
-// }
+type Sub1 struct {
+	A1 string `json:"a1"`
+	A2 string `json:"a2"`
+}
 
-// type Sub2 struct {
-// 	B1 string `json:"b1"`
-// 	B2 string `json:"b2"`
-// }
+type Sub2 struct {
+	B1 string `json:"b1"`
+	B2 string `json:"b2"`
+}
 
-// type Sub3 struct {
-// 	Sub2
-// }
+type Sub3 struct {
+	Sub2
+}
 
-// type SubTest1 struct {
-// 	Sub1 Sub1 `json:"sub1"`
-// 	Sub2 Sub2 `json:"sub2"`
+type SubTest1 struct {
+	Sub1 Sub1 `json:"sub1"`
+	Sub2 Sub2 `json:"sub2"`
 
-// 	ExArg string
-// }
+	ExArg string
+}
 
-// type SubTest2 struct {
-// 	Sub1 *Sub1 `json:"sub1"`
-// 	Sub2 *Sub2 `json:"sub2"`
+type SubTest2 struct {
+	Sub1 *Sub1 `json:"sub1"`
+	Sub2 *Sub2 `json:"sub2"`
 
-// 	ExArg string
-// }
+	ExArg string
+}
 
-// type SubTest3 struct {
-// 	SubTest2
+type SubTest3 struct {
+	SubTest2
 
-// 	ExArg string
-// }
+	ExArg string
+}
 
-// type SubTest4 struct {
-// 	*SubTest2
+type SubTest4 struct {
+	*SubTest2
 
-// 	ExArg string
-// }
+	ExArg string
+}
 
-// type Requests interface {
-// 	// @http.GET(path="/query")
-// 	Query1(ctx context.Context, query *models.RequestQuery, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+type Requests interface {
 
-// 	// @http.GET(path="/query2?query=<none>")
-// 	Query2(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
+	// @Summary Query1
+	// @Description Query1
+	// @ID Requests.Query1
+	// @Param   query    query   models.RequestQuery     false  "request query param"
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/query1 [get]
+	Query1(ctx context.Context, query *models.RequestQuery, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/query3?query=<none>")
-// 	Query3(ctx context.Context, query *AliasRequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/query2?query=<none>")
+	// Query2(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/queryex1")
-// 	QueryEx1(ctx context.Context, query *RequestQueryEx1, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/query3?query=<none>")
+	// Query3(ctx context.Context, query *AliasRequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/queryex2")
-// 	QueryEx2(ctx context.Context, query *RequestQueryEx2, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/queryex1")
+	// QueryEx1(ctx context.Context, query *RequestQueryEx1, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/queryex3")
-// 	QueryEx3(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/queryex2")
+	// QueryEx2(ctx context.Context, query *RequestQueryEx2, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/queryex4")
-// 	QueryEx4(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/queryex3")
+	// QueryEx3(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/queryex3/NoPrefix?query=<none>")
-// 	QueryEx3NoPrefix(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/queryex4")
+	// QueryEx4(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/queryex4/NoPrefix?query=<none>")
-// 	QueryEx4NoPrefix(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/queryex3/NoPrefix?query=<none>")
+	// QueryEx3NoPrefix(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="")
-// 	List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
-// 	// @http.POST(path="", data="data")
-// 	Create(ctx context.Context, data *models.Request) (int64, error)
+	// // @http.GET(path="/queryex4/NoPrefix?query=<none>")
+	// QueryEx4NoPrefix(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-// 	// @http.POST(path="")
-// 	Create2(ctx context.Context, request *models.Request, testarg int64) (int64, error)
+	// // @http.GET(path="")
+	// List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
+	// // @http.POST(path="", data="data")
+	// Create(ctx context.Context, data *models.Request) (int64, error)
 
-// 	// @http.PUT(path="/:id", data="data")
-// 	UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error)
+	// // @http.POST(path="")
+	// Create2(ctx context.Context, request *models.Request, testarg int64) (int64, error)
 
-// 	// @http.PATCH(path="/:id")
-// 	Set1ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// // @http.PUT(path="/:id", data="data")
+	// UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error)
 
-// 	// @http.PATCH(path="/:id", data="params")
-// 	Set2ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// // @http.PATCH(path="/:id")
+	// Set1ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-// 	// @http.PUT(path="/:id")
-// 	Set3ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// // @http.PATCH(path="/:id", data="params")
+	// Set2ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-// 	// @http.PUT(path="/:id", data="params")
-// 	Set4ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// // @http.PUT(path="/:id")
+	// Set3ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-// 	// @http.POST(path="/:id/5")
-// 	Set5ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// // @http.PUT(path="/:id", data="params")
+	// Set4ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-// 	// @http.POST(path="/:id/6", data="params")
-// 	Set6ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// // @http.POST(path="/:id/5")
+	// Set5ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-// 	// @http.POST(path="/:id/7", data="params", dataType="map[string]string")
-// 	Set7ByID(ctx context.Context, id int64, params interface{}) (int64, err error)
+	// // @http.POST(path="/:id/6", data="params")
+	// Set6ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-// 	// @http.GET(path="/querysub1")
-// 	QuerySubTest1(ctx context.Context, query *SubTest1) (requests []map[string]interface{}, err error)
+	// // @http.POST(path="/:id/7", data="params", dataType="map[string]string")
+	// Set7ByID(ctx context.Context, id int64, params interface{}) (int64, err error)
 
-// 	// @http.GET(path="/querysub2")
-// 	QuerySubTest2(ctx context.Context, query *SubTest2) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/querysub1")
+	// QuerySubTest1(ctx context.Context, query *SubTest1) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/querysub3")
-// 	QuerySubTest3(ctx context.Context, query *SubTest3) (requests []map[string]interface{}, err error)
+	// // @http.GET(path="/querysub2")
+	// QuerySubTest2(ctx context.Context, query *SubTest2) (requests []map[string]interface{}, err error)
 
-// 	// @http.GET(path="/querysub4")
-// 	QuerySubTest4(ctx context.Context, query *SubTest4) (requests []map[string]interface{}, err error)
-// }
+	// // @http.GET(path="/querysub3")
+	// QuerySubTest3(ctx context.Context, query *SubTest3) (requests []map[string]interface{}, err error)
+
+	// // @http.GET(path="/querysub4")
+	// QuerySubTest4(ctx context.Context, query *SubTest4) (requests []map[string]interface{}, err error)
+}

@@ -38,9 +38,10 @@ func (method *Method) SearchSwaggerParameter(structargname, name string) int {
 	snakeCaseStructArgName := toSnakeCase(structargname)
 	foundIndex := -1
 	for idx := range method.Operation.Parameters {
-		localstructargname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-extend-struct")
-		localname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-extend-field")
+		localstructargname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-gogen-extend-struct")
+		localname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-gogen-extend-field")
 
+		// println("====", method.Method.Name, structargname, name, localstructargname, localname)
 		if strings.EqualFold(name, localname) &&
 			(strings.EqualFold(structargname, localstructargname) ||
 				strings.EqualFold(snakeCaseStructArgName, localstructargname)) {
@@ -65,6 +66,14 @@ func (method *Method) collectBodyParams(plugin Plugin, params []Param) []int {
 func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 	var results []Param
 	for idx := range method.Method.Params.List {
+		if method.Method.Params.List[idx].Type().ToLiteral() == "map[string]string" {
+			results = append(results, Param{
+				Method: method,
+				Param:  &method.Method.Params.List[idx],
+			})
+			continue
+		}
+
 		if _, ok := plugin.TypeInContext(method.Method.Params.List[idx].Type().ToLiteral()); ok {
 			results = append(results, Param{
 				Method: method,
@@ -105,7 +114,7 @@ func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 		}
 
 		for i := range method.Operation.Parameters {
-			structargname, _ := method.Operation.Parameters[i].Extensions.GetString("x-extend-struct")
+			structargname, _ := method.Operation.Parameters[i].Extensions.GetString("x-gogen-extend-struct")
 			pname := method.Method.Params.List[idx].Name
 
 			if strings.EqualFold(structargname, pname) {
@@ -121,7 +130,6 @@ func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 		}
 
 		if foundIndex < 0 {
-
 			return nil, errors.New("param '" + method.Method.Params.List[idx].Name +
 				"' of '" + method.FullName() +
 				"' not found in the swagger annotations")
@@ -144,6 +152,21 @@ func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 
 	/// 输出参数解析
 	for idx := range params {
+		if params[idx].Param.Name == "otherValues" {
+			if params[idx].Type().ToLiteral() == "map[string]string" {
+				err := params[idx].renderMapWithAnonymous(out, plugin, params, "map[string]string", "[len(values)-1]")
+				if err != nil {
+					return err
+				}
+			}
+			if params[idx].Type().ToLiteral() == "url.Values" {
+				err := params[idx].renderMapWithAnonymous(out, plugin, params, "url.Values", "")
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		err := params[idx].RenderDeclareAndInit(plugin, out)
 		if err != nil {
 			return err
@@ -163,7 +186,7 @@ func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 }
 
 func isEntire(param *Param) bool {
-	s, _ := param.Option.Extensions.GetString("x-entire-body")
+	s, _ := param.Option.Extensions.GetString("x-gogen-entire-body")
 	return strings.ToLower(s) == "true"
 }
 
@@ -217,7 +240,7 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 			io.WriteString(out, params[idx].Param.Type().ToLiteral())
 			io.WriteString(out, "\t`json:\"")
 			if params[idx].Option.Name != "" {
-				io.WriteString(out, toSnakeCase(params[idx].Option.Name))
+				io.WriteString(out, params[idx].Option.Name)
 			} else {
 				io.WriteString(out, toSnakeCase(params[idx].Param.Name))
 			}
@@ -286,8 +309,12 @@ func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params
 	}
 	io.WriteString(out, ")")
 
-	/// 输出返回
+	noreturn := false
+	if o := method.Operation.Extensions["x-gogen-noreturn"]; o != nil {
+		noreturn = strings.ToLower(fmt.Sprint(o)) == "true"
+	}
 
+	/// 输出返回
 	if len(method.Method.Results.List) > 2 {
 		io.WriteString(out, "\r\n\tif err != nil {")
 		plugin.RenderReturnError(out, method, "", "err")
@@ -314,8 +341,11 @@ func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params
 		if arg.Type().IsErrorType() {
 			io.WriteString(out, "\r\nif err != nil {\r\n")
 			plugin.RenderReturnError(out, method, "", "err")
-			io.WriteString(out, "\r\n}\r\n")
-			plugin.RenderReturnOK(out, method, "", "\"OK\"")
+			io.WriteString(out, "\r\n}")
+			if !noreturn {
+				io.WriteString(out, "\r\n")
+				plugin.RenderReturnOK(out, method, "", "\"OK\"")
+			}
 		} else {
 			// if methodParams.IsPlainText {
 			//  	{{$.mux.PlainTextFunc $method "result"}}

@@ -38,6 +38,9 @@ func (cmd *Generator) Run(args []string) error {
 	}
 
 	swaggerParser := swag.New()
+	swaggerParser.ParseVendor = true
+	swaggerParser.ParseDependency = true
+	swaggerParser.ParseInternal = true
 
 	var files []*astutil.File
 	for _, filename := range args {

@@ -24,7 +24,7 @@ type RequestQuery struct {
 	IsSuspend                sql.NullBool
 	StartAt, EndAt           time.Time
 	OverdueStart, OverdueEnd time.Time
-	Settings                 map[string]string
-	Args                     map[string]string `json:"ttargstt"`
-	url.Values
+	Settings                 map[string]string `gogen:"true" swaggerignore:"true"`
+	Args                     map[string]string `json:"ttargstt" gogen:"true" swaggerignore:"true"`
+	url.Values  `gogen:"true" swaggerignore:"true"`
 }

@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/runner-mei/gogen/v2/gentest/models"
 )
 
 // TimeRange is skipped
@@ -240,9 +241,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.fint"))
 				return
 			}
-			if args == nil {
-				args = new(QueryArgs)
-			}
+			args = new(QueryArgs)
 			args.Fint = fintValue
 		}
 		if args == nil {
@@ -370,9 +369,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, NewBadArgument(err, "StringSvc.TestQueryArgs4", "fint"))
 				return
 			}
-			if args == nil {
-				args = new(QueryArgs)
-			}
+			args = new(QueryArgs)
 			args.Fint = fintValue
 		}
 		if args == nil {
@@ -467,7 +464,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var b = queryParams.Get("b")
-		result, err := svc.Concat(a, b)
+		result, err := svc.Concat0(a, b)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
@@ -637,16 +634,16 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		a, err := strconv.Atoi(chi.URLParam(r, "a"))
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add", "a"))
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add1", "a"))
 			return
 		}
 		b, err := strconv.Atoi(chi.URLParam(r, "b"))
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add", "b"))
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add1", "b"))
 			return
 		}
-		result, err := svc.Add(a, b)
+		result, err := svc.Add1(a, b)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
@@ -656,23 +653,19 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		return
 	})
 	mux.Get("/add2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
-		var a *int
-		if aValue, err := strconv.Atoi(chi.URLParam(r, "a")); err != nil {
+		a, err := strconv.Atoi(chi.URLParam(r, "a"))
+		if err != nil {
 			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add2", "a"))
 			return
-		} else {
-			a = &aValue
 		}
-		var b *int
-		if bValue, err := strconv.Atoi(chi.URLParam(r, "b")); err != nil {
+		b, err := strconv.Atoi(chi.URLParam(r, "b"))
+		if err != nil {
 			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, NewBadArgument(err, "StringSvc.Add2", "b"))
 			return
-		} else {
-			b = &bValue
 		}
-		result, err := svc.Add2(a, b)
+		result, err := svc.Add2(&a, &b)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
@@ -743,7 +736,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query1", "is_raw"))
 				return
 			}
-			isRaw = bool(isRawValue)
+			isRaw = isRawValue
 		}
 		result := svc.Query1(a, beginAt, endAt, isRaw)
 		render.JSON(w, r, result)
@@ -772,8 +765,12 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
-
+		isRaw, err := strconv.ParseBool(chi.URLParam(r, "is_raw"))
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Query2", "is_raw"))
+			return
+		}
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		render.JSON(w, r, result)
 		return
@@ -801,8 +798,12 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			endAt = endAtValue
 		}
-		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
-
+		isRaw, err := strconv.ParseBool(chi.URLParam(r, "is_raw"))
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Query3", "is_raw"))
+			return
+		}
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		render.JSON(w, r, result)
 		return
@@ -829,8 +830,12 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			createdAt.End = endValue
 		}
-		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
-
+		isRaw, err := strconv.ParseBool(chi.URLParam(r, "is_raw"))
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Query4", "is_raw"))
+			return
+		}
 		result := svc.Query4(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
 		return
@@ -846,7 +851,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query5", "created_at.start"))
 				return
 			}
-			createdAt = &TimeRange{}
+			createdAt = new(TimeRange)
 			createdAt.Start = startValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
@@ -857,12 +862,16 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				return
 			}
 			if createdAt == nil {
-				createdAt = &TimeRange{}
+				createdAt = new(TimeRange)
 			}
 			createdAt.End = endValue
 		}
-		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
-
+		isRaw, err := strconv.ParseBool(chi.URLParam(r, "is_raw"))
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Query5", "is_raw"))
+			return
+		}
 		result := svc.Query5(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
 		return
@@ -889,8 +898,12 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			}
 			createdAt.End = &endValue
 		}
-		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
-
+		isRaw, err := strconv.ParseBool(chi.URLParam(r, "is_raw"))
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Query6", "is_raw"))
+			return
+		}
 		result := svc.Query6(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
 		return
@@ -906,7 +919,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query7", "created_at.start"))
 				return
 			}
-			createdAt = &TimeRange2{}
+			createdAt = new(TimeRange2)
 			createdAt.Start = &startValue
 		}
 		if s := queryParams.Get("created_at.end"); s != "" {
@@ -917,12 +930,16 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				return
 			}
 			if createdAt == nil {
-				createdAt = &TimeRange2{}
+				createdAt = new(TimeRange2)
 			}
 			createdAt.End = &endValue
 		}
-		var isRaw = ToBool(chi.URLParam(r, "isRaw"))
-
+		isRaw, err := strconv.ParseBool(chi.URLParam(r, "is_raw"))
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Query7", "is_raw"))
+			return
+		}
 		result := svc.Query7(a, createdAt, &isRaw)
 		render.JSON(w, r, result)
 		return
@@ -934,30 +951,27 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, NewBadArgument(err, "StringSvc.Query8", "item_id"))
+				render.PlainText(w, r, NewBadArgument(err, "StringSvc.Query8", "item_id").Error())
 				return
 			}
 			itemID = itemIDValue
 		}
-
 		result, err := svc.Query8(r.Context(), itemID)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
-			render.JSON(w, r, err)
+			render.PlainText(w, r, err.Error())
 			return
 		}
 		render.PlainText(w, r, result)
 		return
 	})
 	mux.Post("", func(w http.ResponseWriter, r *http.Request) {
-		err := svc.Create3(r.Context(), r, w)
+		err := svc.CreateWithNoReturn(r.Context(), r, w)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
 		}
-
-		return
 	})
 	mux.Get("/query9", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
@@ -966,17 +980,16 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
-				render.JSON(w, r, errors.BadArgument("item_id", s, err))
+				render.PlainText(w, r, NewBadArgument(err, "StringSvc.Query9", "item_id").Error())
 				return
 			}
 			itemID.Valid = true
 			itemID.Int64 = itemIDValue
 		}
-
 		result, err := svc.Query9(r.Context(), itemID)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
-			render.JSON(w, r, err)
+			render.PlainText(w, r, err.Error())
 			return
 		}
 		render.PlainText(w, r, result)
@@ -989,11 +1002,10 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			itemID.Valid = true
 			itemID.String = s
 		}
-
 		result, err := svc.Query10(r.Context(), itemID)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
-			render.JSON(w, r, err)
+			render.PlainText(w, r, err.Error())
 			return
 		}
 		render.PlainText(w, r, result)
@@ -1003,14 +1015,19 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		queryParams := r.URL.Query()
 		var itemID sql.NullBool
 		if s := queryParams.Get("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseBool(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.PlainText(w, r, NewBadArgument(err, "StringSvc.Query11", "item_id").Error())
+				return
+			}
 			itemID.Valid = true
-			itemID.Bool = ToBool(s)
+			itemID.Bool = itemIDValue
 		}
-
 		result, err := svc.Query11(r.Context(), itemID)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
-			render.JSON(w, r, err)
+			render.PlainText(w, r, err.Error())
 			return
 		}
 		render.PlainText(w, r, result)
@@ -1019,11 +1036,10 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 	mux.Get("/query12", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var Name = queryParams.Get("Name")
-
 		result, err := svc.Query1WithUpName(r.Context(), Name)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
-			render.JSON(w, r, err)
+			render.PlainText(w, r, err.Error())
 			return
 		}
 		render.PlainText(w, r, result)
@@ -1038,7 +1054,6 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			render.JSON(w, r, NewBadArgument(err, "bindArgs", "body"))
 			return
 		}
-
 		err := svc.Set1WithUpName(r.Context(), bindArgs.Name)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
@@ -1046,6 +1061,223 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			return
 		}
 		render.JSON(w, r, "OK")
+		return
+	})
+}
+
+// RequestQueryEx1 is skipped
+// RequestQueryEx2 is skipped
+// RequestQueryEx3 is skipped
+// RequestQueryEx4 is skipped
+// Sub1 is skipped
+// Sub2 is skipped
+// Sub3 is skipped
+// SubTest1 is skipped
+// SubTest2 is skipped
+// SubTest3 is skipped
+// SubTest4 is skipped
+
+func InitRequests(mux chi.Router, svc Requests) {
+	mux.Get("/requests/query1", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var query *models.RequestQuery
+		if s := queryParams.Get("query.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.operatorID"))
+				return
+			}
+			query = new(models.RequestQuery)
+			query.OperatorID = operatorIDValue
+		}
+		if s := queryParams.Get("query.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.creatorID"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.CreatorID = creatorIDValue
+		}
+		if s := queryParams.Get("query.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.requesterID"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequesterID = requesterIDValue
+		}
+		if ss := queryParams["query.requestTypeIDs"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.requestTypeIDs"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(models.RequestQuery)
+		}
+		query.RequestTypeNames = queryParams["query.requestTypeNames"]
+		query.NameLike = queryParams.Get("query.nameLike")
+		if s := queryParams.Get("query.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.currentStatus"))
+				return
+			}
+			query.CurrentStatus = currentStatusValue
+		}
+		if s := queryParams.Get("query.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.isUnclosed"))
+				return
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := queryParams.Get("query.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.isOverdued"))
+				return
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = isOverduedValue
+		}
+		if s := queryParams.Get("query.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.isSuspend"))
+				return
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = isSuspendValue
+		}
+		if s := queryParams.Get("query.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.startAt"))
+				return
+			}
+			query.StartAt = startAtValue
+		}
+		if s := queryParams.Get("query.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.endAt"))
+				return
+			}
+			query.EndAt = endAtValue
+		}
+		if s := queryParams.Get("query.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.overdueStart"))
+				return
+			}
+			query.OverdueStart = overdueStartValue
+		}
+		if s := queryParams.Get("query.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.overdueEnd"))
+				return
+			}
+			query.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range r.URL.Query() {
+			if !strings.HasPrefix(key, "query.settings.") {
+				continue
+			}
+			query.Settings[key] = values[len(values)-1]
+		}
+
+		for key, values := range r.URL.Query() {
+			if !strings.HasPrefix(key, "query.ttargstt.") {
+				continue
+			}
+			query.Args[key] = values[len(values)-1]
+		}
+
+		for key, values := range r.URL.Query() {
+			if !strings.HasPrefix(key, "query.") {
+				continue
+			}
+			if key == "query.operatorID" ||
+				key == "query.creatorID" ||
+				key == "query.requesterID" ||
+				key == "query.requestTypeIDs" ||
+				key == "query.requestTypeNames" ||
+				key == "query.nameLike" ||
+				key == "query.currentStatus" ||
+				key == "query.isUnclosed" ||
+				key == "query.isOverdued" ||
+				key == "query.isSuspend" ||
+				key == "query.startAt" ||
+				key == "query.endAt" ||
+				key == "query.overdueStart" ||
+				key == "query.overdueEnd" {
+				continue
+			}
+			query.Values[key] = values
+		}
+		var offset int64
+		if s := queryParams.Get("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "offset"))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := queryParams.Get("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "limit"))
+				return
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range r.URL.Query() {
+			if !strings.HasPrefix(key, "params.") {
+				continue
+			}
+			params[key] = values[len(values)-1]
+		}
+		result, err := svc.Query1(r.Context(), query, offset, limit, params)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
 		return
 	})
 }

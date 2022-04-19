@@ -13,7 +13,7 @@ import (
 )
 
 func InitCaseSvc(mux echo.Group, svc CaseSvc) {
-	mux.GET("/test64/by_name/:name", func(ctx echo.Context) error {
+	mux.GET("/case1/by_name/:name", func(ctx echo.Context) error {
 		var name = ctx.Param("name")
 		err := svc.TestCase1(name)
 		if err != nil {
@@ -21,7 +21,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_name", func(ctx echo.Context) error {
+	mux.GET("/case2_1/by_name", func(ctx echo.Context) error {
 		var name = ctx.QueryParam("name")
 		err := svc.TestCase2_1(name)
 		if err != nil {
@@ -29,7 +29,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_names", func(ctx echo.Context) error {
+	mux.GET("/case2_2/by_names", func(ctx echo.Context) error {
 		var name = ctx.QueryParams()["name"]
 		err := svc.TestCase2_2(name)
 		if err != nil {
@@ -37,7 +37,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
+	mux.GET("/case3_1/by_id/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_1", "id"))
@@ -48,7 +48,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
+	mux.GET("/case3_2/by_id/:id", func(ctx echo.Context) error {
 		idValue, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_2", "id"))
@@ -60,7 +60,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
+	mux.GET("/case3_3/by_id/:id", func(ctx echo.Context) error {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_3", "id"))
@@ -71,7 +71,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
+	mux.GET("/case4/by_id/:id", func(ctx echo.Context) error {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase4", "id"))
@@ -82,7 +82,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id", func(ctx echo.Context) error {
+	mux.GET("/case5_1/by_id", func(ctx echo.Context) error {
 		var id int64
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -97,7 +97,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id", func(ctx echo.Context) error {
+	mux.GET("/case5_2/by_id", func(ctx echo.Context) error {
 		var id int32
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -112,7 +112,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id", func(ctx echo.Context) error {
+	mux.GET("/case5_3/by_id", func(ctx echo.Context) error {
 		var idlist []int64
 		if ss := ctx.QueryParams()["idlist"]; len(ss) != 0 {
 			idlistValue, err := ToInt64Array(ss)
@@ -127,7 +127,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id", func(ctx echo.Context) error {
+	mux.GET("/case6/by_id", func(ctx echo.Context) error {
 		var id int64
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -142,15 +142,15 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id", func(ctx echo.Context) error {
+	mux.GET("/case7_1/by_id", func(ctx echo.Context) error {
 		var id sql.NullInt64
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase7_1", "id"))
 			}
-			id.Int64 = idValue
 			id.Valid = true
+			id.Int64 = idValue
 		}
 		err := svc.TestCase7_1(id)
 		if err != nil {
@@ -158,15 +158,15 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id", func(ctx echo.Context) error {
+	mux.GET("/case7_2/by_id", func(ctx echo.Context) error {
 		var id sql.NullInt32
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase7_2", "id"))
 			}
-			id.Int32 = int32(idValue)
 			id.Valid = true
+			id.Int32 = int32(idValue)
 		}
 		err := svc.TestCase7_2(id)
 		if err != nil {
@@ -174,15 +174,15 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id", func(ctx echo.Context) error {
+	mux.GET("/case8/by_id", func(ctx echo.Context) error {
 		var id sql.NullInt64
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase8", "id"))
 			}
-			id.Int64 = idValue
 			id.Valid = true
+			id.Int64 = idValue
 		}
 		err := svc.TestCase8(id)
 		if err != nil {
@@ -190,7 +190,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id/:id", func(ctx echo.Context) error {
+	mux.GET("/case9/by_id/:id", func(ctx echo.Context) error {
 		var id = ctx.Param("id")
 		err := svc.TestCase9(&id)
 		if err != nil {
@@ -198,7 +198,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_name", func(ctx echo.Context) error {
+	mux.GET("/case10/by_name", func(ctx echo.Context) error {
 		var id *string
 		if s := ctx.QueryParam("id"); s != "" {
 			id = &s
@@ -209,33 +209,29 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/:id", func(ctx echo.Context) error {
-		var id *int
-		if idValue, err := strconv.Atoi(ctx.Param("id")); err != nil {
+	mux.GET("/case12/:id", func(ctx echo.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase12", "id"))
-		} else {
-			id = &idValue
 		}
-		err := svc.TestCase12(id)
+		err = svc.TestCase12(&id)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/:id", func(ctx echo.Context) error {
-		var id *int
-		if idValue, err := strconv.Atoi(ctx.Param("id")); err != nil {
+	mux.GET("/case13/:id", func(ctx echo.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase13", "id"))
-		} else {
-			id = &idValue
 		}
-		err := svc.TestCase13(id)
+		err = svc.TestCase13(&id)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_id", func(ctx echo.Context) error {
+	mux.GET("/case14_1/by_id", func(ctx echo.Context) error {
 		var id *int
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
@@ -250,7 +246,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_name", func(ctx echo.Context) error {
+	mux.GET("/case14_2/by_name", func(ctx echo.Context) error {
 		var id *int32
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -266,7 +262,7 @@ func InitCaseSvc(mux echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/by_name", func(ctx echo.Context) error {
+	mux.GET("/case14_3/by_name", func(ctx echo.Context) error {
 		var id *int
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
