@@ -1,3 +1,4 @@
+//go:build beego
 // +build beego
 
 package main

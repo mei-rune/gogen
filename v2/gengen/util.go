@@ -314,5 +314,5 @@ func getTagValue(field *astutil.Field, name string) (string, bool) {
 	}
 	s := strings.Trim(field.Tag.Value, "`")
 	value, ok := reflect.StructTag(s).Lookup(name)
-	return strings.Trim(value,"\""), ok
+	return strings.Trim(value, "\""), ok
 }

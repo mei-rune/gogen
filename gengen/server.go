@@ -47,7 +47,7 @@ type WebServerGenerator struct {
 	enableHttpCodeWith bool
 	Mux                MuxStye
 	preInitObject      bool
-  ConvertNamespace string
+	ConvertNamespace   string
 }
 
 func (cmd *WebServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
@@ -56,7 +56,7 @@ func (cmd *WebServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.config, "config", "", "配置文件名")
 	fs.BoolVar(&cmd.preInitObject, "pre_init_object", false, "生成 enableHttpCodeWith 函数")
 	fs.BoolVar(&cmd.enableHttpCodeWith, "httpCodeWith", false, "生成 enableHttpCodeWith 函数")
-  fs.StringVar(&cmd.ConvertNamespace, "convert_ns", "", "转换函数的前缀")
+	fs.StringVar(&cmd.ConvertNamespace, "convert_ns", "", "转换函数的前缀")
 	return fs
 }
 
@@ -91,13 +91,10 @@ func (cmd *WebServerGenerator) Run(args []string) error {
 
 	if mux := cmd.Mux.(*DefaultStye); mux != nil {
 
-    mux.ConvertNamespace = cmd.ConvertNamespace
-
+		mux.ConvertNamespace = cmd.ConvertNamespace
 
 		mux.reinit(cfg)
 	}
-
-
 
 	if cmd.ext == "" {
 		cmd.ext = ".gogen.go"

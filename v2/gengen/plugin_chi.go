@@ -97,7 +97,8 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 		return err
 	}
 	for _, param := range params {
-		if param.Option.In == "query" {
+		if param.Option.In == "query" ||
+			(param.Option.In == "" && hasQuery(param)) {
 			_, err = io.WriteString(out, "\r\n\tqueryParams := r.URL.Query()")
 			break
 		}
@@ -158,5 +159,10 @@ func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 		"errCode":          errCode,
 	})
 	_, e := io.WriteString(out, s)
+	return e
+}
+
+func (chi *chiPlugin) RenderReturnEmpty(out io.Writer, method *Method) error {
+	_, e := io.WriteString(out, "return")
 	return e
 }

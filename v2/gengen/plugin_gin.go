@@ -91,6 +91,7 @@ func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 	if errCode == "" && gin.Features().EnableHttpCode {
 		errCode = "httpCodeWith(err)"
 	}
+
 	renderFunc := "JSON"
 	errText := ""
 	if len(method.Operation.Produces) == 1 &&
@@ -121,7 +122,7 @@ func (gin *ginPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, 
 	if statusCode != "" {
 		args["statusCode"] = statusCode
 	} else {
-		args["statusCode"] = "http.StatusOK"
+		args["statusCode"] = statusCodeLiteralByMethod(method.Operation.RouterProperties[0].HTTPMethod)
 	}
 
 	renderFunc := "JSON"
@@ -136,5 +137,10 @@ func (gin *ginPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, 
   return
 {{- end}}`, args)
 	_, e := io.WriteString(out, s)
+	return e
+}
+
+func (gin *ginPlugin) RenderReturnEmpty(out io.Writer, method *Method) error {
+	_, e := io.WriteString(out, "return")
 	return e
 }

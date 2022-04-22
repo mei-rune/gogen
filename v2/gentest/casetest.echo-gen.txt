@@ -12,7 +12,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 )
 
-func InitCaseSvc(mux echo.Group, svc CaseSvc) {
+func InitCaseSvc(mux *echo.Group, svc CaseSvc) {
 	mux.GET("/case1/by_name/:name", func(ctx echo.Context) error {
 		var name = ctx.Param("name")
 		err := svc.TestCase1(name)

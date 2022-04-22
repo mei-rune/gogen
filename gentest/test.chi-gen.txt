@@ -115,6 +115,33 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		render.JSON(w, r, result)
 		return
 	})
+	mux.Get("/test_by_key/:key", func(w http.ResponseWriter, r *http.Request) {
+		var key Key
+		if keyValue, err := strconv.ParseInt(chi.URLParam(r, "key"), 10, 64); err != nil {
+			if he, ok := errors.BadArgument("key", chi.URLParam(r, "key"), err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.BadArgument("key", chi.URLParam(r, "key"), err))
+			return
+		} else {
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey1(key)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
 	mux.Get("/test_by_key", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var key Key
@@ -132,7 +159,23 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			key = Key(keyValue)
 		}
 
-		err := svc.TestByKey(key)
+		err := svc.TestByKey2(key)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_by_strkey/:key", func(w http.ResponseWriter, r *http.Request) {
+		var key = StrKey(chi.URLParam(r, "key"))
+
+		err := svc.TestByStrKey1(key)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -152,7 +195,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			key = StrKey(s)
 		}
 
-		err := svc.TestByStrKey(key)
+		err := svc.TestByStrKey2(key)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -656,7 +699,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		var a = queryParams.Get("a")
 		var b = queryParams.Get("b")
 
-		result, err := svc.Concat(a, b)
+		result, err := svc.Concat0(a, b)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -917,7 +960,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			return
 		}
 
-		result, err := svc.Add(a, b)
+		result, err := svc.Add1(a, b)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -1310,7 +1353,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		return
 	})
 	mux.Post("", func(w http.ResponseWriter, r *http.Request) {
-		err := svc.Create3(r.Context(), r, w)
+		err := svc.CreateWithNoReturn(r.Context(), r, w)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -1444,24 +1487,11 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
-	mux.Get("/test_by_key", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/files", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
-		var key Key
-		if s := queryParams.Get("key"); s != "" {
-			keyValue, err := strconv.ParseInt(s, 10, 64)
-			if err != nil {
-				if he, ok := errors.BadArgument("key", s, err).(errors.HTTPError); ok {
-					render.Status(r, he.HTTPCode())
-				} else {
-					render.Status(r, http.StatusBadRequest)
-				}
-				render.JSON(w, r, errors.BadArgument("key", s, err))
-				return
-			}
-			key = Key(keyValue)
-		}
+		var filenames = queryParams["filenames"]
 
-		err := svc.TestByKey(key)
+		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -1471,10 +1501,64 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			render.JSON(w, r, err)
 			return
 		}
-		render.JSON(w, r, "OK")
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/allfiles", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/times", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var times []time.Time
+		if ss := queryParams["times"]; len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				if he, ok := errors.BadArgument("times", ss, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("times", ss, err))
+				return
+			}
+			times = timesValue
+		} else if ss := queryParams["times[]"]; len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				if he, ok := errors.BadArgument("times", ss, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("times", ss, err))
+				return
+			}
+			times = timesValue
+		}
+
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/impl/allfiles", func(w http.ResponseWriter, r *http.Request) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
@@ -1494,7 +1578,104 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/test64/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/test_by_key/:key", func(w http.ResponseWriter, r *http.Request) {
+		var key Key
+		if keyValue, err := strconv.ParseInt(chi.URLParam(r, "key"), 10, 64); err != nil {
+			if he, ok := errors.BadArgument("key", chi.URLParam(r, "key"), err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.BadArgument("key", chi.URLParam(r, "key"), err))
+			return
+		} else {
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey1(key)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/impl/test_by_key", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var key Key
+		if s := queryParams.Get("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("key", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("key", s, err))
+				return
+			}
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey2(key)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/ /impl/test_by_strkey/{key}", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var key StrKey
+		if s := queryParams.Get("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey1(key)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/ /impl/test_by_strkey", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var key StrKey
+		if s := queryParams.Get("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey2(key)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/impl/test64/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -1519,7 +1700,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/test64", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/test64", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var id int64
 		if s := queryParams.Get("id"); s != "" {
@@ -1549,7 +1730,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/test_query_args1/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/test_query_args1/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -1632,7 +1813,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/test_query_args2/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/test_query_args2/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -1733,7 +1914,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/test_query_args3/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/test_query_args3/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -1816,7 +1997,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/test_query_args4/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/test_query_args4/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -1917,7 +2098,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/ping", func(w http.ResponseWriter, r *http.Request) {
 		err := svc.Ping()
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
@@ -1931,7 +2112,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/echo", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/echo", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 
@@ -1939,7 +2120,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/echo_body1", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/echo_body1", func(w http.ResponseWriter, r *http.Request) {
 		result, err := svc.EchoBody(r.Body)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
@@ -1953,7 +2134,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/echo3", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/impl/echo3", func(w http.ResponseWriter, r *http.Request) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
@@ -1980,12 +2161,12 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/concat", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/concat", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var b = queryParams.Get("b")
 
-		result, err := svc.Concat(a, b)
+		result, err := svc.Concat0(a, b)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -1998,7 +2179,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/concat1", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/concat1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a *string
 		if s := queryParams.Get("a"); s != "" {
@@ -2022,7 +2203,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/concat2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/concat2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var b = chi.URLParam(r, "b")
 
@@ -2039,7 +2220,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/concat3/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/concat3/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var b = chi.URLParam(r, "b")
 
@@ -2056,7 +2237,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/sub", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/sub", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var start int64
@@ -2087,7 +2268,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/save/:a", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/impl/save/:a", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, r.Body); err != nil {
@@ -2113,7 +2294,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/save2/:a", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/impl/save2/:a", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, r.Body); err != nil {
@@ -2140,7 +2321,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/save3", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/impl/save3", func(w http.ResponseWriter, r *http.Request) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -2168,7 +2349,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/save4", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/impl/save4", func(w http.ResponseWriter, r *http.Request) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -2196,7 +2377,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/save5", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/impl/save5", func(w http.ResponseWriter, r *http.Request) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -2224,7 +2405,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/add/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/add/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		a, err := strconv.Atoi(chi.URLParam(r, "a"))
 		if err != nil {
 			if he, ok := errors.BadArgument("a", chi.URLParam(r, "a"), err).(errors.HTTPError); ok {
@@ -2246,7 +2427,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			return
 		}
 
-		result, err := svc.Add(a, b)
+		result, err := svc.Add1(a, b)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -2259,7 +2440,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/add2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/add2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		var a *int
 		if aValue, err := strconv.Atoi(chi.URLParam(r, "a")); err != nil {
 			if he, ok := errors.BadArgument("a", chi.URLParam(r, "a"), err).(errors.HTTPError); ok {
@@ -2298,7 +2479,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/add3", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/add3", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a *int
 		if s := queryParams.Get("a"); s != "" {
@@ -2342,7 +2523,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query1", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/query1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var beginAt time.Time
@@ -2382,7 +2563,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query2/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/query2/:isRaw", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var beginAt time.Time
@@ -2419,7 +2600,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query3/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/query3/:isRaw", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var beginAt time.Time
@@ -2456,7 +2637,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query4/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/query4/:isRaw", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var createdAt TimeRange
@@ -2492,7 +2673,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query5/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/query5/:isRaw", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var createdAt *TimeRange
@@ -2532,7 +2713,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query6/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/query6/:isRaw", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var createdAt TimeRange2
@@ -2568,7 +2749,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query7/:isRaw", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/query7/:isRaw", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var createdAt *TimeRange2
@@ -2608,11 +2789,172 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
+	mux.Get("/impl/query8", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID int64
+		if s := queryParams.Get("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("item_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("item_id", s, err))
+				return
+			}
+			itemID = itemIDValue
+		}
+
+		result, err := svc.Query8(r.Context(), itemID)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Post("/impl", func(w http.ResponseWriter, r *http.Request) {
+		err := svc.CreateWithNoReturn(r.Context(), r, w)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+
+		return
+	})
+	mux.Get("/impl/query9", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullInt64
+		if s := queryParams.Get("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				if he, ok := errors.BadArgument("item_id", s, err).(errors.HTTPError); ok {
+					render.Status(r, he.HTTPCode())
+				} else {
+					render.Status(r, http.StatusBadRequest)
+				}
+				render.JSON(w, r, errors.BadArgument("item_id", s, err))
+				return
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+
+		result, err := svc.Query9(r.Context(), itemID)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Get("/impl/query10", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullString
+		if s := queryParams.Get("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+
+		result, err := svc.Query10(r.Context(), itemID)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Get("/impl/query11", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var itemID sql.NullBool
+		if s := queryParams.Get("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.Bool = ToBool(s)
+		}
+
+		result, err := svc.Query11(r.Context(), itemID)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Get("/impl/query12", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var Name = queryParams.Get("Name")
+
+		result, err := svc.Query1WithUpName(r.Context(), Name)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.PlainText(w, r, result)
+		return
+	})
+	mux.Post("/impl/query12", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			if he, ok := errors.BadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.BadArgument("bindArgs", "body", err))
+			return
+		}
+
+		err := svc.Set1WithUpName(r.Context(), bindArgs.Name)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
 	// Misc: annotation is missing
 }
 
 func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
-	mux.Get("/echo", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/echo", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 
@@ -2620,7 +2962,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/echo", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/echo", func(w http.ResponseWriter, r *http.Request) {
 		result, err := svc.EchoBody(r.Context(), r.Body)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
@@ -2634,12 +2976,12 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/concat", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/concat", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var b = queryParams.Get("b")
 
-		result, err := svc.Concat(r.Context(), a, b)
+		result, err := svc.Concat0(r.Context(), a, b)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -2652,7 +2994,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/concat1", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/concat1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a *string
 		if s := queryParams.Get("a"); s != "" {
@@ -2676,7 +3018,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/concat2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/concat2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var b = chi.URLParam(r, "b")
 
@@ -2693,7 +3035,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/concat3/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/concat3/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var b = chi.URLParam(r, "b")
 
@@ -2710,7 +3052,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/sub", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/sub", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
 		var start int64
@@ -2741,7 +3083,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/save/:a", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/ctx/save/:a", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, r.Body); err != nil {
@@ -2754,7 +3096,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 			return
 		}
 
-		result, err := svc.Save(r.Context(), a, b.String())
+		result, err := svc.Save1(r.Context(), a, b.String())
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -2767,7 +3109,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/save2/:a", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/ctx/save2/:a", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, r.Body); err != nil {
@@ -2794,7 +3136,35 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/add/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/ctx/save3", func(w http.ResponseWriter, r *http.Request) {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			if he, ok := errors.BadArgument("bindArgs", "body", err).(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusBadRequest)
+			}
+			render.JSON(w, r, errors.BadArgument("bindArgs", "body", err))
+			return
+		}
+
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			if he, ok := err.(errors.HTTPError); ok {
+				render.Status(r, he.HTTPCode())
+			} else {
+				render.Status(r, http.StatusInternalServerError)
+			}
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/ctx/add/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		a, err := strconv.Atoi(chi.URLParam(r, "a"))
 		if err != nil {
 			if he, ok := errors.BadArgument("a", chi.URLParam(r, "a"), err).(errors.HTTPError); ok {
@@ -2816,7 +3186,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 			return
 		}
 
-		result, err := svc.Add(r.Context(), a, b)
+		result, err := svc.Add1(r.Context(), a, b)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
 				render.Status(r, he.HTTPCode())
@@ -2829,7 +3199,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/add2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/add2/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		var a *int
 		if aValue, err := strconv.Atoi(chi.URLParam(r, "a")); err != nil {
 			if he, ok := errors.BadArgument("a", chi.URLParam(r, "a"), err).(errors.HTTPError); ok {
@@ -2868,7 +3238,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/add3", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/add3", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a *int
 		if s := queryParams.Get("a"); s != "" {

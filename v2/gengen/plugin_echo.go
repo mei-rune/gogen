@@ -61,7 +61,7 @@ func (echo *echoPlugin) Imports() map[string]string {
 }
 
 func (echo *echoPlugin) PartyTypeName() string {
-	return "echo.Group"
+	return "*echo.Group"
 }
 
 func (echo *echoPlugin) Features() Config {
@@ -123,7 +123,7 @@ func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	if statusCode != "" {
 		args["statusCode"] = statusCode
 	} else {
-		args["statusCode"] = "http.StatusOK"
+		args["statusCode"] = statusCodeLiteralByMethod(method.Operation.RouterProperties[0].HTTPMethod)
 	}
 	s := renderString(`{{- if .noreturn -}}
   return nil
@@ -131,5 +131,10 @@ func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
   return ctx.JSON({{.statusCode}}, {{.data}})
 {{- end}}`, args)
 	_, e := io.WriteString(out, s)
+	return e
+}
+
+func (echo *echoPlugin) RenderReturnEmpty(out io.Writer, method *Method) error {
+	_, e := io.WriteString(out, "return nil")
 	return e
 }

@@ -81,7 +81,14 @@ func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, erro
 	return result.Elist, result.Etotal, nil
 }
 
-func (client TestClient) TestByKey(ctx context.Context, key Key) error {
+func (client TestClient) TestByKey1(ctx context.Context, key Key) error {
+	request := resty.NewRequest(client.Proxy, "/test_by_key/"+strconv.FormatInt(int64(key), 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client TestClient) TestByKey2(ctx context.Context, key Key) error {
 	request := resty.NewRequest(client.Proxy, "/test_by_key").
 		SetParam("key", strconv.FormatInt(int64(key), 10))
 
@@ -89,7 +96,14 @@ func (client TestClient) TestByKey(ctx context.Context, key Key) error {
 	return request.GET(ctx)
 }
 
-func (client TestClient) TestByStrKey(ctx context.Context, key StrKey) error {
+func (client TestClient) TestByStrKey1(ctx context.Context, key StrKey) error {
+	request := resty.NewRequest(client.Proxy, "/test_by_strkey/"+key+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client TestClient) TestByStrKey2(ctx context.Context, key StrKey) error {
 	request := resty.NewRequest(client.Proxy, "/test_by_strkey").
 		SetParam("key", key)
 
@@ -237,7 +251,7 @@ func (client TestClient) Echo3(ctx context.Context, a string) (string, error) {
 	return result, err
 }
 
-func (client TestClient) Concat(ctx context.Context, a string, b string) (string, error) {
+func (client TestClient) Concat0(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
 	request := resty.NewRequest(client.Proxy, "/concat").
@@ -371,7 +385,7 @@ func (client TestClient) Save5(ctx context.Context, a string, b string) (string,
 	return result, err
 }
 
-func (client TestClient) Add(ctx context.Context, a int, b int) (int, error) {
+func (client TestClient) Add1(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
 	request := resty.NewRequest(client.Proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
@@ -533,7 +547,7 @@ func (client TestClient) Query8(ctx context.Context, itemID int64) (string, erro
 	return result, err
 }
 
-func (client TestClient) Create3(ctx context.Context, _request *http.Request, response http.ResponseWriter) error {
+func (client TestClient) CreateWithNoReturn(ctx context.Context, _request *http.Request, response http.ResponseWriter) error {
 	request := resty.NewRequest(client.Proxy, "/").
 		SetBody(map[string]interface{}{
 			"request":  _request,
@@ -614,12 +628,46 @@ type StringSvcImplClient struct {
 	Proxy *resty.Proxy
 }
 
-func (client StringSvcImplClient) TestByKey(ctx context.Context, key Key) error {
-	request := resty.NewRequest(client.Proxy, "/test_by_key").
-		SetParam("key", strconv.FormatInt(int64(key), 10))
+func (client StringSvcImplClient) GetFiles(ctx context.Context, filenames []string) ([]string, int64, error) {
+	var result struct {
+		Elist  []string `json:"list"`
+		Etotal int64    `json:"total"`
+	}
 
-	defer resty.ReleaseRequest(client.Proxy, request)
-	return request.GET(ctx)
+	request := resty.NewRequest(client.Proxy, "/impl/files")
+	for idx := range filenames {
+		request = request.AddParam("filenames", filenames[idx])
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+
+	if err != nil {
+		return nil, 0, err
+	}
+	return result.Elist, result.Etotal, nil
+}
+
+func (client StringSvcImplClient) GetTimes(ctx context.Context, times []time.Time) ([]string, int64, error) {
+	var result struct {
+		Elist  []string `json:"list"`
+		Etotal int64    `json:"total"`
+	}
+
+	request := resty.NewRequest(client.Proxy, "/impl/times")
+	for idx := range times {
+		request = request.AddParam("times", times[idx].Format(client.Proxy.TimeFormat))
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+
+	if err != nil {
+		return nil, 0, err
+	}
+	return result.Elist, result.Etotal, nil
 }
 
 func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, int64, error) {
@@ -628,7 +676,7 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 		Etotal int64    `json:"total"`
 	}
 
-	request := resty.NewRequest(client.Proxy, "/allfiles").
+	request := resty.NewRequest(client.Proxy, "/impl/allfiles").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -640,15 +688,46 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 	return result.Elist, result.Etotal, nil
 }
 
+func (client StringSvcImplClient) TestByKey1(ctx context.Context, key Key) error {
+	request := resty.NewRequest(client.Proxy, "/impl/test_by_key/"+strconv.FormatInt(int64(key), 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client StringSvcImplClient) TestByKey2(ctx context.Context, key Key) error {
+	request := resty.NewRequest(client.Proxy, "/impl/test_by_key").
+		SetParam("key", strconv.FormatInt(int64(key), 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client StringSvcImplClient) TestByStrKey1(ctx context.Context, key StrKey) error {
+	request := resty.NewRequest(client.Proxy, "/ /impl/test_by_strkey/{key}").
+		SetParam("key", key)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client StringSvcImplClient) TestByStrKey2(ctx context.Context, key StrKey) error {
+	request := resty.NewRequest(client.Proxy, "/ /impl/test_by_strkey").
+		SetParam("key", key)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
 func (client StringSvcImplClient) TestInt64Path(ctx context.Context, id int64) error {
-	request := resty.NewRequest(client.Proxy, "/test64/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test64/"+strconv.FormatInt(id, 10)+"")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client StringSvcImplClient) TestInt64Query(ctx context.Context, id int64) error {
-	request := resty.NewRequest(client.Proxy, "/test64").
+	request := resty.NewRequest(client.Proxy, "/impl/test64").
 		SetParam("id", strconv.FormatInt(id, 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -656,7 +735,7 @@ func (client StringSvcImplClient) TestInt64Query(ctx context.Context, id int64) 
 }
 
 func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, args QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/test_query_args1/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/test_query_args1/"+strconv.FormatInt(id, 10)+"").
 		SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
 		SetParam("args.fstring", args.fstring).
 		SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
@@ -675,7 +754,7 @@ func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, 
 }
 
 func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, args *QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/test_query_args2/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test_query_args2/"+strconv.FormatInt(id, 10)+"")
 	if args != nil {
 		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
 			SetParam("args.fstring", args.fstring).
@@ -696,7 +775,7 @@ func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, 
 }
 
 func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, args QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/test_query_args3/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/test_query_args3/"+strconv.FormatInt(id, 10)+"").
 		SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
 		SetParam("fstring", args.fstring).
 		SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
@@ -715,7 +794,7 @@ func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, 
 }
 
 func (client StringSvcImplClient) TestQueryArgs4(ctx context.Context, id int64, args *QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/test_query_args4/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test_query_args4/"+strconv.FormatInt(id, 10)+"")
 	if args != nil {
 		request = request.SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
 			SetParam("fstring", args.fstring).
@@ -736,7 +815,7 @@ func (client StringSvcImplClient) TestQueryArgs4(ctx context.Context, id int64, 
 }
 
 func (client StringSvcImplClient) Ping(ctx context.Context) error {
-	request := resty.NewRequest(client.Proxy, "/ping")
+	request := resty.NewRequest(client.Proxy, "/impl/ping")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -745,7 +824,7 @@ func (client StringSvcImplClient) Ping(ctx context.Context) error {
 func (client StringSvcImplClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/impl/echo").
 		SetParam("a", a).
 		Result(&result)
 
@@ -757,7 +836,7 @@ func (client StringSvcImplClient) Echo(ctx context.Context, a string) (string, e
 func (client StringSvcImplClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/echo_body1").
+	request := resty.NewRequest(client.Proxy, "/impl/echo_body1").
 		SetBody(body).
 		Result(&result)
 
@@ -769,7 +848,7 @@ func (client StringSvcImplClient) EchoBody(ctx context.Context, body io.Reader) 
 func (client StringSvcImplClient) Echo3(ctx context.Context, a string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/echo3").
+	request := resty.NewRequest(client.Proxy, "/impl/echo3").
 		SetBody(map[string]interface{}{
 			"a": a,
 		}).
@@ -780,10 +859,10 @@ func (client StringSvcImplClient) Echo3(ctx context.Context, a string) (string, 
 	return result, err
 }
 
-func (client StringSvcImplClient) Concat(ctx context.Context, a string, b string) (string, error) {
+func (client StringSvcImplClient) Concat0(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/concat").
+	request := resty.NewRequest(client.Proxy, "/impl/concat").
 		SetParam("a", a).
 		SetParam("b", b).
 		Result(&result)
@@ -796,7 +875,7 @@ func (client StringSvcImplClient) Concat(ctx context.Context, a string, b string
 func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/concat1")
+	request := resty.NewRequest(client.Proxy, "/impl/concat1")
 	if a != nil {
 		request = request.SetParam("a", *a)
 	}
@@ -813,7 +892,7 @@ func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *str
 func (client StringSvcImplClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/concat2/"+a+"/"+b+"").
+	request := resty.NewRequest(client.Proxy, "/impl/concat2/"+a+"/"+b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -824,7 +903,7 @@ func (client StringSvcImplClient) Concat2(ctx context.Context, a string, b strin
 func (client StringSvcImplClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/concat3/"+*a+"/"+*b+"").
+	request := resty.NewRequest(client.Proxy, "/impl/concat3/"+*a+"/"+*b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -835,7 +914,7 @@ func (client StringSvcImplClient) Concat3(ctx context.Context, a *string, b *str
 func (client StringSvcImplClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/sub").
+	request := resty.NewRequest(client.Proxy, "/impl/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
 		Result(&result)
@@ -848,7 +927,7 @@ func (client StringSvcImplClient) Sub(ctx context.Context, a string, start int64
 func (client StringSvcImplClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/save/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/impl/save/"+a+"").
 		SetBody(b).
 		Result(&result)
 
@@ -860,7 +939,7 @@ func (client StringSvcImplClient) Save(ctx context.Context, a string, b string) 
 func (client StringSvcImplClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/save2/"+*a+"").
+	request := resty.NewRequest(client.Proxy, "/impl/save2/"+*a+"").
 		SetBody(b).
 		Result(&result)
 
@@ -872,7 +951,7 @@ func (client StringSvcImplClient) Save2(ctx context.Context, a *string, b *strin
 func (client StringSvcImplClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/save3").
+	request := resty.NewRequest(client.Proxy, "/impl/save3").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
@@ -887,7 +966,7 @@ func (client StringSvcImplClient) Save3(ctx context.Context, a *string, b *strin
 func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/save4").
+	request := resty.NewRequest(client.Proxy, "/impl/save4").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
@@ -902,7 +981,7 @@ func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string)
 func (client StringSvcImplClient) Save5(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/save5").
+	request := resty.NewRequest(client.Proxy, "/impl/save5").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
@@ -914,10 +993,10 @@ func (client StringSvcImplClient) Save5(ctx context.Context, a string, b string)
 	return result, err
 }
 
-func (client StringSvcImplClient) Add(ctx context.Context, a int, b int) (int, error) {
+func (client StringSvcImplClient) Add1(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.Proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -928,7 +1007,7 @@ func (client StringSvcImplClient) Add(ctx context.Context, a int, b int) (int, e
 func (client StringSvcImplClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.Proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -939,7 +1018,7 @@ func (client StringSvcImplClient) Add2(ctx context.Context, a *int, b *int) (int
 func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.Proxy, "/add3")
+	request := resty.NewRequest(client.Proxy, "/impl/add3")
 	if a != nil {
 		request = request.SetParam("a", strconv.FormatInt(int64(*a), 10))
 	}
@@ -956,7 +1035,7 @@ func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int
 func (client StringSvcImplClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/query1").
+	request := resty.NewRequest(client.Proxy, "/impl/query1").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
@@ -971,7 +1050,7 @@ func (client StringSvcImplClient) Query1(ctx context.Context, a string, beginAt 
 func (client StringSvcImplClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/query2/"+BoolToString(isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query2/"+BoolToString(isRaw)+"").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
@@ -985,7 +1064,7 @@ func (client StringSvcImplClient) Query2(ctx context.Context, a string, beginAt 
 func (client StringSvcImplClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/query3/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query3/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
@@ -999,7 +1078,7 @@ func (client StringSvcImplClient) Query3(ctx context.Context, a string, beginAt 
 func (client StringSvcImplClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/query4/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query4/"+BoolToString(*isRaw)+"").
 		SetParam("a", a).
 		SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
 		SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat)).
@@ -1013,7 +1092,7 @@ func (client StringSvcImplClient) Query4(ctx context.Context, a string, createdA
 func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/query5/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query5/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt != nil {
 		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
@@ -1029,7 +1108,7 @@ func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdA
 func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/query6/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query6/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt.Start != nil {
 		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat))
@@ -1047,7 +1126,7 @@ func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdA
 func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/query7/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query7/"+BoolToString(*isRaw)+"").
 		SetParam("a", a)
 	if createdAt != nil {
 		if createdAt.Start != nil {
@@ -1064,6 +1143,93 @@ func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdA
 	return result, err
 }
 
+func (client StringSvcImplClient) Query8(ctx context.Context, itemID int64) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/impl/query8").
+		SetParam("item_id", strconv.FormatInt(itemID, 10)).
+		Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) CreateWithNoReturn(ctx context.Context, _request *http.Request, response http.ResponseWriter) error {
+	request := resty.NewRequest(client.Proxy, "/impl").
+		SetBody(map[string]interface{}{
+			"request":  _request,
+			"response": response,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
+func (client StringSvcImplClient) Query9(ctx context.Context, itemID sql.NullInt64) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/impl/query9")
+	if itemID.Valid {
+		request = request.SetParam("item_id", strconv.FormatInt(itemID.Int64, 10))
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Query10(ctx context.Context, itemID sql.NullString) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/impl/query10")
+	if itemID.Valid {
+		request = request.SetParam("item_id", itemID.String)
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Query11(ctx context.Context, itemID sql.NullBool) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/impl/query11")
+	if itemID.Valid {
+		request = request.SetParam("item_id", BoolToString(itemID.Bool))
+	}
+	request = request.Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Query1WithUpName(ctx context.Context, Name string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/impl/query12").
+		SetParam("Name", Name).
+		Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client StringSvcImplClient) Set1WithUpName(ctx context.Context, Name string) error {
+	request := resty.NewRequest(client.Proxy, "/impl/query12").
+		SetBody(map[string]interface{}{
+			"Name": Name,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
 // Misc: annotation is missing
 
 type StringSvcWithContextClient struct {
@@ -1073,7 +1239,7 @@ type StringSvcWithContextClient struct {
 func (client StringSvcWithContextClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/ctx/echo").
 		SetParam("a", a).
 		Result(&result)
 
@@ -1085,7 +1251,7 @@ func (client StringSvcWithContextClient) Echo(ctx context.Context, a string) (st
 func (client StringSvcWithContextClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/echo").
+	request := resty.NewRequest(client.Proxy, "/ctx/echo").
 		SetBody(body).
 		Result(&result)
 
@@ -1094,10 +1260,10 @@ func (client StringSvcWithContextClient) EchoBody(ctx context.Context, body io.R
 	return result, err
 }
 
-func (client StringSvcWithContextClient) Concat(ctx context.Context, a string, b string) (string, error) {
+func (client StringSvcWithContextClient) Concat0(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/concat").
+	request := resty.NewRequest(client.Proxy, "/ctx/concat").
 		SetParam("a", a).
 		SetParam("b", b).
 		Result(&result)
@@ -1110,7 +1276,7 @@ func (client StringSvcWithContextClient) Concat(ctx context.Context, a string, b
 func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/concat1")
+	request := resty.NewRequest(client.Proxy, "/ctx/concat1")
 	if a != nil {
 		request = request.SetParam("a", *a)
 	}
@@ -1127,7 +1293,7 @@ func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string,
 func (client StringSvcWithContextClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/concat2/"+a+"/"+b+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/concat2/"+a+"/"+b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -1138,7 +1304,7 @@ func (client StringSvcWithContextClient) Concat2(ctx context.Context, a string, 
 func (client StringSvcWithContextClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/concat3/"+*a+"/"+*b+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/concat3/"+*a+"/"+*b+"").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -1149,7 +1315,7 @@ func (client StringSvcWithContextClient) Concat3(ctx context.Context, a *string,
 func (client StringSvcWithContextClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/sub").
+	request := resty.NewRequest(client.Proxy, "/ctx/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
 		Result(&result)
@@ -1159,10 +1325,10 @@ func (client StringSvcWithContextClient) Sub(ctx context.Context, a string, star
 	return result, err
 }
 
-func (client StringSvcWithContextClient) Save(ctx context.Context, a string, b string) (string, error) {
+func (client StringSvcWithContextClient) Save1(ctx context.Context, a string, b string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/save/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/save/"+a+"").
 		SetBody(b).
 		Result(&result)
 
@@ -1174,7 +1340,7 @@ func (client StringSvcWithContextClient) Save(ctx context.Context, a string, b s
 func (client StringSvcWithContextClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
 
-	request := resty.NewRequest(client.Proxy, "/save2/"+*a+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/save2/"+*a+"").
 		SetBody(b).
 		Result(&result)
 
@@ -1183,10 +1349,25 @@ func (client StringSvcWithContextClient) Save2(ctx context.Context, a *string, b
 	return result, err
 }
 
-func (client StringSvcWithContextClient) Add(ctx context.Context, a int, b int) (int, error) {
+func (client StringSvcWithContextClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/ctx/save3").
+		SetBody(map[string]interface{}{
+			"a": a,
+			"b": b,
+		}).
+		Result(&result)
+
+	err := request.POST(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client StringSvcWithContextClient) Add1(ctx context.Context, a int, b int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.Proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -1197,7 +1378,7 @@ func (client StringSvcWithContextClient) Add(ctx context.Context, a int, b int) 
 func (client StringSvcWithContextClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.Proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
 		Result(&result)
 
 	err := request.GET(ctx)
@@ -1208,7 +1389,7 @@ func (client StringSvcWithContextClient) Add2(ctx context.Context, a *int, b *in
 func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
 
-	request := resty.NewRequest(client.Proxy, "/add3")
+	request := resty.NewRequest(client.Proxy, "/ctx/add3")
 	if a != nil {
 		request = request.SetParam("a", strconv.FormatInt(int64(*a), 10))
 	}

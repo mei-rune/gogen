@@ -106,6 +106,26 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
+	mux.Get("/test_by_key/:key", func(ctx *beecontext.Context) {
+		var key Key
+		if keyValue, err := strconv.ParseInt(ctx.Input.Param("key"), 10, 64); err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", key, ctx.Input.Param("key"), err).Error())
+			return
+		} else {
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey1(key)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
 	mux.Get("/test_by_key", func(ctx *beecontext.Context) {
 		var key Key
 		if s := ctx.Input.Query("key"); s != "" {
@@ -118,7 +138,20 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			key = Key(keyValue)
 		}
 
-		err := svc.TestByKey(key)
+		err := svc.TestByKey2(key)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/test_by_strkey/:key", func(ctx *beecontext.Context) {
+		var key = StrKey(ctx.Input.Param("key"))
+
+		err := svc.TestByStrKey1(key)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -134,7 +167,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			key = StrKey(s)
 		}
 
-		err := svc.TestByStrKey(key)
+		err := svc.TestByStrKey2(key)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -510,7 +543,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		var a = ctx.Input.Query("a")
 		var b = ctx.Input.Query("b")
 
-		result, err := svc.Concat(a, b)
+		result, err := svc.Concat0(a, b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -707,7 +740,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			return
 		}
 
-		result, err := svc.Add(a, b)
+		result, err := svc.Add1(a, b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -1010,7 +1043,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 		return
 	})
 	mux.Post("", func(ctx *beecontext.Context) {
-		err := svc.Create3(ctx.Request.Context(), ctx.Request, ctx.Response)
+		err := svc.CreateWithNoReturn(ctx.Request.Context(), ctx.Request, ctx.Response)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -1113,29 +1146,62 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
-	mux.Get("/test_by_key", func(ctx *beecontext.Context) {
-		var key Key
-		if s := ctx.Input.Query("key"); s != "" {
-			keyValue, err := strconv.ParseInt(s, 10, 64)
-			if err != nil {
-				ctx.Output.SetStatus(http.StatusBadRequest)
-				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", key, s, err).Error())
-				return
-			}
-			key = Key(keyValue)
-		}
+	mux.Get("/impl/files", func(ctx *beecontext.Context) {
+		var filenames = ctx.QueryParamArray("filenames")
 
-		err := svc.TestByKey(key)
+		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
 			return
 		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
 		ctx.Output.SetStatus(http.StatusOK)
-		ctx.Output.JSON("OK", false, false)
+		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/allfiles", func(ctx *beecontext.Context) {
+	mux.Get("/impl/times", func(ctx *beecontext.Context) {
+		var times []time.Time
+		if ss := ctx.QueryParamArray("times"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", times, ss, err).Error())
+				return
+			}
+			times = timesValue
+		} else if ss := ctx.QueryParamArray("times[]"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", times, ss, err).Error())
+				return
+			}
+			times = timesValue
+		}
+
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/impl/allfiles", func(ctx *beecontext.Context) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
@@ -1152,7 +1218,81 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/test64/:id", func(ctx *beecontext.Context) {
+	mux.Get("/impl/test_by_key/:key", func(ctx *beecontext.Context) {
+		var key Key
+		if keyValue, err := strconv.ParseInt(ctx.Input.Param("key"), 10, 64); err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", key, ctx.Input.Param("key"), err).Error())
+			return
+		} else {
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey1(key)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/impl/test_by_key", func(ctx *beecontext.Context) {
+		var key Key
+		if s := ctx.Input.Query("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", key, s, err).Error())
+				return
+			}
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey2(key)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/ /impl/test_by_strkey/{key}", func(ctx *beecontext.Context) {
+		var key StrKey
+		if s := ctx.Input.Query("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey1(key)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/ /impl/test_by_strkey", func(ctx *beecontext.Context) {
+		var key StrKey
+		if s := ctx.Input.Query("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey2(key)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
+	mux.Get("/impl/test64/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -1170,7 +1310,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/test64", func(ctx *beecontext.Context) {
+	mux.Get("/impl/test64", func(ctx *beecontext.Context) {
 		var id int64
 		if s := ctx.Input.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -1192,7 +1332,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/test_query_args1/:id", func(ctx *beecontext.Context) {
+	mux.Get("/impl/test_query_args1/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -1251,7 +1391,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/test_query_args2/:id", func(ctx *beecontext.Context) {
+	mux.Get("/impl/test_query_args2/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -1328,7 +1468,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/test_query_args3/:id", func(ctx *beecontext.Context) {
+	mux.Get("/impl/test_query_args3/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -1387,7 +1527,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/test_query_args4/:id", func(ctx *beecontext.Context) {
+	mux.Get("/impl/test_query_args4/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -1464,7 +1604,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/ping", func(ctx *beecontext.Context) {
+	mux.Get("/impl/ping", func(ctx *beecontext.Context) {
 		err := svc.Ping()
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
@@ -1475,7 +1615,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/echo", func(ctx *beecontext.Context) {
+	mux.Get("/impl/echo", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 
 		result := svc.Echo(a)
@@ -1483,7 +1623,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/echo_body1", func(ctx *beecontext.Context) {
+	mux.Get("/impl/echo_body1", func(ctx *beecontext.Context) {
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
@@ -1494,7 +1634,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/echo3", func(ctx *beecontext.Context) {
+	mux.Post("/impl/echo3", func(ctx *beecontext.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
@@ -1514,11 +1654,11 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/concat", func(ctx *beecontext.Context) {
+	mux.Get("/impl/concat", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var b = ctx.Input.Query("b")
 
-		result, err := svc.Concat(a, b)
+		result, err := svc.Concat0(a, b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -1528,7 +1668,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/concat1", func(ctx *beecontext.Context) {
+	mux.Get("/impl/concat1", func(ctx *beecontext.Context) {
 		var a *string
 		if s := ctx.Input.Query("a"); s != "" {
 			a = &s
@@ -1548,7 +1688,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/concat2/:a/:b", func(ctx *beecontext.Context) {
+	mux.Get("/impl/concat2/:a/:b", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var b = ctx.Input.Param("b")
 
@@ -1562,7 +1702,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/concat3/:a/:b", func(ctx *beecontext.Context) {
+	mux.Get("/impl/concat3/:a/:b", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var b = ctx.Input.Param("b")
 
@@ -1576,7 +1716,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/sub", func(ctx *beecontext.Context) {
+	mux.Get("/impl/sub", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var start int64
 		if s := ctx.Input.Query("start"); s != "" {
@@ -1599,7 +1739,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/save/:a", func(ctx *beecontext.Context) {
+	mux.Post("/impl/save/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -1618,7 +1758,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/save2/:a", func(ctx *beecontext.Context) {
+	mux.Post("/impl/save2/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
@@ -1638,7 +1778,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/save3", func(ctx *beecontext.Context) {
+	mux.Post("/impl/save3", func(ctx *beecontext.Context) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -1659,7 +1799,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/save4", func(ctx *beecontext.Context) {
+	mux.Post("/impl/save4", func(ctx *beecontext.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -1680,7 +1820,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/save5", func(ctx *beecontext.Context) {
+	mux.Post("/impl/save5", func(ctx *beecontext.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -1701,7 +1841,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/add/:a/:b", func(ctx *beecontext.Context) {
+	mux.Get("/impl/add/:a/:b", func(ctx *beecontext.Context) {
 		a, err := strconv.Atoi(ctx.Input.Param("a"))
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -1715,7 +1855,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			return
 		}
 
-		result, err := svc.Add(a, b)
+		result, err := svc.Add1(a, b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -1725,7 +1865,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/add2/:a/:b", func(ctx *beecontext.Context) {
+	mux.Get("/impl/add2/:a/:b", func(ctx *beecontext.Context) {
 		var a *int
 		if aValue, err := strconv.Atoi(ctx.Input.Param("a")); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -1753,7 +1893,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/add3", func(ctx *beecontext.Context) {
+	mux.Get("/impl/add3", func(ctx *beecontext.Context) {
 		var a *int
 		if s := ctx.Input.Query("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
@@ -1785,7 +1925,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query1", func(ctx *beecontext.Context) {
+	mux.Get("/impl/query1", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
@@ -1817,7 +1957,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query2/:isRaw", func(ctx *beecontext.Context) {
+	mux.Get("/impl/query2/:isRaw", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
@@ -1846,7 +1986,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query3/:isRaw", func(ctx *beecontext.Context) {
+	mux.Get("/impl/query3/:isRaw", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var beginAt time.Time
 		if s := ctx.Input.Query("begin_at"); s != "" {
@@ -1875,7 +2015,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query4/:isRaw", func(ctx *beecontext.Context) {
+	mux.Get("/impl/query4/:isRaw", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var createdAt TimeRange
 		if s := ctx.Input.Query("created_at.start"); s != "" {
@@ -1903,7 +2043,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query5/:isRaw", func(ctx *beecontext.Context) {
+	mux.Get("/impl/query5/:isRaw", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var createdAt *TimeRange
 		if s := ctx.Input.Query("created_at.start"); s != "" {
@@ -1935,7 +2075,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query6/:isRaw", func(ctx *beecontext.Context) {
+	mux.Get("/impl/query6/:isRaw", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var createdAt TimeRange2
 		if s := ctx.Input.Query("created_at.start"); s != "" {
@@ -1963,7 +2103,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query7/:isRaw", func(ctx *beecontext.Context) {
+	mux.Get("/impl/query7/:isRaw", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var createdAt *TimeRange2
 		if s := ctx.Input.Query("created_at.start"); s != "" {
@@ -1995,11 +2135,133 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
+	mux.Get("/impl/query8", func(ctx *beecontext.Context) {
+		var itemID int64
+		if s := ctx.Input.Query("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", item_id, s, err).Error())
+				return
+			}
+			itemID = itemIDValue
+		}
+
+		result, err := svc.Query8(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
+		return
+	})
+	mux.Post("/impl", func(ctx *beecontext.Context) {
+		err := svc.CreateWithNoReturn(ctx.Request.Context(), ctx.Request, ctx.Response)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+
+		return
+	})
+	mux.Get("/impl/query9", func(ctx *beecontext.Context) {
+		var itemID sql.NullInt64
+		if s := ctx.Input.Query("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", item_id, s, err).Error())
+				return
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+
+		result, err := svc.Query9(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
+		return
+	})
+	mux.Get("/impl/query10", func(ctx *beecontext.Context) {
+		var itemID sql.NullString
+		if s := ctx.Input.Query("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+
+		result, err := svc.Query10(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
+		return
+	})
+	mux.Get("/impl/query11", func(ctx *beecontext.Context) {
+		var itemID sql.NullBool
+		if s := ctx.Input.Query("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.Bool = ToBool(s)
+		}
+
+		result, err := svc.Query11(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
+		return
+	})
+	mux.Get("/impl/query12", func(ctx *beecontext.Context) {
+		var Name = ctx.Input.Query("Name")
+
+		result, err := svc.Query1WithUpName(ctx.Request.Context(), Name)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.Body(result, false, false)
+		return
+	})
+	mux.Post("/impl/query12", func(ctx *beecontext.Context) {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &bindArgs); err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		err := svc.Set1WithUpName(ctx.Request.Context(), bindArgs.Name)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON("OK", false, false)
+		return
+	})
 	// Misc: annotation is missing
 }
 
 func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
-	mux.Get("/echo", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/echo", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 
 		result := svc.Echo(ctx.Request.Context(), a)
@@ -2007,7 +2269,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/echo", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/echo", func(ctx *beecontext.Context) {
 		result, err := svc.EchoBody(ctx.Request.Context(), ctx.Request.Body)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
@@ -2018,11 +2280,11 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/concat", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/concat", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var b = ctx.Input.Query("b")
 
-		result, err := svc.Concat(ctx.Request.Context(), a, b)
+		result, err := svc.Concat0(ctx.Request.Context(), a, b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -2032,7 +2294,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/concat1", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/concat1", func(ctx *beecontext.Context) {
 		var a *string
 		if s := ctx.Input.Query("a"); s != "" {
 			a = &s
@@ -2052,7 +2314,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/concat2/:a/:b", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/concat2/:a/:b", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var b = ctx.Input.Param("b")
 
@@ -2066,7 +2328,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/concat3/:a/:b", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/concat3/:a/:b", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var b = ctx.Input.Param("b")
 
@@ -2080,7 +2342,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/sub", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/sub", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Query("a")
 		var start int64
 		if s := ctx.Input.Query("start"); s != "" {
@@ -2103,7 +2365,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/save/:a", func(ctx *beecontext.Context) {
+	mux.Post("/ctx/save/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -2112,7 +2374,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 			return
 		}
 
-		result, err := svc.Save(ctx.Request.Context(), a, b.String())
+		result, err := svc.Save1(ctx.Request.Context(), a, b.String())
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -2122,7 +2384,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/save2/:a", func(ctx *beecontext.Context) {
+	mux.Post("/ctx/save2/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
@@ -2142,7 +2404,28 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/add/:a/:b", func(ctx *beecontext.Context) {
+	mux.Post("/ctx/save3", func(ctx *beecontext.Context) {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &bindArgs); err != nil {
+			ctx.Output.SetStatus(http.StatusBadRequest)
+			ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.Output.SetStatus(httpCodeWith(err))
+			ctx.WriteString(err.Error())
+			return
+		}
+		ctx.Output.SetStatus(http.StatusCreated)
+		ctx.Output.JSON(result, false, false)
+		return
+	})
+	mux.Get("/ctx/add/:a/:b", func(ctx *beecontext.Context) {
 		a, err := strconv.Atoi(ctx.Input.Param("a"))
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -2156,7 +2439,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 			return
 		}
 
-		result, err := svc.Add(ctx.Request.Context(), a, b)
+		result, err := svc.Add1(ctx.Request.Context(), a, b)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
@@ -2166,7 +2449,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/add2/:a/:b", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/add2/:a/:b", func(ctx *beecontext.Context) {
 		var a *int
 		if aValue, err := strconv.Atoi(ctx.Input.Param("a")); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -2194,7 +2477,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/add3", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/add3", func(ctx *beecontext.Context) {
 		var a *int
 		if s := ctx.Input.Query("a"); s != "" {
 			aValue, err := strconv.Atoi(s)

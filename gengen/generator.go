@@ -243,7 +243,7 @@ var Funcs = template.FuncMap{
 }
 
 var zeroLits = map[string]string{
-	"bool": "false",
+	"bool":      "false",
 	"time.Time": "time.Time{}",
 	"string":    "\"\"",
 }

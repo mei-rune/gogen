@@ -24,15 +24,28 @@ type Param struct {
 }
 
 // GoVarName 申明时的变量名
-func (param *Param) GoVarName() string {
+func (param *Param) GoVarName(hideAnonymous ...bool) string {
 	if param.Parent != nil {
-		if param.Field != nil {
-			return param.Parent.GoVarName() + "." + param.Field.Name
+		if len(hideAnonymous) > 0 && hideAnonymous[0] && param.Field.IsAnonymous {
+			return param.Parent.GoVarName()
 		}
-		return param.Parent.GoVarName() + "." + param.Param.Name
+		return param.Parent.GoVarName(true) + "." + param.Field.Name
 	}
 	if param.Parent != nil {
 		panic("field '" + param.Parent.GoVarName() + param.Field.Name + "' isnot null")
+	}
+	return param.Param.Name
+}
+
+func (param *Param) GoFullFieldName() string {
+	if param.Parent != nil {
+		if param.Field.IsAnonymous {
+			return param.Parent.GoFullFieldName()
+		}
+		return param.Parent.GoFullFieldName() + "." + param.Field.Name
+	}
+	if param.Parent != nil {
+		panic("field '" + param.Parent.GoFullFieldName() + param.Field.Name + "' isnot null")
 	}
 	return param.Param.Name
 }
@@ -93,7 +106,7 @@ func (param *Param) GetFields() ([]Param, error) {
 		typ = typ.PtrElemType()
 	}
 
-	ts, err := typ.ToTypeSpec()
+	ts, err := typ.ToTypeSpec(true)
 	if err != nil {
 		return nil, errors.New("param '" + param.GoMethodParamName() + "' of '" +
 			param.GoMethodFullName() +
@@ -132,7 +145,38 @@ func (param *Param) GetFields() ([]Param, error) {
 			continue
 		}
 
-		oidx := param.Method.SearchSwaggerParameter(param.Param.Name, fields[idx].Name)
+		fieldType := fields[idx].Type()
+		if t := fieldType.PtrElemType(); t.IsValid() {
+			fieldType = t
+		}
+		if fields[idx].IsAnonymous || fieldType.IsStructType() {
+
+			if fieldTypeStr := fieldType.ToLiteral(); !isBultinType(fieldTypeStr) && !isNullableType(fieldTypeStr) {
+				subparam := Param{
+					Parent:      param,
+					Field:       &fields[idx],
+					IsFirsField: idx == 0,
+					Method:      param.Method,
+					Param: &astutil.Param{
+						Method:     param.Method.Method,
+						Name:       fields[idx].Name,
+						IsVariadic: false,
+						Expr:       fields[idx].Expr,
+					},
+					// Option: param.Method.Operation.Parameters[oidx],
+				}
+
+				subparams, err := subparam.GetFields()
+				if err != nil {
+					return nil, err
+				}
+
+				params = append(params, subparams...)
+				continue
+			}
+		}
+
+		oidx := param.Method.SearchSwaggerParameter(param.GoFullFieldName(), fields[idx].Name)
 		if oidx < 0 {
 			return nil, errors.New("param '" + param.GoMethodParamName() + "." + fields[idx].Name +
 				"' of '" + param.GoMethodFullName() +
@@ -168,27 +212,40 @@ func defaultValue(typ string, value interface{}) string {
 }
 
 func (param *Param) SetInitialized() {
+	if param.Parent != nil {
+		param.Parent.SetInitialized()
+	}
 	param.isInitialized = true
 }
 
-func (param *Param) renderParentInit(plugin Plugin, out io.Writer, noCRCF ...bool) error {
+func (param *Param) renderParentInit(plugin Plugin, out io.Writer, noCRCF bool, isFirst ...bool) error {
 	if param.Parent == nil {
 		return nil
 	}
 
+	isFirstValue := param.IsFirsField
+	if len(isFirst) > 0 {
+		isFirstValue = isFirst[0]
+	}
+
 	if !param.Parent.Type().IsPtrType() {
-		return nil
+		return param.Parent.renderParentInit(plugin, out, noCRCF, isFirstValue)
 	}
 
 	if param.Parent.isInitialized {
 		return nil
 	}
 
-	if len(noCRCF) == 0 || !noCRCF[0] {
+	err := param.Parent.renderParentInit(plugin, out, noCRCF, isFirstValue)
+	if err != nil {
+		return err
+	}
+
+	if !noCRCF {
 		io.WriteString(out, "\r\n\t")
 	}
 
-	if param.IsFirsField {
+	if param.IsFirsField && isFirstValue {
 		io.WriteString(out, param.Parent.GoVarName()+" = new("+
 			param.Parent.Type().PtrElemType().ToLiteral()+")")
 	} else {
@@ -198,7 +255,7 @@ func (param *Param) renderParentInit(plugin Plugin, out io.Writer, noCRCF ...boo
 		io.WriteString(out, "}")
 	}
 
-	if len(noCRCF) > 0 && noCRCF[0] {
+	if noCRCF {
 		io.WriteString(out, "\r\n")
 	}
 
@@ -206,6 +263,7 @@ func (param *Param) renderParentInit(plugin Plugin, out io.Writer, noCRCF ...boo
 }
 
 func (param *Param) RenderDeclareAndInit(plugin Plugin, out io.Writer) error {
+	// if param.Option.In == "query" {
 	if param.Type().ToLiteral() == "map[string]string" {
 		io.WriteString(out, "\r\n")
 		return param.renderMap(plugin, out, "map[string]string", "[len(values)-1]")
@@ -214,6 +272,7 @@ func (param *Param) RenderDeclareAndInit(plugin Plugin, out io.Writer) error {
 		io.WriteString(out, "\r\n")
 		return param.renderMap(plugin, out, "url.Values", "")
 	}
+	// }
 
 	if s, ok := plugin.TypeInContext(param.Type().ToLiteral()); ok {
 		param.goArgumentLiteral = s
@@ -300,9 +359,9 @@ func (param *Param) renderMapWithAnonymous(out io.Writer, plugin Plugin, params 
 		io.WriteString(out, "var "+param.GoVarName()+" = "+typeStr+"{}")
 	}
 
-	var parentPrefix string
-	if param.Parent != nil {
-		parentPrefix = param.Parent.GoVarName() + "."
+	var parentPrefix = getParentWebParamName(param.Parent)
+	if parentPrefix != "" {
+		parentPrefix = parentPrefix + "."
 	}
 
 	var names []string
@@ -313,7 +372,8 @@ func (param *Param) renderMapWithAnonymous(out io.Writer, plugin Plugin, params 
 		}
 
 		prefix, _ := params[idx].Option.Extensions.GetString("x-gogen-extend-prefix")
-		if prefix != "" && parentPrefix != prefix{
+
+		if prefix != "" && parentPrefix != prefix {
 			exists := false
 			for _, name := range names {
 				if name == prefix {
@@ -358,19 +418,40 @@ func (param *Param) renderMapWithAnonymous(out io.Writer, plugin Plugin, params 
 		io.WriteString(out, "\r\n\t\t}")
 	}
 
-	if err := param.renderParentInit(plugin, out); err != nil {
+	if err := param.renderParentInit(plugin, out, false); err != nil {
 		return err
 	}
 
-	io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[key] = values"+valueIndex)
+	io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[strings.TrimPrefix(key, \""+parentPrefix+"\")] = values"+valueIndex)
 	io.WriteString(out, "\r\n\t}")
 
 	return nil
 }
 
+func getParentWebParamName(parent *Param) string {
+	tagName := parent.WebParamName()
+	if tagName != "" {
+		return tagName
+	}
+
+	if parent.Parent != nil {
+		tagName = getParentWebParamName(parent.Parent)
+	}
+
+	if parent.Field != nil && parent.Field.IsAnonymous {
+		return tagName
+	}
+
+	if tagName == "" {
+		return toLowerCamelCase(parent.Param.Name)
+	}
+	return tagName + "." + toLowerCamelCase(parent.Param.Name)
+}
+
 func (param *Param) renderMap(plugin Plugin, out io.Writer, typeStr, valueIndex string) error {
-	tagName := toLowerCamelCase(param.Param.Name)
+	var tagName string
 	if !param.isField() {
+		tagName = toLowerCamelCase(param.Param.Name)
 		io.WriteString(out, "var "+param.GoVarName()+" = "+typeStr+"{}")
 	} else {
 		if param.Field.IsAnonymous {
@@ -381,13 +462,15 @@ func (param *Param) renderMap(plugin Plugin, out io.Writer, typeStr, valueIndex 
 			return param.renderMapWithAnonymous(out, plugin, fields, typeStr, valueIndex)
 		}
 
+		tagName = getParentWebParamName(param.Parent)
+
 		var s, _ = getTagValue(param.Field, "json")
 		if s != "" {
 			ss := strings.Split(s, ",")
-			tagName = ss[0]
+			tagName = tagName + "." + ss[0]
+		} else {
+			tagName = tagName + "." + toLowerCamelCase(param.Field.Name)
 		}
-
-		tagName = param.Parent.GoVarName() + "." + tagName
 	}
 
 	io.WriteString(out, "\r\n\tfor key, values := range ")
@@ -396,10 +479,10 @@ func (param *Param) renderMap(plugin Plugin, out io.Writer, typeStr, valueIndex 
 	io.WriteString(out, "\r\n\t\tif !strings.HasPrefix(key, \""+tagName+".\") {")
 	io.WriteString(out, "\r\n\t\t\tcontinue")
 	io.WriteString(out, "\r\n\t\t}")
-	if err := param.renderParentInit(plugin, out); err != nil {
+	if err := param.renderParentInit(plugin, out, false); err != nil {
 		return err
 	}
-	io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[key] = values"+valueIndex)
+	io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[strings.TrimPrefix(key, \""+tagName+".\")] = values"+valueIndex)
 	io.WriteString(out, "\r\n\t}")
 	return nil
 }
@@ -477,34 +560,33 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 	if invocation.ResultError || invocation.ResultBool {
 		if resultExceptedType {
 			// 情况4, 6
+
+			var valueReadText string
+			if invocation.WithDefault {
+				valueReadText = fmt.Sprintf(invocation.Format, param.WebParamName(), defaultValue(invocation.ResultType, param.Option.Default))
+			} else {
+				valueReadText = fmt.Sprintf(invocation.Format, param.WebParamName())
+			}
+
 			io.WriteString(out, param.GoVarName())
 			if invocation.ResultBool {
 				io.WriteString(out, ", ok := ")
-				fmt.Fprintf(out, invocation.Format, param.WebParamName())
-
-				if invocation.WithDefault {
-					fmt.Fprintf(out, invocation.Format, param.WebParamName(), defaultValue(invocation.ResultType, param.Option.Default))
-				} else {
-					fmt.Fprintf(out, invocation.Format, param.WebParamName())
-				}
-
+				io.WriteString(out, valueReadText)
 				io.WriteString(out, "\r\n\tif !ok {\r\n")
-				renderBadArgument(out, plugin, param, "nil")
+				renderCastError(out, plugin, param, "nil", "\"\"")
 				io.WriteString(out, "\r\n\t}")
 			} else {
 				io.WriteString(out, ", err := ")
-
-				if invocation.WithDefault {
-					fmt.Fprintf(out, invocation.Format, param.WebParamName(), defaultValue(invocation.ResultType, param.Option.Default))
-				} else {
-					fmt.Fprintf(out, invocation.Format, param.WebParamName())
-				}
-
+				io.WriteString(out, valueReadText)
 				io.WriteString(out, "\r\n\tif err != nil {\r\n")
-				renderBadArgument(out, plugin, param, "err")
+				renderCastError(out, plugin, param, "err", "\"\"")
 				io.WriteString(out, "\r\n\t}")
 
 				param.Method.SetErrorDeclared()
+			}
+
+			if isUnderlyingBasicType {
+				param.goArgumentLiteral = typeStr + "("+param.GoVarName()+")"
 			}
 			return nil
 		}
@@ -520,41 +602,38 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 				io.WriteString(out, param.Type().ToLiteral())
 			}
 
+			var valueReadText string
+			if invocation.WithDefault {
+				valueReadText = fmt.Sprintf(invocation.Format, param.WebParamName(), defaultValue(invocation.ResultType, param.Option.Default))
+			} else {
+				valueReadText = fmt.Sprintf(invocation.Format, param.WebParamName())
+			}
+
 			if invocation.Required {
 				// 情况12
 				if invocation.ResultBool {
 					io.WriteString(out, "\r\n\tif "+param.fieldName()+"Value, ok := ")
 
-					if invocation.WithDefault {
-						fmt.Fprintf(out, invocation.Format, param.WebParamName(), defaultValue(invocation.ResultType, param.Option.Default))
-					} else {
-						fmt.Fprintf(out, invocation.Format, param.WebParamName())
-					}
-
+					io.WriteString(out, valueReadText)
 					io.WriteString(out, "; ok {")
-					if err := param.renderParentInit(plugin, out); err != nil {
+					if err := param.renderParentInit(plugin, out, false); err != nil {
 						return err
 					}
 					io.WriteString(out, "\r\n\t\t"+param.GoVarName()+" = &"+param.fieldName()+"Value")
 					io.WriteString(out, "\r\n\t} else {\r\n")
-					renderBadArgument(out, plugin, param, "nil")
+					renderCastError(out, plugin, param, "nil", "\"\"")
 					io.WriteString(out, "\r\n\t}")
 				} else {
 					io.WriteString(out, "\r\n\tif "+param.fieldName()+"Value, err := ")
 
-					if invocation.WithDefault {
-						fmt.Fprintf(out, invocation.Format, param.WebParamName(), defaultValue(invocation.ResultType, param.Option.Default))
-					} else {
-						fmt.Fprintf(out, invocation.Format, param.WebParamName())
-					}
-
+					io.WriteString(out, valueReadText)
 					io.WriteString(out, "; err == nil {")
-					if err := param.renderParentInit(plugin, out); err != nil {
+					if err := param.renderParentInit(plugin, out, false); err != nil {
 						return err
 					}
 					io.WriteString(out, "\r\n\t"+param.GoVarName()+" = &"+param.fieldName()+"Value")
 					io.WriteString(out, "\r\n\t} else {\r\n")
-					renderBadArgument(out, plugin, param, "err")
+					renderCastError(out, plugin, param, "err", "\"\"")
 					io.WriteString(out, "\r\n\t}")
 				}
 			} else {
@@ -562,26 +641,18 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 				if invocation.ResultBool {
 					io.WriteString(out, "\r\n\tif "+param.fieldName()+"Value, ok := ")
 
-					if invocation.WithDefault {
-						fmt.Fprintf(out, invocation.Format, param.WebParamName(), defaultValue(invocation.ResultType, param.Option.Default))
-					} else {
-						fmt.Fprintf(out, invocation.Format, param.WebParamName())
-					}
+					io.WriteString(out, valueReadText)
 					io.WriteString(out, "; ok {")
-					if err := param.renderParentInit(plugin, out); err != nil {
+					if err := param.renderParentInit(plugin, out, false); err != nil {
 						return err
 					}
 					io.WriteString(out, "\r\n\t"+param.GoVarName()+" = &"+param.fieldName()+"Value")
 					io.WriteString(out, "\r\n\t}")
 				} else {
 					io.WriteString(out, "\r\n\tif "+param.fieldName()+"Value, err := ")
-					if invocation.WithDefault {
-						fmt.Fprintf(out, invocation.Format, param.WebParamName(), defaultValue(invocation.ResultType, param.Option.Default))
-					} else {
-						fmt.Fprintf(out, invocation.Format, param.WebParamName())
-					}
+					io.WriteString(out, valueReadText)
 					io.WriteString(out, "; err == nil {")
-					if err := param.renderParentInit(plugin, out); err != nil {
+					if err := param.renderParentInit(plugin, out, false); err != nil {
 						return err
 					}
 					io.WriteString(out, "\r\n\t"+param.GoVarName()+" = &"+param.fieldName()+"Value")
@@ -661,7 +732,7 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 				fmt.Fprintf(out, invocation.Format, param.WebParamName())
 			}
 			io.WriteString(out, "; s != \"\" {")
-			if err := param.renderParentInit(plugin, out); err != nil {
+			if err := param.renderParentInit(plugin, out, false); err != nil {
 				return err
 			}
 
@@ -735,13 +806,13 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 
 			if retError {
 				io.WriteString(out, "\r\n\tif err != nil {\r\n")
-				renderBadArgument(out, plugin, param, "err")
+				renderCastError(out, plugin, param, "err", paramValue)
 				io.WriteString(out, "\r\n\t}")
 			}
 
 			if needCast {
 				if param.isField() {
-					if err := param.renderParentInit(plugin, out); err != nil {
+					if err := param.renderParentInit(plugin, out, false); err != nil {
 						return err
 					}
 					param.Parent.SetInitialized()
@@ -793,11 +864,11 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 
 				if retError {
 					io.WriteString(out, "\r\n\t\tif err != nil {\r\n")
-					renderBadArgument(out, plugin, param, "err")
+					renderCastError(out, plugin, param, "err", "s")
 					io.WriteString(out, "\r\n\t\t}")
 				}
 
-				if err := param.renderParentInit(plugin, out); err != nil {
+				if err := param.renderParentInit(plugin, out, false); err != nil {
 					return err
 				}
 				io.WriteString(out, "\r\n\t\t"+param.GoVarName()+".Valid = true")
@@ -807,7 +878,7 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 					io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"."+FieldNameForNullable(param.Type())+" = "+param.fieldName()+"Value")
 				}
 			} else {
-				if err := param.renderParentInit(plugin, out); err != nil {
+				if err := param.renderParentInit(plugin, out, false); err != nil {
 					return err
 				}
 				io.WriteString(out, "\r\n\t\t"+param.GoVarName()+".Valid = true")
@@ -853,10 +924,10 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 			io.WriteString(out, ", err :="+fmt.Sprintf(convertFmt, tmpVarName))
 
 			io.WriteString(out, "\r\n\t\tif err != nil {\r\n")
-			renderBadArgument(out, plugin, param, "err")
+			renderCastError(out, plugin, param, "err", tmpVarName)
 			io.WriteString(out, "\r\n\t\t}")
 
-			if err := param.renderParentInit(plugin, out); err != nil {
+			if err := param.renderParentInit(plugin, out, false); err != nil {
 				return err
 			}
 			if needCast {
@@ -865,7 +936,7 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 				io.WriteString(out, "\r\n\t\t"+param.GoVarName()+" = "+param.fieldName()+"Value")
 			}
 		} else {
-			if err := param.renderParentInit(plugin, out); err != nil {
+			if err := param.renderParentInit(plugin, out, false); err != nil {
 				return err
 			}
 			if needCast {
@@ -923,7 +994,7 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 				io.WriteString(out, fmt.Sprintf(convertFmt, paramValue))
 
 				io.WriteString(out, "\r\n\t if err != nil {\r\n")
-				renderBadArgument(out, plugin, param, "err")
+				renderCastError(out, plugin, param, "err", paramValue)
 				io.WriteString(out, "\r\n\t}")
 
 				param.goArgumentLiteral = "&" + param.GoVarName()
@@ -944,10 +1015,10 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 
 				io.WriteString(out, fmt.Sprintf(convertFmt, paramValue))
 				io.WriteString(out, "; err != nil {\r\n")
-				renderBadArgument(out, plugin, param, "err")
+				renderCastError(out, plugin, param, "err", paramValue)
 				io.WriteString(out, "\r\n\t} else {")
 
-				if err := param.renderParentInit(plugin, out); err != nil {
+				if err := param.renderParentInit(plugin, out, false); err != nil {
 					return err
 				}
 				io.WriteString(out, "\r\n\t\t"+param.GoVarName())
@@ -967,7 +1038,7 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 				io.WriteString(out, "\r\n\t}")
 			}
 		} else {
-			if err := param.renderParentInit(plugin, out); err != nil {
+			if err := param.renderParentInit(plugin, out, false); err != nil {
 				return err
 			}
 			io.WriteString(out, param.GoVarName())
@@ -1000,10 +1071,10 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 			io.WriteString(out, "\r\n\t\t"+param.fieldName()+"Value")
 			io.WriteString(out, ", err :="+fmt.Sprintf(convertFmt, "s"))
 			io.WriteString(out, "\r\n\t\tif err != nil {\r\n")
-			renderBadArgument(out, plugin, param, "err")
+			renderCastError(out, plugin, param, "err", "s")
 			io.WriteString(out, "\r\n\t\t}")
 
-			if err := param.renderParentInit(plugin, out); err != nil {
+			if err := param.renderParentInit(plugin, out, false); err != nil {
 				return err
 			}
 			if needCast {
@@ -1013,7 +1084,7 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 				io.WriteString(out, "\r\n\t\t"+param.GoVarName()+" = &"+param.fieldName()+"Value")
 			}
 		} else {
-			if err := param.renderParentInit(plugin, out); err != nil {
+			if err := param.renderParentInit(plugin, out, false); err != nil {
 				return err
 			}
 			if needCast {

@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -97,7 +99,7 @@ type StringSvc interface {
 	// @Param   key      path   int     true  "Some ID" Format(int)
 	// @Accept  json
 	// @Produce  json
-	// @Router /test_by_key/:key [get]
+	// @Router /test_by_key/{key} [get]
 	TestByKey1(key Key) error
 
 	// @Summary test by int key
@@ -129,6 +131,15 @@ type StringSvc interface {
 
 	// @Summary test by query
 	// @Description test by query
+	// @ID TestInt64Path
+	// @Param   id      path   int     true  "Some ID" Format(int64)
+	// @Accept  json
+	// @Produce  json
+	// @Router /test64/{id} [get]
+	TestInt64Path(id int64) error
+
+	// @Summary test by query
+	// @Description test by query
 	// @ID TestInt64Query
 	// @Param   id      query   int     true  "Some ID" Format(int64)
 	// @Accept  json
@@ -136,12 +147,10 @@ type StringSvc interface {
 	// @Router /test64 [get]
 	TestInt64Query(id int64) error
 
-	// // @http.GET(path="/test_query_args1/:id")
-
 	// @Summary test by query
 	// @Description test by query
 	// @ID TestQueryArgs1
-	// @Param   id      query   int     true  "Some ID" Format(int64)
+	// @Param   id      path   int     true  "Some ID" Format(int64)
 	// @Param   args    query   QueryArgs     false  "Some ID" Format(int64)
 	// @Accept  json
 	// @Produce  json
@@ -151,7 +160,7 @@ type StringSvc interface {
 	// @Summary test by query
 	// @Description test by query
 	// @ID TestQueryArgs2
-	// @Param   id      query   int     true  "Some ID" Format(int64)
+	// @Param   id      path   int     true  "Some ID" Format(int64)
 	// @Param   args    query   QueryArgs     false  "Some ID" Format(int64)
 	// @Accept  json
 	// @Produce  json
@@ -161,7 +170,7 @@ type StringSvc interface {
 	// @Summary test by query
 	// @Description test by query
 	// @ID TestQueryArgs3
-	// @Param   id      query   int     true  "Some ID" Format(int64)
+	// @Param   id      path   int     true  "Some ID" Format(int64)
 	// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-gogen-extend=inline)
 	// @Accept  json
 	// @Produce  json
@@ -171,7 +180,7 @@ type StringSvc interface {
 	// @Summary test by query
 	// @Description test by query
 	// @ID TestQueryArgs4
-	// @Param   id      query   int     true  "Some ID" Format(int64)
+	// @Param   id      path   int     true  "Some ID" Format(int64)
 	// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-gogen-extend=inline)
 	// @Accept  json
 	// @Produce  json
@@ -270,7 +279,7 @@ type StringSvc interface {
 	// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
 	// @Accept  json
 	// @Produce  json
-	// @Router /save/{a} [get]
+	// @Router /save/{a} [post]
 	Save(a, b string) (string, error)
 
 	// @Summary test by query
@@ -488,246 +497,695 @@ type StringSvc interface {
 	// @Router /query12 [post]
 	Set1WithUpName(ctx context.Context, Name string) error
 
-	// Misc() string
+	Misc() string
 }
 
-// var _ StringSvc = &StringSvcImpl{}
+var _ StringSvc = &StringSvcImpl{}
 
-// type StringSvcImpl struct {
-// }
+type StringSvcImpl struct{}
 
-// // @http.GET(path="/test_by_key")
-// func (svc *StringSvcImpl) TestByKey(key Key) error {
-// 	return nil
-// }
+// @Summary get files
+// @Description get files
+// @ID StringSvcImpl.GetFiles
+// @Accept  json
+// @Produce  json
+// @Param   filenames      query   []string     false  "Some ID" Format(string)
+// @Router /impl/files [get]
+func (svc *StringSvcImpl) GetFiles(filenames []string) (list []string, total int64, err error) {
+	return []string{"a.txt"}, 10, nil
+}
 
-// // @http.GET(path="/allfiles")
-// func (svc *StringSvcImpl) GetAllFiles() (list []string, total int64, err error) {
-// 	return []string{"abc"}, 1, nil
-// }
+// @Summary get files
+// @Description get files
+// @ID StringSvcImpl.GetTimes
+// @Accept  json
+// @Produce  json
+// @Param   times      query   []string     false  "Some ID" Format(datetime)
+// @Router /impl/times [get]
+func (svc *StringSvcImpl) GetTimes(times []time.Time) (list []string, total int64, err error) {
+	return []string{"a.txt"}, 10, nil
+}
 
-// // @http.GET(path="/test64/:id")
-// func (svc *StringSvcImpl) TestInt64Path(id int64) error {
-// 	return nil
-// }
+// @Summary get files
+// @Description get files
+// @ID StringSvcImpl.GetAllFiles
+// @Accept  json
+// @Produce  json
+// @Router /impl/allfiles [get]
+func (svc *StringSvcImpl) GetAllFiles() (list []string, total int64, err error) {
+	return []string{"abc"}, 1, nil
+}
 
-// // @http.GET(path="/test64")
-// func (svc *StringSvcImpl) TestInt64Query(id int64) error {
-// 	return nil
-// }
+// @Summary test by int key
+// @Description test by key
+// @ID StringSvcImpl.TestByKey1
+// @Param   key      path   int     true  "Some ID" Format(int)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test_by_key/{key} [get]
+func (svc *StringSvcImpl) TestByKey1(key Key) error {
+	return nil
+}
 
-// // @http.GET(path="/test_query_args1/:id")
-// func (svc *StringSvcImpl) TestQueryArgs1(id int64, args QueryArgs) error {
-// 	return nil
-// }
+// @Summary test by int key
+// @Description test by key
+// @ID StringSvcImpl.TestByKey2
+// @Param   key      query   int     false  "Some ID" Format(int)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test_by_key [get]
+func (svc *StringSvcImpl) TestByKey2(key Key) error {
+	return nil
+}
 
-// // @http.GET(path="/test_query_args2/:id")
-// func (svc *StringSvcImpl) TestQueryArgs2(id int64, args *QueryArgs) error {
-// 	return nil
-// }
+// @Summary test by str key
+// @Description test by key
+// @ID StringSvcImpl.TestByStrKey1
+// @Param   key      path   string     true  "Some ID" Format(string)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test_by_strkey/{key} [get]
+func (svc *StringSvcImpl) TestByStrKey1(key StrKey) error {
+	return nil
+}
 
-// // @http.GET(path="/test_query_args3/:id?args=<none>")
-// func (svc *StringSvcImpl) TestQueryArgs3(id int64, args QueryArgs) error {
-// 	return nil
-// }
+// @Summary test by str key
+// @Description test by key
+// @ID StringSvcImpl.TestByStrKey2
+// @Param   key      query   string     false  "Some ID" Format(string)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test_by_strkey [get]
+func (svc *StringSvcImpl) TestByStrKey2(key StrKey) error {
+	return nil
+}
 
-// // @http.GET(path="/test_query_args4/:id?<none>=args")
-// func (svc *StringSvcImpl) TestQueryArgs4(id int64, args *QueryArgs) error {
-// 	return nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID TestInt64Path
+// @Param   id      path   int     true  "Some ID" Format(int64)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test64/{id} [get]
+func (svc *StringSvcImpl) TestInt64Path(id int64) error {
+	return nil
+}
 
-// // @http.GET(path="/ping")
-// func (svc *StringSvcImpl) Ping() error {
-// 	return nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.TestInt64Query
+// @Param   id      query   int     true  "Some ID" Format(int64)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test64 [get]
+func (svc *StringSvcImpl) TestInt64Query(id int64) error {
+	return nil
+}
 
-// // @http.GET(path="/echo")
-// func (svc *StringSvcImpl) Echo(a string) string {
-// 	return a
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.TestQueryArgs1
+// @Param   id      query   int     true  "Some ID" Format(int64)
+// @Param   args    query   QueryArgs     false  "Some ID" Format(int64)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test_query_args1/{id} [get]
+func (svc *StringSvcImpl) TestQueryArgs1(id int64, args QueryArgs) error {
+	return nil
+}
 
-// // @http.GET(path="/echo_body1", data="body")
-// func (svc *StringSvcImpl) EchoBody(body io.Reader) (string, error) {
-// 	bs, err := ioutil.ReadAll(body)
-// 	return string(bs), err
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.TestQueryArgs2
+// @Param   id      path   int     true  "Some ID" Format(int64)
+// @Param   args    query   QueryArgs     false  "Some ID" Format(int64)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test_query_args2/{id} [get]
+func (svc *StringSvcImpl) TestQueryArgs2(id int64, args *QueryArgs) error {
+	return nil
+}
 
-// // @http.POST(path="/echo3")
-// func (svc *StringSvcImpl) Echo3(context context.Context, a string) (string, error) {
-// 	return a, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.TestQueryArgs3
+// @Param   id      path   int     true  "Some ID" Format(int64)
+// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-gogen-extend=inline)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test_query_args3/{id} [get]
+func (svc *StringSvcImpl) TestQueryArgs3(id int64, args QueryArgs) error {
+	return nil
+}
 
-// // @http.GET(path="/concat")
-// func (svc *StringSvcImpl) Concat(a, b string) (string, error) {
-// 	return a + b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.TestQueryArgs4
+// @Param   id      path   int     true  "Some ID" Format(int64)
+// @Param   args    query   QueryArgs     false  "Some ID" extensions(x-gogen-extend=inline)
+// @Accept  json
+// @Produce  json
+// @Router /impl/test_query_args4/{id} [get]
+func (svc *StringSvcImpl) TestQueryArgs4(id int64, args *QueryArgs) error {
+	return nil
+}
 
-// // @http.GET(path="/concat1")
-// func (svc *StringSvcImpl) Concat1(a, b *string) (string, error) {
-// 	return *a + *b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Ping
+// @Accept  json
+// @Produce  json
+// @Router /impl/ping [get]
+func (svc *StringSvcImpl) Ping() error {
+	return nil
+}
 
-// // @http.GET(path="/concat2/:a/:b")
-// func (svc *StringSvcImpl) Concat2(a, b string) (string, error) {
-// 	return a + b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Echo
+// @Param   a      query   string     false  "Some ID" Format(int64)
+// @Accept  json
+// @Produce  json
+// @Router /impl/echo [get]
+func (svc *StringSvcImpl) Echo(a string) string {
+	return a
+}
 
-// // @http.GET(path="/concat3/:a/:b")
-// func (svc *StringSvcImpl) Concat3(a, b *string) (string, error) {
-// 	return *a + *b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.EchoBody
+// @Param   body      body   string     false  "Some ID"
+// @Accept  json
+// @Produce  json
+// @Router /impl/echo2 [post]
+func (svc *StringSvcImpl) EchoBody(body io.Reader) (string, error) {
+	bs, err := ioutil.ReadAll(body)
+	return string(bs), err
+}
 
-// // @http.GET(path="/sub")
-// func (svc *StringSvcImpl) Sub(a string, start int64) (string, error) {
-// 	return a[start:], nil
-// }
+// @Summary test by body
+// @Description test by body
+// @ID StringSvcImpl.Echo3
+// @Param   a      body   string     false  "Some ID"
+// @Accept  json
+// @Produce  json
+// @Router /impl/echo3 [post]
+func (svc *StringSvcImpl) Echo3(context context.Context, a string) (string, error) {
+	return a, nil
+}
 
-// // @http.POST(path="/save/:a", data="b")
-// func (svc *StringSvcImpl) Save(a, b string) (string, error) {
-// 	return "", nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Concat0
+// @Param   a      query   string     false  "Some ID"
+// @Param   b      query   string     false  "Some ID"
+// @Accept  json
+// @Produce  json
+// @Router /impl/concat [get]
+func (svc *StringSvcImpl) Concat0(a, b string) (string, error) {
+	return a + b, nil
+}
 
-// // @http.POST(path="/save2/:a", data="b")
-// func (svc *StringSvcImpl) Save2(a, b *string) (string, error) {
-// 	return *a + *b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Concat1
+// @Param   a      query   string     false  "arg a"
+// @Param   b      query   string     false  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/concat1 [get]
+func (svc *StringSvcImpl) Concat1(a, b *string) (string, error) {
+	return *a + *b, nil
+}
 
-// // @http.POST(path="/save3")
-// func (svc *StringSvcImpl) Save3(a, b *string) (string, error) {
-// 	return *a + *b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Concat2
+// @Param   a      path   string     true  "arg a"
+// @Param   b      path   string    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/concat2/{a}/{b} [get]
+func (svc *StringSvcImpl) Concat2(a, b string) (string, error) {
+	return a + b, nil
+}
 
-// // @http.POST(path="/save4")
-// func (svc *StringSvcImpl) Save4(a, b string) (string, error) {
-// 	return a + b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Concat3
+// @Param   a      path   string     true  "arg a"
+// @Param   b      path   string    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/concat3/{a}/{b} [get]
+func (svc *StringSvcImpl) Concat3(a, b *string) (string, error) {
+	return *a + *b, nil
+}
 
-// // @http.POST(path="/save5")
-// func (svc *StringSvcImpl) Save5(context context.Context, a, b string) (string, error) {
-// 	return a + b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Sub
+// @Param   a      query   string     true  "arg a"
+// @Param   start      query   int64    true  "arg start"
+// @Accept  json
+// @Produce  json
+// @Router /impl/sub [get]
+func (svc *StringSvcImpl) Sub(a string, start int64) (string, error) {
+	return a[start:], nil
+}
 
-// // @http.GET(path="/add/:a/:b")
-// func (svc *StringSvcImpl) Add(a, b int) (int, error) {
-// 	return a + b, nil
-// }
+// @Summary test save
+// @Description test save
+// @ID StringSvcImpl.Save1
+// @Param   a      path   string     true  "arg a"
+// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
+// @Accept  json
+// @Produce  json
+// @Router /impl/save/{a} [get]
+func (svc *StringSvcImpl) Save(a, b string) (string, error) {
+	return "", nil
+}
 
-// // @http.GET(path="/add2/:a/:b")
-// func (svc *StringSvcImpl) Add2(a, b *int) (int, error) {
-// 	return *a + *b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Save2
+// @Param   a      path   string     true  "arg a"
+// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
+// @Accept  json
+// @Produce  json
+// @Router /impl/save2/{a} [post]
+func (svc *StringSvcImpl) Save2(a, b *string) (string, error) {
+	return *a + *b, nil
+}
 
-// // @http.GET(path="/add3")
-// func (svc *StringSvcImpl) Add3(a, b *int) (int, error) {
-// 	return *a + *b, nil
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Save3
+// @Param   a      body   string     true  "arg a"
+// @Param   b      body   string    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/save3 [post]
+func (svc *StringSvcImpl) Save3(a, b *string) (string, error) {
+	return *a + *b, nil
+}
 
-// // @http.GET(path="/query1")
-// func (svc *StringSvcImpl) Query1(a string, beginAt, endAt time.Time, isRaw bool) string {
-// 	return "queue"
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Save4
+// @Param   a      body   string     true  "arg a"
+// @Param   b      body   string    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/save4 [post]
+func (svc *StringSvcImpl) Save4(a, b string) (string, error) {
+	return a + b, nil
+}
 
-// // @http.GET(path="/query2/:isRaw")
-// func (svc *StringSvcImpl) Query2(a string, beginAt, endAt time.Time, isRaw bool) string {
-// 	return "queue"
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcImpl.Save5
+// @Param   a      body   string     true  "arg a"
+// @Param   b      body   string    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/save5 [post]
+func (svc *StringSvcImpl) Save5(context context.Context, a, b string) (string, error) {
+	return a + b, nil
+}
 
-// // @http.GET(path="/query3/:isRaw")
-// func (svc *StringSvcImpl) Query3(a string, beginAt, endAt time.Time, isRaw *bool) string {
-// 	return "queue"
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Add1
+// @Param   a      path   int     true  "arg a"
+// @Param   b      path   int    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/add/{a}/{b} [get]
+func (svc *StringSvcImpl) Add1(a, b int) (int, error) {
+	return a + b, nil
+}
 
-// // @http.GET(path="/query4/:isRaw")
-// func (svc *StringSvcImpl) Query4(a string, createdAt TimeRange, isRaw *bool) string {
-// 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Add2
+// @Param   a      path   int     true  "arg a"
+// @Param   b      path   int    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/add2/{a}/{b} [get]
+func (svc *StringSvcImpl) Add2(a, b *int) (int, error) {
+	return *a + *b, nil
+}
 
-// // @http.GET(path="/query5/:isRaw")
-// func (svc *StringSvcImpl) Query5(a string, createdAt *TimeRange, isRaw *bool) string {
-// 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Add3
+// @Param   a      query   int     true  "arg a"
+// @Param   b      query   int    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /impl/add3 [get]
+func (svc *StringSvcImpl) Add3(a, b *int) (int, error) {
+	return *a + *b, nil
+}
 
-// // @http.GET(path="/query6/:isRaw")
-// func (svc *StringSvcImpl) Query6(a string, createdAt TimeRange2, isRaw *bool) string {
-// 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Query1
+// @Param   a      query   int     true  "arg a"
+// @Param   begin_at      query   string    true  "arg beginAt" Format(time)
+// @Param   end_at      query   string    true  "arg endAt" Format(time)
+// @Param   is_raw      query   boolean    true  "arg isRaw"
+// @Accept  json
+// @Produce  json
+// @Router /impl/query1 [get]
+func (svc *StringSvcImpl) Query1(a string, beginAt, endAt time.Time, isRaw bool) string {
+	return "queue"
+}
 
-// // @http.GET(path="/query7/:isRaw")
-// func (svc *StringSvcImpl) Query7(a string, createdAt *TimeRange2, isRaw *bool) string {
-// 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Query2
+// @Param   a      query   int     true  "arg a"
+// @Param   begin_at      query   string    true  "arg beginAt" Format(time)
+// @Param   end_at      query   string    true  "arg endAt" Format(time)
+// @Param   is_raw      path   boolean    true  "arg isRaw"
+// @Accept  json
+// @Produce  json
+// @Router /impl/query2/{isRaw} [get]
+func (svc *StringSvcImpl) Query2(a string, beginAt, endAt time.Time, isRaw bool) string {
+	return "queue"
+}
 
-// func (svc *StringSvcImpl) Misc() string {
-// 	return ""
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Query3
+// @Param   a      query   int     true  "arg a"
+// @Param   begin_at      query   string    true  "arg beginAt" Format(time)
+// @Param   end_at      query   string    true  "arg endAt" Format(time)
+// @Param   is_raw      path   boolean    true  "arg isRaw"
+// @Accept  json
+// @Produce  json
+// @Router /impl/query3/{isRaw} [get]
+func (svc *StringSvcImpl) Query3(a string, beginAt, endAt time.Time, isRaw *bool) string {
+	return "queue"
+}
 
-// type StringSvcWithContext struct {
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Query4
+// @Param   a      query   int     true  "arg a"
+// @Param   created_at      query   TimeRange    true  "arg beginAt" Format(time)
+// @Param   is_raw      path   boolean    true  "arg isRaw"
+// @Accept  json
+// @Produce  json
+// @Router /query4/{isRaw} [get]
+func (svc *StringSvcImpl) Query4(a string, createdAt TimeRange, isRaw *bool) string {
+	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
+}
 
-// // @http.GET(path="/echo")
-// func (svc *StringSvcWithContext) Echo(ctx context.Context, a string) string {
-// 	return a
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Query5
+// @Param   a      query   int     true  "arg a"
+// @Param   created_at      query   TimeRange    true  "arg beginAt" Format(time)
+// @Param   is_raw      path   boolean    true  "arg isRaw"
+// @Accept  json
+// @Produce  json
+// @Router /impl/query5/{isRaw} [get]
+func (svc *StringSvcImpl) Query5(a string, createdAt *TimeRange, isRaw *bool) string {
+	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
+}
 
-// // @http.GET(path="/echo", data="body")
-// func (svc *StringSvcWithContext) EchoBody(ctx context.Context, body io.Reader) (string, error) {
-// 	bs, err := ioutil.ReadAll(body)
-// 	return string(bs), err
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Query6
+// @Param   a      query   int     true  "arg a"
+// @Param   created_at      query   TimeRange2    true  "arg beginAt" Format(time)
+// @Param   is_raw      path   boolean    true  "arg isRaw"
+// @Accept  json
+// @Produce  json
+// @Router /impl/query6/{isRaw} [get]
+func (svc *StringSvcImpl) Query6(a string, createdAt TimeRange2, isRaw *bool) string {
+	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
+}
 
-// // @http.GET(path="/concat")
-// func (svc *StringSvcWithContext) Concat(ctx context.Context, a, b string) (string, error) {
-// 	return a + b, nil
-// }
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcImpl.Query7
+// @Param   a      query   int     true  "arg a"
+// @Param   created_at      query   TimeRange2    true  "arg beginAt" Format(time)
+// @Param   is_raw      path   boolean    true  "arg isRaw"
+// @Accept  json
+// @Produce  json
+// @Router /impl/query7/{isRaw} [get]
+func (svc *StringSvcImpl) Query7(a string, createdAt *TimeRange2, isRaw *bool) string {
+	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
+}
 
-// // @http.GET(path="/concat1")
-// func (svc *StringSvcWithContext) Concat1(ctx context.Context, a, b *string) (string, error) {
-// 	return *a + *b, nil
-// }
+// @Summary content_type="text"
+// @Description content_type="text"
+// @ID StringSvcImpl.Query8
+// @Param   item_id      query   int     true  "arg a"
+// @Accept  json
+// @Produce  plain
+// @Router /impl/query8 [get]
+func (svc *StringSvcImpl) Query8(ctx context.Context, itemID int64) (string, error) {
+	return "queue:" + strconv.FormatInt(itemID, 10), nil
+}
 
-// // @http.GET(path="/concat2/:a/:b")
-// func (svc *StringSvcWithContext) Concat2(ctx context.Context, a, b string) (string, error) {
-// 	return a + b, nil
-// }
+// @Summary noreturn="true"
+// @Description noreturn="true"
+// @ID StringSvcImpl.CreateWithNoReturn
+// @Accept  json
+// @Produce  json
+// @Router /impl/ [post]
+// @x-gogen-noreturn true
+func (svc *StringSvcImpl) CreateWithNoReturn(ctx context.Context, request *http.Request, response http.ResponseWriter) error {
+	return nil
+}
 
-// // @http.GET(path="/concat3/:a/:b")
-// func (svc *StringSvcWithContext) Concat3(ctx context.Context, a, b *string) (string, error) {
-// 	return *a + *b, nil
-// }
+// @Summary query9 content_type="text"
+// @Description query9 content_type="text"
+// @ID StringSvcImpl.Query9
+// @Param   item_id      query   int     true  "arg a"
+// @Accept  json
+// @Produce  plain
+// @Router /impl/query9 [get]
+func (svc *StringSvcImpl) Query9(ctx context.Context, itemID sql.NullInt64) (string, error) {
+	return "query9", nil
+}
 
-// // @http.GET(path="/sub")
-// func (svc *StringSvcWithContext) Sub(ctx context.Context, a string, start int64) (string, error) {
-// 	return a[start:], nil
-// }
+// @Summary query10 content_type="text"
+// @Description query10 content_type="text"
+// @ID StringSvcImpl.Query10
+// @Param   item_id      query   int     true  "arg a"
+// @Accept  json
+// @Produce  plain
+// @Router /impl/query10 [get]
+func (svc *StringSvcImpl) Query10(ctx context.Context, itemID sql.NullString) (string, error) {
+	return "query10", nil
+}
 
-// // @http.POST(path="/save/:a", data="b")
-// func (svc *StringSvcWithContext) Save(ctx context.Context, a, b string) (string, error) {
-// 	return "", nil
-// }
+// @Summary query11 content_type="text"
+// @Description query11 content_type="text"
+// @ID StringSvcImpl.Query11
+// @Param   item_id      query   bool     true  "arg a"
+// @Accept  json
+// @Produce  plain
+// @Router /impl/query11 [get]
+func (svc *StringSvcImpl) Query11(ctx context.Context, itemID sql.NullBool) (string, error) {
+	return "query11", nil
+}
 
-// // @http.POST(path="/save2/:a", data="b")
-// func (svc *StringSvcWithContext) Save2(ctx context.Context, a, b *string) (string, error) {
-// 	return *a + *b, nil
-// }
+// @Summary query12 Name is Upper
+// @Description query12 Name is Upper
+// @ID StringSvcImpl.Query1WithUpName
+// @Param   Name      query   string     true  "arg a"
+// @Accept  json
+// @Produce  plain
+// @Router /impl/query12 [get]
+func (svc *StringSvcImpl) Query1WithUpName(ctx context.Context, Name string) (string, error) {
+	return "Query1WithUpName", nil
+}
 
-// // @http.GET(path="/add/:a/:b")
-// func (svc *StringSvcWithContext) Add(ctx context.Context, a, b int) (int, error) {
-// 	return a + b, nil
-// }
+// @Summary query12 Name is Upper
+// @Description query12 Name is Upper
+// @ID StringSvcImpl.Query1WithUpName
+// @Param   Name      body   string     true  "arg a"
+// @Accept  json
+// @Produce  json
+// @Router /impl/query12 [post]
+func (svc *StringSvcImpl) Set1WithUpName(ctx context.Context, Name string) error {
+	return nil
+}
 
-// // @http.GET(path="/add2/:a/:b")
-// func (svc *StringSvcWithContext) Add2(ctx context.Context, a, b *int) (int, error) {
-// 	return *a + *b, nil
-// }
+func (svc *StringSvcImpl) Misc() string {
+	return ""
+}
 
-// // @http.GET(path="/add3")
-// func (svc *StringSvcWithContext) Add3(ctx context.Context, a, b *int) (int, error) {
-// 	return *a + *b, nil
-// }
+type StringSvcWithContext struct {
+}
 
-// func (svc *StringSvcWithContext) Misc() string {
-// 	return ""
-// }
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.Echo
+// @Param   a      query   string     false  "Some ID" Format(int64)
+// @Accept  json
+// @Produce  json
+// @Router /ctx/echo [get]
+func (svc *StringSvcWithContext) Echo(ctx context.Context, a string) string {
+	return a
+}
+
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.EchoBody
+// @Param   body      body   string     false  "Some ID"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/echo2 [post]
+func (svc *StringSvcWithContext) EchoBody(ctx context.Context, body io.Reader) (string, error) {
+	bs, err := ioutil.ReadAll(body)
+	return string(bs), err
+}
+
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.Concat0
+// @Param   a      query   string     false  "Some ID"
+// @Param   b      query   string     false  "Some ID"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/concat [get]
+func (svc *StringSvcWithContext) Concat0(ctx context.Context, a, b string) (string, error) {
+	return a + b, nil
+}
+
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.Concat1
+// @Param   a      query   string     false  "arg a"
+// @Param   b      query   string     false  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/concat1 [get]
+func (svc *StringSvcWithContext) Concat1(ctx context.Context, a, b *string) (string, error) {
+	return *a + *b, nil
+}
+
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.Concat2
+// @Param   a      path   string     true  "arg a"
+// @Param   b      path   string    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/concat2/{a}/{b} [get]
+func (svc *StringSvcWithContext) Concat2(ctx context.Context, a, b string) (string, error) {
+	return a + b, nil
+}
+
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.Concat3
+// @Param   a      path   string     true  "arg a"
+// @Param   b      path   string    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/concat3/{a}/{b} [get]
+func (svc *StringSvcWithContext) Concat3(ctx context.Context, a, b *string) (string, error) {
+	return *a + *b, nil
+}
+
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.Sub
+// @Param   a      query   string     true  "arg a"
+// @Param   start      query   int64    true  "arg start"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/sub [get]
+func (svc *StringSvcWithContext) Sub(ctx context.Context, a string, start int64) (string, error) {
+	return a[start:], nil
+}
+
+// @Summary test save
+// @Description test save
+// @ID StringSvcWithContext.Save1
+// @Param   a      path   string     true  "arg a"
+// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
+// @Accept  json
+// @Produce  json
+// @Router /ctx/save1/{a} [get]
+func (svc *StringSvcWithContext) Save1(ctx context.Context, a, b string) (string, error) {
+	return "", nil
+}
+
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.Save2
+// @Param   a      path   string     true  "arg a"
+// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
+// @Accept  json
+// @Produce  json
+// @Router /ctx/save2/{a} [post]
+func (svc *StringSvcWithContext) Save2(ctx context.Context, a, b *string) (string, error) {
+	return *a + *b, nil
+}
+
+// @Summary test by query
+// @Description test by query
+// @ID StringSvcWithContext.Save3
+// @Param   a      body   string     true  "arg a"
+// @Param   b      body   string    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/save3 [post]
+func (svc *StringSvcWithContext) Save3(a, b *string) (string, error) {
+	return *a + *b, nil
+}
+
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcWithContext.Add1
+// @Param   a      path   int     true  "arg a"
+// @Param   b      path   int    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/add1/{a}/{b} [get]
+func (svc *StringSvcWithContext) Add1(ctx context.Context, a, b int) (int, error) {
+	return a + b, nil
+}
+
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcWithContext.Add2
+// @Param   a      path   int     true  "arg a"
+// @Param   b      path   int    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/add2/{a}/{b} [get]
+func (svc *StringSvcWithContext) Add2(ctx context.Context, a, b *int) (int, error) {
+	return *a + *b, nil
+}
+
+// @Summary add by path
+// @Description add by path
+// @ID StringSvcWithContext.Add3
+// @Param   a      query   int     true  "arg a"
+// @Param   b      query   int    true  "arg b"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/add3 [get]
+func (svc *StringSvcWithContext) Add3(ctx context.Context, a, b *int) (int, error) {
+	return *a + *b, nil
+}
+
+func (svc *StringSvcWithContext) Misc() string {
+	return ""
+}
 
 // 用于测试 Parse() 不会 panic
 func notpanic() {}
@@ -811,71 +1269,241 @@ type Requests interface {
 	// @Router /requests/query1 [get]
 	Query1(ctx context.Context, query *models.RequestQuery, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/query2?query=<none>")
-	// Query2(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
+	// @Summary Query2
+	// @Description Query2
+	// @ID Requests.Query2
+	// @Param   query    query   models.RequestQuery     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/query2 [get]
+	Query2(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/query3?query=<none>")
-	// Query3(ctx context.Context, query *AliasRequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
+	// @Summary Query3
+	// @Description Query3
+	// @ID Requests.Query3
+	// @Param   query    query   models.RequestQuery     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/query3 [get]
+	Query3(ctx context.Context, query *AliasRequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/queryex1")
-	// QueryEx1(ctx context.Context, query *RequestQueryEx1, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// @Summary QueryEx1
+	// @Description QueryEx1
+	// @ID Requests.QueryEx1
+	// @Param   query    query   RequestQueryEx1     false  "request query param"
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/queryex1 [get]
+	QueryEx1(ctx context.Context, query *RequestQueryEx1, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/queryex2")
-	// QueryEx2(ctx context.Context, query *RequestQueryEx2, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// @Summary QueryEx2
+	// @Description QueryEx2
+	// @ID Requests.QueryEx2
+	// @Param   query    query   RequestQueryEx2     false  "request query param"
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/queryex2 [get]
+	QueryEx2(ctx context.Context, query *RequestQueryEx2, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/queryex3")
-	// QueryEx3(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// @Summary QueryEx3
+	// @Description QueryEx3
+	// @ID Requests.QueryEx3
+	// @Param   query    query   RequestQueryEx3     false  "request query param"
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/queryex3 [get]
+	QueryEx3(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/queryex4")
-	// QueryEx4(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// @Summary QueryEx4
+	// @Description QueryEx4
+	// @ID Requests.QueryEx4
+	// @Param   query    query   RequestQueryEx4     false  "request query param"
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/queryex4 [get]
+	QueryEx4(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/queryex3/NoPrefix?query=<none>")
-	// QueryEx3NoPrefix(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// @Summary QueryEx3NoPrefix
+	// @Description QueryEx3NoPrefix
+	// @ID Requests.QueryEx3NoPrefix
+	// @Param   query    query   RequestQueryEx3     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/queryex3/NoPrefix [get]
+	QueryEx3NoPrefix(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/queryex4/NoPrefix?query=<none>")
-	// QueryEx4NoPrefix(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
+	// @Summary QueryEx4NoPrefix
+	// @Description QueryEx4NoPrefix
+	// @ID Requests.QueryEx4NoPrefix
+	// @Param   query    query   RequestQueryEx3     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/queryex4/NoPrefix [get]
+	QueryEx4NoPrefix(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="")
-	// List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
-	// // @http.POST(path="", data="data")
-	// Create(ctx context.Context, data *models.Request) (int64, error)
+	// @Summary List
+	// @Description List
+	// @ID Requests.List
+	// @Param   query    query   models.RequestQuery     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   offset   query   int     false  "offset"
+	// @Param   limit    query   int     false  "limit"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests [get]
+	List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 
-	// // @http.POST(path="")
-	// Create2(ctx context.Context, request *models.Request, testarg int64) (int64, error)
+	// @Summary Create1
+	// @Description Create1
+	// @ID Requests.Create1
+	// @Param   data    body   models.Request     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/create1 [post]
+	Create1(ctx context.Context, data *models.Request) (int64, error)
 
-	// // @http.PUT(path="/:id", data="data")
-	// UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error)
+	// @Summary Create2
+	// @Description Create2
+	// @ID Requests.Create2
+	// @Param   request    body   models.Request     false  "request query param"
+	// @Param   testarg  body   int     false  "testarg"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/create2 [post]
+	Create2(ctx context.Context, request *models.Request, testarg int64) (int64, error)
 
-	// // @http.PATCH(path="/:id")
-	// Set1ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// @Summary UpdateByID
+	// @Description UpdateByID
+	// @ID Requests.UpdateByID
+	// @Param   data    body   models.Request     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   id  path   int     false  "id"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/{id} [put]
+	UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error)
 
-	// // @http.PATCH(path="/:id", data="params")
-	// Set2ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// @Summary Set1ByID
+	// @Description Set1ByID
+	// @ID Requests.Set1ByID
+	// @Param   params     body   map[string]string     false  "params"
+	// @Param   id  path   int     false  "id"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/set1/{id} [patch]
+	Set1ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// // @http.PUT(path="/:id")
-	// Set3ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// @Summary Set2ByID
+	// @Description Set2ByID
+	// @ID Requests.Set2ByID
+	// @Param   id         path   int     false  "id"
+	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=true)
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/set2/{id} [patch]
+	Set2ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// // @http.PUT(path="/:id", data="params")
-	// Set4ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// @Summary Set3ByID
+	// @Description Set3ByID
+	// @ID Requests.Set3ByID
+	// @Param   id         path   int     false  "id"
+	// @Param   params     body   map[string]string     false  "params"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/set3/{id} [put]
+	Set3ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// // @http.POST(path="/:id/5")
-	// Set5ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// @Summary Set4ByID
+	// @Description Set4ByID
+	// @ID Requests.Set4ByID
+	// @Param   id         path   int     false  "id"
+	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=true)
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/set4/{id} [put]
+	Set4ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// // @http.POST(path="/:id/6", data="params")
-	// Set6ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
+	// @Summary Set5ByID
+	// @Description Set5ByID
+	// @ID Requests.Set5ByID
+	// @Param   id         path   int     false  "id"
+	// @Param   params     body   map[string]string     false  "params"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/set5/{id} [post]
+	Set5ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// // @http.POST(path="/:id/7", data="params", dataType="map[string]string")
-	// Set7ByID(ctx context.Context, id int64, params interface{}) (int64, err error)
+	// @Summary Set6ByID
+	// @Description Set6ByID
+	// @ID Requests.Set6ByID
+	// @Param   id         path   int     false  "id"
+	// @Param   params     body   map[string]string    false  "params" extensions(x-gogen-entire-body=true)
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/set6/{id} [post]
+	Set6ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// // @http.GET(path="/querysub1")
-	// QuerySubTest1(ctx context.Context, query *SubTest1) (requests []map[string]interface{}, err error)
+	// @Summary Set7ByID, dataType="map[string]string"
+	// @Description Set7ByID
+	// @ID Requests.Set7ByID
+	// @Param   id         path   int     false  "id"
+	// @Param   params     body   map[string]interface{}     false  "params" extensions(x-gogen-entire-body=true)
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/set7/{id} [post]
+	Set7ByID(ctx context.Context, id int64, params interface{}) (int64, err error)
 
-	// // @http.GET(path="/querysub2")
-	// QuerySubTest2(ctx context.Context, query *SubTest2) (requests []map[string]interface{}, err error)
+	// @Summary QuerySubTest1
+	// @Description QuerySubTest1
+	// @ID Requests.QuerySubTest1
+	// @Param   id         path   int     false  "id"
+	// @Param   query     query   SubTest1     false  "params"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/querysub1 [get]
+	QuerySubTest1(ctx context.Context, query *SubTest1) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/querysub3")
-	// QuerySubTest3(ctx context.Context, query *SubTest3) (requests []map[string]interface{}, err error)
+	// @Summary QuerySubTest2
+	// @Description QuerySubTest2
+	// @ID Requests.QuerySubTest2
+	// @Param   id         path   int     false  "id"
+	// @Param   query     query   SubTest2     false  "params"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/querysub2 [get]
+	QuerySubTest2(ctx context.Context, query *SubTest2) (requests []map[string]interface{}, err error)
 
-	// // @http.GET(path="/querysub4")
-	// QuerySubTest4(ctx context.Context, query *SubTest4) (requests []map[string]interface{}, err error)
+	// @Summary QuerySubTest3
+	// @Description QuerySubTest3
+	// @ID Requests.QuerySubTest3
+	// @Param   id         path   int     false  "id"
+	// @Param   query     query   SubTest3     false  "params"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/querysub3 [get]
+	QuerySubTest3(ctx context.Context, query *SubTest3) (requests []map[string]interface{}, err error)
+
+	// @Summary QuerySubTest4
+	// @Description QuerySubTest4
+	// @ID Requests.QuerySubTest4
+	// @Param   id         path   int     false  "id"
+	// @Param   query     query   SubTest4     false  "params"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/querysub4 [get]
+	QuerySubTest4(ctx context.Context, query *SubTest4) (requests []map[string]interface{}, err error)
 }

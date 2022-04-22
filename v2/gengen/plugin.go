@@ -55,10 +55,18 @@ type Plugin interface {
 	RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error
 	RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error
 	RenderReturnError(out io.Writer, method *Method, errCode, err string) error
+	RenderReturnEmpty(out io.Writer, method *Method) error
 }
 
-func renderBadArgument(out io.Writer, plugin Plugin, param *Param, err string) error {
-	txt := "NewBadArgument(" + err + ", \"" + param.Method.Method.Clazz.Name + "." + param.Method.Method.Name + "\", \"" + param.WebParamName() + "\")"
+func genBodyErrorText(method *Method, bodyName, err string) string {
+	txt := "NewBadArgument(" + err + ", \"" + method.FullName() + "\", \"" + bodyName + "\")"
+	// return "fmt.Errorf(\"argument %q is invalid - %q\", \""+bodyName+"\", \"body\", "+ err + ")"
+	return txt
+}
+
+func renderCastError(out io.Writer, plugin Plugin, param *Param, err, value string) error {
+	// txt := "fmt.Errorf(\"argument %q is invalid - %q\", \""+param.WebParamName()+"\", "+value+", "+err+")"
+	txt := "NewBadArgument(" + err + ", \"" + param.Method.FullName() + "\", \"" + param.WebParamName() + "\")"
 	return plugin.RenderReturnError(out, param.Method, "http.StatusBadRequest", txt)
 }
 
@@ -78,4 +86,54 @@ func renderString(txt string, renderArgs interface{}) string {
 		log.Fatalln(err)
 	}
 	return out.String()
+}
+
+func statusCodeLiteralByMethod(op string) string {
+	if strings.ToLower(op) == "post" {
+		return "http.StatusCreated"
+	}
+	return "http.StatusOK"
+}
+
+func hasQuery(param Param) bool {
+	typ := param.Type()
+	if typ.IsPtrType() {
+		typ = typ.PtrElemType()
+	}
+	if !typ.IsStructType() {
+		return false
+	}
+	params, _ := param.GetFields()
+	if len(params) == 0 {
+		return false
+	}
+	for idx := range params {
+		if params[idx].Option.In == "query" || 
+			(params[idx].Option.In == "" && hasQuery(params[idx])) {
+			return true
+		}
+	}
+	return false
+}
+
+
+func hasQueryArray(param Param) bool {
+	typ := param.Type()
+	if typ.IsPtrType() {
+		typ = typ.PtrElemType()
+	}
+	if !typ.IsStructType() {
+		return false
+	}
+	params, _ := param.GetFields()
+	if len(params) == 0 {
+		return false
+	}
+	for idx := range params {
+		if (params[idx].Option.In == "query" && params[idx].Option.SimpleSchema.Type == swag.ARRAY) || 
+			(params[idx].Option.In == "" && hasQueryArray(params[idx])) {
+			return true
+		}
+	}
+	return false
 }

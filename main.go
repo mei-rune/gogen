@@ -28,16 +28,16 @@ func main() {
 		return
 	}
 
-	var gen = &gengen.Generator{}
-	// switch args[0] {
-	// case "server":
-	// 	gen = &gengen.WebServerGenerator{}
-	// case "client":
-	// 	gen = &gengen.WebClientGenerator{}
-	// default:
-	// 	usage()
-	// 	return
-	// }
+	var gen gengen.Generator
+	switch args[0] {
+	case "server":
+		gen = &gengen.WebServerGenerator{}
+	case "client":
+		gen = &gengen.WebClientGenerator{}
+	default:
+		usage()
+		return
+	}
 
 	fset := flag.NewFlagSet(args[0], flag.ExitOnError)
 	gen.Flags(fset)

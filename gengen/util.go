@@ -111,6 +111,7 @@ func convertToStringLiteral(param Param, isArray ...bool) string {
 }
 
 var convertNS string
+
 func convertToStringLiteral2(suffix string, param Param, isArray ...bool) string {
 	name := param.Name.Name + suffix
 
@@ -120,7 +121,7 @@ func convertToStringLiteral2(suffix string, param Param, isArray ...bool) string
 	} else {
 		typ = typePrint(param.Typ)
 		if strings.HasPrefix(typ, "[]") {
-			return convertNS+strings.TrimPrefix(typ, "[]") + "ArrayToString(" + name + ")"
+			return convertNS + strings.TrimPrefix(typ, "[]") + "ArrayToString(" + name + ")"
 		}
 	}
 	isFirst := true
@@ -161,9 +162,9 @@ retry:
 		}
 		return "strconv.FormatUint(*" + name + ", 10)"
 	case "bool":
-		return convertNS +"BoolToString(" + name + ")"
+		return convertNS + "BoolToString(" + name + ")"
 	case "*bool":
-		return convertNS +"BoolToString(*" + name + ")"
+		return convertNS + "BoolToString(*" + name + ")"
 	case "time.Time", "*time.Time":
 		return name + ".Format(" + TimeFormat + ")"
 	case "time.Duration", "*time.Duration":
@@ -173,7 +174,7 @@ retry:
 	case "sql.NullTime":
 		return name + ".Time.Format(" + TimeFormat + ")"
 	case "sql.NullBool":
-		return convertNS+"BoolToString(" + name + ".Bool)"
+		return convertNS + "BoolToString(" + name + ".Bool)"
 	case "sql.NullInt64":
 		return "strconv.FormatInt(" + name + ".Int64, 10)"
 	case "sql.NullUint64":

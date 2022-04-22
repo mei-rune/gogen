@@ -66,21 +66,6 @@ func (method *Method) collectBodyParams(plugin Plugin, params []Param) []int {
 func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 	var results []Param
 	for idx := range method.Method.Params.List {
-		if method.Method.Params.List[idx].Type().ToLiteral() == "map[string]string" {
-			results = append(results, Param{
-				Method: method,
-				Param:  &method.Method.Params.List[idx],
-			})
-			continue
-		}
-
-		if _, ok := plugin.TypeInContext(method.Method.Params.List[idx].Type().ToLiteral()); ok {
-			results = append(results, Param{
-				Method: method,
-				Param:  &method.Method.Params.List[idx],
-			})
-			continue
-		}
 
 		foundIndex := -1
 		for i := range method.Operation.Parameters {
@@ -129,16 +114,35 @@ func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 			}
 		}
 
-		if foundIndex < 0 {
-			return nil, errors.New("param '" + method.Method.Params.List[idx].Name +
-				"' of '" + method.FullName() +
-				"' not found in the swagger annotations")
+		if foundIndex >= 0 {
+			results = append(results, Param{
+				Method: method,
+				Param:  &method.Method.Params.List[idx],
+			})
+			continue
 		}
 
-		results = append(results, Param{
-			Method: method,
-			Param:  &method.Method.Params.List[idx],
-		})
+		// fmt.Println(method.Method.Name, method.Method.Params.List[idx].Name)
+
+		if method.Method.Params.List[idx].Type().ToLiteral() == "map[string]string" {
+			results = append(results, Param{
+				Method: method,
+				Param:  &method.Method.Params.List[idx],
+			})
+			continue
+		}
+
+		if _, ok := plugin.TypeInContext(method.Method.Params.List[idx].Type().ToLiteral()); ok {
+			results = append(results, Param{
+				Method: method,
+				Param:  &method.Method.Params.List[idx],
+			})
+			continue
+		}
+
+		return nil, errors.New("param '" + method.Method.Params.List[idx].Name +
+			"' of '" + method.FullName() +
+			"' not found in the swagger annotations")
 	}
 
 	return results, nil
@@ -152,6 +156,10 @@ func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 
 	/// 输出参数解析
 	for idx := range params {
+		if params[idx].Option.In == "body" {
+			continue
+		}
+
 		if params[idx].Param.Name == "otherValues" {
 			if params[idx].Type().ToLiteral() == "map[string]string" {
 				err := params[idx].renderMapWithAnonymous(out, plugin, params, "map[string]string", "[len(values)-1]")
@@ -191,14 +199,35 @@ func isEntire(param *Param) bool {
 }
 
 func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Param, list []int) error {
+	offset := 0
+	for curidx, idx := range list {
+		if s, ok := plugin.TypeInContext(params[idx].Type().ToLiteral()); ok {
+			params[idx].goArgumentLiteral = s
+			continue
+		}
+
+		if offset != curidx {
+			list[offset] = list[curidx]
+		}
+		offset++
+	}
+	list = list[:offset]
+	if len(list) == 0 {
+		return nil
+	}
+
+	varName := params[list[0]].Param.Name
 	if len(list) == 1 && isEntire(&params[list[0]]) {
+
+		if s, ok := plugin.TypeInContext(params[list[0]].Type().ToLiteral()); ok {
+			params[list[0]].goArgumentLiteral = s
+			return nil
+		}
 
 		isString := params[list[0]].Type().IsStringType(false)
 		isStringPtr := params[list[0]].Type().PtrElemType().IsValid() && params[list[0]].Type().PtrElemType().IsStringType(false)
 
 		if isString || isStringPtr {
-
-			varName := params[list[0]].Param.Name
 			io.WriteString(out, "\r\n\tvar ")
 			io.WriteString(out, varName)
 			if isStringPtr {
@@ -210,7 +239,7 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 			s, _ := plugin.TypeInContext("io.Reader")
 
 			io.WriteString(out, "\r\n\tif _, err := io.Copy(&"+varName+", "+s+"); err != nil {\r\n\t\t")
-			txt := `NewBadArgument(err, "` + params[list[0]].Param.Name + `", "body")`
+			txt := genBodyErrorText(method, varName, "err")
 			plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
 			io.WriteString(out, "\r\n}")
 
@@ -227,10 +256,16 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 
 			return nil
 		} else {
-			io.WriteString(out, "\r\n\tvar bindArgs "+params[list[0]].Type().ToLiteral())
-			params[list[0]].goArgumentLiteral = "bindArgs"
+			if params[list[0]].Type().PtrElemType().IsValid() {
+				io.WriteString(out, "\r\n\tvar "+varName+" "+params[list[0]].Type().PtrElemType().ToLiteral())
+				params[list[0]].goArgumentLiteral = "&" + varName
+			} else {
+				io.WriteString(out, "\r\n\tvar "+varName+" "+params[list[0]].Type().ToLiteral())
+				params[list[0]].goArgumentLiteral = varName
+			}
 		}
 	} else {
+		varName = "bindArgs"
 		io.WriteString(out, "\r\n\tvar bindArgs struct{")
 		for _, idx := range list {
 			fieldName := toUpperFirst(params[idx].Param.Name)
@@ -252,9 +287,11 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 	}
 
 	io.WriteString(out, "\r\n\tif err := ")
-	io.WriteString(out, plugin.ReadBodyFunc("&bindArgs"))
+	io.WriteString(out, plugin.ReadBodyFunc("&"+varName))
 	io.WriteString(out, "; err != nil {\r\n")
-	txt := `NewBadArgument(err, "bindArgs", "body")`
+	// txt := `NewBadArgument(err, "bindArgs", "body")`
+	txt := genBodyErrorText(method, varName, "err")
+
 	plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
 	io.WriteString(out, "\r\n\t}")
 
@@ -342,9 +379,11 @@ func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params
 			io.WriteString(out, "\r\nif err != nil {\r\n")
 			plugin.RenderReturnError(out, method, "", "err")
 			io.WriteString(out, "\r\n}")
+			io.WriteString(out, "\r\n")
 			if !noreturn {
-				io.WriteString(out, "\r\n")
 				plugin.RenderReturnOK(out, method, "", "\"OK\"")
+			} else {
+				plugin.RenderReturnEmpty(out, method)
 			}
 		} else {
 			// if methodParams.IsPlainText {

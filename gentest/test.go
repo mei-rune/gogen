@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -115,7 +116,7 @@ type StringSvc interface {
 	Echo3(context context.Context, a string) (string, error)
 
 	// @http.GET(path="/concat")
-	Concat(a, b string) (string, error)
+	Concat0(a, b string) (string, error)
 
 	// @http.GET(path="/concat1")
 	Concat1(a, b *string) (string, error)
@@ -145,7 +146,7 @@ type StringSvc interface {
 	Save5(context context.Context, a, b string) (string, error)
 
 	// @http.GET(path="/add/:a/:b")
-	Add(a, b int) (int, error)
+	Add1(a, b int) (int, error)
 
 	// @http.GET(path="/add2/:a/:b")
 	Add2(a, b *int) (int, error)
@@ -178,7 +179,7 @@ type StringSvc interface {
 	Query8(ctx context.Context, itemID int64) (string, error)
 
 	// @http.POST(path="", noreturn="true")
-	Create3(ctx context.Context, request *http.Request, response http.ResponseWriter) error
+	CreateWithNoReturn(ctx context.Context, request *http.Request, response http.ResponseWriter) error
 
 	// @http.GET(path="/query9", content_type="text")
 	Query9(ctx context.Context, itemID sql.NullInt64) (string, error)
@@ -200,168 +201,227 @@ type StringSvc interface {
 
 var _ StringSvc = &StringSvcImpl{}
 
-type StringSvcImpl struct {
+type StringSvcImpl struct{}
+
+// @http.GET(path="/impl/files")
+func (svc *StringSvcImpl) GetFiles(filenames []string) (list []string, total int64, err error) {
+	return []string{"a.txt"}, 10, nil
 }
 
-// @http.GET(path="/test_by_key")
-func (svc *StringSvcImpl) TestByKey(key Key) error {
-	return nil
+// @http.GET(path="/impl/times")
+func (svc *StringSvcImpl) GetTimes(times []time.Time) (list []string, total int64, err error) {
+	return []string{"a.txt"}, 10, nil
 }
 
-// @http.GET(path="/allfiles")
+// @http.GET(path="/impl/allfiles")
 func (svc *StringSvcImpl) GetAllFiles() (list []string, total int64, err error) {
 	return []string{"abc"}, 1, nil
 }
 
-// @http.GET(path="/test64/:id")
+// @http.GET(path="/impl/test_by_key/:key")
+func (svc *StringSvcImpl) TestByKey1(key Key) error {
+	return nil
+}
+
+// @http.GET(path="/impl/test_by_key")
+func (svc *StringSvcImpl) TestByKey2(key Key) error {
+	return nil
+}
+
+// @http.GET(path=" /impl/test_by_strkey/{key}")
+func (svc *StringSvcImpl) TestByStrKey1(key StrKey) error {
+	return nil
+}
+
+// @http.GET(path=" /impl/test_by_strkey/")
+func (svc *StringSvcImpl) TestByStrKey2(key StrKey) error {
+	return nil
+}
+
+// @http.GET(path="/impl/test64/:id")
 func (svc *StringSvcImpl) TestInt64Path(id int64) error {
 	return nil
 }
 
-// @http.GET(path="/test64")
+// @http.GET(path="/impl/test64")
 func (svc *StringSvcImpl) TestInt64Query(id int64) error {
 	return nil
 }
 
-// @http.GET(path="/test_query_args1/:id")
+// @http.GET(path="/impl/test_query_args1/:id")
 func (svc *StringSvcImpl) TestQueryArgs1(id int64, args QueryArgs) error {
 	return nil
 }
 
-// @http.GET(path="/test_query_args2/:id")
+// @http.GET(path="/impl/test_query_args2/:id")
 func (svc *StringSvcImpl) TestQueryArgs2(id int64, args *QueryArgs) error {
 	return nil
 }
 
-// @http.GET(path="/test_query_args3/:id?args=<none>")
+// @http.GET(path="/impl/test_query_args3/:id?args=<none>")
 func (svc *StringSvcImpl) TestQueryArgs3(id int64, args QueryArgs) error {
 	return nil
 }
 
-// @http.GET(path="/test_query_args4/:id?<none>=args")
+// @http.GET(path="/impl/test_query_args4/:id?<none>=args")
 func (svc *StringSvcImpl) TestQueryArgs4(id int64, args *QueryArgs) error {
 	return nil
 }
 
-// @http.GET(path="/ping")
+// @http.GET(path="/impl/ping")
 func (svc *StringSvcImpl) Ping() error {
 	return nil
 }
 
-// @http.GET(path="/echo")
+// @http.GET(path="/impl/echo")
 func (svc *StringSvcImpl) Echo(a string) string {
 	return a
 }
 
-// @http.GET(path="/echo_body1", data="body")
+// @http.GET(path="/impl/echo_body1", data="body")
 func (svc *StringSvcImpl) EchoBody(body io.Reader) (string, error) {
 	bs, err := ioutil.ReadAll(body)
 	return string(bs), err
 }
 
-// @http.POST(path="/echo3")
+// @http.POST(path="/impl/echo3")
 func (svc *StringSvcImpl) Echo3(context context.Context, a string) (string, error) {
 	return a, nil
 }
 
-// @http.GET(path="/concat")
-func (svc *StringSvcImpl) Concat(a, b string) (string, error) {
+// @http.GET(path="/impl/concat")
+func (svc *StringSvcImpl) Concat0(a, b string) (string, error) {
 	return a + b, nil
 }
 
-// @http.GET(path="/concat1")
+// @http.GET(path="/impl/concat1")
 func (svc *StringSvcImpl) Concat1(a, b *string) (string, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/concat2/:a/:b")
+// @http.GET(path="/impl/concat2/:a/:b")
 func (svc *StringSvcImpl) Concat2(a, b string) (string, error) {
 	return a + b, nil
 }
 
-// @http.GET(path="/concat3/:a/:b")
+// @http.GET(path="/impl/concat3/:a/:b")
 func (svc *StringSvcImpl) Concat3(a, b *string) (string, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/sub")
+// @http.GET(path="/impl/sub")
 func (svc *StringSvcImpl) Sub(a string, start int64) (string, error) {
 	return a[start:], nil
 }
 
-// @http.POST(path="/save/:a", data="b")
+// @http.POST(path="/impl/save/:a", data="b")
 func (svc *StringSvcImpl) Save(a, b string) (string, error) {
 	return "", nil
 }
 
-// @http.POST(path="/save2/:a", data="b")
+// @http.POST(path="/impl/save2/:a", data="b")
 func (svc *StringSvcImpl) Save2(a, b *string) (string, error) {
 	return *a + *b, nil
 }
 
-// @http.POST(path="/save3")
+// @http.POST(path="/impl/save3")
 func (svc *StringSvcImpl) Save3(a, b *string) (string, error) {
 	return *a + *b, nil
 }
 
-// @http.POST(path="/save4")
+// @http.POST(path="/impl/save4")
 func (svc *StringSvcImpl) Save4(a, b string) (string, error) {
 	return a + b, nil
 }
 
-// @http.POST(path="/save5")
+// @http.POST(path="/impl/save5")
 func (svc *StringSvcImpl) Save5(context context.Context, a, b string) (string, error) {
 	return a + b, nil
 }
 
-// @http.GET(path="/add/:a/:b")
-func (svc *StringSvcImpl) Add(a, b int) (int, error) {
+// @http.GET(path="/impl/add/:a/:b")
+func (svc *StringSvcImpl) Add1(a, b int) (int, error) {
 	return a + b, nil
 }
 
-// @http.GET(path="/add2/:a/:b")
+// @http.GET(path="/impl/add2/:a/:b")
 func (svc *StringSvcImpl) Add2(a, b *int) (int, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/add3")
+// @http.GET(path="/impl/add3")
 func (svc *StringSvcImpl) Add3(a, b *int) (int, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/query1")
+// @http.GET(path="/impl/query1")
 func (svc *StringSvcImpl) Query1(a string, beginAt, endAt time.Time, isRaw bool) string {
 	return "queue"
 }
 
-// @http.GET(path="/query2/:isRaw")
+// @http.GET(path="/impl/query2/:isRaw")
 func (svc *StringSvcImpl) Query2(a string, beginAt, endAt time.Time, isRaw bool) string {
 	return "queue"
 }
 
-// @http.GET(path="/query3/:isRaw")
+// @http.GET(path="/impl/query3/:isRaw")
 func (svc *StringSvcImpl) Query3(a string, beginAt, endAt time.Time, isRaw *bool) string {
 	return "queue"
 }
 
-// @http.GET(path="/query4/:isRaw")
+// @http.GET(path="/impl/query4/:isRaw")
 func (svc *StringSvcImpl) Query4(a string, createdAt TimeRange, isRaw *bool) string {
 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
 }
 
-// @http.GET(path="/query5/:isRaw")
+// @http.GET(path="/impl/query5/:isRaw")
 func (svc *StringSvcImpl) Query5(a string, createdAt *TimeRange, isRaw *bool) string {
 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
 }
 
-// @http.GET(path="/query6/:isRaw")
+// @http.GET(path="/impl/query6/:isRaw")
 func (svc *StringSvcImpl) Query6(a string, createdAt TimeRange2, isRaw *bool) string {
 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
 }
 
-// @http.GET(path="/query7/:isRaw")
+// @http.GET(path="/impl/query7/:isRaw")
 func (svc *StringSvcImpl) Query7(a string, createdAt *TimeRange2, isRaw *bool) string {
 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
+}
+
+// @http.GET(path="/impl/query8", content_type="text")
+func (svc *StringSvcImpl) Query8(ctx context.Context, itemID int64) (string, error) {
+	return "queue:" + strconv.FormatInt(itemID, 10), nil
+}
+
+// @http.POST(path="/impl", noreturn="true")
+func (svc *StringSvcImpl) CreateWithNoReturn(ctx context.Context, request *http.Request, response http.ResponseWriter) error {
+	return nil
+}
+
+// @http.GET(path="/impl/query9", content_type="text")
+func (svc *StringSvcImpl) Query9(ctx context.Context, itemID sql.NullInt64) (string, error) {
+	return "query9", nil
+}
+
+// @http.GET(path="/impl/query10", content_type="text")
+func (svc *StringSvcImpl) Query10(ctx context.Context, itemID sql.NullString) (string, error) {
+	return "query10", nil
+}
+
+// @http.GET(path="/impl/query11", content_type="text")
+func (svc *StringSvcImpl) Query11(ctx context.Context, itemID sql.NullBool) (string, error) {
+	return "query11", nil
+}
+
+// @http.GET(path="/impl/query12?Name=Name", content_type="text")
+func (svc *StringSvcImpl) Query1WithUpName(ctx context.Context, Name string) (string, error) {
+	return "Query1WithUpName", nil
+}
+
+// @http.POST(path="/impl/query12", auto_underscore="false")
+func (svc *StringSvcImpl) Set1WithUpName(ctx context.Context, Name string) error {
+	return nil
 }
 
 func (svc *StringSvcImpl) Misc() string {
@@ -371,63 +431,68 @@ func (svc *StringSvcImpl) Misc() string {
 type StringSvcWithContext struct {
 }
 
-// @http.GET(path="/echo")
+// @http.GET(path="/ctx/echo")
 func (svc *StringSvcWithContext) Echo(ctx context.Context, a string) string {
 	return a
 }
 
-// @http.GET(path="/echo", data="body")
+// @http.GET(path="/ctx/echo", data="body")
 func (svc *StringSvcWithContext) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	bs, err := ioutil.ReadAll(body)
 	return string(bs), err
 }
 
-// @http.GET(path="/concat")
-func (svc *StringSvcWithContext) Concat(ctx context.Context, a, b string) (string, error) {
+// @http.GET(path="/ctx/concat")
+func (svc *StringSvcWithContext) Concat0(ctx context.Context, a, b string) (string, error) {
 	return a + b, nil
 }
 
-// @http.GET(path="/concat1")
+// @http.GET(path="/ctx/concat1")
 func (svc *StringSvcWithContext) Concat1(ctx context.Context, a, b *string) (string, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/concat2/:a/:b")
+// @http.GET(path="/ctx/concat2/:a/:b")
 func (svc *StringSvcWithContext) Concat2(ctx context.Context, a, b string) (string, error) {
 	return a + b, nil
 }
 
-// @http.GET(path="/concat3/:a/:b")
+// @http.GET(path="/ctx/concat3/:a/:b")
 func (svc *StringSvcWithContext) Concat3(ctx context.Context, a, b *string) (string, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/sub")
+// @http.GET(path="/ctx/sub")
 func (svc *StringSvcWithContext) Sub(ctx context.Context, a string, start int64) (string, error) {
 	return a[start:], nil
 }
 
-// @http.POST(path="/save/:a", data="b")
-func (svc *StringSvcWithContext) Save(ctx context.Context, a, b string) (string, error) {
+// @http.POST(path="/ctx/save/:a", data="b")
+func (svc *StringSvcWithContext) Save1(ctx context.Context, a, b string) (string, error) {
 	return "", nil
 }
 
-// @http.POST(path="/save2/:a", data="b")
+// @http.POST(path="/ctx/save2/:a", data="b")
 func (svc *StringSvcWithContext) Save2(ctx context.Context, a, b *string) (string, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/add/:a/:b")
-func (svc *StringSvcWithContext) Add(ctx context.Context, a, b int) (int, error) {
+// @http.POST(path="/ctx/save3")
+func (svc *StringSvcWithContext) Save3(a, b *string) (string, error) {
+	return *a + *b, nil
+}
+
+// @http.GET(path="/ctx/add/:a/:b")
+func (svc *StringSvcWithContext) Add1(ctx context.Context, a, b int) (int, error) {
 	return a + b, nil
 }
 
-// @http.GET(path="/add2/:a/:b")
+// @http.GET(path="/ctx/add2/:a/:b")
 func (svc *StringSvcWithContext) Add2(ctx context.Context, a, b *int) (int, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/add3")
+// @http.GET(path="/ctx/add3")
 func (svc *StringSvcWithContext) Add3(ctx context.Context, a, b *int) (int, error) {
 	return *a + *b, nil
 }

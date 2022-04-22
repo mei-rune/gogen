@@ -26,5 +26,5 @@ type RequestQuery struct {
 	OverdueStart, OverdueEnd time.Time
 	Settings                 map[string]string `gogen:"true" swaggerignore:"true"`
 	Args                     map[string]string `json:"ttargstt" gogen:"true" swaggerignore:"true"`
-	url.Values  `gogen:"true" swaggerignore:"true"`
+	url.Values               `gogen:"true" swaggerignore:"true"`
 }

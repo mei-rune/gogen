@@ -96,6 +96,23 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
+	mux.GET("/test_by_key/:key", func(ctx *gin.Context) {
+		var key Key
+		if keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", key, ctx.Param("key"), err).Error())
+			return
+		} else {
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey1(key)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
 	mux.GET("/test_by_key", func(ctx *gin.Context) {
 		var key Key
 		if s := ctx.Query("key"); s != "" {
@@ -107,7 +124,18 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			key = Key(keyValue)
 		}
 
-		err := svc.TestByKey(key)
+		err := svc.TestByKey2(key)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test_by_strkey/:key", func(ctx *gin.Context) {
+		var key = StrKey(ctx.Param("key"))
+
+		err := svc.TestByStrKey1(key)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -121,7 +149,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			key = StrKey(s)
 		}
 
-		err := svc.TestByStrKey(key)
+		err := svc.TestByStrKey2(key)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -453,7 +481,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		var a = ctx.Query("a")
 		var b = ctx.Query("b")
 
-		result, err := svc.Concat(a, b)
+		result, err := svc.Concat0(a, b)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -622,7 +650,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			return
 		}
 
-		result, err := svc.Add(a, b)
+		result, err := svc.Add1(a, b)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -891,7 +919,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		return
 	})
 	mux.POST("", func(ctx *gin.Context) {
-		err := svc.Create3(ctx.Request.Context(), ctx.Request, ctx.Writer)
+		err := svc.CreateWithNoReturn(ctx.Request.Context(), ctx.Request, ctx.Writer)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -981,26 +1009,56 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 }
 
 func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
-	mux.GET("/test_by_key", func(ctx *gin.Context) {
-		var key Key
-		if s := ctx.Query("key"); s != "" {
-			keyValue, err := strconv.ParseInt(s, 10, 64)
-			if err != nil {
-				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", key, s, err).Error())
-				return
-			}
-			key = Key(keyValue)
-		}
+	mux.GET("/impl/files", func(ctx *gin.Context) {
+		var filenames = ctx.QueryArray("filenames")
 
-		err := svc.TestByKey(key)
+		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
 		}
-		ctx.JSON(http.StatusOK, "OK")
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/allfiles", func(ctx *gin.Context) {
+	mux.GET("/impl/times", func(ctx *gin.Context) {
+		var times []time.Time
+		if ss := ctx.QueryArray("times"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", times, ss, err).Error())
+				return
+			}
+			times = timesValue
+		} else if ss := ctx.QueryArray("times[]"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", times, ss, err).Error())
+				return
+			}
+			times = timesValue
+		}
+
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
+	mux.GET("/impl/allfiles", func(ctx *gin.Context) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
@@ -1015,7 +1073,71 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/test64/:id", func(ctx *gin.Context) {
+	mux.GET("/impl/test_by_key/:key", func(ctx *gin.Context) {
+		var key Key
+		if keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", key, ctx.Param("key"), err).Error())
+			return
+		} else {
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey1(key)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/impl/test_by_key", func(ctx *gin.Context) {
+		var key Key
+		if s := ctx.Query("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", key, s, err).Error())
+				return
+			}
+			key = Key(keyValue)
+		}
+
+		err := svc.TestByKey2(key)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/ /impl/test_by_strkey/{key}", func(ctx *gin.Context) {
+		var key StrKey
+		if s := ctx.Query("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey1(key)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/ /impl/test_by_strkey", func(ctx *gin.Context) {
+		var key StrKey
+		if s := ctx.Query("key"); s != "" {
+			key = StrKey(s)
+		}
+
+		err := svc.TestByStrKey2(key)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/impl/test64/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -1030,7 +1152,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/test64", func(ctx *gin.Context) {
+	mux.GET("/impl/test64", func(ctx *gin.Context) {
 		var id int64
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -1049,7 +1171,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/test_query_args1/:id", func(ctx *gin.Context) {
+	mux.GET("/impl/test_query_args1/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -1101,7 +1223,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/test_query_args2/:id", func(ctx *gin.Context) {
+	mux.GET("/impl/test_query_args2/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -1171,7 +1293,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/test_query_args3/:id", func(ctx *gin.Context) {
+	mux.GET("/impl/test_query_args3/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -1223,7 +1345,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/test_query_args4/:id", func(ctx *gin.Context) {
+	mux.GET("/impl/test_query_args4/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -1293,7 +1415,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/ping", func(ctx *gin.Context) {
+	mux.GET("/impl/ping", func(ctx *gin.Context) {
 		err := svc.Ping()
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
@@ -1302,14 +1424,14 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/echo", func(ctx *gin.Context) {
+	mux.GET("/impl/echo", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 
 		result := svc.Echo(a)
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/echo_body1", func(ctx *gin.Context) {
+	mux.GET("/impl/echo_body1", func(ctx *gin.Context) {
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
@@ -1318,7 +1440,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.POST("/echo3", func(ctx *gin.Context) {
+	mux.POST("/impl/echo3", func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
@@ -1335,11 +1457,11 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.GET("/concat", func(ctx *gin.Context) {
+	mux.GET("/impl/concat", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var b = ctx.Query("b")
 
-		result, err := svc.Concat(a, b)
+		result, err := svc.Concat0(a, b)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -1347,7 +1469,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/concat1", func(ctx *gin.Context) {
+	mux.GET("/impl/concat1", func(ctx *gin.Context) {
 		var a *string
 		if s := ctx.Query("a"); s != "" {
 			a = &s
@@ -1365,7 +1487,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/concat2/:a/:b", func(ctx *gin.Context) {
+	mux.GET("/impl/concat2/:a/:b", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
@@ -1377,7 +1499,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/concat3/:a/:b", func(ctx *gin.Context) {
+	mux.GET("/impl/concat3/:a/:b", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
@@ -1389,7 +1511,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/sub", func(ctx *gin.Context) {
+	mux.GET("/impl/sub", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var start int64
 		if s := ctx.Query("start"); s != "" {
@@ -1409,7 +1531,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.POST("/save/:a", func(ctx *gin.Context) {
+	mux.POST("/impl/save/:a", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -1425,7 +1547,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("/save2/:a", func(ctx *gin.Context) {
+	mux.POST("/impl/save2/:a", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
@@ -1442,7 +1564,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("/save3", func(ctx *gin.Context) {
+	mux.POST("/impl/save3", func(ctx *gin.Context) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -1460,7 +1582,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("/save4", func(ctx *gin.Context) {
+	mux.POST("/impl/save4", func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -1478,7 +1600,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("/save5", func(ctx *gin.Context) {
+	mux.POST("/impl/save5", func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -1496,7 +1618,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.GET("/add/:a/:b", func(ctx *gin.Context) {
+	mux.GET("/impl/add/:a/:b", func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, ctx.Param("a"), err).Error())
@@ -1508,7 +1630,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			return
 		}
 
-		result, err := svc.Add(a, b)
+		result, err := svc.Add1(a, b)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -1516,7 +1638,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/add2/:a/:b", func(ctx *gin.Context) {
+	mux.GET("/impl/add2/:a/:b", func(ctx *gin.Context) {
 		var a *int
 		if aValue, err := strconv.Atoi(ctx.Param("a")); err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, ctx.Param("a"), err).Error())
@@ -1540,7 +1662,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/add3", func(ctx *gin.Context) {
+	mux.GET("/impl/add3", func(ctx *gin.Context) {
 		var a *int
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
@@ -1568,7 +1690,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query1", func(ctx *gin.Context) {
+	mux.GET("/impl/query1", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -1597,7 +1719,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query2/:isRaw", func(ctx *gin.Context) {
+	mux.GET("/impl/query2/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -1623,7 +1745,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query3/:isRaw", func(ctx *gin.Context) {
+	mux.GET("/impl/query3/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -1649,7 +1771,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query4/:isRaw", func(ctx *gin.Context) {
+	mux.GET("/impl/query4/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -1674,7 +1796,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query5/:isRaw", func(ctx *gin.Context) {
+	mux.GET("/impl/query5/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -1703,7 +1825,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query6/:isRaw", func(ctx *gin.Context) {
+	mux.GET("/impl/query6/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange2
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -1728,7 +1850,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query7/:isRaw", func(ctx *gin.Context) {
+	mux.GET("/impl/query7/:isRaw", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange2
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -1757,18 +1879,124 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
+	mux.GET("/impl/query8", func(ctx *gin.Context) {
+		var itemID int64
+		if s := ctx.Query("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", item_id, s, err).Error())
+				return
+			}
+			itemID = itemIDValue
+		}
+
+		result, err := svc.Query8(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "text/plain", result)
+		return
+	})
+	mux.POST("/impl", func(ctx *gin.Context) {
+		err := svc.CreateWithNoReturn(ctx.Request.Context(), ctx.Request, ctx.Writer)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+
+		return
+	})
+	mux.GET("/impl/query9", func(ctx *gin.Context) {
+		var itemID sql.NullInt64
+		if s := ctx.Query("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", item_id, s, err).Error())
+				return
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+
+		result, err := svc.Query9(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "text/plain", result)
+		return
+	})
+	mux.GET("/impl/query10", func(ctx *gin.Context) {
+		var itemID sql.NullString
+		if s := ctx.Query("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+
+		result, err := svc.Query10(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "text/plain", result)
+		return
+	})
+	mux.GET("/impl/query11", func(ctx *gin.Context) {
+		var itemID sql.NullBool
+		if s := ctx.Query("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.Bool = ToBool(s)
+		}
+
+		result, err := svc.Query11(ctx.Request.Context(), itemID)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "text/plain", result)
+		return
+	})
+	mux.GET("/impl/query12", func(ctx *gin.Context) {
+		var Name = ctx.Query("Name")
+
+		result, err := svc.Query1WithUpName(ctx.Request.Context(), Name)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.String(http.StatusOK, "text/plain", result)
+		return
+	})
+	mux.POST("/impl/query12", func(ctx *gin.Context) {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		err := svc.Set1WithUpName(ctx.Request.Context(), bindArgs.Name)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusCreated, "OK")
+		return
+	})
 	// Misc: annotation is missing
 }
 
 func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
-	mux.GET("/echo", func(ctx *gin.Context) {
+	mux.GET("/ctx/echo", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 
 		result := svc.Echo(ctx.Request.Context(), a)
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/echo", func(ctx *gin.Context) {
+	mux.GET("/ctx/echo", func(ctx *gin.Context) {
 		result, err := svc.EchoBody(ctx.Request.Context(), ctx.Request.Body)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
@@ -1777,11 +2005,11 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/concat", func(ctx *gin.Context) {
+	mux.GET("/ctx/concat", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var b = ctx.Query("b")
 
-		result, err := svc.Concat(ctx.Request.Context(), a, b)
+		result, err := svc.Concat0(ctx.Request.Context(), a, b)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -1789,7 +2017,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/concat1", func(ctx *gin.Context) {
+	mux.GET("/ctx/concat1", func(ctx *gin.Context) {
 		var a *string
 		if s := ctx.Query("a"); s != "" {
 			a = &s
@@ -1807,7 +2035,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/concat2/:a/:b", func(ctx *gin.Context) {
+	mux.GET("/ctx/concat2/:a/:b", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
@@ -1819,7 +2047,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/concat3/:a/:b", func(ctx *gin.Context) {
+	mux.GET("/ctx/concat3/:a/:b", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
@@ -1831,7 +2059,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/sub", func(ctx *gin.Context) {
+	mux.GET("/ctx/sub", func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var start int64
 		if s := ctx.Query("start"); s != "" {
@@ -1851,7 +2079,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.POST("/save/:a", func(ctx *gin.Context) {
+	mux.POST("/ctx/save/:a", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -1859,7 +2087,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 			return
 		}
 
-		result, err := svc.Save(ctx.Request.Context(), a, b.String())
+		result, err := svc.Save1(ctx.Request.Context(), a, b.String())
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -1867,7 +2095,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("/save2/:a", func(ctx *gin.Context) {
+	mux.POST("/ctx/save2/:a", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
@@ -1884,7 +2112,25 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.GET("/add/:a/:b", func(ctx *gin.Context) {
+	mux.POST("/ctx/save3", func(ctx *gin.Context) {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", bindArgs, "body", err).Error())
+			return
+		}
+
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			ctx.String(httpCodeWith(err), err.Error())
+			return
+		}
+		ctx.JSON(http.StatusCreated, result)
+		return
+	})
+	mux.GET("/ctx/add/:a/:b", func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, ctx.Param("a"), err).Error())
@@ -1896,7 +2142,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 			return
 		}
 
-		result, err := svc.Add(ctx.Request.Context(), a, b)
+		result, err := svc.Add1(ctx.Request.Context(), a, b)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
@@ -1904,7 +2150,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/add2/:a/:b", func(ctx *gin.Context) {
+	mux.GET("/ctx/add2/:a/:b", func(ctx *gin.Context) {
 		var a *int
 		if aValue, err := strconv.Atoi(ctx.Param("a")); err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, ctx.Param("a"), err).Error())
@@ -1928,7 +2174,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/add3", func(ctx *gin.Context) {
+	mux.GET("/ctx/add3", func(ctx *gin.Context) {
 		var a *int
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.Atoi(s)

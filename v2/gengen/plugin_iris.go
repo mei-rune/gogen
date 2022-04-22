@@ -22,7 +22,7 @@ func (iris *irisPlugin) TypeInContext(name string) (string, bool) {
 		"io.Reader":           "ctx.Request().Body",
 		"http.ResponseWriter": "ctx.ResponseWriter()",
 		"io.Writer":           "ctx.ResponseWriter()",
-		"context.Context":     "ctx.Request.Context()",
+		"context.Context":     "ctx.Request().Context()",
 		"*iris.Context":       "ctx",
 	}
 	s, ok := args[name]
@@ -97,7 +97,7 @@ func (iris *irisPlugin) PartyTypeName() string {
 	return "iris.Party"
 }
 func (iris *irisPlugin) ReadBodyFunc(argName string) string {
-	return "ctx.ReadBody(" + argName + ")"
+	return "ctx.UnmarshalBody(" + argName + ", nil)"
 }
 func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
@@ -114,7 +114,9 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 		return err
 	}
 	for _, param := range params {
-		if param.Option.In == "query" && param.Option.SimpleSchema.Type == swag.ARRAY {
+
+		if (param.Option.In == "query" && param.Option.SimpleSchema.Type == swag.ARRAY) ||
+			(param.Option.In == "" && hasQueryArray(param)) {
 			_, err = io.WriteString(out, "\r\n\tqueryParams := ctx.Request().URL.Query()")
 			break
 		}
@@ -128,11 +130,13 @@ func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	}
 	if statusCode != "" {
 		args["statusCode"] = statusCode
+		// } else {
+		// args["statusCode"] = statusCodeLiteralByMethod(method.Operation.RouterProperties[0].HTTPMethod)
 	}
 	renderFunc := "JSON"
 	if len(method.Operation.Produces) == 1 &&
 		method.Operation.Produces[0] == "text/plain" {
-		renderFunc = "TEXT"
+		renderFunc = "Text"
 	}
 
 	s := renderString(`{{- if .noreturn -}}
@@ -156,7 +160,7 @@ func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	errText := ""
 	if len(method.Operation.Produces) == 1 &&
 		method.Operation.Produces[0] == "text/plain" {
-		renderFunc = "TEXT"
+		renderFunc = "Text"
 		errText = ".Error()"
 	}
 
@@ -172,5 +176,10 @@ func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 		"errCode":          errCode,
 	})
 	_, e := io.WriteString(out, s)
+	return e
+}
+
+func (iris *irisPlugin) RenderReturnEmpty(out io.Writer, method *Method) error {
+	_, e := io.WriteString(out, "return")
 	return e
 }

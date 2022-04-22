@@ -1,3 +1,4 @@
+//go:build loong
 // +build loong
 
 package main
