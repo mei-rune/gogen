@@ -239,7 +239,7 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 			s, _ := plugin.TypeInContext("io.Reader")
 
 			io.WriteString(out, "\r\n\tif _, err := io.Copy(&"+varName+", "+s+"); err != nil {\r\n\t\t")
-			txt := genBodyErrorText(method, varName, "err")
+			txt := plugin.GetBodyErrorText(method, varName, "err")
 			plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
 			io.WriteString(out, "\r\n}")
 
@@ -290,7 +290,7 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 	io.WriteString(out, plugin.ReadBodyFunc("&"+varName))
 	io.WriteString(out, "; err != nil {\r\n")
 	// txt := `NewBadArgument(err, "bindArgs", "body")`
-	txt := genBodyErrorText(method, varName, "err")
+	txt := plugin.GetBodyErrorText(method, varName, "err")
 
 	plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
 	io.WriteString(out, "\r\n\t}")

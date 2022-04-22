@@ -38,6 +38,7 @@ func (cmd *Generator) Run(args []string) error {
 	}
 
 	swaggerParser := swag.New()
+	swaggerParser.GoGenEnabled = true
 	swaggerParser.ParseVendor = true
 	swaggerParser.ParseDependency = true
 	swaggerParser.ParseInternal = true

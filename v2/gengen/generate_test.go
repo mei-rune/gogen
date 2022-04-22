@@ -187,6 +187,38 @@ func TestGenerate(t *testing.T) {
 		}
 	})
 
+	t.Run("loong", func(t *testing.T) {
+		for _, name := range []string{"casetest", "test"} {
+			t.Log("=====================", name)
+			os.Remove(filepath.Join(wd, "gentest", name+".loong-gen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+
+			var gen = &Generator{
+				plugin:   "loong",
+				ext:      ".loong-gen.go",
+				buildTag: "loong",
+				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
+			}
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+				fmt.Println(err)
+				t.Error(err)
+				continue
+			}
+
+			actual := readFile(filepath.Join(wd, "gentest", name+".loong-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", name+".loong-gen.txt"))
+			if !reflect.DeepEqual(actual, excepted) {
+				results := difflib.Diff(excepted, actual)
+				for _, result := range results {
+					if result.Delta == difflib.Common {
+						continue
+					}
+					t.Error(result)
+				}
+			}
+		}
+	})
+
 	// t.Run("beegen", func(t *testing.T) {
 	// 	for _, name := range []string{"test"} {
 	// 		t.Log("=====================", name)

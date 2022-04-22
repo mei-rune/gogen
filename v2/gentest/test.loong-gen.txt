@@ -1,0 +1,3679 @@
+//go:build loong
+// +build loong
+
+// Please don't edit this file!
+package main
+
+import (
+	"database/sql"
+	"io"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/runner-mei/gogen/v2/gentest/models"
+	"github.com/runner-mei/loong"
+)
+
+// TimeRange is skipped
+// TimeRange2 is skipped
+// QueryArgs is skipped
+
+func InitStringSvc(mux loong.Party, svc StringSvc) {
+	mux.GET("/files", func(ctx *loong.Context) error {
+		var filenames = ctx.QueryParamArray("filenames")
+		list, total, err := svc.GetFiles(filenames)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/times", func(ctx *loong.Context) error {
+		var times []time.Time
+		if ss := ctx.QueryParamArray("times"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("times", ss, err), http.StatusBadRequest)
+			}
+			times = timesValue
+		}
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/allfiles", func(ctx *loong.Context) error {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/test_by_key/:key", func(ctx *loong.Context) error {
+		keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("key", ctx.Param("key"), err), http.StatusBadRequest)
+		}
+		var key = Key(keyValue)
+		err = svc.TestByKey1(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_by_key", func(ctx *loong.Context) error {
+		var key Key
+		if s := ctx.QueryParam("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("key", s, err), http.StatusBadRequest)
+			}
+			key = Key(keyValue)
+		}
+		err := svc.TestByKey2(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_by_strkey/:key", func(ctx *loong.Context) error {
+		var key = StrKey(ctx.Param("key"))
+		err := svc.TestByStrKey1(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_by_strkey", func(ctx *loong.Context) error {
+		var key = StrKey(ctx.QueryParam("key"))
+		err := svc.TestByStrKey2(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test64/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		err = svc.TestInt64Path(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test64", func(ctx *loong.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_query_args1/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var args QueryArgs
+		if s := ctx.QueryParam("args.fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.fint", s, err), http.StatusBadRequest)
+			}
+			args.Fint = fintValue
+		}
+		args.Fstring = ctx.QueryParam("args.fstring")
+		if s := ctx.QueryParam("args.ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.ftime", s, err), http.StatusBadRequest)
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := ctx.QueryParam("args.fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.fintptr", s, err), http.StatusBadRequest)
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.ftimeptr", s, err), http.StatusBadRequest)
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err = svc.TestQueryArgs1(id, args)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_query_args2/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var args *QueryArgs
+		if s := ctx.QueryParam("args.fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.fint", s, err), http.StatusBadRequest)
+			}
+			args = new(QueryArgs)
+			args.Fint = fintValue
+		}
+		if args == nil {
+			args = new(QueryArgs)
+		}
+		args.Fstring = ctx.QueryParam("args.fstring")
+		if s := ctx.QueryParam("args.ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.ftime", s, err), http.StatusBadRequest)
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := ctx.QueryParam("args.fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.fintptr", s, err), http.StatusBadRequest)
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.ftimeptr", s, err), http.StatusBadRequest)
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err = svc.TestQueryArgs2(id, args)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_query_args3/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var args QueryArgs
+		if s := ctx.QueryParam("fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("fint", s, err), http.StatusBadRequest)
+			}
+			args.Fint = fintValue
+		}
+		args.Fstring = ctx.QueryParam("fstring")
+		if s := ctx.QueryParam("ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ftime", s, err), http.StatusBadRequest)
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := ctx.QueryParam("fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("fintptr", s, err), http.StatusBadRequest)
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := ctx.QueryParam("fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := ctx.QueryParam("ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err = svc.TestQueryArgs3(id, args)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_query_args4/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var args *QueryArgs
+		if s := ctx.QueryParam("fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("fint", s, err), http.StatusBadRequest)
+			}
+			args = new(QueryArgs)
+			args.Fint = fintValue
+		}
+		if args == nil {
+			args = new(QueryArgs)
+		}
+		args.Fstring = ctx.QueryParam("fstring")
+		if s := ctx.QueryParam("ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ftime", s, err), http.StatusBadRequest)
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := ctx.QueryParam("fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("fintptr", s, err), http.StatusBadRequest)
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := ctx.QueryParam("fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := ctx.QueryParam("ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err = svc.TestQueryArgs4(id, args)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/ping", func(ctx *loong.Context) error {
+		err := svc.Ping()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/echo", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		result := svc.Echo(a)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/echo2", func(ctx *loong.Context) error {
+		result, err := svc.EchoBody(ctx.Request().Body)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/echo3", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Echo3(ctx.StdContext, bindArgs.A)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.GET("/concat", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var b = ctx.QueryParam("b")
+		result, err := svc.Concat0(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/concat1", func(ctx *loong.Context) error {
+		var a *string
+		if s := ctx.QueryParam("a"); s != "" {
+			a = &s
+		}
+		var b *string
+		if s := ctx.QueryParam("b"); s != "" {
+			b = &s
+		}
+		result, err := svc.Concat1(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/concat2/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+		result, err := svc.Concat2(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/concat3/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+		result, err := svc.Concat3(&a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/sub", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var start int64
+		if s := ctx.QueryParam("start"); s != "" {
+			startValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("start", s, err), http.StatusBadRequest)
+			}
+			start = startValue
+		}
+		result, err := svc.Sub(a, start)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/save/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save(a, b.String())
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/save2/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var bBuilder strings.Builder
+		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bBuilder", "body", err), http.StatusBadRequest)
+		}
+		var b = bBuilder.String()
+		result, err := svc.Save2(&a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/save3", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/save4", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save4(bindArgs.A, bindArgs.B)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/save5", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save5(ctx.StdContext, bindArgs.A, bindArgs.B)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
+		a, err := strconv.Atoi(ctx.Param("a"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+		}
+		b, err := strconv.Atoi(ctx.Param("b"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+		}
+		result, err := svc.Add1(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/add2/:a/:b", func(ctx *loong.Context) error {
+		a, err := strconv.Atoi(ctx.Param("a"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+		}
+		b, err := strconv.Atoi(ctx.Param("b"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+		}
+		result, err := svc.Add2(&a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/add3", func(ctx *loong.Context) error {
+		var a *int
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("a", s, err), http.StatusBadRequest)
+			}
+			a = &aValue
+		}
+		var b *int
+		if s := ctx.QueryParam("b"); s != "" {
+			bValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("b", s, err), http.StatusBadRequest)
+			}
+			b = &bValue
+		}
+		result, err := svc.Add3(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query1", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+			}
+			endAt = endAtValue
+		}
+		var isRaw bool
+		if s := ctx.QueryParam("is_raw"); s != "" {
+			isRawValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("is_raw", s, err), http.StatusBadRequest)
+			}
+			isRaw = isRawValue
+		}
+		result := svc.Query1(a, beginAt, endAt, isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query2/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+			}
+			endAt = endAtValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query2(a, beginAt, endAt, isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query3/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+			}
+			endAt = endAtValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query4/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt TimeRange
+		if s := ctx.QueryParam("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+			}
+			createdAt.Start = startValue
+		}
+		if s := ctx.QueryParam("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+			}
+			createdAt.End = endValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query4(a, createdAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query5/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt *TimeRange
+		if s := ctx.QueryParam("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+			}
+			createdAt = new(TimeRange)
+			createdAt.Start = startValue
+		}
+		if s := ctx.QueryParam("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+			}
+			if createdAt == nil {
+				createdAt = new(TimeRange)
+			}
+			createdAt.End = endValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query5(a, createdAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query6/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt TimeRange2
+		if s := ctx.QueryParam("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+			}
+			createdAt.Start = &startValue
+		}
+		if s := ctx.QueryParam("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+			}
+			createdAt.End = &endValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query6(a, createdAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query7/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt *TimeRange2
+		if s := ctx.QueryParam("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+			}
+			createdAt = new(TimeRange2)
+			createdAt.Start = &startValue
+		}
+		if s := ctx.QueryParam("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+			}
+			if createdAt == nil {
+				createdAt = new(TimeRange2)
+			}
+			createdAt.End = &endValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query7(a, createdAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query8", func(ctx *loong.Context) error {
+		var itemID int64
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+			}
+			itemID = itemIDValue
+		}
+		result, err := svc.Query8(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("", func(ctx *loong.Context) error {
+		err := svc.CreateWithNoReturn(ctx.StdContext, ctx.Request(), ctx.Response().Writer)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return nil
+	})
+	mux.GET("/query9", func(ctx *loong.Context) error {
+		var itemID sql.NullInt64
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+		result, err := svc.Query9(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query10", func(ctx *loong.Context) error {
+		var itemID sql.NullString
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+		result, err := svc.Query10(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query11", func(ctx *loong.Context) error {
+		var itemID sql.NullBool
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+			}
+			itemID.Valid = true
+			itemID.Bool = itemIDValue
+		}
+		result, err := svc.Query11(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query12", func(ctx *loong.Context) error {
+		var Name = ctx.QueryParam("Name")
+		result, err := svc.Query1WithUpName(ctx.StdContext, Name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/query12", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		err := svc.Set1WithUpName(ctx.StdContext, bindArgs.Name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult("OK")
+	})
+}
+
+func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
+	mux.GET("/impl/files", func(ctx *loong.Context) error {
+		var filenames = ctx.QueryParamArray("filenames")
+		list, total, err := svc.GetFiles(filenames)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/times", func(ctx *loong.Context) error {
+		var times []time.Time
+		if ss := ctx.QueryParamArray("times"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("times", ss, err), http.StatusBadRequest)
+			}
+			times = timesValue
+		}
+		list, total, err := svc.GetTimes(times)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/allfiles", func(ctx *loong.Context) error {
+		list, total, err := svc.GetAllFiles()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/test_by_key/:key", func(ctx *loong.Context) error {
+		keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("key", ctx.Param("key"), err), http.StatusBadRequest)
+		}
+		var key = Key(keyValue)
+		err = svc.TestByKey1(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test_by_key", func(ctx *loong.Context) error {
+		var key Key
+		if s := ctx.QueryParam("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("key", s, err), http.StatusBadRequest)
+			}
+			key = Key(keyValue)
+		}
+		err := svc.TestByKey2(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test_by_strkey/:key", func(ctx *loong.Context) error {
+		var key = StrKey(ctx.Param("key"))
+		err := svc.TestByStrKey1(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test_by_strkey", func(ctx *loong.Context) error {
+		var key = StrKey(ctx.QueryParam("key"))
+		err := svc.TestByStrKey2(key)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test64/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		err = svc.TestInt64Path(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test64", func(ctx *loong.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		err := svc.TestInt64Query(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test_query_args1/:id", func(ctx *loong.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		var args QueryArgs
+		if s := ctx.QueryParam("args.fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.fint", s, err), http.StatusBadRequest)
+			}
+			args.Fint = fintValue
+		}
+		args.Fstring = ctx.QueryParam("args.fstring")
+		if s := ctx.QueryParam("args.ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.ftime", s, err), http.StatusBadRequest)
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := ctx.QueryParam("args.fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.fintptr", s, err), http.StatusBadRequest)
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.ftimeptr", s, err), http.StatusBadRequest)
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err := svc.TestQueryArgs1(id, args)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test_query_args2/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var args *QueryArgs
+		if s := ctx.QueryParam("args.fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.fint", s, err), http.StatusBadRequest)
+			}
+			args = new(QueryArgs)
+			args.Fint = fintValue
+		}
+		if args == nil {
+			args = new(QueryArgs)
+		}
+		args.Fstring = ctx.QueryParam("args.fstring")
+		if s := ctx.QueryParam("args.ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.ftime", s, err), http.StatusBadRequest)
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := ctx.QueryParam("args.fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.fintptr", s, err), http.StatusBadRequest)
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.ftimeptr", s, err), http.StatusBadRequest)
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err = svc.TestQueryArgs2(id, args)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test_query_args3/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var args QueryArgs
+		if s := ctx.QueryParam("fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("fint", s, err), http.StatusBadRequest)
+			}
+			args.Fint = fintValue
+		}
+		args.Fstring = ctx.QueryParam("fstring")
+		if s := ctx.QueryParam("ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ftime", s, err), http.StatusBadRequest)
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := ctx.QueryParam("fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("fintptr", s, err), http.StatusBadRequest)
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := ctx.QueryParam("fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := ctx.QueryParam("ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err = svc.TestQueryArgs3(id, args)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/test_query_args4/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var args *QueryArgs
+		if s := ctx.QueryParam("fint"); s != "" {
+			fintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("fint", s, err), http.StatusBadRequest)
+			}
+			args = new(QueryArgs)
+			args.Fint = fintValue
+		}
+		if args == nil {
+			args = new(QueryArgs)
+		}
+		args.Fstring = ctx.QueryParam("fstring")
+		if s := ctx.QueryParam("ftime"); s != "" {
+			ftimeValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ftime", s, err), http.StatusBadRequest)
+			}
+			args.Ftime = ftimeValue
+		}
+		if s := ctx.QueryParam("fintptr"); s != "" {
+			fintptrValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("fintptr", s, err), http.StatusBadRequest)
+			}
+			args.Fintptr = &fintptrValue
+		}
+		if s := ctx.QueryParam("fstringptr"); s != "" {
+			args.Fstringptr = &s
+		}
+		if s := ctx.QueryParam("ftimeptr"); s != "" {
+			ftimeptrValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
+			}
+			args.Ftimeptr = &ftimeptrValue
+		}
+		err = svc.TestQueryArgs4(id, args)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/ping", func(ctx *loong.Context) error {
+		err := svc.Ping()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/impl/echo", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		result := svc.Echo(a)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/impl/echo2", func(ctx *loong.Context) error {
+		result, err := svc.EchoBody(ctx.Request().Body)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/impl/echo3", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Echo3(ctx.StdContext, bindArgs.A)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.GET("/impl/concat", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var b = ctx.QueryParam("b")
+		result, err := svc.Concat0(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/concat1", func(ctx *loong.Context) error {
+		var a *string
+		if s := ctx.QueryParam("a"); s != "" {
+			a = &s
+		}
+		var b *string
+		if s := ctx.QueryParam("b"); s != "" {
+			b = &s
+		}
+		result, err := svc.Concat1(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/concat2/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+		result, err := svc.Concat2(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/concat3/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+		result, err := svc.Concat3(&a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/sub", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var start int64
+		if s := ctx.QueryParam("start"); s != "" {
+			startValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("start", s, err), http.StatusBadRequest)
+			}
+			start = startValue
+		}
+		result, err := svc.Sub(a, start)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/save/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save(a, b.String())
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/impl/save2/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var bBuilder strings.Builder
+		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bBuilder", "body", err), http.StatusBadRequest)
+		}
+		var b = bBuilder.String()
+		result, err := svc.Save2(&a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/impl/save3", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/impl/save4", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save4(bindArgs.A, bindArgs.B)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/impl/save5", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A string `json:"a,omitempty"`
+			B string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save5(ctx.StdContext, bindArgs.A, bindArgs.B)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.GET("/impl/add/:a/:b", func(ctx *loong.Context) error {
+		a, err := strconv.Atoi(ctx.Param("a"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+		}
+		b, err := strconv.Atoi(ctx.Param("b"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+		}
+		result, err := svc.Add1(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/add2/:a/:b", func(ctx *loong.Context) error {
+		a, err := strconv.Atoi(ctx.Param("a"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+		}
+		b, err := strconv.Atoi(ctx.Param("b"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+		}
+		result, err := svc.Add2(&a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/add3", func(ctx *loong.Context) error {
+		var a *int
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("a", s, err), http.StatusBadRequest)
+			}
+			a = &aValue
+		}
+		var b *int
+		if s := ctx.QueryParam("b"); s != "" {
+			bValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("b", s, err), http.StatusBadRequest)
+			}
+			b = &bValue
+		}
+		result, err := svc.Add3(a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query1", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+			}
+			endAt = endAtValue
+		}
+		var isRaw bool
+		if s := ctx.QueryParam("is_raw"); s != "" {
+			isRawValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("is_raw", s, err), http.StatusBadRequest)
+			}
+			isRaw = isRawValue
+		}
+		result := svc.Query1(a, beginAt, endAt, isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query2/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+			}
+			endAt = endAtValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query2(a, beginAt, endAt, isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query3/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var beginAt time.Time
+		if s := ctx.QueryParam("begin_at"); s != "" {
+			beginAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+			}
+			beginAt = beginAtValue
+		}
+		var endAt time.Time
+		if s := ctx.QueryParam("end_at"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+			}
+			endAt = endAtValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query3(a, beginAt, endAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/query4/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt TimeRange
+		if s := ctx.QueryParam("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+			}
+			createdAt.Start = startValue
+		}
+		if s := ctx.QueryParam("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+			}
+			createdAt.End = endValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query4(a, createdAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query5/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt *TimeRange
+		if s := ctx.QueryParam("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+			}
+			createdAt = new(TimeRange)
+			createdAt.Start = startValue
+		}
+		if s := ctx.QueryParam("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+			}
+			if createdAt == nil {
+				createdAt = new(TimeRange)
+			}
+			createdAt.End = endValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query5(a, createdAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query6/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt TimeRange2
+		if s := ctx.QueryParam("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+			}
+			createdAt.Start = &startValue
+		}
+		if s := ctx.QueryParam("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+			}
+			createdAt.End = &endValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query6(a, createdAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query7/:isRaw", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var createdAt *TimeRange2
+		if s := ctx.QueryParam("created_at.start"); s != "" {
+			startValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+			}
+			createdAt = new(TimeRange2)
+			createdAt.Start = &startValue
+		}
+		if s := ctx.QueryParam("created_at.end"); s != "" {
+			endValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+			}
+			if createdAt == nil {
+				createdAt = new(TimeRange2)
+			}
+			createdAt.End = &endValue
+		}
+		isRaw, err := strconv.ParseBool(ctx.Param("is_raw"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("is_raw", ctx.Param("is_raw"), err), http.StatusBadRequest)
+		}
+		result := svc.Query7(a, createdAt, &isRaw)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query8", func(ctx *loong.Context) error {
+		var itemID int64
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+			}
+			itemID = itemIDValue
+		}
+		result, err := svc.Query8(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/impl", func(ctx *loong.Context) error {
+		err := svc.CreateWithNoReturn(ctx.StdContext, ctx.Request(), ctx.Response().Writer)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return nil
+	})
+	mux.GET("/impl/query9", func(ctx *loong.Context) error {
+		var itemID sql.NullInt64
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+			}
+			itemID.Valid = true
+			itemID.Int64 = itemIDValue
+		}
+		result, err := svc.Query9(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query10", func(ctx *loong.Context) error {
+		var itemID sql.NullString
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemID.Valid = true
+			itemID.String = s
+		}
+		result, err := svc.Query10(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query11", func(ctx *loong.Context) error {
+		var itemID sql.NullBool
+		if s := ctx.QueryParam("item_id"); s != "" {
+			itemIDValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+			}
+			itemID.Valid = true
+			itemID.Bool = itemIDValue
+		}
+		result, err := svc.Query11(ctx.StdContext, itemID)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/impl/query12", func(ctx *loong.Context) error {
+		var Name = ctx.QueryParam("Name")
+		result, err := svc.Query1WithUpName(ctx.StdContext, Name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/impl/query12", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			Name string `json:"Name,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		err := svc.Set1WithUpName(ctx.StdContext, bindArgs.Name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult("OK")
+	})
+}
+
+func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
+	mux.GET("/ctx/echo", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		result := svc.Echo(ctx.StdContext, a)
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/ctx/echo2", func(ctx *loong.Context) error {
+		result, err := svc.EchoBody(ctx.StdContext, ctx.Request().Body)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.GET("/ctx/concat", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var b = ctx.QueryParam("b")
+		result, err := svc.Concat0(ctx.StdContext, a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/ctx/concat1", func(ctx *loong.Context) error {
+		var a *string
+		if s := ctx.QueryParam("a"); s != "" {
+			a = &s
+		}
+		var b *string
+		if s := ctx.QueryParam("b"); s != "" {
+			b = &s
+		}
+		result, err := svc.Concat1(ctx.StdContext, a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/ctx/concat2/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+		result, err := svc.Concat2(ctx.StdContext, a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/ctx/concat3/:a/:b", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b = ctx.Param("b")
+		result, err := svc.Concat3(ctx.StdContext, &a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/ctx/sub", func(ctx *loong.Context) error {
+		var a = ctx.QueryParam("a")
+		var start int64
+		if s := ctx.QueryParam("start"); s != "" {
+			startValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("start", s, err), http.StatusBadRequest)
+			}
+			start = startValue
+		}
+		result, err := svc.Sub(ctx.StdContext, a, start)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/ctx/save1/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var b strings.Builder
+		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save1(ctx.StdContext, a, b.String())
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/ctx/save2/:a", func(ctx *loong.Context) error {
+		var a = ctx.Param("a")
+		var bBuilder strings.Builder
+		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bBuilder", "body", err), http.StatusBadRequest)
+		}
+		var b = bBuilder.String()
+		result, err := svc.Save2(ctx.StdContext, &a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/ctx/save3", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			A *string `json:"a,omitempty"`
+			B *string `json:"b,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Save3(bindArgs.A, bindArgs.B)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.GET("/ctx/add1/:a/:b", func(ctx *loong.Context) error {
+		a, err := strconv.Atoi(ctx.Param("a"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+		}
+		b, err := strconv.Atoi(ctx.Param("b"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+		}
+		result, err := svc.Add1(ctx.StdContext, a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/ctx/add2/:a/:b", func(ctx *loong.Context) error {
+		a, err := strconv.Atoi(ctx.Param("a"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+		}
+		b, err := strconv.Atoi(ctx.Param("b"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+		}
+		result, err := svc.Add2(ctx.StdContext, &a, &b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/ctx/add3", func(ctx *loong.Context) error {
+		var a *int
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("a", s, err), http.StatusBadRequest)
+			}
+			a = &aValue
+		}
+		var b *int
+		if s := ctx.QueryParam("b"); s != "" {
+			bValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("b", s, err), http.StatusBadRequest)
+			}
+			b = &bValue
+		}
+		result, err := svc.Add3(ctx.StdContext, a, b)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+}
+
+// RequestQueryEx1 is skipped
+// RequestQueryEx2 is skipped
+// RequestQueryEx3 is skipped
+// RequestQueryEx4 is skipped
+// Sub1 is skipped
+// Sub2 is skipped
+// Sub3 is skipped
+// SubTest1 is skipped
+// SubTest2 is skipped
+// SubTest3 is skipped
+// SubTest4 is skipped
+
+func InitRequests(mux loong.Party, svc Requests) {
+	mux.GET("/requests/query1", func(ctx *loong.Context) error {
+		var query *models.RequestQuery
+		if s := ctx.QueryParam("query.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.operatorID", s, err), http.StatusBadRequest)
+			}
+			query = new(models.RequestQuery)
+			query.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(models.RequestQuery)
+		}
+		query.RequestTypeNames = ctx.QueryParamArray("query.requestTypeNames")
+		query.NameLike = ctx.QueryParam("query.nameLike")
+		if s := ctx.QueryParam("query.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.startAt", s, err), http.StatusBadRequest)
+			}
+			query.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.endAt", s, err), http.StatusBadRequest)
+			}
+			query.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.settings.") {
+				continue
+			}
+			query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.ttargstt.") {
+				continue
+			}
+			query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.") {
+				continue
+			}
+			if key == "query.operatorID" ||
+				key == "query.creatorID" ||
+				key == "query.requesterID" ||
+				key == "query.requestTypeIDs" ||
+				key == "query.requestTypeNames" ||
+				key == "query.nameLike" ||
+				key == "query.currentStatus" ||
+				key == "query.isUnclosed" ||
+				key == "query.isOverdued" ||
+				key == "query.isSuspend" ||
+				key == "query.startAt" ||
+				key == "query.endAt" ||
+				key == "query.overdueStart" ||
+				key == "query.overdueEnd" {
+				continue
+			}
+			query.Values[strings.TrimPrefix(key, "query.")] = values
+		}
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "params.") {
+				continue
+			}
+			params[strings.TrimPrefix(key, "params.")] = values[len(values)-1]
+		}
+		result, err := svc.Query1(ctx.StdContext, query, offset, limit, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/query2", func(ctx *loong.Context) error {
+		var query *models.RequestQuery
+		if s := ctx.QueryParam("query.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.operatorID", s, err), http.StatusBadRequest)
+			}
+			query = new(models.RequestQuery)
+			query.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(models.RequestQuery)
+		}
+		query.RequestTypeNames = ctx.QueryParamArray("query.requestTypeNames")
+		query.NameLike = ctx.QueryParam("query.nameLike")
+		if s := ctx.QueryParam("query.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.startAt", s, err), http.StatusBadRequest)
+			}
+			query.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.endAt", s, err), http.StatusBadRequest)
+			}
+			query.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.settings.") {
+				continue
+			}
+			query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.ttargstt.") {
+				continue
+			}
+			query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.") {
+				continue
+			}
+			if key == "query.operatorID" ||
+				key == "query.creatorID" ||
+				key == "query.requesterID" ||
+				key == "query.requestTypeIDs" ||
+				key == "query.requestTypeNames" ||
+				key == "query.nameLike" ||
+				key == "query.currentStatus" ||
+				key == "query.isUnclosed" ||
+				key == "query.isOverdued" ||
+				key == "query.isSuspend" ||
+				key == "query.startAt" ||
+				key == "query.endAt" ||
+				key == "query.overdueStart" ||
+				key == "query.overdueEnd" {
+				continue
+			}
+			query.Values[strings.TrimPrefix(key, "query.")] = values
+		}
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		result, err := svc.Query2(ctx.StdContext, query, offset, limit)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/query3", func(ctx *loong.Context) error {
+		var query *AliasRequestQuery
+		if s := ctx.QueryParam("query.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.operatorID", s, err), http.StatusBadRequest)
+			}
+			query = new(AliasRequestQuery)
+			query.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(AliasRequestQuery)
+		}
+		query.RequestTypeNames = ctx.QueryParamArray("query.requestTypeNames")
+		query.NameLike = ctx.QueryParam("query.nameLike")
+		if s := ctx.QueryParam("query.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.startAt", s, err), http.StatusBadRequest)
+			}
+			query.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.endAt", s, err), http.StatusBadRequest)
+			}
+			query.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.settings.") {
+				continue
+			}
+			query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.ttargstt.") {
+				continue
+			}
+			query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.") {
+				continue
+			}
+			if key == "query.operatorID" ||
+				key == "query.creatorID" ||
+				key == "query.requesterID" ||
+				key == "query.requestTypeIDs" ||
+				key == "query.requestTypeNames" ||
+				key == "query.nameLike" ||
+				key == "query.currentStatus" ||
+				key == "query.isUnclosed" ||
+				key == "query.isOverdued" ||
+				key == "query.isSuspend" ||
+				key == "query.startAt" ||
+				key == "query.endAt" ||
+				key == "query.overdueStart" ||
+				key == "query.overdueEnd" {
+				continue
+			}
+			query.Values[strings.TrimPrefix(key, "query.")] = values
+		}
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		result, err := svc.Query3(ctx.StdContext, query, offset, limit)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/queryex1", func(ctx *loong.Context) error {
+		var query *RequestQueryEx1
+		query = new(RequestQueryEx1)
+		query.ExArg = ctx.QueryParam("query.exArg")
+		if s := ctx.QueryParam("query.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.operatorID", s, err), http.StatusBadRequest)
+			}
+			query.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.creatorID", s, err), http.StatusBadRequest)
+			}
+			query.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requesterID", s, err), http.StatusBadRequest)
+			}
+			query.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
+		}
+		query.RequestTypeNames = ctx.QueryParamArray("query.requestTypeNames")
+		query.NameLike = ctx.QueryParam("query.nameLike")
+		if s := ctx.QueryParam("query.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.startAt", s, err), http.StatusBadRequest)
+			}
+			query.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.endAt", s, err), http.StatusBadRequest)
+			}
+			query.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.settings.") {
+				continue
+			}
+			query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.ttargstt.") {
+				continue
+			}
+			query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.") {
+				continue
+			}
+			if key == "query.operatorID" ||
+				key == "query.creatorID" ||
+				key == "query.requesterID" ||
+				key == "query.requestTypeIDs" ||
+				key == "query.requestTypeNames" ||
+				key == "query.nameLike" ||
+				key == "query.currentStatus" ||
+				key == "query.isUnclosed" ||
+				key == "query.isOverdued" ||
+				key == "query.isSuspend" ||
+				key == "query.startAt" ||
+				key == "query.endAt" ||
+				key == "query.overdueStart" ||
+				key == "query.overdueEnd" {
+				continue
+			}
+			query.Values[strings.TrimPrefix(key, "query.")] = values
+		}
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "params.") {
+				continue
+			}
+			params[strings.TrimPrefix(key, "params.")] = values[len(values)-1]
+		}
+		result, err := svc.QueryEx1(ctx.StdContext, query, offset, limit, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/queryex2", func(ctx *loong.Context) error {
+		var query *RequestQueryEx2
+		query = new(RequestQueryEx2)
+		query.ExArg = ctx.QueryParam("query.exArg")
+		if s := ctx.QueryParam("query.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.operatorID", s, err), http.StatusBadRequest)
+			}
+			query.RequestQuery = new(models.RequestQuery)
+			query.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query.RequestQuery == nil {
+			query.RequestQuery = new(models.RequestQuery)
+		}
+		query.RequestTypeNames = ctx.QueryParamArray("query.requestTypeNames")
+		query.NameLike = ctx.QueryParam("query.nameLike")
+		if s := ctx.QueryParam("query.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.startAt", s, err), http.StatusBadRequest)
+			}
+			query.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.endAt", s, err), http.StatusBadRequest)
+			}
+			query.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.settings.") {
+				continue
+			}
+			query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.ttargstt.") {
+				continue
+			}
+			query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.") {
+				continue
+			}
+			if key == "query.operatorID" ||
+				key == "query.creatorID" ||
+				key == "query.requesterID" ||
+				key == "query.requestTypeIDs" ||
+				key == "query.requestTypeNames" ||
+				key == "query.nameLike" ||
+				key == "query.currentStatus" ||
+				key == "query.isUnclosed" ||
+				key == "query.isOverdued" ||
+				key == "query.isSuspend" ||
+				key == "query.startAt" ||
+				key == "query.endAt" ||
+				key == "query.overdueStart" ||
+				key == "query.overdueEnd" {
+				continue
+			}
+			query.Values[strings.TrimPrefix(key, "query.")] = values
+		}
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "params.") {
+				continue
+			}
+			params[strings.TrimPrefix(key, "params.")] = values[len(values)-1]
+		}
+		result, err := svc.QueryEx2(ctx.StdContext, query, offset, limit, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/queryex3", func(ctx *loong.Context) error {
+		var query *RequestQueryEx3
+		if s := ctx.QueryParam("query.request.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.operatorID", s, err), http.StatusBadRequest)
+			}
+			query = new(RequestQueryEx3)
+			query.Request.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.request.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.request.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.request.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(RequestQueryEx3)
+		}
+		query.Request.RequestTypeNames = ctx.QueryParamArray("query.request.requestTypeNames")
+		query.Request.NameLike = ctx.QueryParam("query.request.nameLike")
+		if s := ctx.QueryParam("query.request.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.Request.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.request.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsUnclosed.Valid = true
+			query.Request.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.request.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsOverdued.Valid = true
+			query.Request.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.request.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsSuspend.Valid = true
+			query.Request.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.request.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.startAt", s, err), http.StatusBadRequest)
+			}
+			query.Request.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.request.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.endAt", s, err), http.StatusBadRequest)
+			}
+			query.Request.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.request.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.Request.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.request.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.Request.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.settings.") {
+				continue
+			}
+			query.Request.Settings[strings.TrimPrefix(key, "query.request.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.ttargstt.") {
+				continue
+			}
+			query.Request.Args[strings.TrimPrefix(key, "query.request.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.") {
+				continue
+			}
+			if key == "query.request.operatorID" ||
+				key == "query.request.creatorID" ||
+				key == "query.request.requesterID" ||
+				key == "query.request.requestTypeIDs" ||
+				key == "query.request.requestTypeNames" ||
+				key == "query.request.nameLike" ||
+				key == "query.request.currentStatus" ||
+				key == "query.request.isUnclosed" ||
+				key == "query.request.isOverdued" ||
+				key == "query.request.isSuspend" ||
+				key == "query.request.startAt" ||
+				key == "query.request.endAt" ||
+				key == "query.request.overdueStart" ||
+				key == "query.request.overdueEnd" {
+				continue
+			}
+			query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
+		}
+		query.ExArg = ctx.QueryParam("query.exArg")
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "params.") {
+				continue
+			}
+			params[strings.TrimPrefix(key, "params.")] = values[len(values)-1]
+		}
+		result, err := svc.QueryEx3(ctx.StdContext, query, offset, limit, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/queryex4", func(ctx *loong.Context) error {
+		var query *RequestQueryEx4
+		if s := ctx.QueryParam("query.request.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.operatorID", s, err), http.StatusBadRequest)
+			}
+			query = new(RequestQueryEx4)
+			query.Request = new(models.RequestQuery)
+			query.Request.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.request.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.request.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.request.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(RequestQueryEx4)
+		}
+		if query.Request == nil {
+			query.Request = new(models.RequestQuery)
+		}
+		query.Request.RequestTypeNames = ctx.QueryParamArray("query.request.requestTypeNames")
+		query.Request.NameLike = ctx.QueryParam("query.request.nameLike")
+		if s := ctx.QueryParam("query.request.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.Request.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.request.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsUnclosed.Valid = true
+			query.Request.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.request.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsOverdued.Valid = true
+			query.Request.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.request.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsSuspend.Valid = true
+			query.Request.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.request.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.startAt", s, err), http.StatusBadRequest)
+			}
+			query.Request.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.request.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.endAt", s, err), http.StatusBadRequest)
+			}
+			query.Request.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.request.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.Request.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.request.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.Request.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.settings.") {
+				continue
+			}
+			query.Request.Settings[strings.TrimPrefix(key, "query.request.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.ttargstt.") {
+				continue
+			}
+			query.Request.Args[strings.TrimPrefix(key, "query.request.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.") {
+				continue
+			}
+			if key == "query.request.operatorID" ||
+				key == "query.request.creatorID" ||
+				key == "query.request.requesterID" ||
+				key == "query.request.requestTypeIDs" ||
+				key == "query.request.requestTypeNames" ||
+				key == "query.request.nameLike" ||
+				key == "query.request.currentStatus" ||
+				key == "query.request.isUnclosed" ||
+				key == "query.request.isOverdued" ||
+				key == "query.request.isSuspend" ||
+				key == "query.request.startAt" ||
+				key == "query.request.endAt" ||
+				key == "query.request.overdueStart" ||
+				key == "query.request.overdueEnd" {
+				continue
+			}
+			query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
+		}
+		query.ExArg = ctx.QueryParam("query.exArg")
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "params.") {
+				continue
+			}
+			params[strings.TrimPrefix(key, "params.")] = values[len(values)-1]
+		}
+		result, err := svc.QueryEx4(ctx.StdContext, query, offset, limit, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/queryex3/NoPrefix", func(ctx *loong.Context) error {
+		var query *RequestQueryEx3
+		if s := ctx.QueryParam("query.request.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.operatorID", s, err), http.StatusBadRequest)
+			}
+			query = new(RequestQueryEx3)
+			query.Request.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.request.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.request.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.request.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(RequestQueryEx3)
+		}
+		query.Request.RequestTypeNames = ctx.QueryParamArray("query.request.requestTypeNames")
+		query.Request.NameLike = ctx.QueryParam("query.request.nameLike")
+		if s := ctx.QueryParam("query.request.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.Request.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.request.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsUnclosed.Valid = true
+			query.Request.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.request.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsOverdued.Valid = true
+			query.Request.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.request.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsSuspend.Valid = true
+			query.Request.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.request.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.startAt", s, err), http.StatusBadRequest)
+			}
+			query.Request.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.request.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.endAt", s, err), http.StatusBadRequest)
+			}
+			query.Request.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.request.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.Request.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.request.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.Request.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.settings.") {
+				continue
+			}
+			query.Request.Settings[strings.TrimPrefix(key, "query.request.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.ttargstt.") {
+				continue
+			}
+			query.Request.Args[strings.TrimPrefix(key, "query.request.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.") {
+				continue
+			}
+			if key == "query.request.operatorID" ||
+				key == "query.request.creatorID" ||
+				key == "query.request.requesterID" ||
+				key == "query.request.requestTypeIDs" ||
+				key == "query.request.requestTypeNames" ||
+				key == "query.request.nameLike" ||
+				key == "query.request.currentStatus" ||
+				key == "query.request.isUnclosed" ||
+				key == "query.request.isOverdued" ||
+				key == "query.request.isSuspend" ||
+				key == "query.request.startAt" ||
+				key == "query.request.endAt" ||
+				key == "query.request.overdueStart" ||
+				key == "query.request.overdueEnd" {
+				continue
+			}
+			query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
+		}
+		query.ExArg = ctx.QueryParam("query.exArg")
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "params.") {
+				continue
+			}
+			params[strings.TrimPrefix(key, "params.")] = values[len(values)-1]
+		}
+		result, err := svc.QueryEx3NoPrefix(ctx.StdContext, query, offset, limit, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/queryex4/NoPrefix", func(ctx *loong.Context) error {
+		var query *RequestQueryEx4
+		if s := ctx.QueryParam("query.request.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.operatorID", s, err), http.StatusBadRequest)
+			}
+			query = new(RequestQueryEx4)
+			query.Request = new(models.RequestQuery)
+			query.Request.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.request.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.request.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.request.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(RequestQueryEx4)
+		}
+		if query.Request == nil {
+			query.Request = new(models.RequestQuery)
+		}
+		query.Request.RequestTypeNames = ctx.QueryParamArray("query.request.requestTypeNames")
+		query.Request.NameLike = ctx.QueryParam("query.request.nameLike")
+		if s := ctx.QueryParam("query.request.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.Request.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.request.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsUnclosed.Valid = true
+			query.Request.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.request.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsOverdued.Valid = true
+			query.Request.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.request.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.Request.IsSuspend.Valid = true
+			query.Request.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.request.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.startAt", s, err), http.StatusBadRequest)
+			}
+			query.Request.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.request.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.endAt", s, err), http.StatusBadRequest)
+			}
+			query.Request.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.request.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.Request.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.request.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.Request.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.settings.") {
+				continue
+			}
+			query.Request.Settings[strings.TrimPrefix(key, "query.request.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.ttargstt.") {
+				continue
+			}
+			query.Request.Args[strings.TrimPrefix(key, "query.request.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.request.") {
+				continue
+			}
+			if key == "query.request.operatorID" ||
+				key == "query.request.creatorID" ||
+				key == "query.request.requesterID" ||
+				key == "query.request.requestTypeIDs" ||
+				key == "query.request.requestTypeNames" ||
+				key == "query.request.nameLike" ||
+				key == "query.request.currentStatus" ||
+				key == "query.request.isUnclosed" ||
+				key == "query.request.isOverdued" ||
+				key == "query.request.isSuspend" ||
+				key == "query.request.startAt" ||
+				key == "query.request.endAt" ||
+				key == "query.request.overdueStart" ||
+				key == "query.request.overdueEnd" {
+				continue
+			}
+			query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
+		}
+		query.ExArg = ctx.QueryParam("query.exArg")
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		var params = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "params.") {
+				continue
+			}
+			params[strings.TrimPrefix(key, "params.")] = values[len(values)-1]
+		}
+		result, err := svc.QueryEx4NoPrefix(ctx.StdContext, query, offset, limit, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests", func(ctx *loong.Context) error {
+		var query *models.RequestQuery
+		if s := ctx.QueryParam("query.operatorID"); s != "" {
+			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.operatorID", s, err), http.StatusBadRequest)
+			}
+			query = new(models.RequestQuery)
+			query.OperatorID = operatorIDValue
+		}
+		if s := ctx.QueryParam("query.creatorID"); s != "" {
+			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.creatorID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.CreatorID = creatorIDValue
+		}
+		if s := ctx.QueryParam("query.requesterID"); s != "" {
+			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requesterID", s, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequesterID = requesterIDValue
+		}
+		if ss := ctx.QueryParamArray("query.requestTypeIDs"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.requestTypeIDs", ss, err), http.StatusBadRequest)
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
+		}
+		if query == nil {
+			query = new(models.RequestQuery)
+		}
+		query.RequestTypeNames = ctx.QueryParamArray("query.requestTypeNames")
+		query.NameLike = ctx.QueryParam("query.nameLike")
+		if s := ctx.QueryParam("query.currentStatus"); s != "" {
+			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.currentStatus", s, err), http.StatusBadRequest)
+			}
+			query.CurrentStatus = currentStatusValue
+		}
+		if s := ctx.QueryParam("query.isUnclosed"); s != "" {
+			isUnclosedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isUnclosed", s, err), http.StatusBadRequest)
+			}
+			query.IsUnclosed.Valid = true
+			query.IsUnclosed.Bool = isUnclosedValue
+		}
+		if s := ctx.QueryParam("query.isOverdued"); s != "" {
+			isOverduedValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isOverdued", s, err), http.StatusBadRequest)
+			}
+			query.IsOverdued.Valid = true
+			query.IsOverdued.Bool = isOverduedValue
+		}
+		if s := ctx.QueryParam("query.isSuspend"); s != "" {
+			isSuspendValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.isSuspend", s, err), http.StatusBadRequest)
+			}
+			query.IsSuspend.Valid = true
+			query.IsSuspend.Bool = isSuspendValue
+		}
+		if s := ctx.QueryParam("query.startAt"); s != "" {
+			startAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.startAt", s, err), http.StatusBadRequest)
+			}
+			query.StartAt = startAtValue
+		}
+		if s := ctx.QueryParam("query.endAt"); s != "" {
+			endAtValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.endAt", s, err), http.StatusBadRequest)
+			}
+			query.EndAt = endAtValue
+		}
+		if s := ctx.QueryParam("query.overdueStart"); s != "" {
+			overdueStartValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueStart", s, err), http.StatusBadRequest)
+			}
+			query.OverdueStart = overdueStartValue
+		}
+		if s := ctx.QueryParam("query.overdueEnd"); s != "" {
+			overdueEndValue, err := ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("query.overdueEnd", s, err), http.StatusBadRequest)
+			}
+			query.OverdueEnd = overdueEndValue
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.settings.") {
+				continue
+			}
+			query.Settings[strings.TrimPrefix(key, "query.settings.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.ttargstt.") {
+				continue
+			}
+			query.Args[strings.TrimPrefix(key, "query.ttargstt.")] = values[len(values)-1]
+		}
+
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "query.") {
+				continue
+			}
+			if key == "query.operatorID" ||
+				key == "query.creatorID" ||
+				key == "query.requesterID" ||
+				key == "query.requestTypeIDs" ||
+				key == "query.requestTypeNames" ||
+				key == "query.nameLike" ||
+				key == "query.currentStatus" ||
+				key == "query.isUnclosed" ||
+				key == "query.isOverdued" ||
+				key == "query.isSuspend" ||
+				key == "query.startAt" ||
+				key == "query.endAt" ||
+				key == "query.overdueStart" ||
+				key == "query.overdueEnd" {
+				continue
+			}
+			query.Values[strings.TrimPrefix(key, "query.")] = values
+		}
+		var offset int64
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int64
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		result, err := svc.List(ctx.StdContext, query, offset, limit)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/requests/create1", func(ctx *loong.Context) error {
+		var data models.Request
+		if err := ctx.Bind(&data); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("data", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Create1(ctx.StdContext, &data)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/requests/create2", func(ctx *loong.Context) error {
+		var bindArgs struct {
+			Request *models.Request `json:"request,omitempty"`
+			Testarg int64           `json:"testarg,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Create2(ctx.StdContext, bindArgs.Request, bindArgs.Testarg)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.PUT("/requests/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var data models.Request
+		if err := ctx.Bind(&data); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("data", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.UpdateByID(ctx.StdContext, id, &data)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnUpdatedResult(result)
+	})
+	mux.PATCH("/requests/set1/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Set1ByID(ctx.StdContext, id, bindArgs.Params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnResult(http.StatusOK, result)
+
+	})
+	mux.PATCH("/requests/set2/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Set2ByID(ctx.StdContext, id, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnResult(http.StatusOK, result)
+
+	})
+	mux.PUT("/requests/set3/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Set3ByID(ctx.StdContext, id, bindArgs.Params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnUpdatedResult(result)
+	})
+	mux.PUT("/requests/set4/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Set4ByID(ctx.StdContext, id, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnUpdatedResult(result)
+	})
+	mux.POST("/requests/set5/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var bindArgs struct {
+			Params map[string]string `json:"params,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Set5ByID(ctx.StdContext, id, bindArgs.Params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/requests/set6/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var params map[string]string
+		if err := ctx.Bind(&params); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Set6ByID(ctx.StdContext, id, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.POST("/requests/set7/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var params interface{}
+		if err := ctx.Bind(&params); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+		}
+		result, err := svc.Set7ByID(ctx.StdContext, id, params)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult(result)
+	})
+	mux.GET("/requests/querysub1", func(ctx *loong.Context) error {
+		var query *SubTest1
+		query = new(SubTest1)
+		query.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
+		query.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
+		query.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
+		query.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
+		query.ExArg = ctx.QueryParam("query.exArg")
+		result, err := svc.QuerySubTest1(ctx.StdContext, query)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/querysub2", func(ctx *loong.Context) error {
+		var query *SubTest2
+		query = new(SubTest2)
+		query.Sub1 = new(Sub1)
+		query.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
+		query.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
+		query.Sub2 = new(Sub2)
+		query.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
+		query.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
+		query.ExArg = ctx.QueryParam("query.exArg")
+		result, err := svc.QuerySubTest2(ctx.StdContext, query)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/querysub3", func(ctx *loong.Context) error {
+		var query *SubTest3
+		query = new(SubTest3)
+		query.ExArg = ctx.QueryParam("query.exArg")
+		query.Sub1 = new(Sub1)
+		query.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
+		query.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
+		query.Sub2 = new(Sub2)
+		query.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
+		query.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
+		query.ExArg = ctx.QueryParam("query.exArg")
+		result, err := svc.QuerySubTest3(ctx.StdContext, query)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/requests/querysub4", func(ctx *loong.Context) error {
+		var query *SubTest4
+		query = new(SubTest4)
+		query.ExArg = ctx.QueryParam("query.exArg")
+		query.SubTest2 = new(SubTest2)
+		query.Sub1 = new(Sub1)
+		query.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
+		query.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
+		query.Sub2 = new(Sub2)
+		query.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
+		query.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
+		query.ExArg = ctx.QueryParam("query.exArg")
+		result, err := svc.QuerySubTest4(ctx.StdContext, query)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+}

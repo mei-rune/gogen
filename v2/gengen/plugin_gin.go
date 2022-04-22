@@ -75,6 +75,15 @@ func (gin *ginPlugin) Features() Config {
 func (gin *ginPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
+
+func (gin *ginPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
+	return getBodyErrorText(method, bodyName, err)
+}
+
+func (gin *ginPlugin) GetCastErrorText(param *Param, err, value string) string {
+		return getCastErrorText(param, err, value)
+}
+
 func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {

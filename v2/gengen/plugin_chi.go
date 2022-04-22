@@ -78,6 +78,14 @@ func (chi *chiPlugin) TypeInContext(name string) (string, bool) {
 	return s, ok
 }
 
+func (chi *chiPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
+	return getBodyErrorText(method, bodyName, err)
+}
+
+func (chi *chiPlugin) GetCastErrorText(param *Param, err, value string) string {
+		return getCastErrorText(param, err, value)
+}
+
 func (chi *chiPlugin) ReadBodyFunc(argName string) string {
 	return "render.Decode(r, " + argName + ")"
 }

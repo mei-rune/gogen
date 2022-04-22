@@ -99,6 +99,15 @@ func (iris *irisPlugin) PartyTypeName() string {
 func (iris *irisPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.UnmarshalBody(" + argName + ", nil)"
 }
+
+func (iris *irisPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
+	return getBodyErrorText(method, bodyName, err)
+}
+
+func (iris *irisPlugin) GetCastErrorText(param *Param, err, value string) string {
+		return getCastErrorText(param, err, value)
+}
+
 func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {

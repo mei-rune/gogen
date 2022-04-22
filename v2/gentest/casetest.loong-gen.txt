@@ -1,0 +1,280 @@
+//go:build loong
+// +build loong
+
+// Please don't edit this file!
+package main
+
+import (
+	"database/sql"
+	"net/http"
+	"strconv"
+
+	"github.com/runner-mei/loong"
+)
+
+func InitCaseSvc(mux loong.Party, svc CaseSvc) {
+	mux.GET("/case1/by_name/:name", func(ctx *loong.Context) error {
+		var name = ctx.Param("name")
+		err := svc.TestCase1(name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case2_1/by_name", func(ctx *loong.Context) error {
+		var name = ctx.QueryParam("name")
+		err := svc.TestCase2_1(name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case2_2/by_names", func(ctx *loong.Context) error {
+		var name = ctx.QueryParamArray("name")
+		err := svc.TestCase2_2(name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case3_1/by_id/:id", func(ctx *loong.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		err = svc.TestCase3_1(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case3_2/by_id/:id", func(ctx *loong.Context) error {
+		idValue, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		var id = int32(idValue)
+		err = svc.TestCase3_2(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case3_3/by_id/:id", func(ctx *loong.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		err = svc.TestCase3_3(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case4/by_id/:id", func(ctx *loong.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		err = svc.TestCase4(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case5_1/by_id", func(ctx *loong.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		err := svc.TestCase5_1(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case5_2/by_id", func(ctx *loong.Context) error {
+		var id int32
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = int32(idValue)
+		}
+		err := svc.TestCase5_2(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case5_3/by_id", func(ctx *loong.Context) error {
+		var idlist []int64
+		if ss := ctx.QueryParamArray("idlist"); len(ss) != 0 {
+			idlistValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("idlist", ss, err), http.StatusBadRequest)
+			}
+			idlist = idlistValue
+		}
+		err := svc.TestCase5_3(idlist)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case6/by_id", func(ctx *loong.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		err := svc.TestCase6(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case7_1/by_id", func(ctx *loong.Context) error {
+		var id sql.NullInt64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id.Valid = true
+			id.Int64 = idValue
+		}
+		err := svc.TestCase7_1(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case7_2/by_id", func(ctx *loong.Context) error {
+		var id sql.NullInt32
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id.Valid = true
+			id.Int32 = int32(idValue)
+		}
+		err := svc.TestCase7_2(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case8/by_id", func(ctx *loong.Context) error {
+		var id sql.NullInt64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id.Valid = true
+			id.Int64 = idValue
+		}
+		err := svc.TestCase8(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case9/by_id/:id", func(ctx *loong.Context) error {
+		var id = ctx.Param("id")
+		err := svc.TestCase9(&id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case10/by_name", func(ctx *loong.Context) error {
+		var id *string
+		if s := ctx.QueryParam("id"); s != "" {
+			id = &s
+		}
+		err := svc.TestCase10(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case12/:id", func(ctx *loong.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		err = svc.TestCase12(&id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case13/:id", func(ctx *loong.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+		}
+		err = svc.TestCase13(&id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case14_1/by_id", func(ctx *loong.Context) error {
+		var id *int
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = &idValue
+		}
+		err := svc.TestCase14_1(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case14_2/by_name", func(ctx *loong.Context) error {
+		var id *int32
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = new(int32)
+			*id = int32(idValue)
+		}
+		err := svc.TestCase14_2(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case14_3/by_name", func(ctx *loong.Context) error {
+		var id *int
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = &idValue
+		}
+		err := svc.TestCase14_3(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+}
