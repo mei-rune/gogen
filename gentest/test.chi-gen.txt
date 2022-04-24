@@ -287,9 +287,9 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, errors.BadArgument("args.fint", s, err))
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = queryParams.Get("args.fstring")
+		args.Fstring = queryParams.Get("args.fstring")
 		if s := queryParams.Get("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
@@ -301,7 +301,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, errors.BadArgument("args.ftime", s, err))
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := queryParams.Get("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -314,10 +314,10 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, errors.BadArgument("args.fintptr", s, err))
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := queryParams.Get("args.fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := queryParams.Get("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -330,7 +330,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, errors.BadArgument("args.ftimeptr", s, err))
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
@@ -371,13 +371,13 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := queryParams.Get("args.fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := queryParams.Get("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -393,7 +393,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := queryParams.Get("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -409,13 +409,13 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := queryParams.Get("args.fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := queryParams.Get("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -431,7 +431,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs2(id, args)
@@ -471,9 +471,9 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, errors.BadArgument("fint", s, err))
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = queryParams.Get("fstring")
+		args.Fstring = queryParams.Get("fstring")
 		if s := queryParams.Get("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
@@ -485,7 +485,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, errors.BadArgument("ftime", s, err))
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := queryParams.Get("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -498,10 +498,10 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, errors.BadArgument("fintptr", s, err))
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := queryParams.Get("fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := queryParams.Get("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -514,7 +514,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				render.JSON(w, r, errors.BadArgument("ftimeptr", s, err))
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -555,13 +555,13 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := queryParams.Get("fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := queryParams.Get("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -577,7 +577,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := queryParams.Get("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -593,13 +593,13 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := queryParams.Get("fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := queryParams.Get("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -615,7 +615,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1635,12 +1635,8 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/ /impl/test_by_strkey/{key}", func(w http.ResponseWriter, r *http.Request) {
-		queryParams := r.URL.Query()
-		var key StrKey
-		if s := queryParams.Get("key"); s != "" {
-			key = StrKey(s)
-		}
+	mux.Get("/impl/test_by_strkey/:key", func(w http.ResponseWriter, r *http.Request) {
+		var key = StrKey(chi.URLParam(r, "key"))
 
 		err := svc.TestByStrKey1(key)
 		if err != nil {
@@ -1655,7 +1651,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
-	mux.Get("/ /impl/test_by_strkey", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/impl/test_by_strkey", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var key StrKey
 		if s := queryParams.Get("key"); s != "" {
@@ -1754,9 +1750,9 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				render.JSON(w, r, errors.BadArgument("args.fint", s, err))
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = queryParams.Get("args.fstring")
+		args.Fstring = queryParams.Get("args.fstring")
 		if s := queryParams.Get("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
@@ -1768,7 +1764,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				render.JSON(w, r, errors.BadArgument("args.ftime", s, err))
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := queryParams.Get("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1781,10 +1777,10 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				render.JSON(w, r, errors.BadArgument("args.fintptr", s, err))
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := queryParams.Get("args.fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := queryParams.Get("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1797,7 +1793,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				render.JSON(w, r, errors.BadArgument("args.ftimeptr", s, err))
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
@@ -1838,13 +1834,13 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := queryParams.Get("args.fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := queryParams.Get("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -1860,7 +1856,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := queryParams.Get("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1876,13 +1872,13 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := queryParams.Get("args.fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := queryParams.Get("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1898,7 +1894,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs2(id, args)
@@ -1938,9 +1934,9 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				render.JSON(w, r, errors.BadArgument("fint", s, err))
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = queryParams.Get("fstring")
+		args.Fstring = queryParams.Get("fstring")
 		if s := queryParams.Get("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
@@ -1952,7 +1948,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				render.JSON(w, r, errors.BadArgument("ftime", s, err))
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := queryParams.Get("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1965,10 +1961,10 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				render.JSON(w, r, errors.BadArgument("fintptr", s, err))
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := queryParams.Get("fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := queryParams.Get("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1981,7 +1977,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				render.JSON(w, r, errors.BadArgument("ftimeptr", s, err))
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -2022,13 +2018,13 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := queryParams.Get("fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := queryParams.Get("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -2044,7 +2040,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := queryParams.Get("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -2060,13 +2056,13 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := queryParams.Get("fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := queryParams.Get("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -2082,7 +2078,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -2120,7 +2116,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/impl/echo_body1", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/impl/echo2", func(w http.ResponseWriter, r *http.Request) {
 		result, err := svc.EchoBody(r.Body)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
@@ -2962,7 +2958,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/ctx/echo", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/ctx/echo2", func(w http.ResponseWriter, r *http.Request) {
 		result, err := svc.EchoBody(r.Context(), r.Body)
 		if err != nil {
 			if he, ok := err.(errors.HTTPError); ok {
@@ -3083,7 +3079,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/ctx/save/:a", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/ctx/save1/:a", func(w http.ResponseWriter, r *http.Request) {
 		var a = chi.URLParam(r, "a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, r.Body); err != nil {
@@ -3164,7 +3160,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/ctx/add/:a/:b", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/ctx/add1/:a/:b", func(w http.ResponseWriter, r *http.Request) {
 		a, err := strconv.Atoi(chi.URLParam(r, "a"))
 		if err != nil {
 			if he, ok := errors.BadArgument("a", chi.URLParam(r, "a"), err).(errors.HTTPError); ok {
@@ -3299,7 +3295,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 // SubTest4 is skipped
 
 func InitRequests(mux chi.Router, svc Requests) {
-	mux.Get("/query", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/query1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *models.RequestQuery
 		if s := queryParams.Get("query.operator_id"); s != "" {
@@ -3603,7 +3599,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query2", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/query2", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *models.RequestQuery
 		if s := queryParams.Get("operator_id"); s != "" {
@@ -3871,7 +3867,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/query3", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/query3", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *AliasRequestQuery
 		if s := queryParams.Get("operator_id"); s != "" {
@@ -4139,7 +4135,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/queryex1", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/queryex1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *RequestQueryEx1
 		if s := queryParams.Get("query.operator_id"); s != "" {
@@ -4450,7 +4446,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/queryex2", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/queryex2", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *RequestQueryEx2
 		if s := queryParams.Get("query.operator_id"); s != "" {
@@ -4816,7 +4812,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/queryex3", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/queryex3", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *RequestQueryEx3
 		if s := queryParams.Get("query.request.operator_id"); s != "" {
@@ -5127,7 +5123,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/queryex4", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/queryex4", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *RequestQueryEx4
 		if s := queryParams.Get("query.request.operator_id"); s != "" {
@@ -5493,7 +5489,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/queryex3/NoPrefix", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/queryex3/NoPrefix", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *RequestQueryEx3
 		if s := queryParams.Get("request.operator_id"); s != "" {
@@ -5804,7 +5800,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/queryex4/NoPrefix", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/queryex4/NoPrefix", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *RequestQueryEx4
 		if s := queryParams.Get("request.operator_id"); s != "" {
@@ -6170,7 +6166,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *models.RequestQuery
 		if s := queryParams.Get("query.operator_id"); s != "" {
@@ -6447,7 +6443,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/requests", func(w http.ResponseWriter, r *http.Request) {
 		var data models.Request
 		if err := render.Decode(r, &data); err != nil {
 			if he, ok := errors.BadArgument("data", "body", err).(errors.HTTPError); ok {
@@ -6472,7 +6468,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/requests", func(w http.ResponseWriter, r *http.Request) {
 		var bindArgs struct {
 			Request *models.Request `json:"request,omitempty"`
 			Testarg int64           `json:"testarg,omitempty"`
@@ -6500,7 +6496,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Put("/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Put("/requests/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -6535,7 +6531,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Patch("/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Patch("/requests/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -6575,7 +6571,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		return
 
 	})
-	mux.Patch("/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Patch("/requests/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -6613,7 +6609,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		return
 
 	})
-	mux.Put("/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Put("/requests/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -6650,7 +6646,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Put("/:id", func(w http.ResponseWriter, r *http.Request) {
+	mux.Put("/requests/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -6685,7 +6681,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/:id/5", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/requests/:id/5", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -6722,7 +6718,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/:id/6", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/requests/:id/6", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -6757,7 +6753,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Post("/:id/7", func(w http.ResponseWriter, r *http.Request) {
+	mux.Post("/requests/:id/7", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {
 			if he, ok := errors.BadArgument("id", chi.URLParam(r, "id"), err).(errors.HTTPError); ok {
@@ -6792,7 +6788,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/querysub1", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/querysub1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *SubTest1
 		if s := queryParams.Get("query.sub1.a1"); s != "" {
@@ -6837,7 +6833,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/querysub2", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/querysub2", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *SubTest2
 		if s := queryParams.Get("query.sub1.a1"); s != "" {
@@ -6890,7 +6886,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/querysub3", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/querysub3", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *SubTest3
 		if s := queryParams.Get("query.sub1.a1"); s != "" {
@@ -6949,7 +6945,7 @@ func InitRequests(mux chi.Router, svc Requests) {
 		render.JSON(w, r, result)
 		return
 	})
-	mux.Get("/querysub4", func(w http.ResponseWriter, r *http.Request) {
+	mux.Get("/requests/querysub4", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *SubTest4
 		if s := queryParams.Get("query.sub1.a1"); s != "" {

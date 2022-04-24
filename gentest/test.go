@@ -53,13 +53,13 @@ type TimeRange2 struct {
 }
 
 type QueryArgs struct {
-	fint    int
-	fstring string
-	ftime   time.Time
+	Fint    int
+	Fstring string
+	Ftime   time.Time
 
-	fintptr    *int
-	fstringptr *string
-	ftimeptr   *time.Time
+	Fintptr    *int
+	Fstringptr *string
+	Ftimeptr   *time.Time
 }
 
 // @http.Client(name="TestClient", ref="true")
@@ -228,12 +228,12 @@ func (svc *StringSvcImpl) TestByKey2(key Key) error {
 	return nil
 }
 
-// @http.GET(path=" /impl/test_by_strkey/{key}")
+// @http.GET(path="/impl/test_by_strkey/:key")
 func (svc *StringSvcImpl) TestByStrKey1(key StrKey) error {
 	return nil
 }
 
-// @http.GET(path=" /impl/test_by_strkey/")
+// @http.GET(path="/impl/test_by_strkey/")
 func (svc *StringSvcImpl) TestByStrKey2(key StrKey) error {
 	return nil
 }
@@ -278,7 +278,7 @@ func (svc *StringSvcImpl) Echo(a string) string {
 	return a
 }
 
-// @http.GET(path="/impl/echo_body1", data="body")
+// @http.POST(path="/impl/echo2", data="body")
 func (svc *StringSvcImpl) EchoBody(body io.Reader) (string, error) {
 	bs, err := ioutil.ReadAll(body)
 	return string(bs), err
@@ -436,7 +436,7 @@ func (svc *StringSvcWithContext) Echo(ctx context.Context, a string) string {
 	return a
 }
 
-// @http.GET(path="/ctx/echo", data="body")
+// @http.POST(path="/ctx/echo2", data="body")
 func (svc *StringSvcWithContext) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	bs, err := ioutil.ReadAll(body)
 	return string(bs), err
@@ -467,7 +467,7 @@ func (svc *StringSvcWithContext) Sub(ctx context.Context, a string, start int64)
 	return a[start:], nil
 }
 
-// @http.POST(path="/ctx/save/:a", data="b")
+// @http.POST(path="/ctx/save1/:a", data="b")
 func (svc *StringSvcWithContext) Save1(ctx context.Context, a, b string) (string, error) {
 	return "", nil
 }
@@ -482,7 +482,7 @@ func (svc *StringSvcWithContext) Save3(a, b *string) (string, error) {
 	return *a + *b, nil
 }
 
-// @http.GET(path="/ctx/add/:a/:b")
+// @http.GET(path="/ctx/add1/:a/:b")
 func (svc *StringSvcWithContext) Add1(ctx context.Context, a, b int) (int, error) {
 	return a + b, nil
 }
@@ -571,74 +571,74 @@ type SubTest4 struct {
 }
 
 type Requests interface {
-	// @http.GET(path="/query")
+	// @http.GET(path="/requests/query1")
 	Query1(ctx context.Context, query *models.RequestQuery, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/query2?query=<none>")
+	// @http.GET(path="/requests/query2?query=<none>")
 	Query2(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/query3?query=<none>")
+	// @http.GET(path="/requests/query3?query=<none>")
 	Query3(ctx context.Context, query *AliasRequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/queryex1")
+	// @http.GET(path="/requests/queryex1")
 	QueryEx1(ctx context.Context, query *RequestQueryEx1, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/queryex2")
+	// @http.GET(path="/requests/queryex2")
 	QueryEx2(ctx context.Context, query *RequestQueryEx2, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/queryex3")
+	// @http.GET(path="/requests/queryex3")
 	QueryEx3(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/queryex4")
+	// @http.GET(path="/requests/queryex4")
 	QueryEx4(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/queryex3/NoPrefix?query=<none>")
+	// @http.GET(path="/requests/queryex3/NoPrefix?query=<none>")
 	QueryEx3NoPrefix(ctx context.Context, query *RequestQueryEx3, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/queryex4/NoPrefix?query=<none>")
+	// @http.GET(path="/requests/queryex4/NoPrefix?query=<none>")
 	QueryEx4NoPrefix(ctx context.Context, query *RequestQueryEx4, offset, limit int64, params map[string]string) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="")
+	// @http.GET(path="/requests")
 	List(ctx context.Context, query *models.RequestQuery, offset, limit int64) (requests []map[string]interface{}, err error)
-	// @http.POST(path="", data="data")
+	// @http.POST(path="/requests", data="data")
 	Create(ctx context.Context, data *models.Request) (int64, error)
 
-	// @http.POST(path="")
+	// @http.POST(path="/requests")
 	Create2(ctx context.Context, request *models.Request, testarg int64) (int64, error)
 
-	// @http.PUT(path="/:id", data="data")
+	// @http.PUT(path="/requests/:id", data="data")
 	UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error)
 
-	// @http.PATCH(path="/:id")
+	// @http.PATCH(path="/requests/:id")
 	Set1ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// @http.PATCH(path="/:id", data="params")
+	// @http.PATCH(path="/requests/:id", data="params")
 	Set2ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// @http.PUT(path="/:id")
+	// @http.PUT(path="/requests/:id")
 	Set3ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// @http.PUT(path="/:id", data="params")
+	// @http.PUT(path="/requests/:id", data="params")
 	Set4ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// @http.POST(path="/:id/5")
+	// @http.POST(path="/requests/:id/5")
 	Set5ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// @http.POST(path="/:id/6", data="params")
+	// @http.POST(path="/requests/:id/6", data="params")
 	Set6ByID(ctx context.Context, id int64, params map[string]string) (int64, err error)
 
-	// @http.POST(path="/:id/7", data="params", dataType="map[string]string")
+	// @http.POST(path="/requests/:id/7", data="params", dataType="map[string]string")
 	Set7ByID(ctx context.Context, id int64, params interface{}) (int64, err error)
 
-	// @http.GET(path="/querysub1")
+	// @http.GET(path="/requests/querysub1")
 	QuerySubTest1(ctx context.Context, query *SubTest1) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/querysub2")
+	// @http.GET(path="/requests/querysub2")
 	QuerySubTest2(ctx context.Context, query *SubTest2) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/querysub3")
+	// @http.GET(path="/requests/querysub3")
 	QuerySubTest3(ctx context.Context, query *SubTest3) (requests []map[string]interface{}, err error)
 
-	// @http.GET(path="/querysub4")
+	// @http.GET(path="/requests/querysub4")
 	QuerySubTest4(ctx context.Context, query *SubTest4) (requests []map[string]interface{}, err error)
 }

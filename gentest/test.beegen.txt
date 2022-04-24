@@ -232,9 +232,9 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.fint, s, err).Error())
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.Input.Query("args.fstring")
+		args.Fstring = ctx.Input.Query("args.fstring")
 		if s := ctx.Input.Query("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
@@ -242,7 +242,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftime, s, err).Error())
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Input.Query("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -251,10 +251,10 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.fintptr, s, err).Error())
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Input.Query("args.fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Input.Query("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -263,7 +263,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftimeptr, s, err).Error())
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
@@ -292,13 +292,13 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.Input.Query("args.fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.Input.Query("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -310,7 +310,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Input.Query("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -322,13 +322,13 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Input.Query("args.fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Input.Query("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -340,7 +340,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs2(id, args)
@@ -368,9 +368,9 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", fint, s, err).Error())
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.Input.Query("fstring")
+		args.Fstring = ctx.Input.Query("fstring")
 		if s := ctx.Input.Query("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
@@ -378,7 +378,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftime, s, err).Error())
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Input.Query("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -387,10 +387,10 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", fintptr, s, err).Error())
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Input.Query("fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Input.Query("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -399,7 +399,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftimeptr, s, err).Error())
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -428,13 +428,13 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.Input.Query("fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.Input.Query("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -446,7 +446,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Input.Query("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -458,13 +458,13 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Input.Query("fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Input.Query("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -476,7 +476,7 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1260,11 +1260,8 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/ /impl/test_by_strkey/{key}", func(ctx *beecontext.Context) {
-		var key StrKey
-		if s := ctx.Input.Query("key"); s != "" {
-			key = StrKey(s)
-		}
+	mux.Get("/impl/test_by_strkey/:key", func(ctx *beecontext.Context) {
+		var key = StrKey(ctx.Input.Param("key"))
 
 		err := svc.TestByStrKey1(key)
 		if err != nil {
@@ -1276,7 +1273,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON("OK", false, false)
 		return
 	})
-	mux.Get("/ /impl/test_by_strkey", func(ctx *beecontext.Context) {
+	mux.Get("/impl/test_by_strkey", func(ctx *beecontext.Context) {
 		var key StrKey
 		if s := ctx.Input.Query("key"); s != "" {
 			key = StrKey(s)
@@ -1347,9 +1344,9 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.fint, s, err).Error())
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.Input.Query("args.fstring")
+		args.Fstring = ctx.Input.Query("args.fstring")
 		if s := ctx.Input.Query("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
@@ -1357,7 +1354,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftime, s, err).Error())
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Input.Query("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1366,10 +1363,10 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.fintptr, s, err).Error())
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Input.Query("args.fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Input.Query("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1378,7 +1375,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.ftimeptr, s, err).Error())
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
@@ -1407,13 +1404,13 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.Input.Query("args.fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.Input.Query("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -1425,7 +1422,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Input.Query("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1437,13 +1434,13 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Input.Query("args.fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Input.Query("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1455,7 +1452,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs2(id, args)
@@ -1483,9 +1480,9 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", fint, s, err).Error())
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.Input.Query("fstring")
+		args.Fstring = ctx.Input.Query("fstring")
 		if s := ctx.Input.Query("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
@@ -1493,7 +1490,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftime, s, err).Error())
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Input.Query("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1502,10 +1499,10 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", fintptr, s, err).Error())
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Input.Query("fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Input.Query("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1514,7 +1511,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", ftimeptr, s, err).Error())
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -1543,13 +1540,13 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.Input.Query("fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.Input.Query("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -1561,7 +1558,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Input.Query("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1573,13 +1570,13 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Input.Query("fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Input.Query("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1591,7 +1588,7 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1623,14 +1620,14 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/impl/echo_body1", func(ctx *beecontext.Context) {
+	mux.Post("/impl/echo2", func(ctx *beecontext.Context) {
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
 			return
 		}
-		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.SetStatus(http.StatusCreated)
 		ctx.Output.JSON(result, false, false)
 		return
 	})
@@ -2269,14 +2266,14 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/ctx/echo", func(ctx *beecontext.Context) {
+	mux.Post("/ctx/echo2", func(ctx *beecontext.Context) {
 		result, err := svc.EchoBody(ctx.Request.Context(), ctx.Request.Body)
 		if err != nil {
 			ctx.Output.SetStatus(httpCodeWith(err))
 			ctx.WriteString(err.Error())
 			return
 		}
-		ctx.Output.SetStatus(http.StatusOK)
+		ctx.Output.SetStatus(http.StatusCreated)
 		ctx.Output.JSON(result, false, false)
 		return
 	})
@@ -2365,7 +2362,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/ctx/save/:a", func(ctx *beecontext.Context) {
+	mux.Post("/ctx/save1/:a", func(ctx *beecontext.Context) {
 		var a = ctx.Input.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -2425,7 +2422,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/ctx/add/:a/:b", func(ctx *beecontext.Context) {
+	mux.Get("/ctx/add1/:a/:b", func(ctx *beecontext.Context) {
 		a, err := strconv.Atoi(ctx.Input.Param("a"))
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -2526,7 +2523,7 @@ func InitStringSvcWithContext(mux *beego.Namespace, svc *StringSvcWithContext) {
 // SubTest4 is skipped
 
 func InitRequests(mux *beego.Namespace, svc Requests) {
-	mux.Get("/query", func(ctx *beecontext.Context) {
+	mux.Get("/requests/query1", func(ctx *beecontext.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Input.Query("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2778,7 +2775,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query2", func(ctx *beecontext.Context) {
+	mux.Get("/requests/query2", func(ctx *beecontext.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Input.Query("operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2994,7 +2991,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/query3", func(ctx *beecontext.Context) {
+	mux.Get("/requests/query3", func(ctx *beecontext.Context) {
 		var query *AliasRequestQuery
 		if s := ctx.Input.Query("operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3210,7 +3207,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/queryex1", func(ctx *beecontext.Context) {
+	mux.Get("/requests/queryex1", func(ctx *beecontext.Context) {
 		var query *RequestQueryEx1
 		if s := ctx.Input.Query("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3469,7 +3466,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/queryex2", func(ctx *beecontext.Context) {
+	mux.Get("/requests/queryex2", func(ctx *beecontext.Context) {
 		var query *RequestQueryEx2
 		if s := ctx.Input.Query("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3783,7 +3780,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/queryex3", func(ctx *beecontext.Context) {
+	mux.Get("/requests/queryex3", func(ctx *beecontext.Context) {
 		var query *RequestQueryEx3
 		if s := ctx.Input.Query("query.request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4042,7 +4039,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/queryex4", func(ctx *beecontext.Context) {
+	mux.Get("/requests/queryex4", func(ctx *beecontext.Context) {
 		var query *RequestQueryEx4
 		if s := ctx.Input.Query("query.request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4356,7 +4353,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/queryex3/NoPrefix", func(ctx *beecontext.Context) {
+	mux.Get("/requests/queryex3/NoPrefix", func(ctx *beecontext.Context) {
 		var query *RequestQueryEx3
 		if s := ctx.Input.Query("request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4615,7 +4612,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/queryex4/NoPrefix", func(ctx *beecontext.Context) {
+	mux.Get("/requests/queryex4/NoPrefix", func(ctx *beecontext.Context) {
 		var query *RequestQueryEx4
 		if s := ctx.Input.Query("request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4929,7 +4926,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("", func(ctx *beecontext.Context) {
+	mux.Get("/requests", func(ctx *beecontext.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Input.Query("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -5154,7 +5151,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("", func(ctx *beecontext.Context) {
+	mux.Post("/requests", func(ctx *beecontext.Context) {
 		var data models.Request
 		if err := json.Unmarshal(ctx.Input.CopyBody(4*1024), &data); err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5172,7 +5169,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("", func(ctx *beecontext.Context) {
+	mux.Post("/requests", func(ctx *beecontext.Context) {
 		var bindArgs struct {
 			Request *models.Request `json:"request,omitempty"`
 			Testarg int64           `json:"testarg,omitempty"`
@@ -5193,7 +5190,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Put("/:id", func(ctx *beecontext.Context) {
+	mux.Put("/requests/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5217,7 +5214,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Patch("/:id", func(ctx *beecontext.Context) {
+	mux.Patch("/requests/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5243,7 +5240,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Patch("/:id", func(ctx *beecontext.Context) {
+	mux.Patch("/requests/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5267,7 +5264,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Put("/:id", func(ctx *beecontext.Context) {
+	mux.Put("/requests/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5293,7 +5290,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Put("/:id", func(ctx *beecontext.Context) {
+	mux.Put("/requests/:id", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5317,7 +5314,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/:id/5", func(ctx *beecontext.Context) {
+	mux.Post("/requests/:id/5", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5343,7 +5340,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/:id/6", func(ctx *beecontext.Context) {
+	mux.Post("/requests/:id/6", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5367,7 +5364,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Post("/:id/7", func(ctx *beecontext.Context) {
+	mux.Post("/requests/:id/7", func(ctx *beecontext.Context) {
 		id, err := strconv.ParseInt(ctx.Input.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Output.SetStatus(http.StatusBadRequest)
@@ -5391,7 +5388,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/querysub1", func(ctx *beecontext.Context) {
+	mux.Get("/requests/querysub1", func(ctx *beecontext.Context) {
 		var query *SubTest1
 		if s := ctx.Input.Query("query.sub1.a1"); s != "" {
 			query = &SubTest1{}
@@ -5432,7 +5429,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/querysub2", func(ctx *beecontext.Context) {
+	mux.Get("/requests/querysub2", func(ctx *beecontext.Context) {
 		var query *SubTest2
 		if s := ctx.Input.Query("query.sub1.a1"); s != "" {
 			query = &SubTest2{}
@@ -5481,7 +5478,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/querysub3", func(ctx *beecontext.Context) {
+	mux.Get("/requests/querysub3", func(ctx *beecontext.Context) {
 		var query *SubTest3
 		if s := ctx.Input.Query("query.sub1.a1"); s != "" {
 			query = &SubTest3{}
@@ -5536,7 +5533,7 @@ func InitRequests(mux *beego.Namespace, svc Requests) {
 		ctx.Output.JSON(result, false, false)
 		return
 	})
-	mux.Get("/querysub4", func(ctx *beecontext.Context) {
+	mux.Get("/requests/querysub4", func(ctx *beecontext.Context) {
 		var query *SubTest4
 		if s := ctx.Input.Query("query.sub1.a1"); s != "" {
 			query = &SubTest4{}

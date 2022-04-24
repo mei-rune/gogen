@@ -204,16 +204,16 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", args.fint, s, err).Error())
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.Query("args.fstring")
+		args.Fstring = ctx.Query("args.fstring")
 		if s := ctx.Query("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", args.ftime, s, err).Error())
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Query("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -221,10 +221,10 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", args.fintptr, s, err).Error())
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Query("args.fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Query("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -232,7 +232,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", args.ftimeptr, s, err).Error())
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
@@ -257,13 +257,13 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.Query("args.fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.Query("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -274,7 +274,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Query("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -285,13 +285,13 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Query("args.fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Query("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -302,7 +302,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs2(id, args)
@@ -326,16 +326,16 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", fint, s, err).Error())
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.Query("fstring")
+		args.Fstring = ctx.Query("fstring")
 		if s := ctx.Query("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", ftime, s, err).Error())
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Query("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -343,10 +343,10 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", fintptr, s, err).Error())
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Query("fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Query("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -354,7 +354,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", ftimeptr, s, err).Error())
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -379,13 +379,13 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.Query("fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.Query("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -396,7 +396,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Query("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -407,13 +407,13 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Query("fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Query("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -424,7 +424,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1109,11 +1109,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/ /impl/test_by_strkey/{key}", func(ctx *gin.Context) {
-		var key StrKey
-		if s := ctx.Query("key"); s != "" {
-			key = StrKey(s)
-		}
+	mux.GET("/impl/test_by_strkey/:key", func(ctx *gin.Context) {
+		var key = StrKey(ctx.Param("key"))
 
 		err := svc.TestByStrKey1(key)
 		if err != nil {
@@ -1123,7 +1120,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
-	mux.GET("/ /impl/test_by_strkey", func(ctx *gin.Context) {
+	mux.GET("/impl/test_by_strkey", func(ctx *gin.Context) {
 		var key StrKey
 		if s := ctx.Query("key"); s != "" {
 			key = StrKey(s)
@@ -1184,16 +1181,16 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", args.fint, s, err).Error())
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.Query("args.fstring")
+		args.Fstring = ctx.Query("args.fstring")
 		if s := ctx.Query("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", args.ftime, s, err).Error())
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Query("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1201,10 +1198,10 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", args.fintptr, s, err).Error())
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Query("args.fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Query("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1212,7 +1209,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", args.ftimeptr, s, err).Error())
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
@@ -1237,13 +1234,13 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.Query("args.fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.Query("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -1254,7 +1251,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Query("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1265,13 +1262,13 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Query("args.fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Query("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1282,7 +1279,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs2(id, args)
@@ -1306,16 +1303,16 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", fint, s, err).Error())
 				return
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.Query("fstring")
+		args.Fstring = ctx.Query("fstring")
 		if s := ctx.Query("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", ftime, s, err).Error())
 				return
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Query("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1323,10 +1320,10 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", fintptr, s, err).Error())
 				return
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Query("fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Query("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1334,7 +1331,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", ftimeptr, s, err).Error())
 				return
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -1359,13 +1356,13 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 				return
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.Query("fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.Query("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -1376,7 +1373,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.Query("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1387,13 +1384,13 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.Query("fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.Query("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1404,7 +1401,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1431,13 +1428,13 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/impl/echo_body1", func(ctx *gin.Context) {
+	mux.POST("/impl/echo2", func(ctx *gin.Context) {
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
 		}
-		ctx.JSON(http.StatusOK, result)
+		ctx.JSON(http.StatusCreated, result)
 		return
 	})
 	mux.POST("/impl/echo3", func(ctx *gin.Context) {
@@ -1996,13 +1993,13 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/ctx/echo", func(ctx *gin.Context) {
+	mux.POST("/ctx/echo2", func(ctx *gin.Context) {
 		result, err := svc.EchoBody(ctx.Request.Context(), ctx.Request.Body)
 		if err != nil {
 			ctx.String(httpCodeWith(err), err.Error())
 			return
 		}
-		ctx.JSON(http.StatusOK, result)
+		ctx.JSON(http.StatusCreated, result)
 		return
 	})
 	mux.GET("/ctx/concat", func(ctx *gin.Context) {
@@ -2079,7 +2076,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.POST("/ctx/save/:a", func(ctx *gin.Context) {
+	mux.POST("/ctx/save1/:a", func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -2130,7 +2127,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.GET("/ctx/add/:a/:b", func(ctx *gin.Context) {
+	mux.GET("/ctx/add1/:a/:b", func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", a, ctx.Param("a"), err).Error())
@@ -2219,7 +2216,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 // SubTest4 is skipped
 
 func InitRequests(mux gin.IRouter, svc Requests) {
-	mux.GET("/query", func(ctx *gin.Context) {
+	mux.GET("/requests/query1", func(ctx *gin.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Query("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2457,7 +2454,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query2", func(ctx *gin.Context) {
+	mux.GET("/requests/query2", func(ctx *gin.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Query("operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2659,7 +2656,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/query3", func(ctx *gin.Context) {
+	mux.GET("/requests/query3", func(ctx *gin.Context) {
 		var query *AliasRequestQuery
 		if s := ctx.Query("operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2861,7 +2858,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/queryex1", func(ctx *gin.Context) {
+	mux.GET("/requests/queryex1", func(ctx *gin.Context) {
 		var query *RequestQueryEx1
 		if s := ctx.Query("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3106,7 +3103,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/queryex2", func(ctx *gin.Context) {
+	mux.GET("/requests/queryex2", func(ctx *gin.Context) {
 		var query *RequestQueryEx2
 		if s := ctx.Query("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3406,7 +3403,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/queryex3", func(ctx *gin.Context) {
+	mux.GET("/requests/queryex3", func(ctx *gin.Context) {
 		var query *RequestQueryEx3
 		if s := ctx.Query("query.request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3651,7 +3648,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/queryex4", func(ctx *gin.Context) {
+	mux.GET("/requests/queryex4", func(ctx *gin.Context) {
 		var query *RequestQueryEx4
 		if s := ctx.Query("query.request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3951,7 +3948,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/queryex3/NoPrefix", func(ctx *gin.Context) {
+	mux.GET("/requests/queryex3/NoPrefix", func(ctx *gin.Context) {
 		var query *RequestQueryEx3
 		if s := ctx.Query("request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4196,7 +4193,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/queryex4/NoPrefix", func(ctx *gin.Context) {
+	mux.GET("/requests/queryex4/NoPrefix", func(ctx *gin.Context) {
 		var query *RequestQueryEx4
 		if s := ctx.Query("request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4496,7 +4493,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("", func(ctx *gin.Context) {
+	mux.GET("/requests", func(ctx *gin.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Query("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4707,7 +4704,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.POST("", func(ctx *gin.Context) {
+	mux.POST("/requests", func(ctx *gin.Context) {
 		var data models.Request
 		if err := ctx.Bind(&data); err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", data, "body", err).Error())
@@ -4722,7 +4719,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("", func(ctx *gin.Context) {
+	mux.POST("/requests", func(ctx *gin.Context) {
 		var bindArgs struct {
 			Request *models.Request `json:"request,omitempty"`
 			Testarg int64           `json:"testarg,omitempty"`
@@ -4740,7 +4737,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.PUT("/:id", func(ctx *gin.Context) {
+	mux.PUT("/requests/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -4760,7 +4757,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusAccepted, result)
 		return
 	})
-	mux.PATCH("/:id", func(ctx *gin.Context) {
+	mux.PATCH("/requests/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -4782,7 +4779,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.PATCH("/:id", func(ctx *gin.Context) {
+	mux.PATCH("/requests/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -4802,7 +4799,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.PUT("/:id", func(ctx *gin.Context) {
+	mux.PUT("/requests/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -4824,7 +4821,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusAccepted, result)
 		return
 	})
-	mux.PUT("/:id", func(ctx *gin.Context) {
+	mux.PUT("/requests/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -4844,7 +4841,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusAccepted, result)
 		return
 	})
-	mux.POST("/:id/5", func(ctx *gin.Context) {
+	mux.POST("/requests/:id/5", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -4866,7 +4863,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("/:id/6", func(ctx *gin.Context) {
+	mux.POST("/requests/:id/6", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -4886,7 +4883,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.POST("/:id/7", func(ctx *gin.Context) {
+	mux.POST("/requests/:id/7", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.String(http.StatusBadRequest, fmt.Errorf("argument %q is invalid - %q", id, ctx.Param("id"), err).Error())
@@ -4906,7 +4903,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	})
-	mux.GET("/querysub1", func(ctx *gin.Context) {
+	mux.GET("/requests/querysub1", func(ctx *gin.Context) {
 		var query *SubTest1
 		if s := ctx.Query("query.sub1.a1"); s != "" {
 			query = &SubTest1{}
@@ -4945,7 +4942,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/querysub2", func(ctx *gin.Context) {
+	mux.GET("/requests/querysub2", func(ctx *gin.Context) {
 		var query *SubTest2
 		if s := ctx.Query("query.sub1.a1"); s != "" {
 			query = &SubTest2{}
@@ -4992,7 +4989,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/querysub3", func(ctx *gin.Context) {
+	mux.GET("/requests/querysub3", func(ctx *gin.Context) {
 		var query *SubTest3
 		if s := ctx.Query("query.sub1.a1"); s != "" {
 			query = &SubTest3{}
@@ -5045,7 +5042,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	})
-	mux.GET("/querysub4", func(ctx *gin.Context) {
+	mux.GET("/requests/querysub4", func(ctx *gin.Context) {
 		var query *SubTest4
 		if s := ctx.Query("query.sub1.a1"); s != "" {
 			query = &SubTest4{}

@@ -195,16 +195,16 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
 				return nil
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.QueryParam("args.fstring")
+		args.Fstring = ctx.QueryParam("args.fstring")
 		if s := ctx.QueryParam("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
 				return nil
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -212,10 +212,10 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
 				return nil
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("args.fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -223,7 +223,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
 				return nil
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
@@ -247,13 +247,13 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				return nil
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.QueryParam("args.fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.QueryParam("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -264,7 +264,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -275,13 +275,13 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("args.fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -292,7 +292,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs2(id, args)
@@ -315,16 +315,16 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
 				return nil
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.QueryParam("fstring")
+		args.Fstring = ctx.QueryParam("fstring")
 		if s := ctx.QueryParam("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
 				return nil
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -332,10 +332,10 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
 				return nil
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -343,7 +343,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
 				return nil
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -367,13 +367,13 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 				return nil
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.QueryParam("fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.QueryParam("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -384,7 +384,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -395,13 +395,13 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -412,7 +412,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1061,11 +1061,8 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/ /impl/test_by_strkey/{key}", func(ctx echo.Context) error {
-		var key StrKey
-		if s := ctx.QueryParam("key"); s != "" {
-			key = StrKey(s)
-		}
+	mux.GET("/impl/test_by_strkey/:key", func(ctx echo.Context) error {
+		var key = StrKey(ctx.Param("key"))
 
 		err := svc.TestByStrKey1(key)
 		if err != nil {
@@ -1074,7 +1071,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/ /impl/test_by_strkey", func(ctx echo.Context) error {
+	mux.GET("/impl/test_by_strkey", func(ctx echo.Context) error {
 		var key StrKey
 		if s := ctx.QueryParam("key"); s != "" {
 			key = StrKey(s)
@@ -1132,16 +1129,16 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
 				return nil
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.QueryParam("args.fstring")
+		args.Fstring = ctx.QueryParam("args.fstring")
 		if s := ctx.QueryParam("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
 				return nil
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1149,10 +1146,10 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
 				return nil
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("args.fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1160,7 +1157,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
 				return nil
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
@@ -1184,13 +1181,13 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				return nil
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.QueryParam("args.fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.QueryParam("args.ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -1201,7 +1198,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1212,13 +1209,13 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("args.fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1229,7 +1226,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs2(id, args)
@@ -1252,16 +1249,16 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
 				return nil
 			}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
-		args.fstring = ctx.QueryParam("fstring")
+		args.Fstring = ctx.QueryParam("fstring")
 		if s := ctx.QueryParam("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
 				return nil
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1269,10 +1266,10 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
 				return nil
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("fstringptr"); s != "" {
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1280,7 +1277,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
 				return nil
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -1304,13 +1301,13 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 				return nil
 			}
 			args = &QueryArgs{}
-			args.fint = argsFintValue
+			args.Fint = argsFintValue
 		}
 		if s := ctx.QueryParam("fstring"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstring = s
+			args.Fstring = s
 		}
 		if s := ctx.QueryParam("ftime"); s != "" {
 			argsFtimeValue, err := ToDatetime(s)
@@ -1321,7 +1318,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftime = argsFtimeValue
+			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
@@ -1332,13 +1329,13 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fintptr = &argsFintptrValue
+			args.Fintptr = &argsFintptrValue
 		}
 		if s := ctx.QueryParam("fstringptr"); s != "" {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.fstringptr = &s
+			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
 			argsFtimeptrValue, err := ToDatetime(s)
@@ -1349,7 +1346,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if args == nil {
 				args = &QueryArgs{}
 			}
-			args.ftimeptr = &argsFtimeptrValue
+			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1373,13 +1370,13 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		result := svc.Echo(a)
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/echo_body1", func(ctx echo.Context) error {
+	mux.POST("/impl/echo2", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.JSON(http.StatusOK, result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
 	mux.POST("/impl/echo3", func(ctx echo.Context) error {
 		var bindArgs struct {
@@ -1909,13 +1906,13 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 		result := svc.Echo(ctx.Request().Context(), a)
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/ctx/echo", func(ctx echo.Context) error {
+	mux.POST("/ctx/echo2", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Context(), ctx.Request().Body)
 		if err != nil {
 			ctx.Error(err)
 			return nil
 		}
-		return ctx.JSON(http.StatusOK, result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
 	mux.GET("/ctx/concat", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
@@ -1986,7 +1983,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/ctx/save/:a", func(ctx echo.Context) error {
+	mux.POST("/ctx/save1/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
@@ -2034,7 +2031,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 		}
 		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/ctx/add/:a/:b", func(ctx echo.Context) error {
+	mux.GET("/ctx/add1/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", ctx.Param("a"), err))
@@ -2120,7 +2117,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 // SubTest4 is skipped
 
 func InitRequests(mux *echo.Group, svc Requests) {
-	mux.GET("/query", func(ctx echo.Context) error {
+	mux.GET("/requests/query1", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2357,7 +2354,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query2", func(ctx echo.Context) error {
+	mux.GET("/requests/query2", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2558,7 +2555,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query3", func(ctx echo.Context) error {
+	mux.GET("/requests/query3", func(ctx echo.Context) error {
 		var query *AliasRequestQuery
 		if s := ctx.QueryParam("operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2759,7 +2756,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/queryex1", func(ctx echo.Context) error {
+	mux.GET("/requests/queryex1", func(ctx echo.Context) error {
 		var query *RequestQueryEx1
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3003,7 +3000,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/queryex2", func(ctx echo.Context) error {
+	mux.GET("/requests/queryex2", func(ctx echo.Context) error {
 		var query *RequestQueryEx2
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3302,7 +3299,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/queryex3", func(ctx echo.Context) error {
+	mux.GET("/requests/queryex3", func(ctx echo.Context) error {
 		var query *RequestQueryEx3
 		if s := ctx.QueryParam("query.request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3546,7 +3543,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/queryex4", func(ctx echo.Context) error {
+	mux.GET("/requests/queryex4", func(ctx echo.Context) error {
 		var query *RequestQueryEx4
 		if s := ctx.QueryParam("query.request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3845,7 +3842,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/queryex3/NoPrefix", func(ctx echo.Context) error {
+	mux.GET("/requests/queryex3/NoPrefix", func(ctx echo.Context) error {
 		var query *RequestQueryEx3
 		if s := ctx.QueryParam("request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4089,7 +4086,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/queryex4/NoPrefix", func(ctx echo.Context) error {
+	mux.GET("/requests/queryex4/NoPrefix", func(ctx echo.Context) error {
 		var query *RequestQueryEx4
 		if s := ctx.QueryParam("request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4388,7 +4385,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("", func(ctx echo.Context) error {
+	mux.GET("/requests", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4598,7 +4595,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("", func(ctx echo.Context) error {
+	mux.POST("/requests", func(ctx echo.Context) error {
 		var data models.Request
 		if err := ctx.Bind(&data); err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "data", "body", err))
@@ -4612,7 +4609,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("", func(ctx echo.Context) error {
+	mux.POST("/requests", func(ctx echo.Context) error {
 		var bindArgs struct {
 			Request *models.Request `json:"request,omitempty"`
 			Testarg int64           `json:"testarg,omitempty"`
@@ -4629,7 +4626,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.PUT("/:id", func(ctx echo.Context) error {
+	mux.PUT("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -4648,7 +4645,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusAccepted, result)
 	})
-	mux.PATCH("/:id", func(ctx echo.Context) error {
+	mux.PATCH("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -4669,7 +4666,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.PATCH("/:id", func(ctx echo.Context) error {
+	mux.PATCH("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -4688,7 +4685,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.PUT("/:id", func(ctx echo.Context) error {
+	mux.PUT("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -4709,7 +4706,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusAccepted, result)
 	})
-	mux.PUT("/:id", func(ctx echo.Context) error {
+	mux.PUT("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -4728,7 +4725,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusAccepted, result)
 	})
-	mux.POST("/:id/5", func(ctx echo.Context) error {
+	mux.POST("/requests/:id/5", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -4749,7 +4746,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/:id/6", func(ctx echo.Context) error {
+	mux.POST("/requests/:id/6", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -4768,7 +4765,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/:id/7", func(ctx echo.Context) error {
+	mux.POST("/requests/:id/7", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
@@ -4787,7 +4784,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/querysub1", func(ctx echo.Context) error {
+	mux.GET("/requests/querysub1", func(ctx echo.Context) error {
 		var query *SubTest1
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest1{}
@@ -4825,7 +4822,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/querysub2", func(ctx echo.Context) error {
+	mux.GET("/requests/querysub2", func(ctx echo.Context) error {
 		var query *SubTest2
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest2{}
@@ -4871,7 +4868,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/querysub3", func(ctx echo.Context) error {
+	mux.GET("/requests/querysub3", func(ctx echo.Context) error {
 		var query *SubTest3
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest3{}
@@ -4923,7 +4920,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		}
 		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/querysub4", func(ctx echo.Context) error {
+	mux.GET("/requests/querysub4", func(ctx echo.Context) error {
 		var query *SubTest4
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest4{}

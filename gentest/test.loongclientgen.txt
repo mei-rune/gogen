@@ -157,17 +157,17 @@ func (client TestClient) TestInt64Query(ctx context.Context, id int64) error {
 
 func (client TestClient) TestQueryArgs1(ctx context.Context, id int64, args QueryArgs) error {
 	request := resty.NewRequest(client.Proxy, "/test_query_args1/"+strconv.FormatInt(id, 10)+"").
-		SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
-		SetParam("args.fstring", args.fstring).
-		SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
-	if args.fintptr != nil {
-		request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		SetParam("args.fint", strconv.FormatInt(int64(args.Fint), 10)).
+		SetParam("args.fstring", args.Fstring).
+		SetParam("args.ftime", args.Ftime.Format(client.Proxy.TimeFormat))
+	if args.Fintptr != nil {
+		request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.Fintptr), 10))
 	}
-	if args.fstringptr != nil {
-		request = request.SetParam("args.fstringptr", *args.fstringptr)
+	if args.Fstringptr != nil {
+		request = request.SetParam("args.fstringptr", *args.Fstringptr)
 	}
-	if args.ftimeptr != nil {
-		request = request.SetParam("args.ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+	if args.Ftimeptr != nil {
+		request = request.SetParam("args.ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -177,17 +177,17 @@ func (client TestClient) TestQueryArgs1(ctx context.Context, id int64, args Quer
 func (client TestClient) TestQueryArgs2(ctx context.Context, id int64, args *QueryArgs) error {
 	request := resty.NewRequest(client.Proxy, "/test_query_args2/"+strconv.FormatInt(id, 10)+"")
 	if args != nil {
-		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
-			SetParam("args.fstring", args.fstring).
-			SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
-		if args.fintptr != nil {
-			request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.Fint), 10)).
+			SetParam("args.fstring", args.Fstring).
+			SetParam("args.ftime", args.Ftime.Format(client.Proxy.TimeFormat))
+		if args.Fintptr != nil {
+			request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.Fintptr), 10))
 		}
-		if args.fstringptr != nil {
-			request = request.SetParam("args.fstringptr", *args.fstringptr)
+		if args.Fstringptr != nil {
+			request = request.SetParam("args.fstringptr", *args.Fstringptr)
 		}
-		if args.ftimeptr != nil {
-			request = request.SetParam("args.ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+		if args.Ftimeptr != nil {
+			request = request.SetParam("args.ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 		}
 	}
 
@@ -197,17 +197,17 @@ func (client TestClient) TestQueryArgs2(ctx context.Context, id int64, args *Que
 
 func (client TestClient) TestQueryArgs3(ctx context.Context, id int64, args QueryArgs) error {
 	request := resty.NewRequest(client.Proxy, "/test_query_args3/"+strconv.FormatInt(id, 10)+"").
-		SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
-		SetParam("fstring", args.fstring).
-		SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
-	if args.fintptr != nil {
-		request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		SetParam("fint", strconv.FormatInt(int64(args.Fint), 10)).
+		SetParam("fstring", args.Fstring).
+		SetParam("ftime", args.Ftime.Format(client.Proxy.TimeFormat))
+	if args.Fintptr != nil {
+		request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.Fintptr), 10))
 	}
-	if args.fstringptr != nil {
-		request = request.SetParam("fstringptr", *args.fstringptr)
+	if args.Fstringptr != nil {
+		request = request.SetParam("fstringptr", *args.Fstringptr)
 	}
-	if args.ftimeptr != nil {
-		request = request.SetParam("ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+	if args.Ftimeptr != nil {
+		request = request.SetParam("ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -217,17 +217,17 @@ func (client TestClient) TestQueryArgs3(ctx context.Context, id int64, args Quer
 func (client TestClient) TestQueryArgs4(ctx context.Context, id int64, args *QueryArgs) error {
 	request := resty.NewRequest(client.Proxy, "/test_query_args4/"+strconv.FormatInt(id, 10)+"")
 	if args != nil {
-		request = request.SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
-			SetParam("fstring", args.fstring).
-			SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
-		if args.fintptr != nil {
-			request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		request = request.SetParam("fint", strconv.FormatInt(int64(args.Fint), 10)).
+			SetParam("fstring", args.Fstring).
+			SetParam("ftime", args.Ftime.Format(client.Proxy.TimeFormat))
+		if args.Fintptr != nil {
+			request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.Fintptr), 10))
 		}
-		if args.fstringptr != nil {
-			request = request.SetParam("fstringptr", *args.fstringptr)
+		if args.Fstringptr != nil {
+			request = request.SetParam("fstringptr", *args.Fstringptr)
 		}
-		if args.ftimeptr != nil {
-			request = request.SetParam("ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+		if args.Ftimeptr != nil {
+			request = request.SetParam("ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 		}
 	}
 
@@ -1068,15 +1068,14 @@ func (client StringSvcImplClient) TestByKey2(ctx context.Context, key Key) error
 }
 
 func (client StringSvcImplClient) TestByStrKey1(ctx context.Context, key StrKey) error {
-	request := resty.NewRequest(client.Proxy, "/ /impl/test_by_strkey/{key}").
-		SetParam("key", key)
+	request := resty.NewRequest(client.Proxy, "/impl/test_by_strkey/"+key+"")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client StringSvcImplClient) TestByStrKey2(ctx context.Context, key StrKey) error {
-	request := resty.NewRequest(client.Proxy, "/ /impl/test_by_strkey").
+	request := resty.NewRequest(client.Proxy, "/impl/test_by_strkey").
 		SetParam("key", key)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -1100,17 +1099,17 @@ func (client StringSvcImplClient) TestInt64Query(ctx context.Context, id int64) 
 
 func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, args QueryArgs) error {
 	request := resty.NewRequest(client.Proxy, "/impl/test_query_args1/"+strconv.FormatInt(id, 10)+"").
-		SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
-		SetParam("args.fstring", args.fstring).
-		SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
-	if args.fintptr != nil {
-		request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		SetParam("args.fint", strconv.FormatInt(int64(args.Fint), 10)).
+		SetParam("args.fstring", args.Fstring).
+		SetParam("args.ftime", args.Ftime.Format(client.Proxy.TimeFormat))
+	if args.Fintptr != nil {
+		request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.Fintptr), 10))
 	}
-	if args.fstringptr != nil {
-		request = request.SetParam("args.fstringptr", *args.fstringptr)
+	if args.Fstringptr != nil {
+		request = request.SetParam("args.fstringptr", *args.Fstringptr)
 	}
-	if args.ftimeptr != nil {
-		request = request.SetParam("args.ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+	if args.Ftimeptr != nil {
+		request = request.SetParam("args.ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -1120,17 +1119,17 @@ func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, 
 func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, args *QueryArgs) error {
 	request := resty.NewRequest(client.Proxy, "/impl/test_query_args2/"+strconv.FormatInt(id, 10)+"")
 	if args != nil {
-		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.fint), 10)).
-			SetParam("args.fstring", args.fstring).
-			SetParam("args.ftime", args.ftime.Format(client.Proxy.TimeFormat))
-		if args.fintptr != nil {
-			request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.Fint), 10)).
+			SetParam("args.fstring", args.Fstring).
+			SetParam("args.ftime", args.Ftime.Format(client.Proxy.TimeFormat))
+		if args.Fintptr != nil {
+			request = request.SetParam("args.fintptr", strconv.FormatInt(int64(*args.Fintptr), 10))
 		}
-		if args.fstringptr != nil {
-			request = request.SetParam("args.fstringptr", *args.fstringptr)
+		if args.Fstringptr != nil {
+			request = request.SetParam("args.fstringptr", *args.Fstringptr)
 		}
-		if args.ftimeptr != nil {
-			request = request.SetParam("args.ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+		if args.Ftimeptr != nil {
+			request = request.SetParam("args.ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 		}
 	}
 
@@ -1140,17 +1139,17 @@ func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, 
 
 func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, args QueryArgs) error {
 	request := resty.NewRequest(client.Proxy, "/impl/test_query_args3/"+strconv.FormatInt(id, 10)+"").
-		SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
-		SetParam("fstring", args.fstring).
-		SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
-	if args.fintptr != nil {
-		request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		SetParam("fint", strconv.FormatInt(int64(args.Fint), 10)).
+		SetParam("fstring", args.Fstring).
+		SetParam("ftime", args.Ftime.Format(client.Proxy.TimeFormat))
+	if args.Fintptr != nil {
+		request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.Fintptr), 10))
 	}
-	if args.fstringptr != nil {
-		request = request.SetParam("fstringptr", *args.fstringptr)
+	if args.Fstringptr != nil {
+		request = request.SetParam("fstringptr", *args.Fstringptr)
 	}
-	if args.ftimeptr != nil {
-		request = request.SetParam("ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+	if args.Ftimeptr != nil {
+		request = request.SetParam("ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -1160,17 +1159,17 @@ func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, 
 func (client StringSvcImplClient) TestQueryArgs4(ctx context.Context, id int64, args *QueryArgs) error {
 	request := resty.NewRequest(client.Proxy, "/impl/test_query_args4/"+strconv.FormatInt(id, 10)+"")
 	if args != nil {
-		request = request.SetParam("fint", strconv.FormatInt(int64(args.fint), 10)).
-			SetParam("fstring", args.fstring).
-			SetParam("ftime", args.ftime.Format(client.Proxy.TimeFormat))
-		if args.fintptr != nil {
-			request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.fintptr), 10))
+		request = request.SetParam("fint", strconv.FormatInt(int64(args.Fint), 10)).
+			SetParam("fstring", args.Fstring).
+			SetParam("ftime", args.Ftime.Format(client.Proxy.TimeFormat))
+		if args.Fintptr != nil {
+			request = request.SetParam("fintptr", strconv.FormatInt(int64(*args.Fintptr), 10))
 		}
-		if args.fstringptr != nil {
-			request = request.SetParam("fstringptr", *args.fstringptr)
+		if args.Fstringptr != nil {
+			request = request.SetParam("fstringptr", *args.Fstringptr)
 		}
-		if args.ftimeptr != nil {
-			request = request.SetParam("ftimeptr", args.ftimeptr.Format(client.Proxy.TimeFormat))
+		if args.Ftimeptr != nil {
+			request = request.SetParam("ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 		}
 	}
 
@@ -1213,11 +1212,11 @@ func (client StringSvcImplClient) EchoBody(ctx context.Context, body io.Reader) 
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/echo_body1").
+	request := resty.NewRequest(client.Proxy, "/impl/echo2").
 		SetBody(body).
 		Result(&resultWrap)
 
-	err := request.GET(ctx)
+	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
 	if err != nil {
 		return "", err
@@ -1936,11 +1935,11 @@ func (client StringSvcWithContextClient) EchoBody(ctx context.Context, body io.R
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/echo").
+	request := resty.NewRequest(client.Proxy, "/ctx/echo2").
 		SetBody(body).
 		Result(&resultWrap)
 
-	err := request.GET(ctx)
+	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
 	if err != nil {
 		return "", err
@@ -2079,7 +2078,7 @@ func (client StringSvcWithContextClient) Save1(ctx context.Context, a string, b 
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/save/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/save1/"+a+"").
 		SetBody(b).
 		Result(&resultWrap)
 
@@ -2151,7 +2150,7 @@ func (client StringSvcWithContextClient) Add1(ctx context.Context, a int, b int)
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/add1/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
 		Result(&resultWrap)
 
 	err := request.GET(ctx)
@@ -2242,7 +2241,7 @@ func (client RequestsClient) Query1(ctx context.Context, query *models.RequestQu
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query")
+	request := resty.NewRequest(client.Proxy, "/requests/query1")
 	if query != nil {
 		request = request.SetParam("query.operator_id", strconv.FormatInt(query.OperatorID, 10)).
 			SetParam("query.creator_id", strconv.FormatInt(query.CreatorID, 10)).
@@ -2296,7 +2295,7 @@ func (client RequestsClient) Query2(ctx context.Context, query *models.RequestQu
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query2")
+	request := resty.NewRequest(client.Proxy, "/requests/query2")
 	if query != nil {
 		request = request.SetParam("operator_id", strconv.FormatInt(query.OperatorID, 10)).
 			SetParam("creator_id", strconv.FormatInt(query.CreatorID, 10)).
@@ -2349,7 +2348,7 @@ func (client RequestsClient) Query3(ctx context.Context, query *AliasRequestQuer
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query3")
+	request := resty.NewRequest(client.Proxy, "/requests/query3")
 	if query != nil {
 		request = request.SetParam("operator_id", strconv.FormatInt(query.OperatorID, 10)).
 			SetParam("creator_id", strconv.FormatInt(query.CreatorID, 10)).
@@ -2402,7 +2401,7 @@ func (client RequestsClient) QueryEx1(ctx context.Context, query *RequestQueryEx
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/queryex1")
+	request := resty.NewRequest(client.Proxy, "/requests/queryex1")
 	if query != nil {
 		request = request.SetParam("query.operator_id", strconv.FormatInt(query.OperatorID, 10)).
 			SetParam("query.creator_id", strconv.FormatInt(query.CreatorID, 10)).
@@ -2457,7 +2456,7 @@ func (client RequestsClient) QueryEx2(ctx context.Context, query *RequestQueryEx
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/queryex2")
+	request := resty.NewRequest(client.Proxy, "/requests/queryex2")
 	if query != nil {
 		if query.RequestQuery != nil {
 			request = request.SetParam("query.operator_id", strconv.FormatInt(query.OperatorID, 10)).
@@ -2514,7 +2513,7 @@ func (client RequestsClient) QueryEx3(ctx context.Context, query *RequestQueryEx
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/queryex3")
+	request := resty.NewRequest(client.Proxy, "/requests/queryex3")
 	if query != nil {
 		request = request.SetParam("query.request.operator_id", strconv.FormatInt(query.Request.OperatorID, 10)).
 			SetParam("query.request.creator_id", strconv.FormatInt(query.Request.CreatorID, 10)).
@@ -2569,7 +2568,7 @@ func (client RequestsClient) QueryEx4(ctx context.Context, query *RequestQueryEx
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/queryex4")
+	request := resty.NewRequest(client.Proxy, "/requests/queryex4")
 	if query != nil {
 		if query.Request != nil {
 			request = request.SetParam("query.request.operator_id", strconv.FormatInt(query.Request.OperatorID, 10)).
@@ -2626,7 +2625,7 @@ func (client RequestsClient) QueryEx3NoPrefix(ctx context.Context, query *Reques
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/queryex3/NoPrefix")
+	request := resty.NewRequest(client.Proxy, "/requests/queryex3/NoPrefix")
 	if query != nil {
 		request = request.SetParam("request.operator_id", strconv.FormatInt(query.Request.OperatorID, 10)).
 			SetParam("request.creator_id", strconv.FormatInt(query.Request.CreatorID, 10)).
@@ -2681,7 +2680,7 @@ func (client RequestsClient) QueryEx4NoPrefix(ctx context.Context, query *Reques
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/queryex4/NoPrefix")
+	request := resty.NewRequest(client.Proxy, "/requests/queryex4/NoPrefix")
 	if query != nil {
 		if query.Request != nil {
 			request = request.SetParam("request.operator_id", strconv.FormatInt(query.Request.OperatorID, 10)).
@@ -2738,7 +2737,7 @@ func (client RequestsClient) List(ctx context.Context, query *models.RequestQuer
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/")
+	request := resty.NewRequest(client.Proxy, "/requests")
 	if query != nil {
 		request = request.SetParam("query.operator_id", strconv.FormatInt(query.OperatorID, 10)).
 			SetParam("query.creator_id", strconv.FormatInt(query.CreatorID, 10)).
@@ -2791,7 +2790,7 @@ func (client RequestsClient) Create(ctx context.Context, data *models.Request) (
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/").
+	request := resty.NewRequest(client.Proxy, "/requests").
 		SetBody(data).
 		Result(&resultWrap)
 
@@ -2814,7 +2813,7 @@ func (client RequestsClient) Create2(ctx context.Context, _request *models.Reque
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/").
+	request := resty.NewRequest(client.Proxy, "/requests").
 		SetBody(map[string]interface{}{
 			"request": _request,
 			"testarg": testarg,
@@ -2840,7 +2839,7 @@ func (client RequestsClient) UpdateByID(ctx context.Context, id int64, data *mod
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
 		SetBody(data).
 		Result(&resultWrap)
 
@@ -2859,7 +2858,7 @@ func (client RequestsClient) UpdateByID(ctx context.Context, id int64, data *mod
 }
 
 func (client RequestsClient) Set1ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
 		SetBody(map[string]interface{}{
 			"params": params,
 		})
@@ -2869,7 +2868,7 @@ func (client RequestsClient) Set1ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set2ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
 		SetBody(params)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -2877,7 +2876,7 @@ func (client RequestsClient) Set2ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set3ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
 		SetBody(map[string]interface{}{
 			"params": params,
 		})
@@ -2887,7 +2886,7 @@ func (client RequestsClient) Set3ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set4ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
 		SetBody(params)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -2895,7 +2894,7 @@ func (client RequestsClient) Set4ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set5ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"/5").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"/5").
 		SetBody(map[string]interface{}{
 			"params": params,
 		})
@@ -2905,7 +2904,7 @@ func (client RequestsClient) Set5ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set6ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"/6").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"/6").
 		SetBody(params)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -2913,7 +2912,7 @@ func (client RequestsClient) Set6ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set7ByID(ctx context.Context, id int64, params interface{}) error {
-	request := resty.NewRequest(client.Proxy, "/"+strconv.FormatInt(id, 10)+"/7").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"/7").
 		SetBody(params)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -2925,7 +2924,7 @@ func (client RequestsClient) QuerySubTest1(ctx context.Context, query *SubTest1)
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/querysub1")
+	request := resty.NewRequest(client.Proxy, "/requests/querysub1")
 	if query != nil {
 		request = request.SetParam("query.sub1.a1", query.Sub1.A1).
 			SetParam("query.sub1.a2", query.Sub1.A2).
@@ -2954,7 +2953,7 @@ func (client RequestsClient) QuerySubTest2(ctx context.Context, query *SubTest2)
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/querysub2")
+	request := resty.NewRequest(client.Proxy, "/requests/querysub2")
 	if query != nil {
 		if query.Sub1 != nil {
 			request = request.SetParam("query.sub1.a1", query.Sub1.A1).
@@ -2987,7 +2986,7 @@ func (client RequestsClient) QuerySubTest3(ctx context.Context, query *SubTest3)
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/querysub3")
+	request := resty.NewRequest(client.Proxy, "/requests/querysub3")
 	if query != nil {
 		if query.Sub1 != nil {
 			request = request.SetParam("query.sub1.a1", query.Sub1.A1).
@@ -3021,7 +3020,7 @@ func (client RequestsClient) QuerySubTest4(ctx context.Context, query *SubTest4)
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/querysub4")
+	request := resty.NewRequest(client.Proxy, "/requests/querysub4")
 	if query != nil {
 		if query.SubTest2 != nil {
 			if query.Sub1 != nil {
