@@ -83,7 +83,7 @@ func (chi *chiPlugin) GetBodyErrorText(method *Method, bodyName, err string) str
 }
 
 func (chi *chiPlugin) GetCastErrorText(param *Param, err, value string) string {
-		return getCastErrorText(param, err, value)
+	return getCastErrorText(param, err, value)
 }
 
 func (chi *chiPlugin) ReadBodyFunc(argName string) string {

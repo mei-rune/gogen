@@ -12,7 +12,7 @@ import (
 	"github.com/swaggo/swag"
 )
 
-type Generator struct {
+type ServerGenerator struct {
 	plugin   string
 	ext      string
 	buildTag string
@@ -21,7 +21,7 @@ type Generator struct {
 	convertNamespace   string
 }
 
-func (cmd *Generator) Flags(fs *flag.FlagSet) *flag.FlagSet {
+func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.ext, "ext", ".gogen.go", "文件后缀名")
 	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 
@@ -31,7 +31,7 @@ func (cmd *Generator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	return fs
 }
 
-func (cmd *Generator) Run(args []string) error {
+func (cmd *ServerGenerator) Run(args []string) error {
 	plugin, err := createPlugin(cmd.plugin)
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (cmd *Generator) Run(args []string) error {
 	return nil
 }
 
-func (cmd *Generator) genHeader(cfg Plugin, out io.Writer, swaggerParser *swag.Parser, file *astutil.File) error {
+func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *swag.Parser, file *astutil.File) error {
 	if cmd.buildTag != "" {
 		io.WriteString(out, "// +build ")
 		io.WriteString(out, cmd.buildTag)
@@ -139,7 +139,7 @@ func (cmd *Generator) genHeader(cfg Plugin, out io.Writer, swaggerParser *swag.P
 	return nil
 }
 
-func (cmd *Generator) genInitFunc(plugin Plugin, out io.Writer, swaggerParser *swag.Parser, file *astutil.File) error {
+func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerParser *swag.Parser, file *astutil.File) error {
 	for _, ts := range file.TypeList {
 		if ts.Struct == nil && ts.Interface == nil {
 			continue

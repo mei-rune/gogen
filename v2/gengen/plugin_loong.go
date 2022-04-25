@@ -19,7 +19,7 @@ func (lng *loongPlugin) TypeInContext(name string) (string, bool) {
 		"http.ResponseWriter": "ctx.Response().Writer",
 		"io.Writer":           "ctx.Response().Writer",
 		"context.Context":     "ctx.StdContext",
-		"*loong.Context":        "ctx",
+		"*loong.Context":      "ctx",
 	}
 	s, ok := args[name]
 	return s, ok
@@ -78,11 +78,11 @@ func (lng *loongPlugin) ReadBodyFunc(argName string) string {
 }
 
 func (lng *loongPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return "loong.ErrBadArgument(\""+bodyName+"\", \"body\", "+err+")"
+	return "loong.ErrBadArgument(\"" + bodyName + "\", \"body\", " + err + ")"
 }
 
 func (lng *loongPlugin) GetCastErrorText(param *Param, err, value string) string {
-	return "loong.ErrBadArgument(\""+param.WebParamName()+"\", "+ value +", "+err+")"
+	return "loong.ErrBadArgument(\"" + param.WebParamName() + "\", " + value + ", " + err + ")"
 }
 
 func (lng *loongPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
@@ -106,12 +106,12 @@ func (lng *loongPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	// 	errText = ".Error()"
 	// }
 
-	s := renderString(`return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})`, 
-	map[string]interface{}{
-		"err":              err,
-		"hasRealErrorCode": errCode != "",
-		"errCode":          errCode,
-	})
+	s := renderString(`return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})`,
+		map[string]interface{}{
+			"err":              err,
+			"hasRealErrorCode": errCode != "",
+			"errCode":          errCode,
+		})
 	_, e := io.WriteString(out, s)
 	return e
 }
@@ -128,7 +128,6 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	}
 
 	args["method"] = strings.ToUpper(method.Operation.RouterProperties[0].HTTPMethod)
-
 
 	s := renderString(`{{- if .noreturn -}}
 	return nil

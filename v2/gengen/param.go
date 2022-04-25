@@ -120,28 +120,7 @@ func (param *Param) GetFields() ([]Param, error) {
 		fields = append(fields, f)
 	}
 	for idx := range fields {
-		var s, _ = getTagValue(&fields[idx], "swaggerignore")
-		if strings.ToLower(s) == "true" {
-			s, _ = getTagValue(&fields[idx], "gogen")
-			if s == "true" {
-				switch fields[idx].Type().ToLiteral() {
-				case "map[string]string", "url.Values":
-					subparam := Param{
-						Parent:      param,
-						Field:       &fields[idx],
-						IsFirsField: idx == 0,
-						Method:      param.Method,
-						Param: &astutil.Param{
-							Method:     param.Method.Method,
-							Name:       fields[idx].Name,
-							IsVariadic: false,
-							Expr:       fields[idx].Expr,
-						},
-						// Option: param.Method.Operation.Parameters[oidx],
-					}
-					params = append(params, subparam)
-				}
-			}
+		if s, _ := getTagValue(&fields[idx], "swaggerignore"); strings.ToLower(s) == "true" {
 			continue
 		}
 
@@ -149,8 +128,7 @@ func (param *Param) GetFields() ([]Param, error) {
 		if t := fieldType.PtrElemType(); t.IsValid() {
 			fieldType = t
 		}
-		if fields[idx].IsAnonymous || fieldType.IsStructType() {
-
+		if fieldType.IsStructType() {
 			if fieldTypeStr := fieldType.ToLiteral(); !isBultinType(fieldTypeStr) && !isNullableType(fieldTypeStr) {
 				subparam := Param{
 					Parent:      param,
@@ -176,11 +154,31 @@ func (param *Param) GetFields() ([]Param, error) {
 			}
 		}
 
-		oidx := param.Method.SearchSwaggerParameter(param.GoFullFieldName(), fields[idx].Name)
+		oidx := param.Method.SearchSwaggerParameter(param.GoFullFieldName(), &fields[idx])
 		if oidx < 0 {
+			typeStr := fields[idx].Type().ToLiteral()
+			if typeStr == "map[string]string" ||
+				typeStr == "url.Values" {
+					subparam := Param{
+						Parent:      param,
+						Field:       &fields[idx],
+						IsFirsField: idx == 0,
+						Method:      param.Method,
+						Param: &astutil.Param{
+							Method:     param.Method.Method,
+							Name:       fields[idx].Name,
+							IsVariadic: false,
+							Expr:       fields[idx].Expr,
+						},
+						// Option: param.Method.Operation.Parameters[oidx],
+					}
+					params = append(params, subparam)
+					continue
+			}
+
 			return nil, errors.New("param '" + param.GoMethodParamName() + "." + fields[idx].Name +
-				"' of '" + param.GoMethodFullName() +
-				"' not found in the swagger1 annotations")
+					"' of '" + param.GoMethodFullName() +
+					"' not found in the swagger1 annotations")
 		}
 
 		subparam := Param{
@@ -359,7 +357,7 @@ func (param *Param) renderMapWithAnonymous(out io.Writer, plugin Plugin, params 
 		io.WriteString(out, "var "+param.GoVarName()+" = "+typeStr+"{}")
 	}
 
-	var parentPrefix = getParentWebParamName(param.Parent)
+	var parentPrefix = getWebParamName(param.Parent)
 	if parentPrefix != "" {
 		parentPrefix = parentPrefix + "."
 	}
@@ -422,30 +420,20 @@ func (param *Param) renderMapWithAnonymous(out io.Writer, plugin Plugin, params 
 		return err
 	}
 
-	io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[strings.TrimPrefix(key, \""+parentPrefix+"\")] = values"+valueIndex)
+	if param.isField() {
+		io.WriteString(out, "\r\n\t\tif "+param.GoVarName()+" == nil {")
+		io.WriteString(out, "\r\n\t\t\t"+param.GoVarName()+" = "+typeStr+"{}")
+		io.WriteString(out, "\r\n\t\t}")
+	}
+
+	if parentPrefix == "" {
+		io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[key] = values"+valueIndex)
+	} else {
+		io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[strings.TrimPrefix(key, \""+parentPrefix+"\")] = values"+valueIndex)
+	}
 	io.WriteString(out, "\r\n\t}")
 
 	return nil
-}
-
-func getParentWebParamName(parent *Param) string {
-	tagName := parent.WebParamName()
-	if tagName != "" {
-		return tagName
-	}
-
-	if parent.Parent != nil {
-		tagName = getParentWebParamName(parent.Parent)
-	}
-
-	if parent.Field != nil && parent.Field.IsAnonymous {
-		return tagName
-	}
-
-	if tagName == "" {
-		return toLowerCamelCase(parent.Param.Name)
-	}
-	return tagName + "." + toLowerCamelCase(parent.Param.Name)
 }
 
 func (param *Param) renderMap(plugin Plugin, out io.Writer, typeStr, valueIndex string) error {
@@ -459,17 +447,40 @@ func (param *Param) renderMap(plugin Plugin, out io.Writer, typeStr, valueIndex 
 			if err != nil {
 				return err
 			}
+
+			if param.Parent.Parent == nil {
+				parent := searchStructParam(param.Method.Operation, param.Parent.Param.Name)
+				if parent != nil {
+					if isExtendInline(parent) {
+						rootParams, err := param.Method.GetParams(plugin)
+						if err != nil {
+							return err
+						}
+
+						for idx := range rootParams {
+							if rootParams[idx].Option.Name == "" {
+								continue
+							}
+
+							fields = append(fields, rootParams[idx])
+						}
+					}
+				}
+			}
 			return param.renderMapWithAnonymous(out, plugin, fields, typeStr, valueIndex)
 		}
 
-		tagName = getParentWebParamName(param.Parent)
+		tagName = getWebParamName(param.Parent)
+		if tagName != "" {
+			tagName = tagName + "."
+		}
 
 		var s, _ = getTagValue(param.Field, "json")
 		if s != "" {
 			ss := strings.Split(s, ",")
-			tagName = tagName + "." + ss[0]
+			tagName = tagName  + ss[0]
 		} else {
-			tagName = tagName + "." + toLowerCamelCase(param.Field.Name)
+			tagName = tagName + toLowerCamelCase(param.Field.Name)
 		}
 	}
 
@@ -482,7 +493,18 @@ func (param *Param) renderMap(plugin Plugin, out io.Writer, typeStr, valueIndex 
 	if err := param.renderParentInit(plugin, out, false); err != nil {
 		return err
 	}
-	io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[strings.TrimPrefix(key, \""+tagName+".\")] = values"+valueIndex)
+
+	if param.isField() {
+		io.WriteString(out, "\r\n\t\tif "+param.GoVarName()+" == nil {")
+		io.WriteString(out, "\r\n\t\t\t"+param.GoVarName()+" = "+typeStr+"{}")
+		io.WriteString(out, "\r\n\t\t}")
+	}
+	if tagName == "" {
+		io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[key] = values"+valueIndex)
+	} else {
+		io.WriteString(out, "\r\n\t\t"+param.GoVarName()+"[strings.TrimPrefix(key, \""+tagName+".\")] = values"+valueIndex)
+	}
+
 	io.WriteString(out, "\r\n\t}")
 	return nil
 }
@@ -586,7 +608,7 @@ func (param *Param) renderBasic(out io.Writer, plugin Plugin, invocation *Invoca
 			}
 
 			if isUnderlyingBasicType {
-				param.goArgumentLiteral = typeStr + "("+param.GoVarName()+")"
+				param.goArgumentLiteral = typeStr + "(" + param.GoVarName() + ")"
 			}
 			return nil
 		}

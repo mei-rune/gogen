@@ -81,7 +81,7 @@ func (gin *ginPlugin) GetBodyErrorText(method *Method, bodyName, err string) str
 }
 
 func (gin *ginPlugin) GetCastErrorText(param *Param, err, value string) string {
-		return getCastErrorText(param, err, value)
+	return getCastErrorText(param, err, value)
 }
 
 func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {

@@ -1160,6 +1160,389 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/ctx/add1/{a}/{b}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcWithContext.Add1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/add2/{a}/{b}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcWithContext.Add2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/add3": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcWithContext.Add3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/concat": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.Concat0",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Some ID",
+                        "name": "a",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Some ID",
+                        "name": "b",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/concat1": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.Concat1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/concat2/{a}/{b}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.Concat2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/concat3/{a}/{b}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.Concat3",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/echo": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.Echo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "a",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/echo2": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.EchoBody",
+                "parameters": [
+                    {
+                        "description": "Some ID",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/save1/{a}": {
+            "post": {
+                "description": "test save",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test save",
+                "operationId": "StringSvcWithContext.Save1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "x-gogen-entire-body": "true",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/save2/{a}": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.Save2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "x-gogen-entire-body": "true",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/save3": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.Save3",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/ctx/sub": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcWithContext.Sub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg start",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/echo": {
             "get": {
                 "description": "test by query",
@@ -1251,6 +1634,1454 @@ const docTemplate = `{
                         },
                         "description": "Some ID",
                         "name": "filenames",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/": {
+            "post": {
+                "description": "noreturn=\"true\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "noreturn=\"true\"",
+                "operationId": "StringSvcImpl.CreateWithNoReturn",
+                "responses": {},
+                "x-gogen-noreturn": true
+            }
+        },
+        "/impl/add/{a}/{b}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Add1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/add2/{a}/{b}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Add2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/add3": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Add3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/allfiles": {
+            "get": {
+                "description": "get files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get files",
+                "operationId": "StringSvcImpl.GetAllFiles",
+                "responses": {}
+            }
+        },
+        "/impl/concat": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Concat0",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Some ID",
+                        "name": "a",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Some ID",
+                        "name": "b",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/concat1": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Concat1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/concat2/{a}/{b}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Concat2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/concat3/{a}/{b}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Concat3",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/echo": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Echo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "a",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/echo2": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.EchoBody",
+                "parameters": [
+                    {
+                        "description": "Some ID",
+                        "name": "body",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/echo3": {
+            "post": {
+                "description": "test by body",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by body",
+                "operationId": "StringSvcImpl.Echo3",
+                "parameters": [
+                    {
+                        "description": "Some ID",
+                        "name": "a",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/files": {
+            "get": {
+                "description": "get files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get files",
+                "operationId": "StringSvcImpl.GetFiles",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "format": "string",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Some ID",
+                        "name": "filenames",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/ping": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Ping",
+                "responses": {}
+            }
+        },
+        "/impl/query1": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Query1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg beginAt",
+                        "name": "begin_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg endAt",
+                        "name": "end_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query10": {
+            "get": {
+                "description": "query10 content_type=\"text\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "query10 content_type=\"text\"",
+                "operationId": "StringSvcImpl.Query10",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "item_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query11": {
+            "get": {
+                "description": "query11 content_type=\"text\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "query11 content_type=\"text\"",
+                "operationId": "StringSvcImpl.Query11",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "arg a",
+                        "name": "item_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query12": {
+            "get": {
+                "description": "query12 Name is Upper",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "query12 Name is Upper",
+                "operationId": "StringSvcImpl.Query1WithUpName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "Name",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "query12 Name is Upper",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "query12 Name is Upper",
+                "operationId": "StringSvcImpl.Query1WithUpName",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "Name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query2/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Query2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg beginAt",
+                        "name": "begin_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg endAt",
+                        "name": "end_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query3/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Query3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg beginAt",
+                        "name": "begin_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "time",
+                        "description": "arg endAt",
+                        "name": "end_at",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query4/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Query4",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "start",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query5/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Query5",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "start",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query6/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Query6",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "start",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query7/{isRaw}": {
+            "get": {
+                "description": "add by path",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "add by path",
+                "operationId": "StringSvcImpl.Query7",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.end",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "start",
+                        "x-gogen-extend-prefix": "created_at.",
+                        "x-gogen-extend-struct": "created_at",
+                        "name": "created_at.start",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "arg isRaw",
+                        "name": "is_raw",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query8": {
+            "get": {
+                "description": "content_type=\"text\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "content_type=\"text\"",
+                "operationId": "StringSvcImpl.Query8",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "item_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/query9": {
+            "get": {
+                "description": "query9 content_type=\"text\"",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "query9 content_type=\"text\"",
+                "operationId": "StringSvcImpl.Query9",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "arg a",
+                        "name": "item_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/save/{a}": {
+            "post": {
+                "description": "test save",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test save",
+                "operationId": "StringSvcImpl.Save1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "x-gogen-entire-body": "true",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/save2/{a}": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Save2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "x-gogen-entire-body": "true",
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/save3": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Save3",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/save4": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Save4",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/save5": {
+            "post": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Save5",
+                "parameters": [
+                    {
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "arg b",
+                        "name": "b",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/sub": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.Sub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "arg a",
+                        "name": "a",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "arg start",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test64": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.TestInt64Query",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test64/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.TestInt64Path",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test_by_key": {
+            "get": {
+                "description": "test by key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int key",
+                "operationId": "StringSvcImpl.TestByKey2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "key",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test_by_key/{key}": {
+            "get": {
+                "description": "test by key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by int key",
+                "operationId": "StringSvcImpl.TestByKey1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int",
+                        "description": "Some ID",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test_by_strkey": {
+            "get": {
+                "description": "test by key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by str key",
+                "operationId": "StringSvcImpl.TestByStrKey2",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Some ID",
+                        "name": "key",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test_by_strkey/{key}": {
+            "get": {
+                "description": "test by key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by str key",
+                "operationId": "StringSvcImpl.TestByStrKey1",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "string",
+                        "description": "Some ID",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test_query_args1/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.TestQueryArgs1",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fint",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fint",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fintptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fintptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstring",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fstring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstringptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fstringptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftime",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.ftime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftimeptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.ftimeptr",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test_query_args2/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.TestQueryArgs2",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fint",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fint",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fintptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fintptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstring",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fstring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstringptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.fstringptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftime",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.ftime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftimeptr",
+                        "x-gogen-extend-prefix": "args.",
+                        "x-gogen-extend-struct": "args",
+                        "name": "args.ftimeptr",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test_query_args3/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.TestQueryArgs3",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fint",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fint",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fintptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fintptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstring",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fstring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstringptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fstringptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftime",
+                        "x-gogen-extend-struct": "args",
+                        "name": "ftime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftimeptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "ftimeptr",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/test_query_args4/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "StringSvcImpl.TestQueryArgs4",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fint",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fint",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "x-gogen-extend-field": "fintptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fintptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstring",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fstring",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "fstringptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "fstringptr",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftime",
+                        "x-gogen-extend-struct": "args",
+                        "name": "ftime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "ftimeptr",
+                        "x-gogen-extend-struct": "args",
+                        "name": "ftimeptr",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/impl/times": {
+            "get": {
+                "description": "get files",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "get files",
+                "operationId": "StringSvcImpl.GetTimes",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "format": "datetime",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Some ID",
+                        "name": "times",
                         "in": "query"
                     }
                 ],
@@ -1744,91 +3575,83 @@ const docTemplate = `{
                 "operationId": "Requests.List",
                 "parameters": [
                     {
-                        "type": "string",
-                        "x-gogen-extend-field": "exArg",
+                        "type": "integer",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.exArg",
+                        "name": "query.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.creatorID",
+                        "x-gogen-extend-field": "current_status",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.current_status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "end_at",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.end_at",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "x-gogen-extend-field": "is_overdued",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.is_overdued",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "x-gogen-extend-field": "is_suspend",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.is_suspend",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "x-gogen-extend-field": "is_unclosed",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.is_unclosed",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "x-gogen-extend-field": "name_like",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.currentStatus",
+                        "x-gogen-extend-field": "operator_id",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.endAt",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isOverdued",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isSuspend",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isUnclosed",
+                        "x-gogen-extend-field": "overdue_end",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.nameLike",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.operatorID",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueEnd",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.overdue_start",
                         "in": "query"
                     },
                     {
@@ -1836,10 +3659,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -1847,26 +3670,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requesterID",
+                        "x-gogen-extend-field": "requester_id",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
-                        "x-gogen-extend-prefix": "query.request.",
-                        "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.startAt",
+                        "x-gogen-extend-field": "start_at",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.start_at",
                         "in": "query"
                     },
                     {
@@ -1887,6 +3710,31 @@ const docTemplate = `{
         },
         "/requests/create1": {
             "post": {
+                "description": "Create1",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create1",
+                "operationId": "Requests.Create1",
+                "parameters": [
+                    {
+                        "x-gogen-entire-body": "true",
+                        "description": "request query param",
+                        "name": "data",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/models.Request"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/requests/create2": {
+            "post": {
                 "description": "Create2",
                 "consumes": [
                     "application/json"
@@ -1899,7 +3747,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "request query param",
-                        "name": "query",
+                        "name": "request",
                         "in": "body",
                         "schema": {
                             "$ref": "#/definitions/models.Request"
@@ -1931,82 +3779,82 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.creatorID",
+                        "name": "query.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.currentStatus",
+                        "name": "query.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.endAt",
+                        "name": "query.end_at",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isOverdued",
+                        "name": "query.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isSuspend",
+                        "name": "query.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isUnclosed",
+                        "name": "query.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.nameLike",
+                        "name": "query.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.operatorID",
+                        "name": "query.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueEnd",
+                        "name": "query.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueStart",
+                        "name": "query.overdue_start",
                         "in": "query"
                     },
                     {
@@ -2014,10 +3862,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeIDs",
+                        "name": "query.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -2025,26 +3873,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeNames",
+                        "name": "query.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requesterID",
+                        "name": "query.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.startAt",
+                        "name": "query.start_at",
                         "in": "query"
                     },
                     {
@@ -2077,82 +3925,82 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.creatorID",
+                        "name": "query.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.currentStatus",
+                        "name": "query.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.endAt",
+                        "name": "query.end_at",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isOverdued",
+                        "name": "query.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isSuspend",
+                        "name": "query.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isUnclosed",
+                        "name": "query.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.nameLike",
+                        "name": "query.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.operatorID",
+                        "name": "query.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueEnd",
+                        "name": "query.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueStart",
+                        "name": "query.overdue_start",
                         "in": "query"
                     },
                     {
@@ -2160,10 +4008,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeIDs",
+                        "name": "query.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -2171,26 +4019,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeNames",
+                        "name": "query.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requesterID",
+                        "name": "query.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.startAt",
+                        "name": "query.start_at",
                         "in": "query"
                     },
                     {
@@ -2223,82 +4071,82 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.creatorID",
+                        "name": "query.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.currentStatus",
+                        "name": "query.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.endAt",
+                        "name": "query.end_at",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isOverdued",
+                        "name": "query.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isSuspend",
+                        "name": "query.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isUnclosed",
+                        "name": "query.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.nameLike",
+                        "name": "query.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.operatorID",
+                        "name": "query.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueEnd",
+                        "name": "query.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueStart",
+                        "name": "query.overdue_start",
                         "in": "query"
                     },
                     {
@@ -2306,10 +4154,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeIDs",
+                        "name": "query.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -2317,26 +4165,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeNames",
+                        "name": "query.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requesterID",
+                        "name": "query.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.startAt",
+                        "name": "query.start_at",
                         "in": "query"
                     },
                     {
@@ -2369,26 +4217,26 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.creatorID",
+                        "name": "query.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.currentStatus",
+                        "name": "query.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.endAt",
+                        "name": "query.end_at",
                         "in": "query"
                     },
                     {
@@ -2401,58 +4249,58 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isOverdued",
+                        "name": "query.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isSuspend",
+                        "name": "query.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isUnclosed",
+                        "name": "query.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.nameLike",
+                        "name": "query.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.operatorID",
+                        "name": "query.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueEnd",
+                        "name": "query.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueStart",
+                        "name": "query.overdue_start",
                         "in": "query"
                     },
                     {
@@ -2460,10 +4308,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeIDs",
+                        "name": "query.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -2471,26 +4319,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeNames",
+                        "name": "query.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requesterID",
+                        "name": "query.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.startAt",
+                        "name": "query.start_at",
                         "in": "query"
                     },
                     {
@@ -2523,26 +4371,26 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.creatorID",
+                        "name": "query.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.currentStatus",
+                        "name": "query.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.endAt",
+                        "name": "query.end_at",
                         "in": "query"
                     },
                     {
@@ -2555,58 +4403,58 @@ const docTemplate = `{
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isOverdued",
+                        "name": "query.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isSuspend",
+                        "name": "query.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.isUnclosed",
+                        "name": "query.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.nameLike",
+                        "name": "query.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.operatorID",
+                        "name": "query.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueEnd",
+                        "name": "query.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.overdueStart",
+                        "name": "query.overdue_start",
                         "in": "query"
                     },
                     {
@@ -2614,10 +4462,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeIDs",
+                        "name": "query.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -2625,26 +4473,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requestTypeNames",
+                        "name": "query.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.requesterID",
+                        "name": "query.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.",
                         "x-gogen-extend-struct": "query",
-                        "name": "query.startAt",
+                        "name": "query.start_at",
                         "in": "query"
                     },
                     {
@@ -2685,82 +4533,82 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.creatorID",
+                        "name": "query.request.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.currentStatus",
+                        "name": "query.request.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.endAt",
+                        "name": "query.request.end_at",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isOverdued",
+                        "name": "query.request.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isSuspend",
+                        "name": "query.request.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isUnclosed",
+                        "name": "query.request.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.nameLike",
+                        "name": "query.request.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.operatorID",
+                        "name": "query.request.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueEnd",
+                        "name": "query.request.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueStart",
+                        "name": "query.request.overdue_start",
                         "in": "query"
                     },
                     {
@@ -2768,10 +4616,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeIDs",
+                        "name": "query.request.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -2779,26 +4627,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeNames",
+                        "name": "query.request.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requesterID",
+                        "name": "query.request.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.startAt",
+                        "name": "query.request.start_at",
                         "in": "query"
                     },
                     {
@@ -2839,82 +4687,82 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.creatorID",
+                        "name": "query.request.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.currentStatus",
+                        "name": "query.request.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.endAt",
+                        "name": "query.request.end_at",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isOverdued",
+                        "name": "query.request.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isSuspend",
+                        "name": "query.request.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isUnclosed",
+                        "name": "query.request.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.nameLike",
+                        "name": "query.request.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.operatorID",
+                        "name": "query.request.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueEnd",
+                        "name": "query.request.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueStart",
+                        "name": "query.request.overdue_start",
                         "in": "query"
                     },
                     {
@@ -2922,10 +4770,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeIDs",
+                        "name": "query.request.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -2933,26 +4781,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeNames",
+                        "name": "query.request.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requesterID",
+                        "name": "query.request.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.startAt",
+                        "name": "query.request.start_at",
                         "in": "query"
                     },
                     {
@@ -2993,82 +4841,82 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.creatorID",
+                        "name": "query.request.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.currentStatus",
+                        "name": "query.request.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.endAt",
+                        "name": "query.request.end_at",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isOverdued",
+                        "name": "query.request.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isSuspend",
+                        "name": "query.request.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isUnclosed",
+                        "name": "query.request.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.nameLike",
+                        "name": "query.request.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.operatorID",
+                        "name": "query.request.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueEnd",
+                        "name": "query.request.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueStart",
+                        "name": "query.request.overdue_start",
                         "in": "query"
                     },
                     {
@@ -3076,10 +4924,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeIDs",
+                        "name": "query.request.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -3087,26 +4935,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeNames",
+                        "name": "query.request.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requesterID",
+                        "name": "query.request.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.startAt",
+                        "name": "query.request.start_at",
                         "in": "query"
                     },
                     {
@@ -3147,82 +4995,82 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "creatorID",
+                        "x-gogen-extend-field": "creator_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.creatorID",
+                        "name": "query.request.creator_id",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "currentStatus",
+                        "x-gogen-extend-field": "current_status",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.currentStatus",
+                        "name": "query.request.current_status",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "endAt",
+                        "x-gogen-extend-field": "end_at",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.endAt",
+                        "name": "query.request.end_at",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isOverdued",
+                        "x-gogen-extend-field": "is_overdued",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isOverdued",
+                        "name": "query.request.is_overdued",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isSuspend",
+                        "x-gogen-extend-field": "is_suspend",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isSuspend",
+                        "name": "query.request.is_suspend",
                         "in": "query"
                     },
                     {
                         "type": "boolean",
-                        "x-gogen-extend-field": "isUnclosed",
+                        "x-gogen-extend-field": "is_unclosed",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.isUnclosed",
+                        "name": "query.request.is_unclosed",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "nameLike",
+                        "x-gogen-extend-field": "name_like",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.nameLike",
+                        "name": "query.request.name_like",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "operatorID",
+                        "x-gogen-extend-field": "operator_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.operatorID",
+                        "name": "query.request.operator_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueEnd",
+                        "x-gogen-extend-field": "overdue_end",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueEnd",
+                        "name": "query.request.overdue_end",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "overdueStart",
+                        "x-gogen-extend-field": "overdue_start",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.overdueStart",
+                        "name": "query.request.overdue_start",
                         "in": "query"
                     },
                     {
@@ -3230,10 +5078,10 @@ const docTemplate = `{
                         "items": {
                             "type": "integer"
                         },
-                        "x-gogen-extend-field": "requestTypeIDs",
+                        "x-gogen-extend-field": "request_type_ids",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeIDs",
+                        "name": "query.request.request_type_ids",
                         "in": "query"
                     },
                     {
@@ -3241,26 +5089,26 @@ const docTemplate = `{
                         "items": {
                             "type": "string"
                         },
-                        "x-gogen-extend-field": "requestTypeNames",
+                        "x-gogen-extend-field": "request_type_names",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requestTypeNames",
+                        "name": "query.request.request_type_names",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "x-gogen-extend-field": "requesterID",
+                        "x-gogen-extend-field": "requester_id",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.requesterID",
+                        "name": "query.request.requester_id",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "x-gogen-extend-field": "startAt",
+                        "x-gogen-extend-field": "start_at",
                         "x-gogen-extend-prefix": "query.request.",
                         "x-gogen-extend-struct": "query.request",
-                        "name": "query.request.startAt",
+                        "name": "query.request.start_at",
                         "in": "query"
                     },
                     {
@@ -3300,41 +5148,41 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "x-gogen-extend-field": "exArg",
-                        "x-gogen-extend-prefix": "params.",
-                        "x-gogen-extend-struct": "params",
-                        "name": "params.exArg",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.exArg",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "a1",
-                        "x-gogen-extend-prefix": "params.sub1.",
-                        "x-gogen-extend-struct": "params.sub1",
-                        "name": "params.sub1.a1",
+                        "x-gogen-extend-prefix": "query.sub1.",
+                        "x-gogen-extend-struct": "query.sub1",
+                        "name": "query.sub1.a1",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "a2",
-                        "x-gogen-extend-prefix": "params.sub1.",
-                        "x-gogen-extend-struct": "params.sub1",
-                        "name": "params.sub1.a2",
+                        "x-gogen-extend-prefix": "query.sub1.",
+                        "x-gogen-extend-struct": "query.sub1",
+                        "name": "query.sub1.a2",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "b1",
-                        "x-gogen-extend-prefix": "params.sub2.",
-                        "x-gogen-extend-struct": "params.sub2",
-                        "name": "params.sub2.b1",
+                        "x-gogen-extend-prefix": "query.sub2.",
+                        "x-gogen-extend-struct": "query.sub2",
+                        "name": "query.sub2.b1",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "b2",
-                        "x-gogen-extend-prefix": "params.sub2.",
-                        "x-gogen-extend-struct": "params.sub2",
-                        "name": "params.sub2.b2",
+                        "x-gogen-extend-prefix": "query.sub2.",
+                        "x-gogen-extend-struct": "query.sub2",
+                        "name": "query.sub2.b2",
                         "in": "query"
                     }
                 ],
@@ -3362,41 +5210,41 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "x-gogen-extend-field": "exArg",
-                        "x-gogen-extend-prefix": "params.",
-                        "x-gogen-extend-struct": "params",
-                        "name": "params.exArg",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.exArg",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "a1",
-                        "x-gogen-extend-prefix": "params.sub1.",
-                        "x-gogen-extend-struct": "params.sub1",
-                        "name": "params.sub1.a1",
+                        "x-gogen-extend-prefix": "query.sub1.",
+                        "x-gogen-extend-struct": "query.sub1",
+                        "name": "query.sub1.a1",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "a2",
-                        "x-gogen-extend-prefix": "params.sub1.",
-                        "x-gogen-extend-struct": "params.sub1",
-                        "name": "params.sub1.a2",
+                        "x-gogen-extend-prefix": "query.sub1.",
+                        "x-gogen-extend-struct": "query.sub1",
+                        "name": "query.sub1.a2",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "b1",
-                        "x-gogen-extend-prefix": "params.sub2.",
-                        "x-gogen-extend-struct": "params.sub2",
-                        "name": "params.sub2.b1",
+                        "x-gogen-extend-prefix": "query.sub2.",
+                        "x-gogen-extend-struct": "query.sub2",
+                        "name": "query.sub2.b1",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "b2",
-                        "x-gogen-extend-prefix": "params.sub2.",
-                        "x-gogen-extend-struct": "params.sub2",
-                        "name": "params.sub2.b2",
+                        "x-gogen-extend-prefix": "query.sub2.",
+                        "x-gogen-extend-struct": "query.sub2",
+                        "name": "query.sub2.b2",
                         "in": "query"
                     }
                 ],
@@ -3424,41 +5272,41 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "x-gogen-extend-field": "exArg",
-                        "x-gogen-extend-prefix": "params.",
-                        "x-gogen-extend-struct": "params",
-                        "name": "params.exArg",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.exArg",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "a1",
-                        "x-gogen-extend-prefix": "params.sub1.",
-                        "x-gogen-extend-struct": "params.sub1",
-                        "name": "params.sub1.a1",
+                        "x-gogen-extend-prefix": "query.sub1.",
+                        "x-gogen-extend-struct": "query.sub1",
+                        "name": "query.sub1.a1",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "a2",
-                        "x-gogen-extend-prefix": "params.sub1.",
-                        "x-gogen-extend-struct": "params.sub1",
-                        "name": "params.sub1.a2",
+                        "x-gogen-extend-prefix": "query.sub1.",
+                        "x-gogen-extend-struct": "query.sub1",
+                        "name": "query.sub1.a2",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "b1",
-                        "x-gogen-extend-prefix": "params.sub2.",
-                        "x-gogen-extend-struct": "params.sub2",
-                        "name": "params.sub2.b1",
+                        "x-gogen-extend-prefix": "query.sub2.",
+                        "x-gogen-extend-struct": "query.sub2",
+                        "name": "query.sub2.b1",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "b2",
-                        "x-gogen-extend-prefix": "params.sub2.",
-                        "x-gogen-extend-struct": "params.sub2",
-                        "name": "params.sub2.b2",
+                        "x-gogen-extend-prefix": "query.sub2.",
+                        "x-gogen-extend-struct": "query.sub2",
+                        "name": "query.sub2.b2",
                         "in": "query"
                     }
                 ],
@@ -3486,41 +5334,41 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "x-gogen-extend-field": "exArg",
-                        "x-gogen-extend-prefix": "params.",
-                        "x-gogen-extend-struct": "params",
-                        "name": "params.exArg",
+                        "x-gogen-extend-prefix": "query.",
+                        "x-gogen-extend-struct": "query",
+                        "name": "query.exArg",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "a1",
-                        "x-gogen-extend-prefix": "params.sub1.",
-                        "x-gogen-extend-struct": "params.sub1",
-                        "name": "params.sub1.a1",
+                        "x-gogen-extend-prefix": "query.sub1.",
+                        "x-gogen-extend-struct": "query.sub1",
+                        "name": "query.sub1.a1",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "a2",
-                        "x-gogen-extend-prefix": "params.sub1.",
-                        "x-gogen-extend-struct": "params.sub1",
-                        "name": "params.sub1.a2",
+                        "x-gogen-extend-prefix": "query.sub1.",
+                        "x-gogen-extend-struct": "query.sub1",
+                        "name": "query.sub1.a2",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "b1",
-                        "x-gogen-extend-prefix": "params.sub2.",
-                        "x-gogen-extend-struct": "params.sub2",
-                        "name": "params.sub2.b1",
+                        "x-gogen-extend-prefix": "query.sub2.",
+                        "x-gogen-extend-struct": "query.sub2",
+                        "name": "query.sub2.b1",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "x-gogen-extend-field": "b2",
-                        "x-gogen-extend-prefix": "params.sub2.",
-                        "x-gogen-extend-struct": "params.sub2",
-                        "name": "params.sub2.b2",
+                        "x-gogen-extend-prefix": "query.sub2.",
+                        "x-gogen-extend-struct": "query.sub2",
+                        "name": "query.sub2.b2",
                         "in": "query"
                     }
                 ],
@@ -3545,9 +5393,7 @@ const docTemplate = `{
                         "in": "body",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     },
                     {
@@ -3585,9 +5431,7 @@ const docTemplate = `{
                         "in": "body",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 ],
@@ -3618,9 +5462,7 @@ const docTemplate = `{
                         "in": "body",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 ],
@@ -3652,9 +5494,7 @@ const docTemplate = `{
                         "in": "body",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 ],
@@ -3685,9 +5525,7 @@ const docTemplate = `{
                         "in": "body",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 ],
@@ -3719,9 +5557,7 @@ const docTemplate = `{
                         "in": "body",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 ],
@@ -3775,7 +5611,7 @@ const docTemplate = `{
                     {
                         "x-gogen-entire-body": "true",
                         "description": "request query param",
-                        "name": "query",
+                        "name": "data",
                         "in": "body",
                         "schema": {
                             "$ref": "#/definitions/models.Request"
@@ -3792,7 +5628,7 @@ const docTemplate = `{
             }
         },
         "/save/{a}": {
-            "get": {
+            "post": {
                 "description": "test save",
                 "consumes": [
                     "application/json"
@@ -4013,6 +5849,30 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/test64/{id}": {
+            "get": {
+                "description": "test by query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "test by query",
+                "operationId": "TestInt64Path",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Some ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/test_by_key": {
             "get": {
                 "description": "test by key",
@@ -4036,7 +5896,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/test_by_key/:key": {
+        "/test_by_key/{key}": {
             "get": {
                 "description": "test by key",
                 "consumes": [
@@ -4083,7 +5943,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/test_by_strkey/:key": {
+        "/test_by_strkey/{key}": {
             "get": {
                 "description": "test by key",
                 "consumes": [
@@ -4124,7 +5984,7 @@ const docTemplate = `{
                         "format": "int64",
                         "description": "Some ID",
                         "name": "id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -4196,7 +6056,7 @@ const docTemplate = `{
                         "format": "int64",
                         "description": "Some ID",
                         "name": "id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -4268,7 +6128,7 @@ const docTemplate = `{
                         "format": "int64",
                         "description": "Some ID",
                         "name": "id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -4334,7 +6194,7 @@ const docTemplate = `{
                         "format": "int64",
                         "description": "Some ID",
                         "name": "id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -4447,53 +6307,69 @@ const docTemplate = `{
         "models.RequestQuery": {
             "type": "object",
             "properties": {
-                "creatorID": {
+                "creator_id": {
                     "type": "integer"
                 },
-                "currentStatus": {
+                "current_status": {
                     "type": "integer"
                 },
-                "endAt": {
+                "end_at": {
                     "type": "string"
                 },
-                "isOverdued": {
+                "is_overdued": {
                     "type": "boolean"
                 },
-                "isSuspend": {
+                "is_suspend": {
                     "type": "boolean"
                 },
-                "isUnclosed": {
+                "is_unclosed": {
                     "type": "boolean"
                 },
-                "nameLike": {
+                "name_like": {
                     "type": "string"
                 },
-                "operatorID": {
+                "operator_id": {
                     "type": "integer"
                 },
-                "overdueEnd": {
+                "overdue_end": {
                     "type": "string"
                 },
-                "overdueStart": {
+                "overdue_start": {
                     "type": "string"
                 },
-                "requestTypeIDs": {
+                "request_type_ids": {
                     "type": "array",
                     "items": {
                         "type": "integer"
                     }
                 },
-                "requestTypeNames": {
+                "request_type_names": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "requesterID": {
+                "requester_id": {
                     "type": "integer"
                 },
-                "startAt": {
+                "settings": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "start_at": {
                     "type": "string"
+                },
+                "ttargstt": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "url.Values": {
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         }

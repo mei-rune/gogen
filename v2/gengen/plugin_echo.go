@@ -82,9 +82,8 @@ func (echo *echoPlugin) GetBodyErrorText(method *Method, bodyName, err string) s
 }
 
 func (echo *echoPlugin) GetCastErrorText(param *Param, err, value string) string {
-		return getCastErrorText(param, err, value)
+	return getCastErrorText(param, err, value)
 }
-
 
 func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)

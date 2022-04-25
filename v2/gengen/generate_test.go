@@ -3,6 +3,7 @@ package gengen
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -32,7 +33,7 @@ func TestGenerate(t *testing.T) {
 			os.Remove(filepath.Join(wd, "gentest", name+".gin-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = &Generator{
+			var gen = &ServerGenerator{
 				plugin:   "gin",
 				ext:      ".gin-gen.go",
 				buildTag: "gin",
@@ -64,7 +65,7 @@ func TestGenerate(t *testing.T) {
 			os.Remove(filepath.Join(wd, "gentest", name+".chi-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = &Generator{
+			var gen = &ServerGenerator{
 				plugin:   "chi",
 				ext:      ".chi-gen.go",
 				buildTag: "chi",
@@ -90,46 +91,12 @@ func TestGenerate(t *testing.T) {
 		}
 	})
 
-	// t.Run("loong", func(t *testing.T) {
-	// 	for _, name := range []string{"casetest"} {
-	// 		t.Log("=====================", name)
-	// 		os.Remove(filepath.Join(wd, "gentest", name+".loonggen.go"))
-	// 		// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
-
-	// 		var gen = WebServerGenerator{
-	// 			GeneratorBase: GeneratorBase{
-	// 				ext:      ".loonggen.go",
-	// 				buildTag: "loong",
-	// 				includes: filepath.Join(wd, "gentest", "models", "requests.go"),
-	// 			},
-	// 			config: "@loong",
-	// 		}
-	// 		if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
-	// 			fmt.Println(err)
-	// 			t.Error(err)
-	// 			continue
-	// 		}
-
-	// 		actual := readFile(filepath.Join(wd, "gentest", name+".loonggen.go"))
-	// 		excepted := readFile(filepath.Join(wd, "gentest", name+".loonggen.txt"))
-	// 		if !reflect.DeepEqual(actual, excepted) {
-	// 			results := difflib.Diff(excepted, actual)
-	// 			for _, result := range results {
-	// 				if result.Delta == difflib.Common {
-	// 					continue
-	// 				}
-	// 				t.Error(result)
-	// 			}
-	// 		}
-	// 	}
-	// })
-
 	t.Run("echo", func(t *testing.T) {
 		for _, name := range []string{"casetest", "test"} {
 			t.Log("=====================", name)
 			os.Remove(filepath.Join(wd, "gentest", name+".echo-gen.go"))
 
-			var gen = &Generator{
+			var gen = &ServerGenerator{
 				plugin:   "echo",
 				ext:      ".echo-gen.go",
 				buildTag: "echo",
@@ -161,7 +128,7 @@ func TestGenerate(t *testing.T) {
 			os.Remove(filepath.Join(wd, "gentest", name+".iris-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = &Generator{
+			var gen = &ServerGenerator{
 				plugin:   "iris",
 				ext:      ".iris-gen.go",
 				buildTag: "iris",
@@ -193,7 +160,7 @@ func TestGenerate(t *testing.T) {
 			os.Remove(filepath.Join(wd, "gentest", name+".loong-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = &Generator{
+			var gen = &ServerGenerator{
 				plugin:   "loong",
 				ext:      ".loong-gen.go",
 				buildTag: "loong",
@@ -253,107 +220,38 @@ func TestGenerate(t *testing.T) {
 	// 	}
 	// })
 
-	// t.Run("client", func(t *testing.T) {
-	// 	for _, name := range []string{"test"} {
-	// 		t.Log("=====================", name)
-	// 		os.Remove(filepath.Join(wd, "gentest", name+".clientgen.go"))
-	// 		// fmt.Println(filepath.Join(wd, "gentest", name+".clientgen.go"))
+	t.Run("client", func(t *testing.T) {
+		for _, name := range []string{"casetest", "test"} {
+			t.Log("=====================", name)
+			os.Remove(filepath.Join(wd, "gentest", name+".client-gen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", name+".client-gen.go"))
 
-	// 		var gen = WebClientGenerator{
-	// 			GeneratorBase: GeneratorBase{
-	// 				ext: ".clientgen.go",
-	// 			},
-	// 			//config: "@echo",
-	// 		}
-	// 		gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{})
-	// 		gen.config.HasWrapper = false
-	// 		gen.includes = filepath.Join(wd, "gentest", "models", "requests.go")
+			var gen = ClientGenerator{
+				ext: ".client-gen.go",
+			}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{})
+			gen.config.HasWrapper = false
+			// gen.includes = filepath.Join(wd, "gentest", "models", "requests.go")
 
-	// 		if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
-	// 			fmt.Println(err)
-	// 			t.Error(err)
-	// 			continue
-	// 		}
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+				fmt.Println(err)
+				t.Error(err)
+				continue
+			}
 
-	// 		actual := readFile(filepath.Join(wd, "gentest", name+".clientgen.go"))
-	// 		excepted := readFile(filepath.Join(wd, "gentest", name+".clientgen.txt"))
-	// 		if !reflect.DeepEqual(actual, excepted) {
-	// 			results := difflib.Diff(excepted, actual)
-	// 			for _, result := range results {
-	// 				if result.Delta == difflib.Common {
-	// 					continue
-	// 				}
-	// 				t.Error(result)
-	// 			}
-	// 		}
-	// 	}
-	// })
-
-	// t.Run("loongclient", func(t *testing.T) {
-	// 	for _, name := range []string{"test"} {
-	// 		t.Log("=====================", name)
-	// 		os.Remove(filepath.Join(wd, "gentest", name+".loongclientgen.go"))
-	// 		// fmt.Println(filepath.Join(wd, "gentest", name+".clientgen.go"))
-
-	// 		var gen = WebClientGenerator{
-	// 			GeneratorBase: GeneratorBase{
-	// 				ext:      ".loongclientgen.go",
-	// 				includes: filepath.Join(wd, "gentest", "models", "requests.go"),
-	// 			},
-	// 			//config: "@echo",
-	// 		}
-	// 		gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
-	// 			"-has-wrapper", "true",
-	// 		})
-	// 		gen.config.HasWrapper = true
-	// 		gen.includes = filepath.Join(wd, "gentest", "models", "requests.go")
-
-	// 		if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
-	// 			fmt.Println(err)
-	// 			t.Error(err)
-	// 			continue
-	// 		}
-
-	// 		actual := readFile(filepath.Join(wd, "gentest", name+".loongclientgen.go"))
-	// 		excepted := readFile(filepath.Join(wd, "gentest", name+".loongclientgen.txt"))
-	// 		if !reflect.DeepEqual(actual, excepted) {
-	// 			results := difflib.Diff(excepted, actual)
-	// 			for _, result := range results {
-	// 				if result.Delta == difflib.Common {
-	// 					continue
-	// 				}
-	// 				t.Error(result)
-	// 			}
-	// 		}
-	// 	}
-	// })
-
-	// for _, name := range []string{"interface"} {
-	// 	t.Log("===================== fail/", name)
-	// 	os.Remove(filepath.Join(wd, "gentest", "fail", name+".gogen.go"))
-	// 	// fmt.Println(filepath.Join(wd, "gentest", "fail", name+".gobatis.go"))
-
-	// 	var gen = Generator{}
-	// 	if err := gen.Run([]string{filepath.Join(wd, "gentest", "fail", name+".go")}); err != nil {
-	// 		fmt.Println(err)
-	// 		t.Error(err)
-	// 		continue
-	// 	}
-
-	// 	actual := readFile(filepath.Join(wd, "gentest", "fail", name+".gogen.go"))
-	// 	excepted := readFile(filepath.Join(wd, "gentest", "fail", name+".gogen.txt"))
-	// 	if !reflect.DeepEqual(actual, excepted) {
-	// 		results := difflib.Diff(excepted, actual)
-	// 		for _, result := range results {
-	// 			if result.Delta == difflib.Common {
-	// 				continue
-	// 			}
-
-	// 			t.Error(result)
-	// 		}
-	// 	}
-	// 	os.Remove(filepath.Join(wd, "gentest", "fail", name+".gogen.go"))
-	// }
+			actual := readFile(filepath.Join(wd, "gentest", name+".client-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", name+".client-gen.txt"))
+			if !reflect.DeepEqual(actual, excepted) {
+				results := difflib.Diff(excepted, actual)
+				for _, result := range results {
+					if result.Delta == difflib.Common {
+						continue
+					}
+					t.Error(result)
+				}
+			}
+		}
+	})
 }
 
 func readFile(pa string) []string {

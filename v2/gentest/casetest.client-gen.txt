@@ -1,0 +1,193 @@
+// Please don't edit this file!
+package main
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"strconv"
+
+	"github.com/runner-mei/resty"
+)
+
+type CaseSvcClient struct {
+	Proxy *resty.Proxy
+}
+
+func (client CaseSvcClient) TestCase1(ctx context.Context, name string) error {
+	request := resty.NewRequest(client.Proxy, "/case1/by_name/"+name+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase2_1(ctx context.Context, name string) error {
+	request := resty.NewRequest(client.Proxy, "/case2_1/by_name").
+		SetParam("name", name)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase2_2(ctx context.Context, name []string) error {
+	request := resty.NewRequest(client.Proxy, "/case2_2/by_names")
+	for idx := range name {
+		request = request.AddParam("name", name[idx])
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase3_1(ctx context.Context, id int64) error {
+	request := resty.NewRequest(client.Proxy, "/case3_1/by_id/"+strconv.FormatInt(id, 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase3_2(ctx context.Context, id int32) error {
+	request := resty.NewRequest(client.Proxy, "/case3_2/by_id/"+strconv.FormatInt(int64(id), 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase3_3(ctx context.Context, id int) error {
+	request := resty.NewRequest(client.Proxy, "/case3_3/by_id/"+strconv.FormatInt(int64(id), 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase4(ctx context.Context, id int) error {
+	request := resty.NewRequest(client.Proxy, "/case4/by_id/"+strconv.FormatInt(int64(id), 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase5_1(ctx context.Context, id int64) error {
+	request := resty.NewRequest(client.Proxy, "/case5_1/by_id").
+		SetParam("id", strconv.FormatInt(id, 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase5_2(ctx context.Context, id int32) error {
+	request := resty.NewRequest(client.Proxy, "/case5_2/by_id").
+		SetParam("id", strconv.FormatInt(int64(id), 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase5_3(ctx context.Context, idlist []int64) error {
+	request := resty.NewRequest(client.Proxy, "/case5_3/by_id")
+	for idx := range idlist {
+		request = request.AddParam("idlist", strconv.FormatInt(idlist[idx], 10))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase6(ctx context.Context, id int64) error {
+	request := resty.NewRequest(client.Proxy, "/case6/by_id").
+		SetParam("id", strconv.FormatInt(id, 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase7_1(ctx context.Context, id sql.NullInt64) error {
+	request := resty.NewRequest(client.Proxy, "/case7_1/by_id")
+	if id.Valid {
+		request = request.SetParam("id", strconv.FormatInt(id.Int64, 10))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase7_2(ctx context.Context, id sql.NullInt32) error {
+	request := resty.NewRequest(client.Proxy, "/case7_2/by_id")
+	if id.Valid {
+		request = request.SetParam("id", fmt.Sprint(id))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase8(ctx context.Context, id sql.NullInt64) error {
+	request := resty.NewRequest(client.Proxy, "/case8/by_id")
+	if id.Valid {
+		request = request.SetParam("id", strconv.FormatInt(id.Int64, 10))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase9(ctx context.Context, id *string) error {
+	request := resty.NewRequest(client.Proxy, "/case9/by_id/"+*id+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase10(ctx context.Context, id *string) error {
+	request := resty.NewRequest(client.Proxy, "/case10/by_name")
+	if id != nil {
+		request = request.SetParam("id", *id)
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase12(ctx context.Context, id *int) error {
+	request := resty.NewRequest(client.Proxy, "/case12/"+strconv.FormatInt(int64(*id), 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase13(ctx context.Context, id *int) error {
+	request := resty.NewRequest(client.Proxy, "/case13/"+strconv.FormatInt(int64(*id), 10)+"")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase14_1(ctx context.Context, id *int) error {
+	request := resty.NewRequest(client.Proxy, "/case14_1/by_id")
+	if id != nil {
+		request = request.SetParam("id", strconv.FormatInt(int64(*id), 10))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase14_2(ctx context.Context, id *int32) error {
+	request := resty.NewRequest(client.Proxy, "/case14_2/by_name")
+	if id != nil {
+		request = request.SetParam("id", strconv.FormatInt(int64(*id), 10))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestCase14_3(ctx context.Context, id *int) error {
+	request := resty.NewRequest(client.Proxy, "/case14_3/by_name")
+	if id != nil {
+		request = request.SetParam("id", strconv.FormatInt(int64(*id), 10))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}

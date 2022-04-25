@@ -2,6 +2,7 @@ package gengen
 
 import (
 	"errors"
+	"go/ast"
 	"reflect"
 	"strings"
 	"unicode"
@@ -124,11 +125,7 @@ func nullableType(name string) string {
 }
 
 func FieldNameForNullable(typ astutil.Type) string {
-	// sql.NullBool, sql.NullInt64, sql.NullString, sql.NullTime ......
-	name := typ.ToString()
-	name = strings.TrimPrefix(name, "sql.Null")
-	name = strings.TrimPrefix(name, "null.")
-	return name
+	return astutil.FieldNameForSqlNullable(typ)
 }
 
 var methodNames = map[string]string{
@@ -315,4 +312,27 @@ func getTagValue(field *astutil.Field, name string) (string, bool) {
 	s := strings.Trim(field.Tag.Value, "`")
 	value, ok := reflect.StructTag(s).Lookup(name)
 	return strings.Trim(value, "\""), ok
+}
+
+var zeroLits = map[string]string{
+	"bool":      "false",
+	"time.Time": "time.Time{}",
+	"string":    "\"\"",
+}
+
+func zeroValueLiteral(typ astutil.Type) string {
+	switch typ.Expr.(type) {
+	case *ast.StarExpr:
+		return "nil"
+	case *ast.ArrayType:
+		return "nil"
+	case *ast.MapType:
+		return "nil"
+	}
+
+	s := typ.ToLiteral()
+	if lit, ok := zeroLits[s]; ok {
+		return lit
+	}
+	return "0"
 }

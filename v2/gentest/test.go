@@ -64,7 +64,7 @@ type QueryArgs struct {
 	Ftimeptr   *time.Time
 }
 
-// @http.Client(name="TestClient", ref="true")
+// @http.Client name="TestClient" reference="false"
 type StringSvc interface {
 
 	// @Summary get files
@@ -117,7 +117,7 @@ type StringSvc interface {
 	// @Param   key      path   string     true  "Some ID" Format(string)
 	// @Accept  json
 	// @Produce  json
-	// @Router /test_by_strkey/:key [get]
+	// @Router /test_by_strkey/{key} [get]
 	TestByStrKey1(key StrKey) error
 
 	// @Summary test by str key
@@ -375,7 +375,7 @@ type StringSvc interface {
 	// @Param   is_raw      path   boolean    true  "arg isRaw"
 	// @Accept  json
 	// @Produce  json
-	// @Router /query2/{isRaw} [get]
+	// @Router /query2/{is_raw} [get]
 	Query2(a string, beginAt, endAt time.Time, isRaw bool) string
 
 	// @Summary add by path
@@ -387,7 +387,7 @@ type StringSvc interface {
 	// @Param   is_raw      path   boolean    true  "arg isRaw"
 	// @Accept  json
 	// @Produce  json
-	// @Router /query3/{isRaw} [get]
+	// @Router /query3/{is_raw} [get]
 	Query3(a string, beginAt, endAt time.Time, isRaw *bool) string
 
 	// @Summary add by path
@@ -398,7 +398,7 @@ type StringSvc interface {
 	// @Param   is_raw      path   boolean    true  "arg isRaw"
 	// @Accept  json
 	// @Produce  json
-	// @Router /query4/{isRaw} [get]
+	// @Router /query4/{is_raw} [get]
 	Query4(a string, createdAt TimeRange, isRaw *bool) string
 
 	// @Summary add by path
@@ -409,7 +409,7 @@ type StringSvc interface {
 	// @Param   is_raw      path   boolean    true  "arg isRaw"
 	// @Accept  json
 	// @Produce  json
-	// @Router /query5/{isRaw} [get]
+	// @Router /query5/{is_raw} [get]
 	Query5(a string, createdAt *TimeRange, isRaw *bool) string
 
 	// @Summary add by path
@@ -420,7 +420,7 @@ type StringSvc interface {
 	// @Param   is_raw      path   boolean    true  "arg isRaw"
 	// @Accept  json
 	// @Produce  json
-	// @Router /query6/{isRaw} [get]
+	// @Router /query6/{is_raw} [get]
 	Query6(a string, createdAt TimeRange2, isRaw *bool) string
 
 	// @Summary add by path
@@ -431,7 +431,7 @@ type StringSvc interface {
 	// @Param   is_raw      path   boolean    true  "arg isRaw"
 	// @Accept  json
 	// @Produce  json
-	// @Router /query7/{isRaw} [get]
+	// @Router /query7/{is_raw} [get]
 	Query7(a string, createdAt *TimeRange2, isRaw *bool) string
 
 	// @Summary content_type="text"
@@ -582,7 +582,7 @@ func (svc *StringSvcImpl) TestByStrKey2(key StrKey) error {
 
 // @Summary test by query
 // @Description test by query
-// @ID TestInt64Path
+// @ID StringSvcImpl.TestInt64Path
 // @Param   id      path   int     true  "Some ID" Format(int64)
 // @Accept  json
 // @Produce  json
@@ -605,7 +605,7 @@ func (svc *StringSvcImpl) TestInt64Query(id int64) error {
 // @Summary test by query
 // @Description test by query
 // @ID StringSvcImpl.TestQueryArgs1
-// @Param   id      query   int     true  "Some ID" Format(int64)
+// @Param   id      path   int     true  "Some ID" Format(int64)
 // @Param   args    query   QueryArgs     false  "Some ID" Format(int64)
 // @Accept  json
 // @Produce  json
@@ -761,7 +761,7 @@ func (svc *StringSvcImpl) Sub(a string, start int64) (string, error) {
 // @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
 // @Accept  json
 // @Produce  json
-// @Router /impl/save/{a} [get]
+// @Router /impl/save/{a} [post]
 func (svc *StringSvcImpl) Save(a, b string) (string, error) {
 	return "", nil
 }
@@ -873,7 +873,7 @@ func (svc *StringSvcImpl) Query1(a string, beginAt, endAt time.Time, isRaw bool)
 // @Param   is_raw      path   boolean    true  "arg isRaw"
 // @Accept  json
 // @Produce  json
-// @Router /impl/query2/{isRaw} [get]
+// @Router /impl/query2/{is_raw} [get]
 func (svc *StringSvcImpl) Query2(a string, beginAt, endAt time.Time, isRaw bool) string {
 	return "queue"
 }
@@ -887,7 +887,7 @@ func (svc *StringSvcImpl) Query2(a string, beginAt, endAt time.Time, isRaw bool)
 // @Param   is_raw      path   boolean    true  "arg isRaw"
 // @Accept  json
 // @Produce  json
-// @Router /impl/query3/{isRaw} [get]
+// @Router /impl/query3/{is_raw} [get]
 func (svc *StringSvcImpl) Query3(a string, beginAt, endAt time.Time, isRaw *bool) string {
 	return "queue"
 }
@@ -900,7 +900,7 @@ func (svc *StringSvcImpl) Query3(a string, beginAt, endAt time.Time, isRaw *bool
 // @Param   is_raw      path   boolean    true  "arg isRaw"
 // @Accept  json
 // @Produce  json
-// @Router /query4/{isRaw} [get]
+// @Router /impl/query4/{is_raw} [get]
 func (svc *StringSvcImpl) Query4(a string, createdAt TimeRange, isRaw *bool) string {
 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
 }
@@ -913,7 +913,7 @@ func (svc *StringSvcImpl) Query4(a string, createdAt TimeRange, isRaw *bool) str
 // @Param   is_raw      path   boolean    true  "arg isRaw"
 // @Accept  json
 // @Produce  json
-// @Router /impl/query5/{isRaw} [get]
+// @Router /impl/query5/{is_raw} [get]
 func (svc *StringSvcImpl) Query5(a string, createdAt *TimeRange, isRaw *bool) string {
 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
 }
@@ -926,7 +926,7 @@ func (svc *StringSvcImpl) Query5(a string, createdAt *TimeRange, isRaw *bool) st
 // @Param   is_raw      path   boolean    true  "arg isRaw"
 // @Accept  json
 // @Produce  json
-// @Router /impl/query6/{isRaw} [get]
+// @Router /impl/query6/{is_raw} [get]
 func (svc *StringSvcImpl) Query6(a string, createdAt TimeRange2, isRaw *bool) string {
 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
 }
@@ -939,7 +939,7 @@ func (svc *StringSvcImpl) Query6(a string, createdAt TimeRange2, isRaw *bool) st
 // @Param   is_raw      path   boolean    true  "arg isRaw"
 // @Accept  json
 // @Produce  json
-// @Router /impl/query7/{isRaw} [get]
+// @Router /impl/query7/{is_raw} [get]
 func (svc *StringSvcImpl) Query7(a string, createdAt *TimeRange2, isRaw *bool) string {
 	return "queue:" + a + ":" + createdAt.Start.Format(time.RFC3339) + "-" + createdAt.End.Format(time.RFC3339)
 }
@@ -1118,7 +1118,7 @@ func (svc *StringSvcWithContext) Sub(ctx context.Context, a string, start int64)
 // @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
 // @Accept  json
 // @Produce  json
-// @Router /ctx/save1/{a} [get]
+// @Router /ctx/save1/{a} [post]
 func (svc *StringSvcWithContext) Save1(ctx context.Context, a, b string) (string, error) {
 	return "", nil
 }
@@ -1272,7 +1272,7 @@ type Requests interface {
 	// @Summary Query2
 	// @Description Query2
 	// @ID Requests.Query2
-	// @Param   query    query   models.RequestQuery     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   query    query   models.RequestQuery     false  "request query param" extensions(x-gogen-extend=inline)
 	// @Param   offset   query   int     false  "offset"
 	// @Param   limit    query   int     false  "limit"
 	// @Accept  json
@@ -1283,7 +1283,7 @@ type Requests interface {
 	// @Summary Query3
 	// @Description Query3
 	// @ID Requests.Query3
-	// @Param   query    query   models.RequestQuery     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   query    query   models.RequestQuery     false  "request query param" extensions(x-gogen-extend=inline)
 	// @Param   offset   query   int     false  "offset"
 	// @Param   limit    query   int     false  "limit"
 	// @Accept  json
@@ -1338,7 +1338,7 @@ type Requests interface {
 	// @Summary QueryEx3NoPrefix
 	// @Description QueryEx3NoPrefix
 	// @ID Requests.QueryEx3NoPrefix
-	// @Param   query    query   RequestQueryEx3     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   query    query   RequestQueryEx3     false  "request query param" extensions(x-gogen-extend=inline)
 	// @Param   offset   query   int     false  "offset"
 	// @Param   limit    query   int     false  "limit"
 	// @Accept  json
@@ -1349,7 +1349,7 @@ type Requests interface {
 	// @Summary QueryEx4NoPrefix
 	// @Description QueryEx4NoPrefix
 	// @ID Requests.QueryEx4NoPrefix
-	// @Param   query    query   RequestQueryEx3     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   query    query   RequestQueryEx3     false  "request query param" extensions(x-gogen-extend=inline)
 	// @Param   offset   query   int     false  "offset"
 	// @Param   limit    query   int     false  "limit"
 	// @Accept  json
@@ -1360,7 +1360,7 @@ type Requests interface {
 	// @Summary List
 	// @Description List
 	// @ID Requests.List
-	// @Param   query    query   models.RequestQuery     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   query    query   models.RequestQuery     false  "request query param"
 	// @Param   offset   query   int     false  "offset"
 	// @Param   limit    query   int     false  "limit"
 	// @Accept  json

@@ -105,7 +105,7 @@ func (iris *irisPlugin) GetBodyErrorText(method *Method, bodyName, err string) s
 }
 
 func (iris *irisPlugin) GetCastErrorText(param *Param, err, value string) string {
-		return getCastErrorText(param, err, value)
+	return getCastErrorText(param, err, value)
 }
 
 func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {

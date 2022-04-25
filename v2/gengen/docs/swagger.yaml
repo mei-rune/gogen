@@ -22,38 +22,49 @@ definitions:
     type: object
   models.RequestQuery:
     properties:
-      creatorID:
+      creator_id:
         type: integer
-      currentStatus:
+      current_status:
         type: integer
-      endAt:
+      end_at:
         type: string
-      isOverdued:
+      is_overdued:
         type: boolean
-      isSuspend:
+      is_suspend:
         type: boolean
-      isUnclosed:
+      is_unclosed:
         type: boolean
-      nameLike:
+      name_like:
         type: string
-      operatorID:
+      operator_id:
         type: integer
-      overdueEnd:
+      overdue_end:
         type: string
-      overdueStart:
+      overdue_start:
         type: string
-      requestTypeIDs:
+      request_type_ids:
         items:
           type: integer
         type: array
-      requestTypeNames:
+      request_type_names:
         items:
           type: string
         type: array
-      requesterID:
+      requester_id:
         type: integer
-      startAt:
+      settings:
+        additionalProperties:
+          type: string
+        type: object
+      start_at:
         type: string
+      ttargstt:
+        additionalProperties:
+          type: string
+        type: object
+      url.Values:
+        additionalProperties: true
+        type: object
     type: object
 info:
   contact: {}
@@ -835,6 +846,271 @@ paths:
       - application/json
       responses: {}
       summary: test by query
+  /ctx/add1/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcWithContext.Add1
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /ctx/add2/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcWithContext.Add2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /ctx/add3:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcWithContext.Add3
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: query
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /ctx/concat:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.Concat0
+      parameters:
+      - description: Some ID
+        in: query
+        name: a
+        type: string
+      - description: Some ID
+        in: query
+        name: b
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /ctx/concat1:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.Concat1
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        type: string
+      - description: arg b
+        in: query
+        name: b
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /ctx/concat2/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.Concat2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /ctx/concat3/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.Concat3
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /ctx/echo:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.Echo
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: a
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /ctx/echo2:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.EchoBody
+      parameters:
+      - description: Some ID
+        in: body
+        name: body
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /ctx/save1/{a}:
+    post:
+      consumes:
+      - application/json
+      description: test save
+      operationId: StringSvcWithContext.Save1
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+        x-gogen-entire-body: "true"
+      produces:
+      - application/json
+      responses: {}
+      summary: test save
+  /ctx/save2/{a}:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.Save2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+        x-gogen-entire-body: "true"
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /ctx/save3:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.Save3
+      parameters:
+      - description: arg a
+        in: body
+        name: a
+        required: true
+        schema:
+          type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /ctx/sub:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcWithContext.Sub
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: string
+      - description: arg start
+        in: query
+        name: start
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
   /echo:
     get:
       consumes:
@@ -896,6 +1172,1027 @@ paths:
         items:
           type: string
         name: filenames
+        type: array
+      produces:
+      - application/json
+      responses: {}
+      summary: get files
+  /impl/:
+    post:
+      consumes:
+      - application/json
+      description: noreturn="true"
+      operationId: StringSvcImpl.CreateWithNoReturn
+      produces:
+      - application/json
+      responses: {}
+      summary: noreturn="true"
+      x-gogen-noreturn: true
+  /impl/add/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Add1
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/add2/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Add2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/add3:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Add3
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg b
+        in: query
+        name: b
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/allfiles:
+    get:
+      consumes:
+      - application/json
+      description: get files
+      operationId: StringSvcImpl.GetAllFiles
+      produces:
+      - application/json
+      responses: {}
+      summary: get files
+  /impl/concat:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Concat0
+      parameters:
+      - description: Some ID
+        in: query
+        name: a
+        type: string
+      - description: Some ID
+        in: query
+        name: b
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/concat1:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Concat1
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        type: string
+      - description: arg b
+        in: query
+        name: b
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/concat2/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Concat2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/concat3/{a}/{b}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Concat3
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: path
+        name: b
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/echo:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Echo
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: a
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/echo2:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.EchoBody
+      parameters:
+      - description: Some ID
+        in: body
+        name: body
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/echo3:
+    post:
+      consumes:
+      - application/json
+      description: test by body
+      operationId: StringSvcImpl.Echo3
+      parameters:
+      - description: Some ID
+        in: body
+        name: a
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by body
+  /impl/files:
+    get:
+      consumes:
+      - application/json
+      description: get files
+      operationId: StringSvcImpl.GetFiles
+      parameters:
+      - description: Some ID
+        format: string
+        in: query
+        items:
+          type: string
+        name: filenames
+        type: array
+      produces:
+      - application/json
+      responses: {}
+      summary: get files
+  /impl/ping:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Ping
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/query1:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Query1
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg beginAt
+        format: time
+        in: query
+        name: begin_at
+        required: true
+        type: string
+      - description: arg endAt
+        format: time
+        in: query
+        name: end_at
+        required: true
+        type: string
+      - description: arg isRaw
+        in: query
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/query2/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Query2
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg beginAt
+        format: time
+        in: query
+        name: begin_at
+        required: true
+        type: string
+      - description: arg endAt
+        format: time
+        in: query
+        name: end_at
+        required: true
+        type: string
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/query3/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Query3
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - description: arg beginAt
+        format: time
+        in: query
+        name: begin_at
+        required: true
+        type: string
+      - description: arg endAt
+        format: time
+        in: query
+        name: end_at
+        required: true
+        type: string
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/query4/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Query4
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - in: query
+        name: created_at.end
+        type: string
+        x-gogen-extend-field: end
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - in: query
+        name: created_at.start
+        type: string
+        x-gogen-extend-field: start
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/query5/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Query5
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - in: query
+        name: created_at.end
+        type: string
+        x-gogen-extend-field: end
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - in: query
+        name: created_at.start
+        type: string
+        x-gogen-extend-field: start
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/query6/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Query6
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - in: query
+        name: created_at.end
+        type: string
+        x-gogen-extend-field: end
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - in: query
+        name: created_at.start
+        type: string
+        x-gogen-extend-field: start
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/query7/{isRaw}:
+    get:
+      consumes:
+      - application/json
+      description: add by path
+      operationId: StringSvcImpl.Query7
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: integer
+      - in: query
+        name: created_at.end
+        type: string
+        x-gogen-extend-field: end
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - in: query
+        name: created_at.start
+        type: string
+        x-gogen-extend-field: start
+        x-gogen-extend-prefix: created_at.
+        x-gogen-extend-struct: created_at
+      - description: arg isRaw
+        in: path
+        name: is_raw
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses: {}
+      summary: add by path
+  /impl/query8:
+    get:
+      consumes:
+      - application/json
+      description: content_type="text"
+      operationId: StringSvcImpl.Query8
+      parameters:
+      - description: arg a
+        in: query
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses: {}
+      summary: content_type="text"
+  /impl/query9:
+    get:
+      consumes:
+      - application/json
+      description: query9 content_type="text"
+      operationId: StringSvcImpl.Query9
+      parameters:
+      - description: arg a
+        in: query
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses: {}
+      summary: query9 content_type="text"
+  /impl/query10:
+    get:
+      consumes:
+      - application/json
+      description: query10 content_type="text"
+      operationId: StringSvcImpl.Query10
+      parameters:
+      - description: arg a
+        in: query
+        name: item_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses: {}
+      summary: query10 content_type="text"
+  /impl/query11:
+    get:
+      consumes:
+      - application/json
+      description: query11 content_type="text"
+      operationId: StringSvcImpl.Query11
+      parameters:
+      - description: arg a
+        in: query
+        name: item_id
+        required: true
+        type: boolean
+      produces:
+      - text/plain
+      responses: {}
+      summary: query11 content_type="text"
+  /impl/query12:
+    get:
+      consumes:
+      - application/json
+      description: query12 Name is Upper
+      operationId: StringSvcImpl.Query1WithUpName
+      parameters:
+      - description: arg a
+        in: query
+        name: Name
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses: {}
+      summary: query12 Name is Upper
+    post:
+      consumes:
+      - application/json
+      description: query12 Name is Upper
+      operationId: StringSvcImpl.Query1WithUpName
+      parameters:
+      - description: arg a
+        in: body
+        name: Name
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: query12 Name is Upper
+  /impl/save/{a}:
+    post:
+      consumes:
+      - application/json
+      description: test save
+      operationId: StringSvcImpl.Save1
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+        x-gogen-entire-body: "true"
+      produces:
+      - application/json
+      responses: {}
+      summary: test save
+  /impl/save2/{a}:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Save2
+      parameters:
+      - description: arg a
+        in: path
+        name: a
+        required: true
+        type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+        x-gogen-entire-body: "true"
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/save3:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Save3
+      parameters:
+      - description: arg a
+        in: body
+        name: a
+        required: true
+        schema:
+          type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/save4:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Save4
+      parameters:
+      - description: arg a
+        in: body
+        name: a
+        required: true
+        schema:
+          type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/save5:
+    post:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Save5
+      parameters:
+      - description: arg a
+        in: body
+        name: a
+        required: true
+        schema:
+          type: string
+      - description: arg b
+        in: body
+        name: b
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/sub:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.Sub
+      parameters:
+      - description: arg a
+        in: query
+        name: a
+        required: true
+        type: string
+      - description: arg start
+        in: query
+        name: start
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/test_by_key:
+    get:
+      consumes:
+      - application/json
+      description: test by key
+      operationId: StringSvcImpl.TestByKey2
+      parameters:
+      - description: Some ID
+        format: int
+        in: query
+        name: key
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by int key
+  /impl/test_by_key/{key}:
+    get:
+      consumes:
+      - application/json
+      description: test by key
+      operationId: StringSvcImpl.TestByKey1
+      parameters:
+      - description: Some ID
+        format: int
+        in: path
+        name: key
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by int key
+  /impl/test_by_strkey:
+    get:
+      consumes:
+      - application/json
+      description: test by key
+      operationId: StringSvcImpl.TestByStrKey2
+      parameters:
+      - description: Some ID
+        format: string
+        in: query
+        name: key
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by str key
+  /impl/test_by_strkey/{key}:
+    get:
+      consumes:
+      - application/json
+      description: test by key
+      operationId: StringSvcImpl.TestByStrKey1
+      parameters:
+      - description: Some ID
+        format: string
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: test by str key
+  /impl/test_query_args1/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.TestQueryArgs1
+      parameters:
+      - description: Some ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        name: args.fint
+        type: integer
+        x-gogen-extend-field: fint
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fintptr
+        type: integer
+        x-gogen-extend-field: fintptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fstring
+        type: string
+        x-gogen-extend-field: fstring
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fstringptr
+        type: string
+        x-gogen-extend-field: fstringptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.ftime
+        type: string
+        x-gogen-extend-field: ftime
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.ftimeptr
+        type: string
+        x-gogen-extend-field: ftimeptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/test_query_args2/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.TestQueryArgs2
+      parameters:
+      - description: Some ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        name: args.fint
+        type: integer
+        x-gogen-extend-field: fint
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fintptr
+        type: integer
+        x-gogen-extend-field: fintptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fstring
+        type: string
+        x-gogen-extend-field: fstring
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.fstringptr
+        type: string
+        x-gogen-extend-field: fstringptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.ftime
+        type: string
+        x-gogen-extend-field: ftime
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      - in: query
+        name: args.ftimeptr
+        type: string
+        x-gogen-extend-field: ftimeptr
+        x-gogen-extend-prefix: args.
+        x-gogen-extend-struct: args
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/test_query_args3/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.TestQueryArgs3
+      parameters:
+      - description: Some ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        name: fint
+        type: integer
+        x-gogen-extend-field: fint
+        x-gogen-extend-struct: args
+      - in: query
+        name: fintptr
+        type: integer
+        x-gogen-extend-field: fintptr
+        x-gogen-extend-struct: args
+      - in: query
+        name: fstring
+        type: string
+        x-gogen-extend-field: fstring
+        x-gogen-extend-struct: args
+      - in: query
+        name: fstringptr
+        type: string
+        x-gogen-extend-field: fstringptr
+        x-gogen-extend-struct: args
+      - in: query
+        name: ftime
+        type: string
+        x-gogen-extend-field: ftime
+        x-gogen-extend-struct: args
+      - in: query
+        name: ftimeptr
+        type: string
+        x-gogen-extend-field: ftimeptr
+        x-gogen-extend-struct: args
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/test_query_args4/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.TestQueryArgs4
+      parameters:
+      - description: Some ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        name: fint
+        type: integer
+        x-gogen-extend-field: fint
+        x-gogen-extend-struct: args
+      - in: query
+        name: fintptr
+        type: integer
+        x-gogen-extend-field: fintptr
+        x-gogen-extend-struct: args
+      - in: query
+        name: fstring
+        type: string
+        x-gogen-extend-field: fstring
+        x-gogen-extend-struct: args
+      - in: query
+        name: fstringptr
+        type: string
+        x-gogen-extend-field: fstringptr
+        x-gogen-extend-struct: args
+      - in: query
+        name: ftime
+        type: string
+        x-gogen-extend-field: ftime
+        x-gogen-extend-struct: args
+      - in: query
+        name: ftimeptr
+        type: string
+        x-gogen-extend-field: ftimeptr
+        x-gogen-extend-struct: args
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/test64:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.TestInt64Query
+      parameters:
+      - description: Some ID
+        format: int64
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/test64/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: StringSvcImpl.TestInt64Path
+      parameters:
+      - description: Some ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /impl/times:
+    get:
+      consumes:
+      - application/json
+      description: get files
+      operationId: StringSvcImpl.GetTimes
+      parameters:
+      - description: Some ID
+        format: datetime
+        in: query
+        items:
+          type: string
+        name: times
         type: array
       produces:
       - application/json
@@ -1246,99 +2543,93 @@ paths:
       operationId: Requests.List
       parameters:
       - in: query
-        name: query.exArg
-        type: string
-        x-gogen-extend-field: exArg
+        name: query.creator_id
+        type: integer
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.request.creatorID
+        name: query.current_status
         type: integer
-        x-gogen-extend-field: creatorID
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
+        x-gogen-extend-field: current_status
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: query.request.currentStatus
+        name: query.end_at
+        type: string
+        x-gogen-extend-field: end_at
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.is_overdued
+        type: boolean
+        x-gogen-extend-field: is_overdued
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.is_suspend
+        type: boolean
+        x-gogen-extend-field: is_suspend
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.is_unclosed
+        type: boolean
+        x-gogen-extend-field: is_unclosed
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.name_like
+        type: string
+        x-gogen-extend-field: name_like
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
+      - in: query
+        name: query.operator_id
         type: integer
-        x-gogen-extend-field: currentStatus
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
+        x-gogen-extend-field: operator_id
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: query.request.endAt
+        name: query.overdue_end
         type: string
-        x-gogen-extend-field: endAt
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
+        x-gogen-extend-field: overdue_end
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: query.request.isOverdued
-        type: boolean
-        x-gogen-extend-field: isOverdued
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
-      - in: query
-        name: query.request.isSuspend
-        type: boolean
-        x-gogen-extend-field: isSuspend
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
-      - in: query
-        name: query.request.isUnclosed
-        type: boolean
-        x-gogen-extend-field: isUnclosed
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
-      - in: query
-        name: query.request.nameLike
+        name: query.overdue_start
         type: string
-        x-gogen-extend-field: nameLike
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
-      - in: query
-        name: query.request.operatorID
-        type: integer
-        x-gogen-extend-field: operatorID
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
-      - in: query
-        name: query.request.overdueEnd
-        type: string
-        x-gogen-extend-field: overdueEnd
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
-      - in: query
-        name: query.request.overdueStart
-        type: string
-        x-gogen-extend-field: overdueStart
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
+        x-gogen-extend-field: overdue_start
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
         items:
           type: integer
-        name: query.request.requestTypeIDs
+        name: query.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
+        x-gogen-extend-field: request_type_ids
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
         items:
           type: string
-        name: query.request.requestTypeNames
+        name: query.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
+        x-gogen-extend-field: request_type_names
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: query.request.requesterID
+        name: query.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
+        x-gogen-extend-field: requester_id
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: query.request.startAt
+        name: query.start_at
         type: string
-        x-gogen-extend-field: startAt
-        x-gogen-extend-prefix: query.request.
-        x-gogen-extend-struct: query.request
+        x-gogen-extend-field: start_at
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - description: offset
         in: query
         name: offset
@@ -1360,7 +2651,7 @@ paths:
       parameters:
       - description: request query param
         in: body
-        name: query
+        name: data
         schema:
           $ref: '#/definitions/models.Request'
         x-gogen-entire-body: "true"
@@ -1376,12 +2667,29 @@ paths:
     post:
       consumes:
       - application/json
+      description: Create1
+      operationId: Requests.Create1
+      parameters:
+      - description: request query param
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/models.Request'
+        x-gogen-entire-body: "true"
+      produces:
+      - application/json
+      responses: {}
+      summary: Create1
+  /requests/create2:
+    post:
+      consumes:
+      - application/json
       description: Create2
       operationId: Requests.Create2
       parameters:
       - description: request query param
         in: body
-        name: query
+        name: request
         schema:
           $ref: '#/definitions/models.Request'
       - description: testarg
@@ -1401,91 +2709,91 @@ paths:
       operationId: Requests.Query1
       parameters:
       - in: query
-        name: query.creatorID
+        name: query.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.currentStatus
+        name: query.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.endAt
+        name: query.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isOverdued
+        name: query.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isSuspend
+        name: query.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isUnclosed
+        name: query.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.nameLike
+        name: query.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.operatorID
+        name: query.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueEnd
+        name: query.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueStart
+        name: query.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: integer
-        name: query.requestTypeIDs
+        name: query.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: string
-        name: query.requestTypeNames
+        name: query.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.requesterID
+        name: query.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.startAt
+        name: query.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - description: offset
@@ -1508,91 +2816,91 @@ paths:
       operationId: Requests.Query2
       parameters:
       - in: query
-        name: query.creatorID
+        name: query.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.currentStatus
+        name: query.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.endAt
+        name: query.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isOverdued
+        name: query.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isSuspend
+        name: query.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isUnclosed
+        name: query.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.nameLike
+        name: query.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.operatorID
+        name: query.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueEnd
+        name: query.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueStart
+        name: query.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: integer
-        name: query.requestTypeIDs
+        name: query.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: string
-        name: query.requestTypeNames
+        name: query.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.requesterID
+        name: query.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.startAt
+        name: query.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - description: offset
@@ -1615,91 +2923,91 @@ paths:
       operationId: Requests.Query3
       parameters:
       - in: query
-        name: query.creatorID
+        name: query.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.currentStatus
+        name: query.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.endAt
+        name: query.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isOverdued
+        name: query.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isSuspend
+        name: query.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isUnclosed
+        name: query.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.nameLike
+        name: query.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.operatorID
+        name: query.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueEnd
+        name: query.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueStart
+        name: query.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: integer
-        name: query.requestTypeIDs
+        name: query.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: string
-        name: query.requestTypeNames
+        name: query.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.requesterID
+        name: query.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.startAt
+        name: query.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - description: offset
@@ -1722,21 +3030,21 @@ paths:
       operationId: Requests.QueryEx1
       parameters:
       - in: query
-        name: query.creatorID
+        name: query.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.currentStatus
+        name: query.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.endAt
+        name: query.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
@@ -1746,73 +3054,73 @@ paths:
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isOverdued
+        name: query.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isSuspend
+        name: query.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isUnclosed
+        name: query.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.nameLike
+        name: query.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.operatorID
+        name: query.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueEnd
+        name: query.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueStart
+        name: query.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: integer
-        name: query.requestTypeIDs
+        name: query.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: string
-        name: query.requestTypeNames
+        name: query.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.requesterID
+        name: query.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.startAt
+        name: query.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - description: offset
@@ -1835,21 +3143,21 @@ paths:
       operationId: Requests.QueryEx2
       parameters:
       - in: query
-        name: query.creatorID
+        name: query.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.currentStatus
+        name: query.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.endAt
+        name: query.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
@@ -1859,73 +3167,73 @@ paths:
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isOverdued
+        name: query.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isSuspend
+        name: query.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.isUnclosed
+        name: query.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.nameLike
+        name: query.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.operatorID
+        name: query.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueEnd
+        name: query.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.overdueStart
+        name: query.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: integer
-        name: query.requestTypeIDs
+        name: query.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
         items:
           type: string
-        name: query.requestTypeNames
+        name: query.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.requesterID
+        name: query.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.startAt
+        name: query.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - description: offset
@@ -1954,91 +3262,91 @@ paths:
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.request.creatorID
+        name: query.request.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.currentStatus
+        name: query.request.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.endAt
+        name: query.request.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isOverdued
+        name: query.request.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isSuspend
+        name: query.request.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isUnclosed
+        name: query.request.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.nameLike
+        name: query.request.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.operatorID
+        name: query.request.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.overdueEnd
+        name: query.request.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.overdueStart
+        name: query.request.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
         items:
           type: integer
-        name: query.request.requestTypeIDs
+        name: query.request.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
         items:
           type: string
-        name: query.request.requestTypeNames
+        name: query.request.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.requesterID
+        name: query.request.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.startAt
+        name: query.request.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - description: offset
@@ -2067,91 +3375,91 @@ paths:
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.request.creatorID
+        name: query.request.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.currentStatus
+        name: query.request.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.endAt
+        name: query.request.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isOverdued
+        name: query.request.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isSuspend
+        name: query.request.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isUnclosed
+        name: query.request.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.nameLike
+        name: query.request.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.operatorID
+        name: query.request.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.overdueEnd
+        name: query.request.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.overdueStart
+        name: query.request.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
         items:
           type: integer
-        name: query.request.requestTypeIDs
+        name: query.request.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
         items:
           type: string
-        name: query.request.requestTypeNames
+        name: query.request.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.requesterID
+        name: query.request.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.startAt
+        name: query.request.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - description: offset
@@ -2180,91 +3488,91 @@ paths:
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.request.creatorID
+        name: query.request.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.currentStatus
+        name: query.request.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.endAt
+        name: query.request.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isOverdued
+        name: query.request.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isSuspend
+        name: query.request.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isUnclosed
+        name: query.request.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.nameLike
+        name: query.request.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.operatorID
+        name: query.request.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.overdueEnd
+        name: query.request.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.overdueStart
+        name: query.request.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
         items:
           type: integer
-        name: query.request.requestTypeIDs
+        name: query.request.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
         items:
           type: string
-        name: query.request.requestTypeNames
+        name: query.request.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.requesterID
+        name: query.request.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.startAt
+        name: query.request.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - description: offset
@@ -2293,91 +3601,91 @@ paths:
         x-gogen-extend-prefix: query.
         x-gogen-extend-struct: query
       - in: query
-        name: query.request.creatorID
+        name: query.request.creator_id
         type: integer
-        x-gogen-extend-field: creatorID
+        x-gogen-extend-field: creator_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.currentStatus
+        name: query.request.current_status
         type: integer
-        x-gogen-extend-field: currentStatus
+        x-gogen-extend-field: current_status
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.endAt
+        name: query.request.end_at
         type: string
-        x-gogen-extend-field: endAt
+        x-gogen-extend-field: end_at
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isOverdued
+        name: query.request.is_overdued
         type: boolean
-        x-gogen-extend-field: isOverdued
+        x-gogen-extend-field: is_overdued
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isSuspend
+        name: query.request.is_suspend
         type: boolean
-        x-gogen-extend-field: isSuspend
+        x-gogen-extend-field: is_suspend
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.isUnclosed
+        name: query.request.is_unclosed
         type: boolean
-        x-gogen-extend-field: isUnclosed
+        x-gogen-extend-field: is_unclosed
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.nameLike
+        name: query.request.name_like
         type: string
-        x-gogen-extend-field: nameLike
+        x-gogen-extend-field: name_like
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.operatorID
+        name: query.request.operator_id
         type: integer
-        x-gogen-extend-field: operatorID
+        x-gogen-extend-field: operator_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.overdueEnd
+        name: query.request.overdue_end
         type: string
-        x-gogen-extend-field: overdueEnd
+        x-gogen-extend-field: overdue_end
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.overdueStart
+        name: query.request.overdue_start
         type: string
-        x-gogen-extend-field: overdueStart
+        x-gogen-extend-field: overdue_start
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
         items:
           type: integer
-        name: query.request.requestTypeIDs
+        name: query.request.request_type_ids
         type: array
-        x-gogen-extend-field: requestTypeIDs
+        x-gogen-extend-field: request_type_ids
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
         items:
           type: string
-        name: query.request.requestTypeNames
+        name: query.request.request_type_names
         type: array
-        x-gogen-extend-field: requestTypeNames
+        x-gogen-extend-field: request_type_names
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.requesterID
+        name: query.request.requester_id
         type: integer
-        x-gogen-extend-field: requesterID
+        x-gogen-extend-field: requester_id
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - in: query
-        name: query.request.startAt
+        name: query.request.start_at
         type: string
-        x-gogen-extend-field: startAt
+        x-gogen-extend-field: start_at
         x-gogen-extend-prefix: query.request.
         x-gogen-extend-struct: query.request
       - description: offset
@@ -2404,35 +3712,35 @@ paths:
         name: id
         type: integer
       - in: query
-        name: params.exArg
+        name: query.exArg
         type: string
         x-gogen-extend-field: exArg
-        x-gogen-extend-prefix: params.
-        x-gogen-extend-struct: params
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: params.sub1.a1
+        name: query.sub1.a1
         type: string
         x-gogen-extend-field: a1
-        x-gogen-extend-prefix: params.sub1.
-        x-gogen-extend-struct: params.sub1
+        x-gogen-extend-prefix: query.sub1.
+        x-gogen-extend-struct: query.sub1
       - in: query
-        name: params.sub1.a2
+        name: query.sub1.a2
         type: string
         x-gogen-extend-field: a2
-        x-gogen-extend-prefix: params.sub1.
-        x-gogen-extend-struct: params.sub1
+        x-gogen-extend-prefix: query.sub1.
+        x-gogen-extend-struct: query.sub1
       - in: query
-        name: params.sub2.b1
+        name: query.sub2.b1
         type: string
         x-gogen-extend-field: b1
-        x-gogen-extend-prefix: params.sub2.
-        x-gogen-extend-struct: params.sub2
+        x-gogen-extend-prefix: query.sub2.
+        x-gogen-extend-struct: query.sub2
       - in: query
-        name: params.sub2.b2
+        name: query.sub2.b2
         type: string
         x-gogen-extend-field: b2
-        x-gogen-extend-prefix: params.sub2.
-        x-gogen-extend-struct: params.sub2
+        x-gogen-extend-prefix: query.sub2.
+        x-gogen-extend-struct: query.sub2
       produces:
       - application/json
       responses: {}
@@ -2449,35 +3757,35 @@ paths:
         name: id
         type: integer
       - in: query
-        name: params.exArg
+        name: query.exArg
         type: string
         x-gogen-extend-field: exArg
-        x-gogen-extend-prefix: params.
-        x-gogen-extend-struct: params
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: params.sub1.a1
+        name: query.sub1.a1
         type: string
         x-gogen-extend-field: a1
-        x-gogen-extend-prefix: params.sub1.
-        x-gogen-extend-struct: params.sub1
+        x-gogen-extend-prefix: query.sub1.
+        x-gogen-extend-struct: query.sub1
       - in: query
-        name: params.sub1.a2
+        name: query.sub1.a2
         type: string
         x-gogen-extend-field: a2
-        x-gogen-extend-prefix: params.sub1.
-        x-gogen-extend-struct: params.sub1
+        x-gogen-extend-prefix: query.sub1.
+        x-gogen-extend-struct: query.sub1
       - in: query
-        name: params.sub2.b1
+        name: query.sub2.b1
         type: string
         x-gogen-extend-field: b1
-        x-gogen-extend-prefix: params.sub2.
-        x-gogen-extend-struct: params.sub2
+        x-gogen-extend-prefix: query.sub2.
+        x-gogen-extend-struct: query.sub2
       - in: query
-        name: params.sub2.b2
+        name: query.sub2.b2
         type: string
         x-gogen-extend-field: b2
-        x-gogen-extend-prefix: params.sub2.
-        x-gogen-extend-struct: params.sub2
+        x-gogen-extend-prefix: query.sub2.
+        x-gogen-extend-struct: query.sub2
       produces:
       - application/json
       responses: {}
@@ -2494,35 +3802,35 @@ paths:
         name: id
         type: integer
       - in: query
-        name: params.exArg
+        name: query.exArg
         type: string
         x-gogen-extend-field: exArg
-        x-gogen-extend-prefix: params.
-        x-gogen-extend-struct: params
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: params.sub1.a1
+        name: query.sub1.a1
         type: string
         x-gogen-extend-field: a1
-        x-gogen-extend-prefix: params.sub1.
-        x-gogen-extend-struct: params.sub1
+        x-gogen-extend-prefix: query.sub1.
+        x-gogen-extend-struct: query.sub1
       - in: query
-        name: params.sub1.a2
+        name: query.sub1.a2
         type: string
         x-gogen-extend-field: a2
-        x-gogen-extend-prefix: params.sub1.
-        x-gogen-extend-struct: params.sub1
+        x-gogen-extend-prefix: query.sub1.
+        x-gogen-extend-struct: query.sub1
       - in: query
-        name: params.sub2.b1
+        name: query.sub2.b1
         type: string
         x-gogen-extend-field: b1
-        x-gogen-extend-prefix: params.sub2.
-        x-gogen-extend-struct: params.sub2
+        x-gogen-extend-prefix: query.sub2.
+        x-gogen-extend-struct: query.sub2
       - in: query
-        name: params.sub2.b2
+        name: query.sub2.b2
         type: string
         x-gogen-extend-field: b2
-        x-gogen-extend-prefix: params.sub2.
-        x-gogen-extend-struct: params.sub2
+        x-gogen-extend-prefix: query.sub2.
+        x-gogen-extend-struct: query.sub2
       produces:
       - application/json
       responses: {}
@@ -2539,35 +3847,35 @@ paths:
         name: id
         type: integer
       - in: query
-        name: params.exArg
+        name: query.exArg
         type: string
         x-gogen-extend-field: exArg
-        x-gogen-extend-prefix: params.
-        x-gogen-extend-struct: params
+        x-gogen-extend-prefix: query.
+        x-gogen-extend-struct: query
       - in: query
-        name: params.sub1.a1
+        name: query.sub1.a1
         type: string
         x-gogen-extend-field: a1
-        x-gogen-extend-prefix: params.sub1.
-        x-gogen-extend-struct: params.sub1
+        x-gogen-extend-prefix: query.sub1.
+        x-gogen-extend-struct: query.sub1
       - in: query
-        name: params.sub1.a2
+        name: query.sub1.a2
         type: string
         x-gogen-extend-field: a2
-        x-gogen-extend-prefix: params.sub1.
-        x-gogen-extend-struct: params.sub1
+        x-gogen-extend-prefix: query.sub1.
+        x-gogen-extend-struct: query.sub1
       - in: query
-        name: params.sub2.b1
+        name: query.sub2.b1
         type: string
         x-gogen-extend-field: b1
-        x-gogen-extend-prefix: params.sub2.
-        x-gogen-extend-struct: params.sub2
+        x-gogen-extend-prefix: query.sub2.
+        x-gogen-extend-struct: query.sub2
       - in: query
-        name: params.sub2.b2
+        name: query.sub2.b2
         type: string
         x-gogen-extend-field: b2
-        x-gogen-extend-prefix: params.sub2.
-        x-gogen-extend-struct: params.sub2
+        x-gogen-extend-prefix: query.sub2.
+        x-gogen-extend-struct: query.sub2
       produces:
       - application/json
       responses: {}
@@ -2583,8 +3891,7 @@ paths:
         in: body
         name: params
         schema:
-          additionalProperties:
-            type: string
+          additionalProperties: true
           type: object
       - description: id
         in: path
@@ -2609,8 +3916,7 @@ paths:
         in: body
         name: params
         schema:
-          additionalProperties:
-            type: string
+          additionalProperties: true
           type: object
         x-gogen-entire-body: "true"
       produces:
@@ -2632,8 +3938,7 @@ paths:
         in: body
         name: params
         schema:
-          additionalProperties:
-            type: string
+          additionalProperties: true
           type: object
       produces:
       - application/json
@@ -2654,8 +3959,7 @@ paths:
         in: body
         name: params
         schema:
-          additionalProperties:
-            type: string
+          additionalProperties: true
           type: object
         x-gogen-entire-body: "true"
       produces:
@@ -2677,8 +3981,7 @@ paths:
         in: body
         name: params
         schema:
-          additionalProperties:
-            type: string
+          additionalProperties: true
           type: object
       produces:
       - application/json
@@ -2699,8 +4002,7 @@ paths:
         in: body
         name: params
         schema:
-          additionalProperties:
-            type: string
+          additionalProperties: true
           type: object
         x-gogen-entire-body: "true"
       produces:
@@ -2730,7 +4032,7 @@ paths:
       responses: {}
       summary: Set7ByID, dataType="map[string]string"
   /save/{a}:
-    get:
+    post:
       consumes:
       - application/json
       description: test save
@@ -2881,7 +4183,7 @@ paths:
       - application/json
       responses: {}
       summary: test by int key
-  /test_by_key/:key:
+  /test_by_key/{key}:
     get:
       consumes:
       - application/json
@@ -2914,7 +4216,7 @@ paths:
       - application/json
       responses: {}
       summary: test by str key
-  /test_by_strkey/:key:
+  /test_by_strkey/{key}:
     get:
       consumes:
       - application/json
@@ -2940,7 +4242,7 @@ paths:
       parameters:
       - description: Some ID
         format: int64
-        in: query
+        in: path
         name: id
         required: true
         type: integer
@@ -2993,7 +4295,7 @@ paths:
       parameters:
       - description: Some ID
         format: int64
-        in: query
+        in: path
         name: id
         required: true
         type: integer
@@ -3046,7 +4348,7 @@ paths:
       parameters:
       - description: Some ID
         format: int64
-        in: query
+        in: path
         name: id
         required: true
         type: integer
@@ -3093,7 +4395,7 @@ paths:
       parameters:
       - description: Some ID
         format: int64
-        in: query
+        in: path
         name: id
         required: true
         type: integer
@@ -3141,6 +4443,23 @@ paths:
       - description: Some ID
         format: int64
         in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: test by query
+  /test64/{id}:
+    get:
+      consumes:
+      - application/json
+      description: test by query
+      operationId: TestInt64Path
+      parameters:
+      - description: Some ID
+        format: int64
+        in: path
         name: id
         required: true
         type: integer

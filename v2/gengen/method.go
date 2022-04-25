@@ -6,9 +6,12 @@ import (
 	"io"
 	"strings"
 
+	"github.com/go-openapi/spec"
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
 	"github.com/swaggo/swag"
 )
+
+var specificParamName = "otherValues"
 
 type Method struct {
 	Method    *astutil.Method
@@ -34,22 +37,8 @@ func (method *Method) NoReturn() bool {
 	return false
 }
 
-func (method *Method) SearchSwaggerParameter(structargname, name string) int {
-	snakeCaseStructArgName := toSnakeCase(structargname)
-	foundIndex := -1
-	for idx := range method.Operation.Parameters {
-		localstructargname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-gogen-extend-struct")
-		localname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-gogen-extend-field")
-
-		// println("====", method.Method.Name, structargname, name, localstructargname, localname)
-		if strings.EqualFold(name, localname) &&
-			(strings.EqualFold(structargname, localstructargname) ||
-				strings.EqualFold(snakeCaseStructArgName, localstructargname)) {
-			foundIndex = idx
-			break
-		}
-	}
-	return foundIndex
+func (method *Method) SearchSwaggerParameter(structargname string, field *astutil.Field) int {
+	return searchStructFieldParam(method.Operation, structargname, field)
 }
 
 func (method *Method) collectBodyParams(plugin Plugin, params []Param) []int {
@@ -63,32 +52,104 @@ func (method *Method) collectBodyParams(plugin Plugin, params []Param) []int {
 	return result
 }
 
+
+func getWebParamName(parent *Param) string {
+	tagName := parent.WebParamName()
+	if tagName != "" {
+		return tagName
+	}
+
+	if parent.Parent != nil {
+		tagName = getWebParamName(parent.Parent)
+	}
+
+	if parent.Field != nil && parent.Field.IsAnonymous {
+		return tagName
+	}
+
+	if tagName == "" {
+		parentParameter := searchStructParam(parent.Method.Operation, parent.Param.Name)
+		if parentParameter != nil {
+			if isExtendInline(parentParameter) {
+			 	return ""
+			}
+			return parentParameter.Name
+		}
+
+		return toLowerCamelCase(parent.Param.Name)
+	}
+	return tagName + "." + toLowerCamelCase(parent.Param.Name)
+}
+
+func searchParam(operation *swag.Operation, paramName string) int {
+	for i := range operation.Parameters {
+		oname := operation.Parameters[i].Name
+		if strings.EqualFold(oname, paramName) {
+			return i
+		}
+	}
+
+	snakeParamName := toSnakeCase(paramName)
+	for i := range operation.Parameters {
+		oname := operation.Parameters[i].Name
+
+		if strings.EqualFold(oname, snakeParamName) {
+			return i
+		}
+	}
+	return -1
+}
+
+func searchStructParam(operation *swag.Operation, paramName string) *spec.Parameter {
+	snakeParamName := toSnakeCase(paramName)
+	for key, value := range operation.Extensions {
+		if !strings.HasPrefix(key, "x-gogen-param-") {
+			continue
+		}
+
+		structargname := strings.TrimPrefix(key, "x-gogen-param-")
+		if !strings.EqualFold(structargname, paramName) && 
+			!strings.EqualFold(structargname, snakeParamName) {
+			continue 
+		}
+
+		param, ok := value.(spec.Parameter)
+		if ok {
+			return &param
+		}
+	}
+	return nil
+}
+
+func searchStructFieldParam(operation *swag.Operation, structargname string, field *astutil.Field) int {
+	name := field.Name
+	jsonName := field.Name
+	if s, _ := getTagValue(field, "json"); s != "" {
+		jsonName = s
+	}
+
+	snakeCaseStructArgName := toSnakeCase(structargname)
+	for idx := range operation.Parameters {
+		localstructargname, _ := operation.Parameters[idx].Extensions.GetString("x-gogen-extend-struct")
+		localname, _ := operation.Parameters[idx].Extensions.GetString("x-gogen-extend-field")
+
+		// fmt.Println("====",operation.Parameters[idx].Name, "|", localstructargname, "|", localname, "|", structargname, "|", name)
+		if (strings.EqualFold(name, localname) || 
+			strings.EqualFold(jsonName, localname)) &&
+			(strings.EqualFold(structargname, localstructargname) ||
+				strings.EqualFold(snakeCaseStructArgName, localstructargname)) {
+			return idx
+		}
+	}
+
+	return -1
+}
+
 func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 	var results []Param
 	for idx := range method.Method.Params.List {
-
-		foundIndex := -1
-		for i := range method.Operation.Parameters {
-			oname := method.Operation.Parameters[i].Name
-			pname := method.Method.Params.List[idx].Name
-			if strings.EqualFold(oname, pname) {
-				foundIndex = i
-				break
-			}
-		}
-
-		if foundIndex < 0 {
-			for i := range method.Operation.Parameters {
-				oname := method.Operation.Parameters[i].Name
-				pname := toSnakeCase(method.Method.Params.List[idx].Name)
-
-				if strings.EqualFold(oname, pname) {
-					foundIndex = i
-					break
-				}
-			}
-		}
-
+		paramName := method.Method.Params.List[idx].Name
+		foundIndex := searchParam(method.Operation, paramName)
 		if foundIndex >= 0 {
 			results = append(results, Param{
 				Method: method,
@@ -98,31 +159,13 @@ func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 			continue
 		}
 
-		for i := range method.Operation.Parameters {
-			structargname, _ := method.Operation.Parameters[i].Extensions.GetString("x-gogen-extend-struct")
-			pname := method.Method.Params.List[idx].Name
-
-			if strings.EqualFold(structargname, pname) {
-				foundIndex = i
-				break
-			}
-
-			pname = toSnakeCase(pname)
-			if strings.EqualFold(structargname, pname) {
-				foundIndex = i
-				break
-			}
-		}
-
-		if foundIndex >= 0 {
+		if st := searchStructParam(method.Operation, paramName); st != nil {
 			results = append(results, Param{
 				Method: method,
 				Param:  &method.Method.Params.List[idx],
 			})
 			continue
 		}
-
-		// fmt.Println(method.Method.Name, method.Method.Params.List[idx].Name)
 
 		if method.Method.Params.List[idx].Type().ToLiteral() == "map[string]string" {
 			results = append(results, Param{
@@ -148,6 +191,7 @@ func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
 	return results, nil
 }
 
+
 func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 	params, err := method.GetParams(plugin)
 	if err != nil {
@@ -156,11 +200,13 @@ func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 
 	/// 输出参数解析
 	for idx := range params {
-		if params[idx].Option.In == "body" {
+		if params[idx].Option.In == "body" || 
+		params[idx].Option.In == "formData" ||
+		params[idx].Option.In == "header" {
 			continue
 		}
 
-		if params[idx].Param.Name == "otherValues" {
+		if params[idx].Param.Name == specificParamName {
 			if params[idx].Type().ToLiteral() == "map[string]string" {
 				err := params[idx].renderMapWithAnonymous(out, plugin, params, "map[string]string", "[len(values)-1]")
 				if err != nil {
@@ -193,9 +239,15 @@ func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
 	return method.renderInvokeAndReturn(plugin, out, params)
 }
 
-func isEntire(param *Param) bool {
-	s, _ := param.Option.Extensions.GetString("x-gogen-entire-body")
+func isExtendEntire(param *spec.Parameter) bool {
+	s, _ := param.Extensions.GetString("x-gogen-entire-body")
 	return strings.ToLower(s) == "true"
+}
+
+
+func isExtendInline(param *spec.Parameter) bool {
+	s, _ := param.Extensions.GetString("x-gogen-extend")
+	return strings.ToLower(s) == "inline"
 }
 
 func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Param, list []int) error {
@@ -217,8 +269,7 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 	}
 
 	varName := params[list[0]].Param.Name
-	if len(list) == 1 && isEntire(&params[list[0]]) {
-
+	if len(list) == 1 && isExtendEntire(&params[list[0]].Option) {
 		if s, ok := plugin.TypeInContext(params[list[0]].Type().ToLiteral()); ok {
 			params[list[0]].goArgumentLiteral = s
 			return nil

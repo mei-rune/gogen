@@ -59,7 +59,6 @@ type Plugin interface {
 	RenderReturnError(out io.Writer, method *Method, errCode, err string) error
 	RenderReturnEmpty(out io.Writer, method *Method) error
 
-
 	GetBodyErrorText(method *Method, bodyName, err string) string
 	GetCastErrorText(param *Param, err, value string) string
 }
@@ -118,14 +117,13 @@ func hasQuery(param Param) bool {
 		return false
 	}
 	for idx := range params {
-		if params[idx].Option.In == "query" || 
+		if params[idx].Option.In == "query" ||
 			(params[idx].Option.In == "" && hasQuery(params[idx])) {
 			return true
 		}
 	}
 	return false
 }
-
 
 func hasQueryArray(param Param) bool {
 	typ := param.Type()
@@ -140,7 +138,7 @@ func hasQueryArray(param Param) bool {
 		return false
 	}
 	for idx := range params {
-		if (params[idx].Option.In == "query" && params[idx].Option.SimpleSchema.Type == swag.ARRAY) || 
+		if (params[idx].Option.In == "query" && params[idx].Option.SimpleSchema.Type == swag.ARRAY) ||
 			(params[idx].Option.In == "" && hasQueryArray(params[idx])) {
 			return true
 		}
