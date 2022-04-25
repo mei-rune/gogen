@@ -15,25 +15,29 @@ func usage() {
 }
 
 func main() {
+	flag.Usage = usage
+	flag.Parse()
+	args := flag.Args()
+	if len(args) == 0 {
+		usage()
+		return
+	}
 
-	// var (
-	// 	outdirrel = flag.String("target-dir", ".", "base directory to emit into")
-	// )
+	var gen interface {
+		Flags(*flag.FlagSet) *flag.FlagSet
+		Run([]string) error
+	}
+	switch args[0] {
+	case "server":
+		gen = &gengen.ServerGenerator{}
+	case "client":
+		gen = &gengen.ClientGenerator{}
+	default:
+		usage()
+		return
+	}
 
-	// flag.Usage = usage
-	// flag.Parse()
-	// args := flag.Args()
-	// if len(args) == 0 {
-	// 	usage()
-	// 	return
-	// }
-
-	// fset := flag.NewFlagSet(args[0], flag.ExitOnError)
-
-	fset := flag.CommandLine
-	args := os.Args
-
-	var gen = &gengen.Generator{}
+	fset := flag.NewFlagSet(args[0], flag.ExitOnError)
 	gen.Flags(fset)
 	err := fset.Parse(args[1:])
 	if err != nil {

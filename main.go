@@ -15,11 +15,6 @@ func usage() {
 }
 
 func main() {
-
-	// var (
-	// 	outdirrel = flag.String("target-dir", ".", "base directory to emit into")
-	// )
-
 	flag.Usage = usage
 	flag.Parse()
 	args := flag.Args()
