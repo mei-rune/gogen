@@ -94,10 +94,24 @@ func parseURL(rawurl string) ([]PathSegement, error) {
 }
 
 func isBultinType(name string) bool {
-	return "net.IP" == name ||
-		"net.HardwareAddr" == name ||
-		"time.Time" == name ||
-		"time.Duration" == name
+	return isExceptedType(name, bultinTypes)
+}
+
+var bultinTypes = []string{
+	"net.IP",
+		"net.HardwareAddr",
+		"time.Time",
+		"time.Duration",
+}
+
+func isExceptedType(name string, anyTypes []string) bool {
+	for _, anyType := range anyTypes {
+		if anyType == name {
+			return true
+		}
+	}
+
+	return false
 }
 
 // func isUnderlyingBasicType(file *astutil.File, elmType ast.Expr) bool {

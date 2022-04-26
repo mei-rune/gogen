@@ -225,6 +225,17 @@ func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.
 	return nil
 }
 
+func getResultCount(method *Method) int {
+	resultCount := 0
+	for _, result := range method.Method.Results.List {
+		if result.Type().IsErrorType() {
+			continue
+		}
+		resultCount++
+	}
+	return resultCount
+}
+
 func getResultName(method *Method) string {
 	resultName := "result"
 	isNameExist := func(name string) bool {
@@ -251,7 +262,7 @@ func getResultName(method *Method) string {
 	panic("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 }
 
-func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName string, method *Method) error {
+func (cmd *ClientGenerator) genInterfaceMethodSignature(out io.Writer, recvClassName string, method *Method) error {
 	io.WriteString(out, "\r\n\r\nfunc (client "+recvClassName+") "+method.Method.Name+
 		"(ctx "+cmd.config.ContextClassName)
 
@@ -273,15 +284,12 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 	}
 	io.WriteString(out, " error) {")
 
-	resultName := getResultName(method)
+	return nil
+}
 
-	resultCount := 0
-	for _, result := range method.Method.Results.List {
-		if result.Type().IsErrorType() {
-			continue
-		}
-		resultCount++
-	}
+func (cmd *ClientGenerator) genInterfaceMethodReturnVars(out io.Writer, recvClassName string, method *Method) error {
+	resultName := getResultName(method)
+	resultCount := getResultCount(method)
 
 	switch resultCount {
 	case 0:
@@ -326,6 +334,18 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 
 	if resultCount > 0 {
 		io.WriteString(out, "\r\n")
+	}
+
+	return nil
+}
+
+func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName string, method *Method) error {
+	if err := cmd.genInterfaceMethodSignature(out, recvClassName, method); err != nil {
+		return err
+	}
+
+	if err := cmd.genInterfaceMethodReturnVars(out, recvClassName, method); err != nil {
+		return err
 	}
 
 	io.WriteString(out, "\r\n\trequest := ")
@@ -421,6 +441,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 		}
 	}
 
+	resultCount := getResultCount(method)
 	if resultCount > 0 {
 		if needAssignment {
 			io.WriteString(out, "\r\nrequest = request.")
@@ -428,12 +449,18 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			io.WriteString(out, ".\r\n")
 		}
 
+		resultName := getResultName(method)
 		if cmd.config.HasWrapper {
 			io.WriteString(out, "Result(&"+resultName+"Wrap)")
 		} else {
 			io.WriteString(out, "Result(&"+resultName+")")
 		}
 	}
+	return cmd.genInterfaceMethodInvokeAndReturn(out , recvClassName, method)
+}
+
+func (cmd *ClientGenerator) genInterfaceMethodInvokeAndReturn(out io.Writer, recvClassName string, method *Method) error {
+	resultCount := getResultCount(method)
 
 	if resultCount == 0 && !cmd.config.HasWrapper {
 		io.WriteString(out, "\r\n")
@@ -444,6 +471,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 	}
 	io.WriteString(out, "request."+cmd.config.RouteFunc(method)+"(ctx)")
 
+	resultName := getResultName(method)
 	if resultCount == 0 {
 		if cmd.config.HasWrapper {
 			io.WriteString(out, "\r\n\tif err != nil {")
