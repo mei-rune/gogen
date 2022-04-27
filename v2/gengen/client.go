@@ -262,6 +262,13 @@ func getResultName(method *Method) string {
 	panic("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
 }
 
+func formatParamName(name string) string {
+	if name == "request" {
+		return "_request"
+	}
+	return name
+}
+
 func (cmd *ClientGenerator) genInterfaceMethodSignature(out io.Writer, recvClassName string, method *Method) error {
 	io.WriteString(out, "\r\n\r\nfunc (client "+recvClassName+") "+method.Method.Name+
 		"(ctx "+cmd.config.ContextClassName)
@@ -270,7 +277,7 @@ func (cmd *ClientGenerator) genInterfaceMethodSignature(out io.Writer, recvClass
 		if param.Type().IsContextType() {
 			continue
 		}
-		io.WriteString(out, ", "+param.Name+" "+param.Type().ToLiteral())
+		io.WriteString(out, ", "+formatParamName(param.Name)+" "+param.Type().ToLiteral())
 	}
 	io.WriteString(out, ") (")
 
@@ -391,6 +398,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			if isExtendInline(parent) {
 				webPrefix = ""
 			}
+			param.Name = formatParamName(param.Name)
 			err := cmd.genInterfaceMethodStructParam(out, method, &param, webPrefix, &needAssignment)
 			if err != nil {
 				return err
@@ -415,6 +423,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			continue
 		}
 
+		param.Name = formatParamName(param.Name)
 		err := cmd.genInterfaceMethodParam(out, method, &param, &option, &needAssignment)
 		if err != nil {
 			return err
@@ -431,11 +440,11 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 		typeStr := inBody[0].Type().ToLiteral()
 
 		if len(inBody) == 1 && (isExtendEntire(&inParameters[0]) || typeStr == "io.Reader") {
-			io.WriteString(out, "SetBody("+inBody[0].Name+")")
+			io.WriteString(out, "SetBody("+formatParamName(inBody[0].Name)+")")
 		} else {
 			io.WriteString(out, "SetBody(map[string]interface{}{")
 			for idx, param := range inBody {
-				io.WriteString(out, "\r\n\t\""+inParameters[idx].Name+"\": "+param.Name+",")
+				io.WriteString(out, "\r\n\t\""+inParameters[idx].Name+"\": "+formatParamName(param.Name)+",")
 			}
 			io.WriteString(out, "\r\n})")
 		}
@@ -456,7 +465,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			io.WriteString(out, "Result(&"+resultName+")")
 		}
 	}
-	return cmd.genInterfaceMethodInvokeAndReturn(out , recvClassName, method)
+	return cmd.genInterfaceMethodInvokeAndReturn(out, recvClassName, method)
 }
 
 func (cmd *ClientGenerator) genInterfaceMethodInvokeAndReturn(out io.Writer, recvClassName string, method *Method) error {
@@ -561,7 +570,6 @@ func (cmd *ClientGenerator) genInterfaceMethodInvokeAndReturn(out io.Writer, rec
 func (cmd *ClientGenerator) genInterfaceMethodSpecificParam(out io.Writer, method *Method, param *astutil.Param, needAssignment *bool) error {
 	typeStr := param.Type().ToLiteral()
 
-
 	if *needAssignment {
 		io.WriteString(out, "\r\nrequest = request.")
 	} else {
@@ -572,20 +580,20 @@ func (cmd *ClientGenerator) genInterfaceMethodSpecificParam(out io.Writer, metho
 	switch typeStr {
 	case "map[string]string":
 		if param.Name == specificParamName {
-			io.WriteString(out, "SetParamValues1("+param.Name+")")
+			io.WriteString(out, "SetParamValues1("+formatParamName(param.Name)+")")
 		} else {
-			io.WriteString(out, "SetParamValuesWithPrefix(\""+toLowerCamelCase(param.Name)+".\", "+param.Name+")")
+			io.WriteString(out, "SetParamValuesWithPrefix(\""+toLowerCamelCase(param.Name)+".\", "+formatParamName(param.Name)+")")
 		}
 		return nil
 	case "url.Values":
 		if param.Name == specificParamName {
-			io.WriteString(out, "SetParams("+param.Name+")")
+			io.WriteString(out, "SetParams("+formatParamName(param.Name)+")")
 		} else {
-			io.WriteString(out, "SetParamsWithPrefix(\""+ toLowerCamelCase(param.Name)+".\", "+param.Name+")")
+			io.WriteString(out, "SetParamsWithPrefix(\""+toLowerCamelCase(param.Name)+".\", "+formatParamName(param.Name)+")")
 		}
 		return nil
 	default:
-		return errors.New("'"+param.Name+"' is unsupported type - '"+typeStr+"'")
+		return errors.New("'" + param.Name + "' is unsupported type - '" + typeStr + "'")
 	}
 }
 
@@ -618,7 +626,7 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 		if !fields[idx].IsAnonymous {
 			jsonName, _ = getTagValue(&fields[idx], "json")
 			if jsonName == "" {
-				 jsonName = toSnakeCase(fields[idx].Name)
+				jsonName = toSnakeCase(fields[idx].Name)
 			}
 			if webPrefix == "" {
 				webParamName = jsonName
@@ -630,7 +638,7 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 		if goFieldName == "" {
 			goFieldName = fields[idx].Name
 		} else {
-			goFieldName = param.Name +"."+fields[idx].Name
+			goFieldName = param.Name + "." + fields[idx].Name
 		}
 
 		switch fields[idx].Type().ToLiteral() {
@@ -679,7 +687,6 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 				io.WriteString(out, "\r\n\tif "+param.Name+"."+fields[idx].Name+" != nil {")
 			}
 
-
 			if fields[idx].IsAnonymous {
 				err = cmd.genInterfaceMethodStructParam(out, method, &subparam, webParamName, needAssignment)
 			} else {
@@ -724,7 +731,7 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 	if strings.HasPrefix(typeName, "*http.Request") {
 		return nil
 	}
-  if strings.HasPrefix(typeName, "*") {
+	if strings.HasPrefix(typeName, "*") {
 		io.WriteString(out, "\r\nif "+param.Name+" != nil {")
 		io.WriteString(out, "\r\n\trequest = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
 		io.WriteString(out, "\r\n}")
@@ -821,7 +828,7 @@ func (c *ClientConfig) GetPath(method *Method) string {
 	var replace = ReplaceFunc(func(segement PathSegement) string {
 		for idx := range method.Method.Params.List {
 			if strings.EqualFold(method.Method.Params.List[idx].Name, segement.Value) ||
-			  strings.EqualFold(toSnakeCase(method.Method.Params.List[idx].Name), segement.Value) {
+				strings.EqualFold(toSnakeCase(method.Method.Params.List[idx].Name), segement.Value) {
 				return "\" + " + convertToStringLiteral(&method.Method.Params.List[idx], "", c.ConvertNS, c.TimeFormat) + " + \""
 			}
 		}
@@ -912,7 +919,10 @@ retry:
 				isFirst = false
 				needWrap = true
 				typeStr = underlying.ToLiteral()
-				goto retry
+
+				if typeStr != "string" {
+					goto retry
+				}
 			}
 		}
 

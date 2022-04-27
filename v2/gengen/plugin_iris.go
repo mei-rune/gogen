@@ -15,7 +15,7 @@ var _ Plugin = &irisPlugin{}
 
 type irisPlugin struct{}
 
-func (iris *irisPlugin) TypeInContext(name string) (string, bool) {
+func (iris *irisPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "ctx.Request().URL.Query()",
 		"*http.Request":       "ctx.Request()",
@@ -25,11 +25,11 @@ func (iris *irisPlugin) TypeInContext(name string) (string, bool) {
 		"context.Context":     "ctx.Request().Context()",
 		"*iris.Context":       "ctx",
 	}
-	s, ok := args[name]
+	s, ok := args[typeStr]
 	return s, ok
 }
-func (iris *irisPlugin) Invocations() []Invocation {
-	return []Invocation{
+func (iris *irisPlugin) Functions() []Function {
+	return []Function{
 		{
 			Required:    true,
 			Format:      "ctx.Params().GetBool(\"%s\")",
@@ -72,7 +72,7 @@ func (iris *irisPlugin) Invocations() []Invocation {
 		},
 		{
 			Required:    false,
-			Format:      "queryParams[\"%s\"]",
+			Format:      "ctx.URLParamSlice(\"%s\")",
 			IsArray:     true,
 			ResultType:  "string",
 			ResultError: false,
@@ -104,8 +104,8 @@ func (iris *irisPlugin) GetBodyErrorText(method *Method, bodyName, err string) s
 	return getBodyErrorText(method, bodyName, err)
 }
 
-func (iris *irisPlugin) GetCastErrorText(param *Param, err, value string) string {
-	return getCastErrorText(param, err, value)
+func (iris *irisPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+	return getCastErrorText(method, accessFields, err, value)
 }
 
 func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
@@ -118,18 +118,18 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	}
 
 	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx iris.Context) {")
-	params, err := method.GetParams(iris)
-	if err != nil {
-		return err
-	}
-	for _, param := range params {
-
-		if (param.Option.In == "query" && param.Option.SimpleSchema.Type == swag.ARRAY) ||
-			(param.Option.In == "" && hasQueryArray(param)) {
-			_, err = io.WriteString(out, "\r\n\tqueryParams := ctx.Request().URL.Query()")
-			break
-		}
-	}
+	// TODO: XXXX
+	// params, err := method.GetParams(iris)
+	// if err != nil {
+	// 	return err
+	// }
+	// for _, param := range params {
+	// 	if (param.Option.In == "query" && param.Option.SimpleSchema.Type == swag.ARRAY) ||
+	// 		(param.Option.In == "" && hasQueryArray(param)) {
+	// 		_, err = io.WriteString(out, "\r\n\tqueryParams := ctx.Request().URL.Query()")
+	// 		break
+	// 	}
+	// }
 	return err
 }
 func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error {

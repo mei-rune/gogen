@@ -3,6 +3,7 @@ package gengen
 import (
 	"errors"
 	"fmt"
+	"go/ast"
 	"io"
 	"strings"
 
@@ -13,11 +14,36 @@ import (
 
 var specificParamName = "otherValues"
 
+func resolveMethods(swaggerParser *swag.Parser, ts *astutil.TypeSpec) ([]*Method, error) {
+	var methods []*Method
+	list := ts.Methods()
+	for idx, method := range list {
+		var doc = method.Doc()
+		if doc == nil || len(doc.List) == 0 {
+			continue
+		}
+		operation := swag.NewOperation(swaggerParser)
+		for _, comment := range doc.List {
+			err := operation.ParseComment(comment.Text, ts.File.AstFile)
+			if err != nil {
+				return nil, fmt.Errorf("ParseComment error in file %s :%+v", ts.File.Filename, err)
+			}
+		}
+
+		methods = append(methods, &Method{
+			Method:    &list[idx],
+			Operation: operation,
+		})
+	}
+	return methods, nil
+}
+
 type Method struct {
 	Method    *astutil.Method
 	Operation *swag.Operation
 
-	errorDeclared bool
+	errorDeclared      bool
+	goArgumentLiterals []string
 }
 
 func (method *Method) SetErrorDeclared() {
@@ -35,50 +61,6 @@ func (method *Method) FullName() string {
 func (method *Method) NoReturn() bool {
 	// TODO: implement it
 	return false
-}
-
-func (method *Method) SearchSwaggerParameter(structargname string, field *astutil.Field) int {
-	return searchStructFieldParam(method.Operation, structargname, field)
-}
-
-func (method *Method) collectBodyParams(plugin Plugin, params []Param) []int {
-	var result []int
-	for idx := range params {
-		if params[idx].Option.In == "body" ||
-			params[idx].Option.In == "formData" {
-			result = append(result, idx)
-		}
-	}
-	return result
-}
-
-
-func getWebParamName(parent *Param) string {
-	tagName := parent.WebParamName()
-	if tagName != "" {
-		return tagName
-	}
-
-	if parent.Parent != nil {
-		tagName = getWebParamName(parent.Parent)
-	}
-
-	if parent.Field != nil && parent.Field.IsAnonymous {
-		return tagName
-	}
-
-	if tagName == "" {
-		parentParameter := searchStructParam(parent.Method.Operation, parent.Param.Name)
-		if parentParameter != nil {
-			if isExtendInline(parentParameter) {
-			 	return ""
-			}
-			return parentParameter.Name
-		}
-
-		return toLowerCamelCase(parent.Param.Name)
-	}
-	return tagName + "." + toLowerCamelCase(parent.Param.Name)
 }
 
 func searchParam(operation *swag.Operation, paramName string) int {
@@ -108,9 +90,9 @@ func searchStructParam(operation *swag.Operation, paramName string) *spec.Parame
 		}
 
 		structargname := strings.TrimPrefix(key, "x-gogen-param-")
-		if !strings.EqualFold(structargname, paramName) && 
+		if !strings.EqualFold(structargname, paramName) &&
 			!strings.EqualFold(structargname, snakeParamName) {
-			continue 
+			continue
 		}
 
 		param, ok := value.(spec.Parameter)
@@ -134,7 +116,7 @@ func searchStructFieldParam(operation *swag.Operation, structargname string, fie
 		localname, _ := operation.Parameters[idx].Extensions.GetString("x-gogen-extend-field")
 
 		// fmt.Println("====",operation.Parameters[idx].Name, "|", localstructargname, "|", localname, "|", structargname, "|", name)
-		if (strings.EqualFold(name, localname) || 
+		if (strings.EqualFold(name, localname) ||
 			strings.EqualFold(jsonName, localname)) &&
 			(strings.EqualFold(structargname, localstructargname) ||
 				strings.EqualFold(snakeCaseStructArgName, localstructargname)) {
@@ -145,138 +127,1406 @@ func searchStructFieldParam(operation *swag.Operation, structargname string, fie
 	return -1
 }
 
-func (method *Method) GetParams(plugin Plugin) ([]Param, error) {
-	var results []Param
+type Field struct {
+	*astutil.Field
+
+	isInitialized bool
+	isFirstField  bool
+}
+
+type Param struct {
+	*astutil.Param
+	option *spec.Parameter
+	index  int
+
+	isInitialized bool
+}
+
+type BodyParam struct {
+	Param  *astutil.Param
+	Option *spec.Parameter
+	Index  int
+}
+
+func defaultValue(resultType string, param *Param, parents []*Field) string {
+	var value interface{}
+	if len(parents) == 0 {
+		// FIXME: get default value
+	} else {
+		value = param.option.Default
+	}
+	if value != nil {
+		if resultType == "string" {
+			return "\"" + fmt.Sprint(value) + "\""
+		}
+		return fmt.Sprint(value)
+	}
+	if resultType == "string" {
+		return "\"\""
+	}
+	return "0"
+}
+
+func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
+	method.goArgumentLiterals = make([]string, len(method.Method.Params.List))
+
+	var inBody []BodyParam
+
 	for idx := range method.Method.Params.List {
-		paramName := method.Method.Params.List[idx].Name
-		foundIndex := searchParam(method.Operation, paramName)
+		param := &method.Method.Params.List[idx]
+
+		paramType := param.Type()
+		if s, ok := plugin.GetSpecificTypeArgument(paramType.ToLiteral()); ok {
+			method.goArgumentLiterals[idx] = s
+			continue
+		}
+
+		foundIndex := searchParam(method.Operation, param.Name)
 		if foundIndex >= 0 {
-			results = append(results, Param{
-				Method: method,
-				Param:  &method.Method.Params.List[idx],
-				Option: method.Operation.Parameters[foundIndex],
-			})
+			if method.Operation.Parameters[foundIndex].In == "body" ||
+				method.Operation.Parameters[foundIndex].In == "formData" {
+				method.goArgumentLiterals[idx] = ""
+
+				inBody = append(inBody, BodyParam{
+					Param:  param,
+					Option: &method.Operation.Parameters[foundIndex],
+					Index:  idx,
+				})
+				continue
+			}
+		}
+
+		switch paramType.ToLiteral() {
+		case "map[string]string":
+			method.goArgumentLiterals[idx] = param.Name
+
+			var option *spec.Parameter
+			if foundIndex >= 0 {
+				option = &method.Operation.Parameters[foundIndex]
+			}
+			io.WriteString(out, "\r\n")
+			err := method.renderMapParam(plugin,
+				out,
+				&Param{Param: param, option: option, index: idx},
+				nil,
+				"map[string]string",
+				"[len(values)-1]")
+			if err != nil {
+				return err
+			}
+			continue
+		case "url.Values":
+			method.goArgumentLiterals[idx] = param.Name
+
+			var option *spec.Parameter
+			if foundIndex >= 0 {
+				option = &method.Operation.Parameters[foundIndex]
+			}
+			io.WriteString(out, "\r\n")
+			err := method.renderMapParam(plugin,
+				out,
+				&Param{Param: param, option: option, index: idx},
+				nil,
+				"url.Values",
+				"")
+			if err != nil {
+				return err
+			}
 			continue
 		}
 
-		if st := searchStructParam(method.Operation, paramName); st != nil {
-			results = append(results, Param{
-				Method: method,
-				Param:  &method.Method.Params.List[idx],
-			})
+		if foundIndex >= 0 {
+			method.goArgumentLiterals[idx] = param.Name
+
+			option := &method.Operation.Parameters[foundIndex]
+			err := method.renderSimpleParam(plugin, out,
+				&Param{Param: param, option: option, index: idx})
+			if err != nil {
+				return err
+			}
+
 			continue
 		}
 
-		if method.Method.Params.List[idx].Type().ToLiteral() == "map[string]string" {
-			results = append(results, Param{
-				Method: method,
-				Param:  &method.Method.Params.List[idx],
-			})
+		if st := searchStructParam(method.Operation, param.Name); st != nil {
+			if st.In == "body" || st.In == "formData" {
+				method.goArgumentLiterals[idx] = ""
+
+				inBody = append(inBody, BodyParam{
+					Param:  param,
+					Option: st,
+					Index:  idx,
+				})
+				continue
+			}
+			method.goArgumentLiterals[idx] = param.Name
+
+			io.WriteString(out, "\r\n\tvar "+param.Name+" "+param.Type().ToLiteral())
+			err := method.renderStructParam(plugin, out,
+				&Param{Param: param, option: st, index: idx}, nil)
+			if err != nil {
+				return err
+			}
+
 			continue
 		}
 
-		if _, ok := plugin.TypeInContext(method.Method.Params.List[idx].Type().ToLiteral()); ok {
-			results = append(results, Param{
-				Method: method,
-				Param:  &method.Method.Params.List[idx],
-			})
-			continue
-		}
-
-		return nil, errors.New("param '" + method.Method.Params.List[idx].Name +
+		return errors.New("param '" + param.Name +
 			"' of '" + method.FullName() +
 			"' not found in the swagger annotations")
 	}
 
-	return results, nil
-}
-
-
-func (method *Method) renderImpl(plugin Plugin, out io.Writer) error {
-	params, err := method.GetParams(plugin)
-	if err != nil {
-		return err
-	}
-
-	/// 输出参数解析
-	for idx := range params {
-		if params[idx].Option.In == "body" || 
-		params[idx].Option.In == "formData" ||
-		params[idx].Option.In == "header" {
-			continue
-		}
-
-		if params[idx].Param.Name == specificParamName {
-			if params[idx].Type().ToLiteral() == "map[string]string" {
-				err := params[idx].renderMapWithAnonymous(out, plugin, params, "map[string]string", "[len(values)-1]")
-				if err != nil {
-					return err
-				}
-			}
-			if params[idx].Type().ToLiteral() == "url.Values" {
-				err := params[idx].renderMapWithAnonymous(out, plugin, params, "url.Values", "")
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		err := params[idx].RenderDeclareAndInit(plugin, out)
-		if err != nil {
-			return err
-		}
-	}
-
 	/// 输出 body 参数的初始化
-	list := method.collectBodyParams(plugin, params)
-	if len(list) > 0 {
-		err := method.renderBodyParams(plugin, out, params, list)
+	if len(inBody) > 0 {
+		err := method.renderBodyParams(plugin, out, inBody)
 		if err != nil {
 			return err
 		}
 	}
 
-	return method.renderInvokeAndReturn(plugin, out, params)
-}
-
-func isExtendEntire(param *spec.Parameter) bool {
-	s, _ := param.Extensions.GetString("x-gogen-entire-body")
-	return strings.ToLower(s) == "true"
+	return method.renderInvokeAndReturn(plugin, out)
 }
 
 
-func isExtendInline(param *spec.Parameter) bool {
-	s, _ := param.Extensions.GetString("x-gogen-extend")
-	return strings.ToLower(s) == "inline"
-}
-
-func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Param, list []int) error {
-	offset := 0
-	for curidx, idx := range list {
-		if s, ok := plugin.TypeInContext(params[idx].Type().ToLiteral()); ok {
-			params[idx].goArgumentLiteral = s
+func (method *Method) HasQueryParam() bool {
+	for idx := range method.Method.Params.List {
+		param := &method.Method.Params.List[idx]
+		if param.Type().IsContextType() {
 			continue
 		}
 
-		if offset != curidx {
-			list[offset] = list[curidx]
+		var option *spec.Parameter
+		foundIndex := searchParam(method.Operation, param.Name)
+		if foundIndex >= 0 {
+			if method.Operation.Parameters[foundIndex].In == "query" {
+				return true
+			}
+			continue
 		}
-		offset++
+		if option == nil {
+			option = searchStructParam(method.Operation, param.Name)
+			if option == nil {
+				continue
+			}
+			if option.In == "query" {
+				return true
+			}
+			continue
+		}
+
+		switch param.Type().ToLiteral() {
+		case "map[string]string":
+			return true
+		case "url.Values":
+			return true
+		}
 	}
-	list = list[:offset]
-	if len(list) == 0 {
+	return false
+}
+
+func (method *Method) getSiblingParamNames(expected []string) ([]SiblingName, error) {
+	var names []SiblingName
+
+	for idx := range method.Method.Params.List {
+		param := &method.Method.Params.List[idx]
+		if param.Type().IsContextType() {
+			continue
+		}
+
+		var option *spec.Parameter
+		foundIndex := searchParam(method.Operation, param.Name)
+		if foundIndex >= 0 {
+			option = &method.Operation.Parameters[foundIndex]
+		}
+		if option == nil {
+			option = searchStructParam(method.Operation, param.Name)
+			if option == nil {
+				continue
+			}
+		}
+		if isExtendInline(option) {
+			continue
+		}
+
+		for _, name := range expected {
+			if name == option.In {
+				isPrefix := isPrefixForType(param.Type())
+
+				names = append(names, SiblingName{
+					Name:     option.Name,
+					IsPrefix: isPrefix,
+				})
+				break
+			}
+		}
+	}
+
+	return names, nil
+}
+
+func isPrefixForType(typ astutil.Type) bool {
+	if t := typ; t.IsStructType() &&
+		!isExceptedType(t.ToLiteral(), bultinTypes) &&
+		!t.IsSqlNullableType() {
+		return true
+	} else if t = typ.PtrElemType(); t.IsValid() &&
+		t.IsStructType() &&
+		!isExceptedType(t.ToLiteral(), bultinTypes) &&
+		!t.IsSqlNullableType() {
+		return true
+	} else if s := typ.ToLiteral(); s == "map[string]string" ||
+		s == "url.Values" {
+		return true
+	}
+	return false
+}
+
+func getFieldSiblingNames(typ astutil.Type) ([]SiblingName, error) {
+	if t := typ.PtrElemType(); t.IsValid() {
+		typ = t
+	}
+	ts, err := typ.ToTypeSpec(true)
+	if err != nil {
+		return nil, errors.New("cannot convert '" + typ.ToLiteral() + "' to type spec: " + err.Error())
+	}
+	if ts.Struct == nil {
+		return nil, errors.New("type '" + typ.ToLiteral() + "' isnot struct")
+	}
+
+	var names []SiblingName
+
+	var fields = ts.Fields()
+	for _, f := range ts.Struct.Embedded {
+		fields = append(fields, f)
+	}
+	for idx := range fields {
+		var s, _ = getTagValue(&fields[idx], "swaggerignore")
+		if strings.ToLower(s) == "true" {
+			continue
+		}
+		isPrefix := isPrefixForType(fields[idx].Type())
+
+		s, _ = getTagValue(&fields[idx], "json")
+		if s == "" {
+			if fields[idx].IsAnonymous {
+				t := fields[idx].Type()
+				if a := t.PtrElemType(); a.IsValid() {
+					t = a
+				}
+
+				if t.IsStructType() &&
+					!isExceptedType(t.ToLiteral(), bultinTypes) &&
+					!t.IsSqlNullableType() {
+					results, err := getFieldSiblingNames(fields[idx].Type())
+					if err != nil {
+						return nil, err
+					}
+
+					for _, result := range results {
+						found := false
+						for idx := range names {
+							if names[idx].Name == result.Name {
+								found = true
+								break
+							}
+						}
+						if !found {
+							names = append(names, result)
+						}
+					}
+				}
+				continue
+			}
+
+			s = toSnakeCase(fields[idx].Name)
+		}
+		if isPrefix {
+			s = s + "."
+		}
+
+		found := false
+		for idx := range names {
+			if names[idx].Name == s {
+				found = true
+				break
+			}
+		}
+		if !found {
+			names = append(names, SiblingName{
+				Name:     s,
+				IsPrefix: isPrefix,
+			})
+		}
+	}
+	return names, nil
+}
+
+func (method *Method) renderStructParam(plugin Plugin, out io.Writer, param *Param, parents []*Field) error {
+	var typ astutil.Type
+	if len(parents) == 0 {
+		typ = param.Type()
+	} else {
+		typ = parents[len(parents)-1].Type()
+	}
+
+	if typ.IsPtrType() {
+		typ = typ.PtrElemType()
+	}
+
+	ts, err := typ.ToTypeSpec(true)
+	if err != nil {
+		return errors.New("param '" + GetGoVarName(param, parents, true) + "' of '" +
+			method.FullName() +
+			"' cannot convert to type spec: " + err.Error())
+	}
+
+	var fields = ts.Fields()
+	for _, f := range ts.Struct.Embedded {
+		fields = append(fields, f)
+	}
+	for idx := range fields {
+		var s, _ = getTagValue(&fields[idx], "swaggerignore")
+		if strings.ToLower(s) == "true" {
+			continue
+		}
+
+		fieldType := fields[idx].Type()
+		isPtrType := false
+		if t := fieldType.PtrElemType(); t.IsValid() {
+			isPtrType = true
+			fieldType = t
+		}
+		isNullableType := fieldType.IsSqlNullableType()
+
+		switch fieldType.ToLiteral() {
+		case "map[string]string":
+			io.WriteString(out, "\r\n")
+			err := method.renderMapParam(plugin, out, param,
+				append(parents, &Field{
+					Field:        &fields[idx],
+					isFirstField: idx == 0,
+				}), "map[string]string", "[len(values)-1]")
+			if err != nil {
+				return err
+			}
+			continue
+		case "url.Values":
+			io.WriteString(out, "\r\n")
+			err := method.renderMapParam(plugin, out, param,
+				append(parents, &Field{
+					Field:        &fields[idx],
+					isFirstField: idx == 0,
+				}), "url.Values", "")
+			if err != nil {
+				return err
+			}
+			continue
+		}
+
+		if fieldType.IsStructType() &&
+			!isNullableType &&
+			!isExceptedType(fieldType.ToLiteral(), bultinTypes) {
+			err = method.renderStructParam(plugin, out, param,
+				append(parents, &Field{
+					Field:        &fields[idx],
+					isFirstField: idx == 0,
+				}))
+			if err != nil {
+				return err
+			}
+			continue
+		}
+
+		optidx := searchStructFieldParam(method.Operation, GetGoVarName(param, parents, true), &fields[idx])
+		if optidx < 0 {
+			return errors.New("param '" + GetGoVarName(param, parents, true) + "." + fields[idx].Name +
+				"' of '" + method.FullName() +
+				"' not found in the swagger1 annotations")
+		}
+
+		if isNullableType {
+			if err := method.renderNullableParam(plugin, out, param,
+				append(parents, &Field{
+					Field:        &fields[idx],
+					isFirstField: idx == 0,
+				})); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if isPtrType {
+			if err := method.renderPtrTypeParam(plugin, out, param,
+				append(parents, &Field{
+					Field:        &fields[idx],
+					isFirstField: idx == 0,
+				})); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if err := method.renderPrimitiveTypeParam(plugin, out, param,
+			append(parents, &Field{
+				Field:        &fields[idx],
+				isFirstField: idx == 0,
+			})); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (method *Method) renderSimpleParam(plugin Plugin, out io.Writer, param *Param) error {
+	typ := param.Type()
+	isPtrType := false
+	if t := typ.PtrElemType(); t.IsValid() {
+		isPtrType = true
+		typ = t
+	}
+	isNullableType := typ.IsSqlNullableType()
+
+	if isNullableType {
+		if err := method.renderNullableParam(plugin, out, param, nil); err != nil {
+			return err
+		}
+
 		return nil
 	}
 
-	varName := params[list[0]].Param.Name
-	if len(list) == 1 && isExtendEntire(&params[list[0]].Option) {
-		if s, ok := plugin.TypeInContext(params[list[0]].Type().ToLiteral()); ok {
-			params[list[0]].goArgumentLiteral = s
+	if isPtrType {
+		if err := method.renderPtrTypeParam(plugin, out, param, nil); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	return method.renderPrimitiveTypeParam(plugin, out, param, nil)
+}
+
+func selectFunction(plugin Plugin, required, isArray bool, typeStr string) *Function {
+	functions := plugin.Functions()
+	for idx := range functions {
+		if required != functions[idx].Required {
+			continue
+		}
+		if isArray != functions[idx].IsArray {
+			continue
+		}
+		if typeStr == functions[idx].ResultType {
+			return &functions[idx]
+		}
+	}
+	return nil
+}
+
+func (method *Method) renderPrimitiveTypeParam(plugin Plugin, out io.Writer, param *Param, fields []*Field) error {
+	io.WriteString(out, "\r\n")
+
+	required := false
+	isArray := false
+	var typ astutil.Type
+	if len(fields) == 0 {
+		typ = param.Type()
+		required = param.option.In == "path"
+	} else {
+		typ = fields[len(fields)-1].Type()
+	}
+
+	var elmType, underlying, elmUnderlying astutil.Type
+	if typ.IsSliceType() {
+		isArray = true
+		elmType = typ.SliceElemType()
+		elmUnderlying = elmType.GetUnderlyingType()
+
+		if elmUnderlying.IsValid() {
+			arrayExpr := typ.Expr.(*ast.ArrayType)
+			underlying = astutil.Type{
+				File: typ.File,
+				Expr: &ast.ArrayType{
+					Lbrack: arrayExpr.Lbrack,
+					Len:    arrayExpr.Len,
+					Elt:    elmUnderlying.Expr,
+				},
+			}
+		}
+	} else {
+		underlying = typ.GetUnderlyingType()
+	}
+
+	goVarName := GetGoVarName(param, fields)
+
+	var fn *Function
+	if isArray {
+		if elmUnderlying.IsValid() {
+			fn = selectFunction(plugin, required, isArray, elmUnderlying.ToLiteral())
+		} else if elmType.IsValid() {
+			fn = selectFunction(plugin, required, isArray, elmType.ToLiteral())
+		}
+	} else {
+		if underlying.IsValid() {
+			fn = selectFunction(plugin, required, isArray, underlying.ToLiteral())
+		} else {
+			fn = selectFunction(plugin, required, isArray, typ.ToLiteral())
+		}
+	}
+	if fn != nil {
+		webParamName := GetWebParamName(param, fields)
+		var valueReadText string
+		if fn.WithDefault {
+			valueReadText = fmt.Sprintf(fn.Format, webParamName,
+				defaultValue(fn.ResultType, param, fields))
+		} else {
+			valueReadText = fmt.Sprintf(fn.Format, webParamName)
+		}
+
+		// 情况4, 6
+		if fn.ResultError || fn.ResultBool {
+			io.WriteString(out, goVarName)
+			if fn.ResultBool {
+				io.WriteString(out, ", ok := ")
+				io.WriteString(out, valueReadText)
+				io.WriteString(out, "\r\n\tif !ok {\r\n")
+				renderCastError(out, plugin, method, webParamName, "nil", "\"\"")
+				io.WriteString(out, "\r\n\t}")
+			} else {
+				io.WriteString(out, ", err := ")
+				io.WriteString(out, valueReadText)
+				io.WriteString(out, "\r\n\tif err != nil {\r\n")
+				renderCastError(out, plugin, method, webParamName, "err", "\"\"")
+				io.WriteString(out, "\r\n\t}")
+
+				method.SetErrorDeclared()
+			}
+
+			if underlying.IsValid() {
+				if len(fields) == 0 {
+					method.goArgumentLiterals[param.index] = typ.ToLiteral() + "(" + goVarName + ")"
+				}
+			}
 			return nil
 		}
 
-		isString := params[list[0]].Type().IsStringType(false)
-		isStringPtr := params[list[0]].Type().PtrElemType().IsValid() && params[list[0]].Type().PtrElemType().IsStringType(false)
+		// 情况1, 2
+		if len(fields) == 0 {
+			io.WriteString(out, "\tvar ")
+		} else {
+			if err := renderParentInit(plugin, out, param, fields, true); err != nil {
+				return err
+			}
+			setParentInitialized(param, fields)
+		}
+		io.WriteString(out, goVarName+" = ")
+
+		if underlying.IsValid() {
+			io.WriteString(out, typ.ToLiteral())
+			io.WriteString(out, "(")
+		}
+
+		io.WriteString(out, valueReadText)
+
+		if underlying.IsValid() {
+			io.WriteString(out, ")")
+		}
+		return nil
+	}
+
+	fn = selectFunction(plugin, required, isArray, "string")
+	if fn == nil {
+		return errors.New("param '" + goVarName + "' of '" +
+			method.FullName() +
+			"' cannot determine a function")
+	}
+
+	webParamName := GetWebParamName(param, fields)
+	var valueReadText string
+	if fn.WithDefault {
+		valueReadText = fmt.Sprintf(fn.Format, webParamName,
+			defaultValue(fn.ResultType, param, fields))
+	} else {
+		valueReadText = fmt.Sprintf(fn.Format, webParamName)
+	}
+
+	convertFmt, needCast, retError, err := selectConvert(fn.IsArray, fn.ResultType, typ.ToLiteral())
+	if err != nil {
+		originErr := err
+		if underlying.IsValid() {
+			convertFmt, needCast, retError, err = selectConvert(fn.IsArray, fn.ResultType, underlying.ToLiteral())
+		}
+		if err != nil {
+			return errors.New("param '" + goVarName + "' of '" +
+				method.FullName() +
+				"' hasnot convert function: " + originErr.Error())
+		}
+		needCast = true
+	}
+
+	if fn.Required {
+		// 情况3
+
+		if retError {
+			method.SetErrorDeclared()
+			if needCast {
+				io.WriteString(out, fieldName(param, fields))
+				io.WriteString(out, "Value, err := ")
+			} else {
+				io.WriteString(out, goVarName)
+				io.WriteString(out, ", err := ")
+			}
+		} else {
+			if needCast {
+				io.WriteString(out, fieldName(param, fields))
+				io.WriteString(out, "Value := ")
+			} else {
+				io.WriteString(out, goVarName)
+				if len(fields) == 0 {
+					io.WriteString(out, " := ")
+				} else {
+					io.WriteString(out, " = ")
+				}
+			}
+		}
+
+		io.WriteString(out, fmt.Sprintf(convertFmt, valueReadText))
+
+		if retError {
+			io.WriteString(out, "\r\n\tif err != nil {\r\n")
+			renderCastError(out, plugin, method, webParamName, "err", valueReadText)
+			io.WriteString(out, "\r\n\t}")
+		}
+
+		if needCast {
+			if len(fields) > 0 {
+				if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+					return err
+				}
+				setParentInitialized(param, fields)
+
+				io.WriteString(out, "\r\n\t")
+			} else {
+				io.WriteString(out, "\r\n\tvar ")
+			}
+
+			io.WriteString(out, goVarName)
+			io.WriteString(out, " = "+typ.ToLiteral()+"(")
+			io.WriteString(out, fieldName(param, fields))
+			io.WriteString(out, "Value)")
+		}
+		return nil
+	}
+
+	// 情况5
+	if len(fields) == 0 {
+		io.WriteString(out, "var ")
+		io.WriteString(out, goVarName)
+		io.WriteString(out, " ")
+		io.WriteString(out, typ.ToLiteral())
+		io.WriteString(out, "\r\n\t")
+	}
+	var tmpVarName = "s"
+	if fn.IsArray {
+		tmpVarName = "ss"
+	}
+
+	io.WriteString(out, "if "+tmpVarName+" := "+valueReadText)
+	if fn.IsArray {
+		io.WriteString(out, "; len("+tmpVarName+") != 0 {")
+	} else {
+		io.WriteString(out, "; "+tmpVarName+" != \"\" {")
+	}
+
+	if retError {
+		io.WriteString(out, "\r\n\t\t"+fieldName(param, fields)+"Value")
+		io.WriteString(out, ", err :="+fmt.Sprintf(convertFmt, tmpVarName))
+
+		io.WriteString(out, "\r\n\t\tif err != nil {\r\n")
+		renderCastError(out, plugin, method, webParamName, "err", tmpVarName)
+		io.WriteString(out, "\r\n\t\t}")
+
+		if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+			return err
+		}
+		if needCast {
+			io.WriteString(out, "\r\n\t\t"+goVarName+" = "+typ.ToLiteral()+"("+fieldName(param, fields)+"Value)")
+		} else {
+			io.WriteString(out, "\r\n\t\t"+goVarName+" = "+fieldName(param, fields)+"Value")
+		}
+	} else {
+		if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+			return err
+		}
+
+		if needCast {
+			io.WriteString(out, "\r\n\t\t"+goVarName+" = "+typ.ToLiteral()+"("+fmt.Sprintf(convertFmt, tmpVarName)+")")
+		} else {
+			io.WriteString(out, "\r\n\t\t"+goVarName+" = "+fmt.Sprintf(convertFmt, tmpVarName))
+		}
+	}
+
+	io.WriteString(out, "\r\n\t}")
+	return nil
+}
+
+func (method *Method) renderNullableParam(plugin Plugin, out io.Writer, param *Param, fields []*Field) error {
+	io.WriteString(out, "\r\n")
+
+	required := false
+	isArray := false
+	var typ astutil.Type
+	if len(fields) == 0 {
+		typ = param.Type()
+		required = param.option.In == "path"
+	} else {
+		typ = fields[len(fields)-1].Type()
+	}
+	if !typ.IsSqlNullableType() {
+		return errors.New("type '" + typ.ToLiteral() + "' is unsupported for renderNullableParam")
+		// isArray = true
+		// typ = typ.SliceElemType()
+	}
+
+	goVarName := GetGoVarName(param, fields)
+
+	fn := selectFunction(plugin, required, isArray, ElemTypeForNullable(typ))
+	if fn != nil {
+		webParamName := GetWebParamName(param, fields)
+		var valueReadText string
+		if fn.WithDefault {
+			valueReadText = fmt.Sprintf(fn.Format, webParamName,
+				defaultValue(fn.ResultType, param, fields))
+		} else {
+			valueReadText = fmt.Sprintf(fn.Format, webParamName)
+		}
+
+		if len(fields) == 0 {
+			io.WriteString(out, "var ")
+			io.WriteString(out, goVarName)
+			io.WriteString(out, " ")
+			io.WriteString(out, param.Type().ToLiteral())
+			io.WriteString(out, "\r\n\t")
+		} else {
+			if err := renderParentInit(plugin, out, param, fields, true); err != nil {
+				return err
+			}
+			setParentInitialized(param, fields)
+		}
+
+		if fn.ResultError || fn.ResultBool {
+			if fn.ResultBool {
+				io.WriteString(out, "if"+fieldName(param, fields)+"Value, ok := ")
+				io.WriteString(out, valueReadText)
+				io.WriteString(out, "; !ok {\r\n")
+				renderCastError(out, plugin, method, webParamName, "nil", "\"\"")
+			} else {
+				io.WriteString(out, "if"+fieldName(param, fields)+"Value, err := ")
+				io.WriteString(out, valueReadText)
+				io.WriteString(out, "; err != nil {\r\n")
+				renderCastError(out, plugin, method, webParamName, "err", "\"\"")
+			}
+			io.WriteString(out, "\r\n\t} else {")
+			io.WriteString(out, "\r\n"+goVarName+".Valid = true")
+			io.WriteString(out, "\r\n"+goVarName+"."+FieldNameForNullable(typ)+" = "+fieldName(param, fields)+"Value")
+			io.WriteString(out, "\r\n\t}")
+			return nil
+		}
+
+		if fn.Required {
+			io.WriteString(out, goVarName+".Valid = true")
+			io.WriteString(out, "\r\n"+goVarName+"."+FieldNameForNullable(typ)+" = ")
+			io.WriteString(out, valueReadText)
+		} else {
+			io.WriteString(out, "if s := "+valueReadText+"; s != \"\" {")
+			io.WriteString(out, "\r\n\t\t"+goVarName+".Valid = true")
+			io.WriteString(out, "\r\n\t\t"+goVarName+"."+FieldNameForNullable(typ)+" = s")
+			io.WriteString(out, "\r\n\t}")
+		}
+
+		return nil
+	}
+
+	fn = selectFunction(plugin, required, isArray, "string")
+	if fn == nil {
+		return errors.New("param '" + goVarName + "' of '" +
+			method.FullName() +
+			"' cannot determine a function")
+	}
+
+	webParamName := GetWebParamName(param, fields)
+	var valueReadText string
+	if fn.WithDefault {
+		valueReadText = fmt.Sprintf(fn.Format, webParamName,
+			defaultValue(fn.ResultType, param, fields))
+	} else {
+		valueReadText = fmt.Sprintf(fn.Format, webParamName)
+	}
+
+	convertFmt, needCast, retError, err := selectConvert(fn.IsArray, fn.ResultType, ElemTypeForNullable(typ))
+	if err != nil {
+		return errors.New("param '" + goVarName + "' of '" +
+			method.FullName() +
+			"' hasnot convert function: " + err.Error())
+	}
+
+	// 情况7，8
+	if len(fields) == 0 {
+		io.WriteString(out, "var ")
+		io.WriteString(out, goVarName)
+		io.WriteString(out, " ")
+		io.WriteString(out, param.Type().ToLiteral())
+		io.WriteString(out, "\r\n\t")
+	}
+
+	io.WriteString(out, "if s := ")
+	io.WriteString(out, valueReadText)
+	io.WriteString(out, "; s != \"\" {")
+
+	if retError {
+		io.WriteString(out, "\r\n\t\t"+fieldName(param, fields)+"Value")
+		if retError {
+			io.WriteString(out, ", err ")
+		}
+		io.WriteString(out, " :=")
+		io.WriteString(out, fmt.Sprintf(convertFmt, "s"))
+
+		if retError {
+			io.WriteString(out, "\r\n\t\tif err != nil {\r\n")
+			renderCastError(out, plugin, method, webParamName, "err", "s")
+			io.WriteString(out, "\r\n\t\t}")
+		}
+
+		if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+			return err
+		}
+		io.WriteString(out, "\r\n\t\t"+goVarName+".Valid = true")
+		if needCast {
+			io.WriteString(out, "\r\n\t\t"+goVarName+"."+FieldNameForNullable(typ)+" = "+ElemTypeForNullable(typ)+"("+fieldName(param, fields)+"Value)")
+		} else {
+			io.WriteString(out, "\r\n\t\t"+goVarName+"."+FieldNameForNullable(typ)+" = "+fieldName(param, fields)+"Value")
+		}
+	} else {
+		if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+			return err
+		}
+		io.WriteString(out, "\r\n\t\t"+goVarName+".Valid = true")
+		if needCast {
+			io.WriteString(out, "\r\n\t\t"+goVarName+"."+FieldNameForNullable(typ)+" = "+ElemTypeForNullable(typ)+"("+fmt.Sprintf(convertFmt, "s")+")")
+		} else {
+			io.WriteString(out, "\r\n\t\t"+goVarName+"."+FieldNameForNullable(typ)+" = "+fmt.Sprintf(convertFmt, "s"))
+		}
+	}
+
+	io.WriteString(out, "\r\n\t}")
+	return nil
+}
+
+func (method *Method) renderPtrTypeParam(plugin Plugin, out io.Writer, param *Param, fields []*Field) error {
+	io.WriteString(out, "\r\n")
+
+	required := false
+	isArray := false
+	var typ astutil.Type
+	if len(fields) == 0 {
+		typ = param.Type()
+		required = param.option.In == "path"
+	} else {
+		typ = fields[len(fields)-1].Type()
+	}
+	if !typ.IsPtrType() {
+		return errors.New("type '" + typ.ToLiteral() + "' is unsupported for renderPtrTypeParam")
+	}
+	typ = typ.PtrElemType()
+
+	if typ.IsSliceType() {
+		return errors.New("type '" + typ.ToLiteral() + "' is unsupported for renderPtrTypeParam")
+		// isArray = true
+		// typ = typ.SliceElemType()
+	}
+
+	goVarName := GetGoVarName(param, fields)
+	underlying := typ.GetUnderlyingType()
+
+	// elemTypeStr := typ.ToLiteral()
+	var fn *Function
+	if underlying.IsValid() {
+		fn = selectFunction(plugin, required, isArray, underlying.ToLiteral())
+	} else {
+		fn = selectFunction(plugin, required, isArray, typ.ToLiteral())
+	}
+	if fn != nil {
+		webParamName := GetWebParamName(param, fields)
+		var valueReadText string
+		if fn.WithDefault {
+			valueReadText = fmt.Sprintf(fn.Format, webParamName,
+				defaultValue(fn.ResultType, param, fields))
+		} else {
+			valueReadText = fmt.Sprintf(fn.Format, webParamName)
+		}
+
+		if len(fields) == 0 {
+			io.WriteString(out, "var ")
+			io.WriteString(out, goVarName)
+			io.WriteString(out, " ")
+
+			if fn.Required {
+				// io.WriteString(out, typ.ToLiteral())
+				io.WriteString(out, " = ")
+				io.WriteString(out, valueReadText)
+
+				method.goArgumentLiterals[param.index] = "&" + goVarName
+				return nil
+			}
+			io.WriteString(out, param.Type().ToLiteral())
+			io.WriteString(out, "\r\n\t")
+		}
+
+		io.WriteString(out, "if s := ")
+		io.WriteString(out, valueReadText)
+		io.WriteString(out, "; s != \"\" {")
+		if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+			return err
+		}
+
+		// if isNullableType(typeStr) {
+		// 	io.WriteString(out, "\r\n\t"+goVarName+".Valid = true")
+		// 	io.WriteString(out, "\r\n\t"+goVarName+"."+FieldNameForNullable(param.Type())+" = s")
+		// } else {
+		if underlying.IsValid() {
+			io.WriteString(out, "\r\n\t"+goVarName+" = new(")
+			io.WriteString(out, typ.ToLiteral())
+			io.WriteString(out, ")")
+			io.WriteString(out, "\r\n\t*"+goVarName+" = "+typ.ToLiteral()+"(s)")
+		} else {
+			io.WriteString(out, "\r\n\t"+goVarName+" = &s")
+		}
+		//}
+		io.WriteString(out, "\r\n\t}")
+		return nil
+	}
+
+	fn = selectFunction(plugin, required, isArray, "string")
+	if fn == nil {
+		return errors.New("param '" + goVarName + "' of '" +
+			method.FullName() +
+			"' cannot determine a function")
+	}
+
+	webParamName := GetWebParamName(param, fields)
+	var valueReadText string
+	if fn.WithDefault {
+		valueReadText = fmt.Sprintf(fn.Format, webParamName,
+			defaultValue(fn.ResultType, param, fields))
+	} else {
+		valueReadText = fmt.Sprintf(fn.Format, webParamName)
+	}
+
+	convertFmt, needCast, retError, err := selectConvert(fn.IsArray, fn.ResultType, typ.ToLiteral())
+	if err != nil {
+		originErr := err
+		if underlying.IsValid() {
+			convertFmt, needCast, retError, err = selectConvert(fn.IsArray, fn.ResultType, underlying.ToLiteral())
+		}
+		if err != nil {
+			return errors.New("param '" + goVarName + "' of '" +
+				method.FullName() +
+				"' hasnot convert function: " + originErr.Error())
+		}
+		needCast = true
+	}
+
+	if fn.Required {
+		// 情况13
+
+		if retError {
+
+			if len(fields) == 0 && !needCast {
+				method.SetErrorDeclared()
+
+				io.WriteString(out, goVarName)
+				io.WriteString(out, ", err := ")
+				io.WriteString(out, fmt.Sprintf(convertFmt, valueReadText))
+
+				io.WriteString(out, "\r\n\t if err != nil {\r\n")
+				renderCastError(out, plugin, method, webParamName, "err", valueReadText)
+				io.WriteString(out, "\r\n\t}")
+
+				method.goArgumentLiterals[param.index] = "&" + goVarName
+
+			} else {
+
+				if len(fields) == 0 {
+					io.WriteString(out, "var ")
+					io.WriteString(out, goVarName)
+					io.WriteString(out, " ")
+					io.WriteString(out, param.Type().ToLiteral())
+					io.WriteString(out, "\r\n\t")
+				}
+
+				io.WriteString(out, "if ")
+				io.WriteString(out, fieldName(param, fields))
+				io.WriteString(out, "Value, err := ")
+
+				io.WriteString(out, fmt.Sprintf(convertFmt, valueReadText))
+				io.WriteString(out, "; err != nil {\r\n")
+				renderCastError(out, plugin, method, webParamName, "err", valueReadText)
+				io.WriteString(out, "\r\n\t} else {")
+
+				if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+					return err
+				}
+				io.WriteString(out, "\r\n\t\t"+goVarName)
+
+				if needCast {
+					io.WriteString(out, " = new("+typ.ToLiteral()+")")
+					io.WriteString(out, "\r\n\t\t*")
+					io.WriteString(out, goVarName)
+					io.WriteString(out, " = ")
+					io.WriteString(out, fieldName(param, fields))
+					io.WriteString(out, "Value")
+				} else {
+					io.WriteString(out, " = &")
+					io.WriteString(out, fieldName(param, fields))
+					io.WriteString(out, "Value")
+				}
+				io.WriteString(out, "\r\n\t}")
+			}
+		} else {
+			if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+				return err
+			}
+			io.WriteString(out, goVarName)
+			io.WriteString(out, " := ")
+			if needCast {
+				io.WriteString(out, typ.ToLiteral()+"("+fmt.Sprintf(convertFmt, valueReadText)+")")
+			} else {
+				io.WriteString(out, fmt.Sprintf(convertFmt, valueReadText))
+			}
+		}
+	} else {
+		if len(fields) == 0 {
+			io.WriteString(out, "var ")
+			io.WriteString(out, goVarName)
+			io.WriteString(out, " ")
+			io.WriteString(out, param.Type().ToLiteral())
+			io.WriteString(out, "\r\n\t")
+		}
+
+		// 情况14
+		io.WriteString(out, "if s := ")
+		io.WriteString(out, valueReadText)
+		io.WriteString(out, "; s != \"\" {")
+
+		if retError {
+			io.WriteString(out, "\r\n\t\t"+fieldName(param, fields)+"Value")
+			io.WriteString(out, ", err :="+fmt.Sprintf(convertFmt, "s"))
+			io.WriteString(out, "\r\n\t\tif err != nil {\r\n")
+			renderCastError(out, plugin, method, webParamName, "err", "s")
+			io.WriteString(out, "\r\n\t\t}")
+
+			if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+				return err
+			}
+			if needCast {
+				io.WriteString(out, "\r\n\t\t"+goVarName+" = new("+typ.ToLiteral()+")")
+				io.WriteString(out, "\r\n\t\t*"+goVarName+" = "+typ.ToLiteral()+"("+fieldName(param, fields)+"Value)")
+			} else {
+				io.WriteString(out, "\r\n\t\t"+goVarName+" = &"+fieldName(param, fields)+"Value")
+			}
+		} else {
+			if err := renderParentInit(plugin, out, param, fields, false); err != nil {
+				return err
+			}
+			if needCast {
+				io.WriteString(out, "\r\n\t\t*"+goVarName+"Value := "+typ.ToLiteral()+"("+fmt.Sprintf(convertFmt, "s")+")")
+			} else {
+				io.WriteString(out, "\r\n\t\t"+goVarName+"Value := "+fmt.Sprintf(convertFmt, "s"))
+			}
+			io.WriteString(out, "\r\n\t\t"+goVarName+" = &"+goVarName+"Value")
+		}
+		io.WriteString(out, "\r\n\t}")
+	}
+	return nil
+}
+
+func fieldName(param *Param, parents []*Field) string {
+	if len(parents) > 0 {
+		return toLowerCamelCase(parents[len(parents)-1].Name)
+	}
+	return toLowerCamelCase(param.Name)
+}
+
+func GetGoVarName(param *Param, parents []*Field, hideAnonymous ...bool) string {
+	name := param.Name
+	for idx := range parents {
+		if parents[idx].IsAnonymous {
+			if len(hideAnonymous) > 0 && hideAnonymous[0] {
+				continue
+			}
+		}
+
+		name = name + "." + parents[idx].Name
+	}
+	return name
+}
+
+func GetWebParamName(param *Param, parents []*Field) string {
+	if len(parents) == 0 {
+		return param.option.Name
+	}
+
+	name := param.option.Name
+	if isExtendInline(param.option) {
+		name = ""
+	}
+
+	for idx := range parents {
+		jsonName, _ := getTagValue(parents[idx].Field, "json")
+		if parents[idx].Field.IsAnonymous {
+			if jsonName == "" {
+				continue
+			}
+		} else if jsonName == "" {
+			jsonName = toSnakeCase(parents[idx].Field.Name)
+		}
+		if name != "" {
+			name = name + "."
+		}
+		name = name + jsonName
+	}
+	return name
+}
+
+func setParentInitialized(param *Param, parents []*Field) {
+	for i := range parents {
+		parents[i].isInitialized = true
+	}
+	param.isInitialized = true
+}
+
+func renderParentInit(plugin Plugin, out io.Writer, param *Param, parents []*Field, noCRCF bool, isFirst ...bool) error {
+	if len(parents) == 0 {
+		return nil
+	}
+
+	isFirstValue := true
+	if len(isFirst) > 0 {
+		isFirstValue = isFirst[0]
+	}
+	if isFirstValue {
+		for idx := len(parents) - 1; idx >= 0; idx-- {
+			if !parents[idx].isFirstField {
+				isFirstValue = false
+				break
+			}
+		}
+	}
+
+	if param.Type().IsPtrType() {
+		if !param.isInitialized {
+			if !noCRCF {
+				io.WriteString(out, "\r\n\t")
+			}
+			goVarName := GetGoVarName(param, nil, false)
+			if isFirstValue {
+				io.WriteString(out, goVarName+" = new("+
+					param.Type().PtrElemType().ToLiteral()+")")
+			} else {
+				io.WriteString(out, "if "+goVarName+" == nil {")
+				io.WriteString(out, "\r\n\t\t"+goVarName+" = new("+
+					param.Type().PtrElemType().ToLiteral()+")")
+				io.WriteString(out, "}")
+			}
+			if noCRCF {
+				io.WriteString(out, "\r\n")
+			}
+		}
+	}
+
+	for idx := 0; idx < len(parents)-1; idx++ {
+		isFirstValue := true
+		if len(isFirst) > 0 {
+			isFirstValue = isFirst[0]
+		}
+		if isFirstValue {
+			for i := len(parents) - 1; i > idx; i-- {
+				if !parents[i].isFirstField {
+					isFirstValue = false
+					break
+				}
+			}
+		}
+
+		if !parents[idx].Type().IsPtrType() {
+			continue
+		}
+
+		if parents[idx].isInitialized {
+			continue
+		}
+
+		if !noCRCF {
+			io.WriteString(out, "\r\n\t")
+		}
+
+		goVarName := GetGoVarName(param, parents[:idx+1], false)
+
+		if isFirstValue {
+			io.WriteString(out, goVarName+" = new("+
+				parents[idx].Type().PtrElemType().ToLiteral()+")")
+		} else {
+			io.WriteString(out, "if "+goVarName+" == nil {")
+			io.WriteString(out, "\r\n\t\t"+goVarName+" = new("+
+				parents[idx].Type().PtrElemType().ToLiteral()+")")
+			io.WriteString(out, "}")
+		}
+
+		if noCRCF {
+			io.WriteString(out, "\r\n")
+		}
+	}
+	return nil
+}
+
+type SiblingName struct {
+	Name     string
+	IsPrefix bool
+}
+
+func (method *Method) renderMapParamWithAnonymous(plugin Plugin, out io.Writer, param *Param, parents []*Field, siblingNames []SiblingName, typeStr, valueIndex string) error {
+	var goVarName = GetGoVarName(param, parents, true)
+
+	if len(parents) > 0 {
+		// 当前字段为匿名字段，GetGoVarName() 函数会不显示它，我们
+		// 要访问它，所以这个要加上
+		goVarName = goVarName + "." + parents[len(parents)-1].Name
+	}
+
+	if len(parents) == 0 {
+		io.WriteString(out, "var "+goVarName+" = "+typeStr+"{}")
+	}
+
+	var parentPrefix = GetWebParamName(param, parents)
+	if parentPrefix != "" {
+		parentPrefix = parentPrefix + "."
+	}
+
+	var sb strings.Builder
+	for idx, sname := range siblingNames {
+		if idx > 0 {
+			sb.WriteString(" ||\r\n\t\t\t")
+		}
+		if sname.IsPrefix {
+			sb.WriteString("strings.HasPrefix(key, \"" + parentPrefix + sname.Name + "\")")
+		} else {
+			sb.WriteString("key == \"" + parentPrefix + sname.Name + "\"")
+		}
+	}
+
+	io.WriteString(out, "\r\n\tfor key, values := range ")
+	values, _ := plugin.GetSpecificTypeArgument("url.Values")
+	io.WriteString(out, values+"{")
+	if parentPrefix != "" {
+		io.WriteString(out, "\r\n\t\tif !strings.HasPrefix(key, \""+parentPrefix+"\") {")
+		io.WriteString(out, "\r\n\t\t\tcontinue")
+		io.WriteString(out, "\r\n\t\t}")
+	}
+	if sb.Len() > 0 {
+		io.WriteString(out, "\r\n\t\tif "+sb.String()+"{")
+		io.WriteString(out, "\r\n\t\t\tcontinue")
+		io.WriteString(out, "\r\n\t\t}")
+	}
+
+	if err := renderParentInit(plugin, out, param, parents, false); err != nil {
+		return err
+	}
+
+	if len(parents) > 0 {
+		io.WriteString(out, "\r\n\t\tif "+goVarName+" == nil {")
+		io.WriteString(out, "\r\n\t\t\t"+goVarName+" = "+typeStr+"{}")
+		io.WriteString(out, "\r\n\t\t}")
+	}
+
+	if parentPrefix == "" {
+		io.WriteString(out, "\r\n\t\t"+goVarName+"[key] = values"+valueIndex)
+	} else {
+		io.WriteString(out, "\r\n\t\t"+goVarName+"[strings.TrimPrefix(key, \""+parentPrefix+"\")] = values"+valueIndex)
+	}
+	io.WriteString(out, "\r\n\t}")
+	return nil
+}
+
+func (method *Method) renderMapParam(plugin Plugin, out io.Writer, param *Param, parents []*Field, typeStr, valueIndex string) error {
+	var goVarName = GetGoVarName(param, parents, true)
+
+	var tagName string
+	if len(parents) == 0 {
+		tagName = toLowerCamelCase(param.Name)
+		io.WriteString(out, "var "+goVarName+" = "+typeStr+"{}")
+	} else {
+		if parents[len(parents)-1].IsAnonymous {
+			offset := len(parents) - 1
+			for offset >= 0 {
+				if !parents[offset].IsAnonymous {
+					break
+				}
+				offset--
+			}
+
+			var fieldType astutil.Type
+			if offset >= 0 {
+				fieldType = parents[offset].Type()
+			} else {
+				fieldType = param.Type()
+			}
+			siblingNames, err := getFieldSiblingNames(fieldType)
+			if err != nil {
+				return err
+			}
+
+			if offset < 0 && isExtendInline(param.option) {
+				names, err := method.getSiblingParamNames([]string{"query"})
+				if err != nil {
+					return err
+				}
+				siblingNames = append(siblingNames, names...)
+			}
+			return method.renderMapParamWithAnonymous(plugin, out, param, parents, siblingNames, typeStr, valueIndex)
+		}
+
+		tagName = GetWebParamName(param, parents)
+	}
+
+	io.WriteString(out, "\r\n\tfor key, values := range ")
+	values, _ := plugin.GetSpecificTypeArgument("url.Values")
+	io.WriteString(out, values+"{")
+	io.WriteString(out, "\r\n\t\tif !strings.HasPrefix(key, \""+tagName+".\") {")
+	io.WriteString(out, "\r\n\t\t\tcontinue")
+	io.WriteString(out, "\r\n\t\t}")
+
+	if err := renderParentInit(plugin, out, param, parents, false); err != nil {
+		return err
+	}
+
+	if len(parents) > 0 {
+		io.WriteString(out, "\r\n\t\tif "+goVarName+" == nil {")
+		io.WriteString(out, "\r\n\t\t\t"+goVarName+" = "+typeStr+"{}")
+		io.WriteString(out, "\r\n\t\t}")
+	}
+	if tagName == "" {
+		io.WriteString(out, "\r\n\t\t"+goVarName+"[key] = values"+valueIndex)
+	} else {
+		io.WriteString(out, "\r\n\t\t"+goVarName+"[strings.TrimPrefix(key, \""+tagName+".\")] = values"+valueIndex)
+	}
+
+	io.WriteString(out, "\r\n\t}")
+	return nil
+}
+
+func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []BodyParam) error {
+	varName := params[0].Param.Name
+	if len(params) == 1 && isExtendEntire(params[0].Option) {
+		isString := params[0].Param.Type().IsStringType(false)
+		isStringPtr := params[0].Param.Type().PtrElemType().IsValid() &&
+			params[0].Param.Type().PtrElemType().IsStringType(false)
 
 		if isString || isStringPtr {
 			io.WriteString(out, "\r\n\tvar ")
@@ -287,7 +1537,7 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 			}
 			io.WriteString(out, " strings.Builder")
 
-			s, _ := plugin.TypeInContext("io.Reader")
+			s, _ := plugin.GetSpecificTypeArgument("io.Reader")
 
 			io.WriteString(out, "\r\n\tif _, err := io.Copy(&"+varName+", "+s+"); err != nil {\r\n\t\t")
 			txt := plugin.GetBodyErrorText(method, varName, "err")
@@ -296,29 +1546,30 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 
 			if isStringPtr {
 				io.WriteString(out, "\r\n\tvar ")
-				io.WriteString(out, params[list[0]].Param.Name)
+				io.WriteString(out, params[0].Param.Name)
 				io.WriteString(out, " = ")
 				io.WriteString(out, varName)
 				io.WriteString(out, ".String()")
-				params[list[0]].goArgumentLiteral = "&" + params[list[0]].Param.Name
+
+				method.goArgumentLiterals[params[0].Index] = "&" + params[0].Param.Name
 			} else {
-				params[list[0]].goArgumentLiteral = varName + ".String()"
+				method.goArgumentLiterals[params[0].Index] = varName + ".String()"
 			}
 
 			return nil
 		} else {
-			if params[list[0]].Type().PtrElemType().IsValid() {
-				io.WriteString(out, "\r\n\tvar "+varName+" "+params[list[0]].Type().PtrElemType().ToLiteral())
-				params[list[0]].goArgumentLiteral = "&" + varName
+			if params[0].Param.Type().PtrElemType().IsValid() {
+				io.WriteString(out, "\r\n\tvar "+varName+" "+params[0].Param.Type().PtrElemType().ToLiteral())
+				method.goArgumentLiterals[params[0].Index] = "&" + varName
 			} else {
-				io.WriteString(out, "\r\n\tvar "+varName+" "+params[list[0]].Type().ToLiteral())
-				params[list[0]].goArgumentLiteral = varName
+				io.WriteString(out, "\r\n\tvar "+varName+" "+params[0].Param.Type().ToLiteral())
+				method.goArgumentLiterals[params[0].Index] = varName
 			}
 		}
 	} else {
 		varName = "bindArgs"
 		io.WriteString(out, "\r\n\tvar bindArgs struct{")
-		for _, idx := range list {
+		for idx := range params {
 			fieldName := toUpperFirst(params[idx].Param.Name)
 			io.WriteString(out, "\r\n\t\t")
 			io.WriteString(out, fieldName)
@@ -332,7 +1583,7 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 			}
 			io.WriteString(out, ",omitempty\"`")
 
-			params[idx].goArgumentLiteral = "bindArgs." + fieldName
+			method.goArgumentLiterals[params[idx].Index] = "bindArgs." + fieldName
 		}
 		io.WriteString(out, "\r\n\t}")
 	}
@@ -349,7 +1600,7 @@ func (method *Method) renderBodyParams(plugin Plugin, out io.Writer, params []Pa
 	return nil
 }
 
-func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params []Param) error {
+func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer) error {
 	io.WriteString(out, "\r\n")
 	/// 输出返回参数
 	if len(method.Method.Results.List) > 2 {
@@ -382,18 +1633,11 @@ func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params
 	io.WriteString(out, "svc.")
 	io.WriteString(out, method.Method.Name)
 	io.WriteString(out, "(")
-
-	for idx, param := range params {
-		// {{- if $param.IsSkipUse -}}
-		//    {{- continue --}}
-		// {{- end -}}
+	for idx, param := range method.goArgumentLiterals {
 		if idx > 0 {
 			io.WriteString(out, ", ")
 		}
-		io.WriteString(out, param.GoArgumentLiteral())
-		if param.IsVariadic() {
-			io.WriteString(out, "...")
-		}
+		io.WriteString(out, param)
 	}
 	io.WriteString(out, ")")
 
@@ -404,7 +1648,7 @@ func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params
 
 	/// 输出返回
 	if len(method.Method.Results.List) > 2 {
-		io.WriteString(out, "\r\n\tif err != nil {")
+		io.WriteString(out, "\r\n\tif err != nil {\r\n")
 		plugin.RenderReturnError(out, method, "", "err")
 		io.WriteString(out, "\r\n\t}")
 
@@ -458,28 +1702,4 @@ func (method *Method) renderInvokeAndReturn(plugin Plugin, out io.Writer, params
 	}
 
 	return nil
-}
-
-func resolveMethods(swaggerParser *swag.Parser, ts *astutil.TypeSpec) ([]*Method, error) {
-	var methods []*Method
-	list := ts.Methods()
-	for idx, method := range list {
-		var doc = method.Doc()
-		if doc == nil || len(doc.List) == 0 {
-			continue
-		}
-		operation := swag.NewOperation(swaggerParser)
-		for _, comment := range doc.List {
-			err := operation.ParseComment(comment.Text, ts.File.AstFile)
-			if err != nil {
-				return nil, fmt.Errorf("ParseComment error in file %s :%+v", ts.File.Filename, err)
-			}
-		}
-
-		methods = append(methods, &Method{
-			Method:    &list[idx],
-			Operation: operation,
-		})
-	}
-	return methods, nil
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/go-openapi/spec"
 	"github.com/grsmv/inflect"
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
 )
@@ -99,9 +100,9 @@ func isBultinType(name string) bool {
 
 var bultinTypes = []string{
 	"net.IP",
-		"net.HardwareAddr",
-		"time.Time",
-		"time.Duration",
+	"net.HardwareAddr",
+	"time.Time",
+	"time.Duration",
 }
 
 func isExceptedType(name string, anyTypes []string) bool {
@@ -122,20 +123,24 @@ func isExceptedType(name string, anyTypes []string) bool {
 // 	return file.Package.Context.GetUnderlyingType(file, elmType)
 // }
 
-func isNullableType(name string) bool {
-	return strings.HasPrefix(name, "sql.Null") || strings.HasPrefix(name, "null.")
-}
+// func isNullableType(name string) bool {
+// 	return strings.HasPrefix(name, "sql.Null") || strings.HasPrefix(name, "null.")
+// }
 
-func nullableType(name string) string {
-	if strings.HasPrefix(name, "sql.Null") {
-		name = strings.TrimPrefix(name, "sql.Null")
-		return strings.ToLower(name)
-	}
-	if strings.HasPrefix(name, "null.") {
-		name = strings.TrimPrefix(name, "null.")
-		return strings.ToLower(name)
-	}
-	return name
+// func nullableType(name string) string {
+// 	if strings.HasPrefix(name, "sql.Null") {
+// 		name = strings.TrimPrefix(name, "sql.Null")
+// 		return strings.ToLower(name)
+// 	}
+// 	if strings.HasPrefix(name, "null.") {
+// 		name = strings.TrimPrefix(name, "null.")
+// 		return strings.ToLower(name)
+// 	}
+// 	return name
+// }
+
+func ElemTypeForNullable(typ astutil.Type) string {
+	return astutil.ElemTypeForSqlNullable(typ)
 }
 
 func FieldNameForNullable(typ astutil.Type) string {
@@ -349,4 +354,14 @@ func zeroValueLiteral(typ astutil.Type) string {
 		return lit
 	}
 	return "0"
+}
+
+func isExtendEntire(param *spec.Parameter) bool {
+	s, _ := param.Extensions.GetString("x-gogen-entire-body")
+	return strings.ToLower(s) == "true"
+}
+
+func isExtendInline(param *spec.Parameter) bool {
+	s, _ := param.Extensions.GetString("x-gogen-extend")
+	return strings.ToLower(s) == "inline"
 }

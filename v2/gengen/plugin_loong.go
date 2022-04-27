@@ -11,7 +11,7 @@ var _ Plugin = &loongPlugin{}
 
 type loongPlugin struct{}
 
-func (lng *loongPlugin) TypeInContext(name string) (string, bool) {
+func (lng *loongPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "ctx.QueryParams()",
 		"*http.Request":       "ctx.Request()",
@@ -21,12 +21,12 @@ func (lng *loongPlugin) TypeInContext(name string) (string, bool) {
 		"context.Context":     "ctx.StdContext",
 		"*loong.Context":      "ctx",
 	}
-	s, ok := args[name]
+	s, ok := args[typeStr]
 	return s, ok
 }
 
-func (lng *loongPlugin) Invocations() []Invocation {
-	return []Invocation{
+func (lng *loongPlugin) Functions() []Function {
+	return []Function{
 		{
 			Required:    true,
 			Format:      "ctx.Param(\"%s\")",
@@ -81,8 +81,8 @@ func (lng *loongPlugin) GetBodyErrorText(method *Method, bodyName, err string) s
 	return "loong.ErrBadArgument(\"" + bodyName + "\", \"body\", " + err + ")"
 }
 
-func (lng *loongPlugin) GetCastErrorText(param *Param, err, value string) string {
-	return "loong.ErrBadArgument(\"" + param.WebParamName() + "\", " + value + ", " + err + ")"
+func (lng *loongPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+	return "loong.ErrBadArgument(\"" + accessFields + "\", " + value + ", " + err + ")"
 }
 
 func (lng *loongPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {

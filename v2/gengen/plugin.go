@@ -17,7 +17,7 @@ type Config struct {
 	DatetimeConvert string
 }
 
-type Invocation struct {
+type Function struct {
 	Required    bool
 	WithDefault bool
 	Format      string
@@ -49,9 +49,9 @@ type Plugin interface {
 	Imports() map[string]string
 	PartyTypeName() string
 
-	TypeInContext(name string) (string, bool)
+	GetSpecificTypeArgument(typeStr string) (string, bool)
 
-	Invocations() []Invocation
+	Functions() []Function
 
 	ReadBodyFunc(argName string) string
 	RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error
@@ -60,7 +60,7 @@ type Plugin interface {
 	RenderReturnEmpty(out io.Writer, method *Method) error
 
 	GetBodyErrorText(method *Method, bodyName, err string) string
-	GetCastErrorText(param *Param, err, value string) string
+	GetCastErrorText(method *Method, accessFields string, err, value string) string
 }
 
 func getBodyErrorText(method *Method, bodyName, err string) string {
@@ -69,14 +69,14 @@ func getBodyErrorText(method *Method, bodyName, err string) string {
 	return txt
 }
 
-func getCastErrorText(param *Param, err, value string) string {
+func getCastErrorText(method *Method, accessFields string, err, value string) string {
 	// txt := "fmt.Errorf(\"argument %q is invalid - %q\", \""+param.WebParamName()+"\", "+value+", "+err+")"
-	return "NewBadArgument(" + err + ", \"" + param.Method.FullName() + "\", \"" + param.WebParamName() + "\")"
+	return "NewBadArgument(" + err + ", \"" + method.FullName() + "\", \"" + accessFields + "\")"
 }
 
-func renderCastError(out io.Writer, plugin Plugin, param *Param, err, value string) error {
-	txt := plugin.GetCastErrorText(param, err, value)
-	return plugin.RenderReturnError(out, param.Method, "http.StatusBadRequest", txt)
+func renderCastError(out io.Writer, plugin Plugin, method *Method, accessFields, err, value string) error {
+	txt := plugin.GetCastErrorText(method, accessFields, err, value)
+	return plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
 }
 
 func renderText(txt *template.Template, out io.Writer, renderArgs interface{}) {
@@ -102,46 +102,4 @@ func statusCodeLiteralByMethod(op string) string {
 		return "http.StatusCreated"
 	}
 	return "http.StatusOK"
-}
-
-func hasQuery(param Param) bool {
-	typ := param.Type()
-	if typ.IsPtrType() {
-		typ = typ.PtrElemType()
-	}
-	if !typ.IsStructType() {
-		return false
-	}
-	params, _ := param.GetFields()
-	if len(params) == 0 {
-		return false
-	}
-	for idx := range params {
-		if params[idx].Option.In == "query" ||
-			(params[idx].Option.In == "" && hasQuery(params[idx])) {
-			return true
-		}
-	}
-	return false
-}
-
-func hasQueryArray(param Param) bool {
-	typ := param.Type()
-	if typ.IsPtrType() {
-		typ = typ.PtrElemType()
-	}
-	if !typ.IsStructType() {
-		return false
-	}
-	params, _ := param.GetFields()
-	if len(params) == 0 {
-		return false
-	}
-	for idx := range params {
-		if (params[idx].Option.In == "query" && params[idx].Option.SimpleSchema.Type == swag.ARRAY) ||
-			(params[idx].Option.In == "" && hasQueryArray(params[idx])) {
-			return true
-		}
-	}
-	return false
 }

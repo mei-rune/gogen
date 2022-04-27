@@ -11,7 +11,7 @@ var _ Plugin = &ginPlugin{}
 
 type ginPlugin struct{}
 
-func (gin *ginPlugin) TypeInContext(name string) (string, bool) {
+func (gin *ginPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "ctx.Request.URL.Query()",
 		"*http.Request":       "ctx.Request",
@@ -21,12 +21,12 @@ func (gin *ginPlugin) TypeInContext(name string) (string, bool) {
 		"context.Context":     "ctx.Request.Context()",
 		"*gin.Context":        "ctx",
 	}
-	s, ok := args[name]
+	s, ok := args[typeStr]
 	return s, ok
 }
 
-func (gin *ginPlugin) Invocations() []Invocation {
-	return []Invocation{
+func (gin *ginPlugin) Functions() []Function {
+	return []Function{
 		{
 			Required:    true,
 			Format:      "ctx.Param(\"%s\")",
@@ -80,8 +80,8 @@ func (gin *ginPlugin) GetBodyErrorText(method *Method, bodyName, err string) str
 	return getBodyErrorText(method, bodyName, err)
 }
 
-func (gin *ginPlugin) GetCastErrorText(param *Param, err, value string) string {
-	return getCastErrorText(param, err, value)
+func (gin *ginPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+	return getCastErrorText(method, accessFields, err, value)
 }
 
 func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {

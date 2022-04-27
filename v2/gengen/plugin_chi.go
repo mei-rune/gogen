@@ -16,8 +16,8 @@ var _ Plugin = &chiPlugin{}
 type chiPlugin struct {
 }
 
-func (chi *chiPlugin) Invocations() []Invocation {
-	return []Invocation{
+func (chi *chiPlugin) Functions() []Function {
+	return []Function{
 		{
 			Required:    true,
 			Format:      "chi.URLParam(r, \"%s\")",
@@ -65,7 +65,7 @@ func (chi *chiPlugin) PartyTypeName() string {
 	return "chi.Router"
 }
 
-func (chi *chiPlugin) TypeInContext(name string) (string, bool) {
+func (chi *chiPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "r.URL.Query()",
 		"*http.Request":       "r",
@@ -74,7 +74,7 @@ func (chi *chiPlugin) TypeInContext(name string) (string, bool) {
 		"io.Reader":           "r.Body",
 		"context.Context":     "r.Context()",
 	}
-	s, ok := args[name]
+	s, ok := args[typeStr]
 	return s, ok
 }
 
@@ -82,8 +82,8 @@ func (chi *chiPlugin) GetBodyErrorText(method *Method, bodyName, err string) str
 	return getBodyErrorText(method, bodyName, err)
 }
 
-func (chi *chiPlugin) GetCastErrorText(param *Param, err, value string) string {
-	return getCastErrorText(param, err, value)
+func (chi *chiPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+	return getCastErrorText(method, accessFields, err, value)
 }
 
 func (chi *chiPlugin) ReadBodyFunc(argName string) string {
@@ -99,17 +99,9 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 		urlstr = ""
 	}
 
-	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(w http.ResponseWriter, r *http.Request) {")
-	params, err := method.GetParams(chi)
-	if err != nil {
-		return err
-	}
-	for _, param := range params {
-		if param.Option.In == "query" ||
-			(param.Option.In == "" && hasQuery(param)) {
+	_, err = io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(w http.ResponseWriter, r *http.Request) {")
+	if method.HasQueryParam() {
 			_, err = io.WriteString(out, "\r\n\tqueryParams := r.URL.Query()")
-			break
-		}
 	}
 	return err
 }

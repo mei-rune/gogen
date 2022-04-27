@@ -11,7 +11,7 @@ var _ Plugin = &echoPlugin{}
 
 type echoPlugin struct{}
 
-func (echo *echoPlugin) TypeInContext(name string) (string, bool) {
+func (echo *echoPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "ctx.QueryParams()",
 		"*http.Request":       "ctx.Request()",
@@ -21,12 +21,12 @@ func (echo *echoPlugin) TypeInContext(name string) (string, bool) {
 		"context.Context":     "ctx.Request().Context()",
 		"echo.Context":        "ctx",
 	}
-	s, ok := args[name]
+	s, ok := args[typeStr]
 	return s, ok
 }
 
-func (echo *echoPlugin) Invocations() []Invocation {
-	return []Invocation{
+func (echo *echoPlugin) Functions() []Function {
+	return []Function{
 		{
 			Required:    true,
 			Format:      "ctx.Param(\"%s\")",
@@ -81,8 +81,8 @@ func (echo *echoPlugin) GetBodyErrorText(method *Method, bodyName, err string) s
 	return getBodyErrorText(method, bodyName, err)
 }
 
-func (echo *echoPlugin) GetCastErrorText(param *Param, err, value string) string {
-	return getCastErrorText(param, err, value)
+func (echo *echoPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+	return getCastErrorText(method, accessFields, err, value)
 }
 
 func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {

@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -97,7 +98,7 @@ func (client TestClient) TestByKey2(ctx context.Context, key Key) error {
 }
 
 func (client TestClient) TestByStrKey1(ctx context.Context, key StrKey) error {
-	request := resty.NewRequest(client.Proxy, "/test_by_strkey/"+key+"")
+	request := resty.NewRequest(client.Proxy, "/test_by_strkey/"+fmt.Sprint(key)+"")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -105,7 +106,7 @@ func (client TestClient) TestByStrKey1(ctx context.Context, key StrKey) error {
 
 func (client TestClient) TestByStrKey2(ctx context.Context, key StrKey) error {
 	request := resty.NewRequest(client.Proxy, "/test_by_strkey").
-		SetParam("key", key)
+		SetParam("key", fmt.Sprint(key))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -547,7 +548,7 @@ func (client TestClient) Query8(ctx context.Context, itemID int64) (string, erro
 	return result, err
 }
 
-func (client TestClient) CreateWithNoReturn(ctx context.Context, request *http.Request, response http.ResponseWriter) error {
+func (client TestClient) CreateWithNoReturn(ctx context.Context, _request *http.Request, response http.ResponseWriter) error {
 	request := resty.NewRequest(client.Proxy, "/")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -698,7 +699,7 @@ func (client StringSvcImplClient) TestByKey2(ctx context.Context, key Key) error
 }
 
 func (client StringSvcImplClient) TestByStrKey1(ctx context.Context, key StrKey) error {
-	request := resty.NewRequest(client.Proxy, "/impl/test_by_strkey/"+key+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test_by_strkey/"+fmt.Sprint(key)+"")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -706,7 +707,7 @@ func (client StringSvcImplClient) TestByStrKey1(ctx context.Context, key StrKey)
 
 func (client StringSvcImplClient) TestByStrKey2(ctx context.Context, key StrKey) error {
 	request := resty.NewRequest(client.Proxy, "/impl/test_by_strkey").
-		SetParam("key", key)
+		SetParam("key", fmt.Sprint(key))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -1148,7 +1149,7 @@ func (client StringSvcImplClient) Query8(ctx context.Context, itemID int64) (str
 	return result, err
 }
 
-func (client StringSvcImplClient) CreateWithNoReturn(ctx context.Context, request *http.Request, response http.ResponseWriter) error {
+func (client StringSvcImplClient) CreateWithNoReturn(ctx context.Context, _request *http.Request, response http.ResponseWriter) error {
 	request := resty.NewRequest(client.Proxy, "/impl")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -1857,12 +1858,12 @@ func (client RequestsClient) Create1(ctx context.Context, data *models.Request) 
 	return result, err
 }
 
-func (client RequestsClient) Create2(ctx context.Context, request *models.Request, testarg int64) (int64, error) {
+func (client RequestsClient) Create2(ctx context.Context, _request *models.Request, testarg int64) (int64, error) {
 	var result int64
 
 	request := resty.NewRequest(client.Proxy, "/requests/create2").
 		SetBody(map[string]interface{}{
-			"request": request,
+			"request": _request,
 			"testarg": testarg,
 		}).
 		Result(&result)

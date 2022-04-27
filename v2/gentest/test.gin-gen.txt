@@ -2228,7 +2228,9 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "query.start_at" ||
 				key == "query.end_at" ||
 				key == "query.overdue_start" ||
-				key == "query.overdue_end" {
+				key == "query.overdue_end" ||
+				strings.HasPrefix(key, "query.settings.") ||
+				strings.HasPrefix(key, "query.ttargstt.") {
 				continue
 			}
 			if query.Values == nil {
@@ -2421,6 +2423,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "end_at" ||
 				key == "overdue_start" ||
 				key == "overdue_end" ||
+				strings.HasPrefix(key, "settings.") ||
+				strings.HasPrefix(key, "ttargstt.") ||
 				key == "offset" ||
 				key == "limit" {
 				continue
@@ -2608,6 +2612,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "end_at" ||
 				key == "overdue_start" ||
 				key == "overdue_end" ||
+				strings.HasPrefix(key, "settings.") ||
+				strings.HasPrefix(key, "ttargstt.") ||
 				key == "offset" ||
 				key == "limit" {
 				continue
@@ -2646,14 +2652,14 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 	mux.GET("/requests/queryex1", func(ctx *gin.Context) {
 		var query *RequestQueryEx1
 		query = new(RequestQueryEx1)
-		query.ExArg = ctx.Query("query.exArg")
+		query.ExArg = ctx.Query("query.ex_arg")
 		if s := ctx.Query("query.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.operator_id"))
 				return
 			}
-			query.OperatorID = operatorIDValue
+			query.RequestQuery.OperatorID = operatorIDValue
 		}
 		if s := ctx.Query("query.creator_id"); s != "" {
 			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2661,7 +2667,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.creator_id"))
 				return
 			}
-			query.CreatorID = creatorIDValue
+			query.RequestQuery.CreatorID = creatorIDValue
 		}
 		if s := ctx.Query("query.requester_id"); s != "" {
 			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2669,7 +2675,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.requester_id"))
 				return
 			}
-			query.RequesterID = requesterIDValue
+			query.RequestQuery.RequesterID = requesterIDValue
 		}
 		if ss := ctx.QueryArray("query.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
@@ -2677,17 +2683,17 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.request_type_ids"))
 				return
 			}
-			query.RequestTypeIDs = requestTypeIDsValue
+			query.RequestQuery.RequestTypeIDs = requestTypeIDsValue
 		}
-		query.RequestTypeNames = ctx.QueryArray("query.request_type_names")
-		query.NameLike = ctx.Query("query.name_like")
+		query.RequestQuery.RequestTypeNames = ctx.QueryArray("query.request_type_names")
+		query.RequestQuery.NameLike = ctx.Query("query.name_like")
 		if s := ctx.Query("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.current_status"))
 				return
 			}
-			query.CurrentStatus = currentStatusValue
+			query.RequestQuery.CurrentStatus = currentStatusValue
 		}
 		if s := ctx.Query("query.is_unclosed"); s != "" {
 			isUnclosedValue, err := strconv.ParseBool(s)
@@ -2695,8 +2701,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_unclosed"))
 				return
 			}
-			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = isUnclosedValue
+			query.RequestQuery.IsUnclosed.Valid = true
+			query.RequestQuery.IsUnclosed.Bool = isUnclosedValue
 		}
 		if s := ctx.Query("query.is_overdued"); s != "" {
 			isOverduedValue, err := strconv.ParseBool(s)
@@ -2704,8 +2710,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_overdued"))
 				return
 			}
-			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = isOverduedValue
+			query.RequestQuery.IsOverdued.Valid = true
+			query.RequestQuery.IsOverdued.Bool = isOverduedValue
 		}
 		if s := ctx.Query("query.is_suspend"); s != "" {
 			isSuspendValue, err := strconv.ParseBool(s)
@@ -2713,8 +2719,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_suspend"))
 				return
 			}
-			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = isSuspendValue
+			query.RequestQuery.IsSuspend.Valid = true
+			query.RequestQuery.IsSuspend.Bool = isSuspendValue
 		}
 		if s := ctx.Query("query.start_at"); s != "" {
 			startAtValue, err := ToDatetime(s)
@@ -2722,7 +2728,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.start_at"))
 				return
 			}
-			query.StartAt = startAtValue
+			query.RequestQuery.StartAt = startAtValue
 		}
 		if s := ctx.Query("query.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
@@ -2730,7 +2736,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.end_at"))
 				return
 			}
-			query.EndAt = endAtValue
+			query.RequestQuery.EndAt = endAtValue
 		}
 		if s := ctx.Query("query.overdue_start"); s != "" {
 			overdueStartValue, err := ToDatetime(s)
@@ -2738,7 +2744,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.overdue_start"))
 				return
 			}
-			query.OverdueStart = overdueStartValue
+			query.RequestQuery.OverdueStart = overdueStartValue
 		}
 		if s := ctx.Query("query.overdue_end"); s != "" {
 			overdueEndValue, err := ToDatetime(s)
@@ -2746,7 +2752,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.overdue_end"))
 				return
 			}
-			query.OverdueEnd = overdueEndValue
+			query.RequestQuery.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.Request.URL.Query() {
@@ -2773,7 +2779,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			if !strings.HasPrefix(key, "query.") {
 				continue
 			}
-			if key == "query.operator_id" ||
+			if key == "query.ex_arg" ||
+				key == "query.operator_id" ||
 				key == "query.creator_id" ||
 				key == "query.requester_id" ||
 				key == "query.request_type_ids" ||
@@ -2786,7 +2793,9 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "query.start_at" ||
 				key == "query.end_at" ||
 				key == "query.overdue_start" ||
-				key == "query.overdue_end" {
+				key == "query.overdue_end" ||
+				strings.HasPrefix(key, "query.settings.") ||
+				strings.HasPrefix(key, "query.ttargstt.") {
 				continue
 			}
 			if query.Values == nil {
@@ -2830,7 +2839,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 	mux.GET("/requests/queryex2", func(ctx *gin.Context) {
 		var query *RequestQueryEx2
 		query = new(RequestQueryEx2)
-		query.ExArg = ctx.Query("query.exArg")
+		query.ExArg = ctx.Query("query.ex_arg")
 		if s := ctx.Query("query.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
@@ -2838,7 +2847,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				return
 			}
 			query.RequestQuery = new(models.RequestQuery)
-			query.OperatorID = operatorIDValue
+			query.RequestQuery.OperatorID = operatorIDValue
 		}
 		if s := ctx.Query("query.creator_id"); s != "" {
 			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2849,7 +2858,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			if query.RequestQuery == nil {
 				query.RequestQuery = new(models.RequestQuery)
 			}
-			query.CreatorID = creatorIDValue
+			query.RequestQuery.CreatorID = creatorIDValue
 		}
 		if s := ctx.Query("query.requester_id"); s != "" {
 			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2860,7 +2869,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			if query.RequestQuery == nil {
 				query.RequestQuery = new(models.RequestQuery)
 			}
-			query.RequesterID = requesterIDValue
+			query.RequestQuery.RequesterID = requesterIDValue
 		}
 		if ss := ctx.QueryArray("query.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
@@ -2871,20 +2880,20 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			if query.RequestQuery == nil {
 				query.RequestQuery = new(models.RequestQuery)
 			}
-			query.RequestTypeIDs = requestTypeIDsValue
+			query.RequestQuery.RequestTypeIDs = requestTypeIDsValue
 		}
 		if query.RequestQuery == nil {
 			query.RequestQuery = new(models.RequestQuery)
 		}
-		query.RequestTypeNames = ctx.QueryArray("query.request_type_names")
-		query.NameLike = ctx.Query("query.name_like")
+		query.RequestQuery.RequestTypeNames = ctx.QueryArray("query.request_type_names")
+		query.RequestQuery.NameLike = ctx.Query("query.name_like")
 		if s := ctx.Query("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.current_status"))
 				return
 			}
-			query.CurrentStatus = currentStatusValue
+			query.RequestQuery.CurrentStatus = currentStatusValue
 		}
 		if s := ctx.Query("query.is_unclosed"); s != "" {
 			isUnclosedValue, err := strconv.ParseBool(s)
@@ -2892,8 +2901,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_unclosed"))
 				return
 			}
-			query.IsUnclosed.Valid = true
-			query.IsUnclosed.Bool = isUnclosedValue
+			query.RequestQuery.IsUnclosed.Valid = true
+			query.RequestQuery.IsUnclosed.Bool = isUnclosedValue
 		}
 		if s := ctx.Query("query.is_overdued"); s != "" {
 			isOverduedValue, err := strconv.ParseBool(s)
@@ -2901,8 +2910,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_overdued"))
 				return
 			}
-			query.IsOverdued.Valid = true
-			query.IsOverdued.Bool = isOverduedValue
+			query.RequestQuery.IsOverdued.Valid = true
+			query.RequestQuery.IsOverdued.Bool = isOverduedValue
 		}
 		if s := ctx.Query("query.is_suspend"); s != "" {
 			isSuspendValue, err := strconv.ParseBool(s)
@@ -2910,8 +2919,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_suspend"))
 				return
 			}
-			query.IsSuspend.Valid = true
-			query.IsSuspend.Bool = isSuspendValue
+			query.RequestQuery.IsSuspend.Valid = true
+			query.RequestQuery.IsSuspend.Bool = isSuspendValue
 		}
 		if s := ctx.Query("query.start_at"); s != "" {
 			startAtValue, err := ToDatetime(s)
@@ -2919,7 +2928,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.start_at"))
 				return
 			}
-			query.StartAt = startAtValue
+			query.RequestQuery.StartAt = startAtValue
 		}
 		if s := ctx.Query("query.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
@@ -2927,7 +2936,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.end_at"))
 				return
 			}
-			query.EndAt = endAtValue
+			query.RequestQuery.EndAt = endAtValue
 		}
 		if s := ctx.Query("query.overdue_start"); s != "" {
 			overdueStartValue, err := ToDatetime(s)
@@ -2935,7 +2944,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.overdue_start"))
 				return
 			}
-			query.OverdueStart = overdueStartValue
+			query.RequestQuery.OverdueStart = overdueStartValue
 		}
 		if s := ctx.Query("query.overdue_end"); s != "" {
 			overdueEndValue, err := ToDatetime(s)
@@ -2943,7 +2952,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.overdue_end"))
 				return
 			}
-			query.OverdueEnd = overdueEndValue
+			query.RequestQuery.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.Request.URL.Query() {
@@ -2970,7 +2979,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			if !strings.HasPrefix(key, "query.") {
 				continue
 			}
-			if key == "query.operator_id" ||
+			if key == "query.ex_arg" ||
+				key == "query.operator_id" ||
 				key == "query.creator_id" ||
 				key == "query.requester_id" ||
 				key == "query.request_type_ids" ||
@@ -2983,7 +2993,9 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "query.start_at" ||
 				key == "query.end_at" ||
 				key == "query.overdue_start" ||
-				key == "query.overdue_end" {
+				key == "query.overdue_end" ||
+				strings.HasPrefix(key, "query.settings.") ||
+				strings.HasPrefix(key, "query.ttargstt.") {
 				continue
 			}
 			if query.Values == nil {
@@ -3178,7 +3190,9 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "query.request.start_at" ||
 				key == "query.request.end_at" ||
 				key == "query.request.overdue_start" ||
-				key == "query.request.overdue_end" {
+				key == "query.request.overdue_end" ||
+				strings.HasPrefix(key, "query.request.settings.") ||
+				strings.HasPrefix(key, "query.request.ttargstt.") {
 				continue
 			}
 			if query.Request.Values == nil {
@@ -3186,7 +3200,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
 		}
-		query.ExArg = ctx.Query("query.exArg")
+		query.ExArg = ctx.Query("query.ex_arg")
 		var offset int64
 		if s := ctx.Query("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -3387,7 +3401,9 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "query.request.start_at" ||
 				key == "query.request.end_at" ||
 				key == "query.request.overdue_start" ||
-				key == "query.request.overdue_end" {
+				key == "query.request.overdue_end" ||
+				strings.HasPrefix(key, "query.request.settings.") ||
+				strings.HasPrefix(key, "query.request.ttargstt.") {
 				continue
 			}
 			if query.Request.Values == nil {
@@ -3395,7 +3411,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
 		}
-		query.ExArg = ctx.Query("query.exArg")
+		query.ExArg = ctx.Query("query.ex_arg")
 		var offset int64
 		if s := ctx.Query("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -3583,7 +3599,9 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "request.start_at" ||
 				key == "request.end_at" ||
 				key == "request.overdue_start" ||
-				key == "request.overdue_end" {
+				key == "request.overdue_end" ||
+				strings.HasPrefix(key, "request.settings.") ||
+				strings.HasPrefix(key, "request.ttargstt.") {
 				continue
 			}
 			if query.Request.Values == nil {
@@ -3591,7 +3609,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.Request.Values[strings.TrimPrefix(key, "request.")] = values
 		}
-		query.ExArg = ctx.Query("exArg")
+		query.ExArg = ctx.Query("ex_arg")
 		var offset int64
 		if s := ctx.Query("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -3792,7 +3810,9 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "request.start_at" ||
 				key == "request.end_at" ||
 				key == "request.overdue_start" ||
-				key == "request.overdue_end" {
+				key == "request.overdue_end" ||
+				strings.HasPrefix(key, "request.settings.") ||
+				strings.HasPrefix(key, "request.ttargstt.") {
 				continue
 			}
 			if query.Request.Values == nil {
@@ -3800,7 +3820,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.Request.Values[strings.TrimPrefix(key, "request.")] = values
 		}
-		query.ExArg = ctx.Query("exArg")
+		query.ExArg = ctx.Query("ex_arg")
 		var offset int64
 		if s := ctx.Query("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -3988,7 +4008,9 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 				key == "query.start_at" ||
 				key == "query.end_at" ||
 				key == "query.overdue_start" ||
-				key == "query.overdue_end" {
+				key == "query.overdue_end" ||
+				strings.HasPrefix(key, "query.settings.") ||
+				strings.HasPrefix(key, "query.ttargstt.") {
 				continue
 			}
 			if query.Values == nil {
@@ -4218,7 +4240,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		query.Sub1.A2 = ctx.Query("query.sub1.a2")
 		query.Sub2.B1 = ctx.Query("query.sub2.b1")
 		query.Sub2.B2 = ctx.Query("query.sub2.b2")
-		query.ExArg = ctx.Query("query.exArg")
+		query.ExArg = ctx.Query("query.ex_arg")
 		result, err := svc.QuerySubTest1(ctx.Request.Context(), query)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -4236,7 +4258,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		query.Sub2 = new(Sub2)
 		query.Sub2.B1 = ctx.Query("query.sub2.b1")
 		query.Sub2.B2 = ctx.Query("query.sub2.b2")
-		query.ExArg = ctx.Query("query.exArg")
+		query.ExArg = ctx.Query("query.ex_arg")
 		result, err := svc.QuerySubTest2(ctx.Request.Context(), query)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -4248,14 +4270,14 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 	mux.GET("/requests/querysub3", func(ctx *gin.Context) {
 		var query *SubTest3
 		query = new(SubTest3)
-		query.ExArg = ctx.Query("query.exArg")
-		query.Sub1 = new(Sub1)
-		query.Sub1.A1 = ctx.Query("query.sub1.a1")
-		query.Sub1.A2 = ctx.Query("query.sub1.a2")
-		query.Sub2 = new(Sub2)
-		query.Sub2.B1 = ctx.Query("query.sub2.b1")
-		query.Sub2.B2 = ctx.Query("query.sub2.b2")
-		query.ExArg = ctx.Query("query.exArg")
+		query.ExArg = ctx.Query("query.ex_arg")
+		query.SubTest2.Sub1 = new(Sub1)
+		query.SubTest2.Sub1.A1 = ctx.Query("query.sub1.a1")
+		query.SubTest2.Sub1.A2 = ctx.Query("query.sub1.a2")
+		query.SubTest2.Sub2 = new(Sub2)
+		query.SubTest2.Sub2.B1 = ctx.Query("query.sub2.b1")
+		query.SubTest2.Sub2.B2 = ctx.Query("query.sub2.b2")
+		query.SubTest2.ExArg = ctx.Query("query.ex_arg")
 		result, err := svc.QuerySubTest3(ctx.Request.Context(), query)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -4267,15 +4289,15 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 	mux.GET("/requests/querysub4", func(ctx *gin.Context) {
 		var query *SubTest4
 		query = new(SubTest4)
-		query.ExArg = ctx.Query("query.exArg")
+		query.ExArg = ctx.Query("query.ex_arg")
 		query.SubTest2 = new(SubTest2)
-		query.Sub1 = new(Sub1)
-		query.Sub1.A1 = ctx.Query("query.sub1.a1")
-		query.Sub1.A2 = ctx.Query("query.sub1.a2")
-		query.Sub2 = new(Sub2)
-		query.Sub2.B1 = ctx.Query("query.sub2.b1")
-		query.Sub2.B2 = ctx.Query("query.sub2.b2")
-		query.ExArg = ctx.Query("query.exArg")
+		query.SubTest2.Sub1 = new(Sub1)
+		query.SubTest2.Sub1.A1 = ctx.Query("query.sub1.a1")
+		query.SubTest2.Sub1.A2 = ctx.Query("query.sub1.a2")
+		query.SubTest2.Sub2 = new(Sub2)
+		query.SubTest2.Sub2.B1 = ctx.Query("query.sub2.b1")
+		query.SubTest2.Sub2.B2 = ctx.Query("query.sub2.b2")
+		query.SubTest2.ExArg = ctx.Query("query.ex_arg")
 		result, err := svc.QuerySubTest4(ctx.Request.Context(), query)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
