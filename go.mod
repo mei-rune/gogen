@@ -8,6 +8,7 @@ require (
 	github.com/Shopify/goreferrer v0.0.0-20210630161223-536fa16abd6f // indirect
 	github.com/aryann/difflib v0.0.0-20170710044230-e206f873d14a
 	github.com/astaxie/beego v1.12.3
+	github.com/axw/gocov v1.1.0 // indirect
 	github.com/dgraph-io/badger v1.6.0 // indirect
 	github.com/etcd-io/bbolt v1.3.3 // indirect
 	github.com/fasthttp-contrib/websocket v0.0.0-20160511215533-1f3b11f56072 // indirect
@@ -28,6 +29,7 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta1 // indirect
 	github.com/klauspost/compress v1.15.2 // indirect
 	github.com/labstack/echo/v4 v4.1.14
+	github.com/mattn/goveralls v0.0.11 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/moul/http2curl v1.0.0 // indirect
