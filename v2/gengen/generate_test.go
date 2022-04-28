@@ -21,7 +21,23 @@ func getGogen() string {
 			return dir
 		}
 	}
-	return ""
+
+	parent, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	for {
+		info, err := os.Stat(filepath.Join(parent, "go.mod"))
+		if err == nil && !info.IsDir() {
+			break
+		}
+		d := filepath.Dir(parent)
+		if len(d) >= len(parent) {
+			return ""
+		}
+		parent = d
+	}
+	return filepath.Join(parent, "cmd/github.com/runner-mei/gogen/v2")
 }
 
 func TestGenerate(t *testing.T) {
