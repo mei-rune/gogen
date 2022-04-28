@@ -22,19 +22,27 @@ type ServerGenerator struct {
 }
 
 func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
-	fs.StringVar(&cmd.ext, "ext", ".gogen.go", "文件后缀名")
+	fs.StringVar(&cmd.ext, "ext", "", "文件后缀名")
 	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 
-	fs.StringVar(&cmd.plugin, "plugin", "", "")
+	fs.StringVar(&cmd.plugin, "plugin", "", "指定生成框架，可取值: chi, gin, echo, iris, loong")
 	fs.BoolVar(&cmd.enableHttpCodeWith, "httpCodeWith", false, "生成 enableHttpCodeWith 函数")
 	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")
 	return fs
 }
 
 func (cmd *ServerGenerator) Run(args []string) error {
+	if cmd.plugin == "" {
+		return errors.New("缺少 plugin 参数")
+	}
+	
 	plugin, err := createPlugin(cmd.plugin)
 	if err != nil {
 		return err
+	}
+
+	if cmd.ext == "" {
+		cmd.ext = "."+cmd.plugin+"-gen.go"
 	}
 
 	swaggerParser := swag.New()
