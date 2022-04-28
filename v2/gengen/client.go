@@ -143,6 +143,12 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 		}
 		io.WriteString(out, pa.Path.Value)
 	}
+
+	io.WriteString(out, "\r\n\t")
+	io.WriteString(out, `"github.com/runner-mei/loong"`)
+	io.WriteString(out, "\r\n\t")
+	io.WriteString(out, `"github.com/runner-mei/resty"`)
+
 	// for pa, alias := range cfg.Imports() {
 	// 	io.WriteString(out, "\r\n\t")
 	// 	if alias != "" {
