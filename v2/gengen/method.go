@@ -113,7 +113,7 @@ func searchStructFieldParam(operation *swag.Operation, structargname string, fie
 	name := field.Name
 	jsonName := field.Name
 	if s, _ := getTagValue(field, "json"); s != "" {
-		jsonName = s
+		jsonName = getJSONName(s)
 	}
 
 	snakeCaseStructArgName := toSnakeCase(structargname)
@@ -410,6 +410,7 @@ func getFieldSiblingNames(typ astutil.Type) ([]SiblingName, error) {
 		isPrefix := isPrefixForType(fields[idx].Type())
 
 		s, _ = getTagValue(&fields[idx], "json")
+		s = getJSONName(s)
 		if s == "" {
 			if fields[idx].IsAnonymous {
 				t := fields[idx].Type()
@@ -1301,6 +1302,7 @@ func GetWebParamName(param *Param, parents []*Field) string {
 
 	for idx := range parents {
 		jsonName, _ := getTagValue(parents[idx].Field, "json")
+		jsonName = getJSONName(jsonName)
 		if parents[idx].Field.IsAnonymous {
 			if jsonName == "" {
 				continue

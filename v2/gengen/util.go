@@ -365,3 +365,13 @@ func isExtendInline(param *spec.Parameter) bool {
 	s, _ := param.Extensions.GetString("x-gogen-extend")
 	return strings.ToLower(s) == "inline"
 }
+
+
+func getJSONName(s string) string {
+	if s == "" {
+		return ""
+	}
+
+	ss := strings.Split(s, ",")
+	return strings.TrimSpace(ss[0])
+}
