@@ -231,6 +231,7 @@ func TestGenerate(t *testing.T) {
 			}
 			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{})
 			gen.config.HasWrapper = false
+			gen.buildTag = "!loong"
 			// gen.includes = filepath.Join(wd, "gentest", "models", "requests.go")
 
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
@@ -241,6 +242,44 @@ func TestGenerate(t *testing.T) {
 
 			actual := readFile(filepath.Join(wd, "gentest", name+".client-gen.go"))
 			excepted := readFile(filepath.Join(wd, "gentest", name+".client-gen.txt"))
+			if !reflect.DeepEqual(actual, excepted) {
+				results := difflib.Diff(excepted, actual)
+				for _, result := range results {
+					if result.Delta == difflib.Common {
+						continue
+					}
+					t.Error(result)
+				}
+			}
+		}
+	})
+
+
+
+	t.Run("loongclient", func(t *testing.T) {
+		for _, name := range []string{"test"} {
+			t.Log("=====================", name)
+			os.Remove(filepath.Join(wd, "gentest", name+".loongclient-gen.go"))
+
+			var gen = ClientGenerator{
+					ext:      ".loongclient-gen.go",
+			}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+				"-has-wrapper", "true",
+				"-ext", ".loongclient-gen.go",
+			})
+			gen.config.HasWrapper = true
+			gen.ext = ".loongclient-gen.go"
+			gen.buildTag = "loong"
+
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+				fmt.Println(err)
+				t.Error(err)
+				continue
+			}
+
+			actual := readFile(filepath.Join(wd, "gentest", name+".loongclient-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", name+".loongclient-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {

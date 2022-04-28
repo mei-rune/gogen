@@ -105,6 +105,9 @@ func (cmd *ClientGenerator) Run(args []string) error {
 
 func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser, file *astutil.File) error {
 	if cmd.buildTag != "" {
+		io.WriteString(out, "//go:build ")
+		io.WriteString(out, cmd.buildTag)
+		io.WriteString(out, "\r\n")
 		io.WriteString(out, "// +build ")
 		io.WriteString(out, cmd.buildTag)
 		io.WriteString(out, "\r\n")
@@ -471,7 +474,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 func (cmd *ClientGenerator) genInterfaceMethodInvokeAndReturn(out io.Writer, recvClassName string, method *Method) error {
 	resultCount := getResultCount(method)
 
-	if resultCount == 0 && !cmd.config.HasWrapper {
+	if resultCount == 0 /* && !cmd.config.HasWrapper */ {
 		io.WriteString(out, "\r\n")
 		io.WriteString(out, "\r\ndefer "+cmd.config.ReleaseRequest("client."+cmd.config.RestyField, "request"))
 		io.WriteString(out, "\r\nreturn ")
@@ -482,18 +485,18 @@ func (cmd *ClientGenerator) genInterfaceMethodInvokeAndReturn(out io.Writer, rec
 
 	resultName := getResultName(method)
 	if resultCount == 0 {
-		if cmd.config.HasWrapper {
-			io.WriteString(out, "\r\n\tif err != nil {")
-			io.WriteString(out, "\r\n\t\treturn err")
-			io.WriteString(out, "\r\n\t}")
-			io.WriteString(out, "\r\n\tif !"+resultName+"Wrap.Success {")
-			io.WriteString(out, "\r\n\t\tif "+resultName+"Wrap.Error == nil {")
-			io.WriteString(out, "\r\n\t\t\treturn errors.New(\"error is nil\")")
-			io.WriteString(out, "\r\n\t\t}")
-			io.WriteString(out, "\r\n\t\treturn "+resultName+"Wrap.Error")
-			io.WriteString(out, "\r\n\t}")
-			io.WriteString(out, "\r\n\treturn nil")
-		}
+		// if cmd.config.HasWrapper {
+		// 	io.WriteString(out, "\r\n\tif err != nil {")
+		// 	io.WriteString(out, "\r\n\t\treturn err")
+		// 	io.WriteString(out, "\r\n\t}")
+		// 	io.WriteString(out, "\r\n\tif !"+resultName+"Wrap.Success {")
+		// 	io.WriteString(out, "\r\n\t\tif "+resultName+"Wrap.Error == nil {")
+		// 	io.WriteString(out, "\r\n\t\t\treturn errors.New(\"error is nil\")")
+		// 	io.WriteString(out, "\r\n\t\t}")
+		// 	io.WriteString(out, "\r\n\t\treturn "+resultName+"Wrap.Error")
+		// 	io.WriteString(out, "\r\n\t}")
+		// 	io.WriteString(out, "\r\n\treturn nil")
+		// }
 	} else if resultCount == 1 {
 		io.WriteString(out, "\r\n\t"+cmd.config.ReleaseRequest("client."+cmd.config.RestyField, "request"))
 
@@ -508,7 +511,7 @@ func (cmd *ClientGenerator) genInterfaceMethodInvokeAndReturn(out io.Writer, rec
 			io.WriteString(out, "\r\n\t\t}")
 			io.WriteString(out, "\r\n\t\treturn "+zeroValueStr+", "+resultName+"Wrap.Error")
 			io.WriteString(out, "\r\n\t}")
-			io.WriteString(out, "\r\n\treturn "+zeroValueStr+", nil")
+			io.WriteString(out, "\r\n\treturn "+resultName+", nil")
 		} else {
 			if method.Method.Results.List[0].Type().IsPtrType() {
 				io.WriteString(out, "\r\n\treturn &"+resultName+", err")
@@ -837,8 +840,7 @@ func (c *ClientConfig) GetPath(method *Method) string {
 		panic(err)
 	})
 	segements, _ := parseURL(rawurl)
-	return "\"" + JoinPathSegments(segements, false, replace) + "\""
-	// return strings.Trim("\"" + JoinPathSegments(segements, false, replace) + "\"", "+ \"\"")
+	return strings.TrimSuffix("\"" + JoinPathSegments(segements, false, replace) + "\"", "+ \"\"")
 }
 
 func convertToStringLiteral(param *astutil.Param, index, convertNS, timeFormat string) string {

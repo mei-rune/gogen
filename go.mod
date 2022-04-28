@@ -32,7 +32,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/runner-mei/GoBatis v1.5.2
+	github.com/runner-mei/GoBatis v1.5.3
 	github.com/runner-mei/errors v0.0.0-20220303013420-f8ef04b1558b
 	github.com/runner-mei/loong v1.0.8
 	github.com/runner-mei/resty v0.0.0-20210621130733-e026567bec34
@@ -50,5 +50,7 @@ require (
 	golang.org/x/tools v0.1.10 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 )
+
+replace github.com/swaggo/swag v1.8.1 => github.com/runner-mei/swag v1.8.2-0.20220428004705-b0fb9e2e1989
 
 go 1.13

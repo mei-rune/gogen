@@ -1,11 +1,12 @@
-//go:build loong
-// +build loong
+//go:build echo
+// +build echo
 
 // Please don't edit this file!
 package main
 
 import (
 	"database/sql"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -13,21 +14,31 @@ import (
 	"strings"
 	"time"
 
-	"github.com/runner-mei/gogen/gentest/models"
-	"github.com/runner-mei/loong"
+	"github.com/labstack/echo/v4"
+	"github.com/runner-mei/gogen/v1/gentest/models"
 )
+
+func httpCodeWith(err error) int {
+	if herr, ok := err.(interface {
+		HTTPCode() int
+	}); ok {
+		return herr.HTTPCode()
+	}
+	return http.StatusInternalServerError
+}
 
 // TimeRange is skipped
 // TimeRange2 is skipped
 // QueryArgs is skipped
 
-func InitStringSvc(mux loong.Party, svc StringSvc) {
-	mux.GET("/files", func(ctx *loong.Context) error {
+func InitStringSvc(mux *echo.Group, svc StringSvc) {
+	mux.GET("/files", func(ctx echo.Context) error {
 		var filenames = ctx.QueryParamArray("filenames")
 
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 
 		result := map[string]interface{}{
@@ -35,27 +46,30 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			"total": total,
 		}
 
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/times", func(ctx *loong.Context) error {
+	mux.GET("/times", func(ctx echo.Context) error {
 		var times []time.Time
 		if ss := ctx.QueryParamArray("times"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("times", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "times", ss, err))
+				return nil
 			}
 			times = timesValue
 		} else if ss := ctx.QueryParamArray("times[]"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("times", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "times", ss, err))
+				return nil
 			}
 			times = timesValue
 		}
 
 		list, total, err := svc.GetTimes(times)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 
 		result := map[string]interface{}{
@@ -63,12 +77,13 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			"total": total,
 		}
 
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/allfiles", func(ctx *loong.Context) error {
+	mux.GET("/allfiles", func(ctx echo.Context) error {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 
 		result := map[string]interface{}{
@@ -76,48 +91,53 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			"total": total,
 		}
 
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/test_by_key/:key", func(ctx *loong.Context) error {
+	mux.GET("/test_by_key/:key", func(ctx echo.Context) error {
 		var key Key
 		if keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("key", ctx.Param("key"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "key", ctx.Param("key"), err))
+			return nil
 		} else {
 			key = Key(keyValue)
 		}
 
 		err := svc.TestByKey1(key)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test_by_key", func(ctx *loong.Context) error {
+	mux.GET("/test_by_key", func(ctx echo.Context) error {
 		var key Key
 		if s := ctx.QueryParam("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("key", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "key", s, err))
+				return nil
 			}
 			key = Key(keyValue)
 		}
 
 		err := svc.TestByKey2(key)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test_by_strkey/:key", func(ctx *loong.Context) error {
+	mux.GET("/test_by_strkey/:key", func(ctx echo.Context) error {
 		var key = StrKey(ctx.Param("key"))
 
 		err := svc.TestByStrKey1(key)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test_by_strkey", func(ctx *loong.Context) error {
+	mux.GET("/test_by_strkey", func(ctx echo.Context) error {
 		var key StrKey
 		if s := ctx.QueryParam("key"); s != "" {
 			key = StrKey(s)
@@ -125,63 +145,72 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 
 		err := svc.TestByStrKey2(key)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64/:id", func(ctx *loong.Context) error {
+	mux.GET("/test64/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 
 		err = svc.TestInt64Path(id)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test64", func(ctx *loong.Context) error {
+	mux.GET("/test64", func(ctx echo.Context) error {
 		var id int64
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", s, err))
+				return nil
 			}
 			id = idValue
 		}
 
 		err := svc.TestInt64Query(id)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test_query_args1/:id", func(ctx *loong.Context) error {
+	mux.GET("/test_query_args1/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var args QueryArgs
 		if s := ctx.QueryParam("args.fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.fint", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
+				return nil
 			}
 			args.Fint = argsFintValue
 		}
 		args.Fstring = ctx.QueryParam("args.fstring")
 		if s := ctx.QueryParam("args.ftime"); s != "" {
-			argsFtimeValue, err := loong.ToDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.ftime", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
+				return nil
 			}
 			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.fintptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
+				return nil
 			}
 			args.Fintptr = &argsFintptrValue
 		}
@@ -189,29 +218,33 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := loong.ToDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.ftimeptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
+				return nil
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test_query_args2/:id", func(ctx *loong.Context) error {
+	mux.GET("/test_query_args2/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var args *QueryArgs
 		if s := ctx.QueryParam("args.fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.fint", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
+				return nil
 			}
 			args = &QueryArgs{}
 			args.Fint = argsFintValue
@@ -223,9 +256,10 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			args.Fstring = s
 		}
 		if s := ctx.QueryParam("args.ftime"); s != "" {
-			argsFtimeValue, err := loong.ToDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.ftime", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -235,7 +269,8 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.fintptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -249,9 +284,10 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := loong.ToDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.ftimeptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -261,35 +297,40 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test_query_args3/:id", func(ctx *loong.Context) error {
+	mux.GET("/test_query_args3/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var args QueryArgs
 		if s := ctx.QueryParam("fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("fint", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
+				return nil
 			}
 			args.Fint = argsFintValue
 		}
 		args.Fstring = ctx.QueryParam("fstring")
 		if s := ctx.QueryParam("ftime"); s != "" {
-			argsFtimeValue, err := loong.ToDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("ftime", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
+				return nil
 			}
 			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("fintptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
+				return nil
 			}
 			args.Fintptr = &argsFintptrValue
 		}
@@ -297,29 +338,33 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := loong.ToDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
+				return nil
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/test_query_args4/:id", func(ctx *loong.Context) error {
+	mux.GET("/test_query_args4/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var args *QueryArgs
 		if s := ctx.QueryParam("fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("fint", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
+				return nil
 			}
 			args = &QueryArgs{}
 			args.Fint = argsFintValue
@@ -331,9 +376,10 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			args.Fstring = s
 		}
 		if s := ctx.QueryParam("ftime"); s != "" {
-			argsFtimeValue, err := loong.ToDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("ftime", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -343,7 +389,8 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("fintptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -357,9 +404,10 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := loong.ToDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -369,55 +417,61 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 
 		err = svc.TestQueryArgs4(id, args)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/ping", func(ctx *loong.Context) error {
+	mux.GET("/ping", func(ctx echo.Context) error {
 		err := svc.Ping()
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/echo", func(ctx *loong.Context) error {
+	mux.GET("/echo", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 
 		result := svc.Echo(a)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/echo2", func(ctx *loong.Context) error {
+	mux.POST("/echo2", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/echo3", func(ctx *loong.Context) error {
+	mux.POST("/echo3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		result, err := svc.Echo3(ctx.StdContext, bindArgs.A)
+		result, err := svc.Echo3(ctx.Request().Context(), bindArgs.A)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/concat", func(ctx *loong.Context) error {
+	mux.GET("/concat", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var b = ctx.QueryParam("b")
 
 		result, err := svc.Concat0(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/concat1", func(ctx *loong.Context) error {
+	mux.GET("/concat1", func(ctx echo.Context) error {
 		var a *string
 		if s := ctx.QueryParam("a"); s != "" {
 			a = &s
@@ -429,161 +483,183 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 
 		result, err := svc.Concat1(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/concat2/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/concat2/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
 		result, err := svc.Concat2(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/concat3/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/concat3/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
 		result, err := svc.Concat3(&a, &b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/sub", func(ctx *loong.Context) error {
+	mux.GET("/sub", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var start int64
 		if s := ctx.QueryParam("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "start", s, err))
+				return nil
 			}
 			start = startValue
 		}
 
 		result, err := svc.Sub(a, start)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/save/:a", func(ctx *loong.Context) error {
+	mux.POST("/save/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", "body", err))
+			return nil
 		}
 
 		result, err := svc.Save(a, b.String())
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/save2/:a", func(ctx *loong.Context) error {
+	mux.POST("/save2/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", "body", err))
+			return nil
 		}
 		var b = bBuilder.String()
 
 		result, err := svc.Save2(&a, &b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/save3", func(ctx *loong.Context) error {
+	mux.POST("/save3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
 		result, err := svc.Save3(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/save4", func(ctx *loong.Context) error {
+	mux.POST("/save4", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
 		result, err := svc.Save4(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/save5", func(ctx *loong.Context) error {
+	mux.POST("/save5", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		result, err := svc.Save5(ctx.StdContext, bindArgs.A, bindArgs.B)
+		result, err := svc.Save5(ctx.Request().Context(), bindArgs.A, bindArgs.B)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/add/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/add/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", ctx.Param("a"), err))
+			return nil
 		}
 		b, err := strconv.Atoi(ctx.Param("b"))
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", ctx.Param("b"), err))
+			return nil
 		}
 
 		result, err := svc.Add1(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/add2/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/add2/:a/:b", func(ctx echo.Context) error {
 		var a *int
 		if aValue, err := strconv.Atoi(ctx.Param("a")); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", ctx.Param("a"), err))
+			return nil
 		} else {
 			a = &aValue
 		}
 		var b *int
 		if bValue, err := strconv.Atoi(ctx.Param("b")); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", ctx.Param("b"), err))
+			return nil
 		} else {
 			b = &bValue
 		}
 
 		result, err := svc.Add2(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/add3", func(ctx *loong.Context) error {
+	mux.GET("/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("a", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", s, err))
+				return nil
 			}
 			a = &aValue
 		}
@@ -591,32 +667,36 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if s := ctx.QueryParam("b"); s != "" {
 			bValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("b", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", s, err))
+				return nil
 			}
 			b = &bValue
 		}
 
 		result, err := svc.Add3(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query1", func(ctx *loong.Context) error {
+	mux.GET("/query1", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := loong.ToDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
+				return nil
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := loong.ToDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
 			}
 			endAt = endAtValue
 		}
@@ -626,91 +706,99 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query2/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/query2/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := loong.ToDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
+				return nil
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := loong.ToDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
 			}
 			endAt = endAtValue
 		}
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query3/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/query3/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := loong.ToDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
+				return nil
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := loong.ToDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
 			}
 			endAt = endAtValue
 		}
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query4/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/query4/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := loong.ToDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
+				return nil
 			}
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := loong.ToDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
+				return nil
 			}
 			createdAt.End = createdAtEndValue
 		}
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query5/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/query5/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := loong.ToDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
+				return nil
 			}
 			createdAt = &TimeRange{}
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := loong.ToDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
+				return nil
 			}
 			if createdAt == nil {
 				createdAt = &TimeRange{}
@@ -720,45 +808,49 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query6/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/query6/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := loong.ToDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
+				return nil
 			}
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := loong.ToDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
+				return nil
 			}
 			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query7/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/query7/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := loong.ToDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
+				return nil
 			}
 			createdAt = &TimeRange2{}
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := loong.ToDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
+				return nil
 			}
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
@@ -768,108 +860,119 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/query8", func(ctx *loong.Context) error {
+	mux.GET("/query8", func(ctx echo.Context) error {
 		var itemID int64
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "item_id", s, err))
+				return nil
 			}
 			itemID = itemIDValue
 		}
 
-		result, err := svc.Query8(ctx.StdContext, itemID)
+		result, err := svc.Query8(ctx.Request().Context(), itemID)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.POST("", func(ctx *loong.Context) error {
-		err := svc.CreateWithNoReturn(ctx.StdContext, ctx.Request(), ctx.Response().Writer)
+	mux.POST("", func(ctx echo.Context) error {
+		err := svc.CreateWithNoReturn(ctx.Request().Context(), ctx.Request(), ctx.Response().Writer)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 
 		return nil
 	})
-	mux.GET("/query9", func(ctx *loong.Context) error {
+	mux.GET("/query9", func(ctx echo.Context) error {
 		var itemID sql.NullInt64
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "item_id", s, err))
+				return nil
 			}
 			itemID.Valid = true
 			itemID.Int64 = itemIDValue
 		}
 
-		result, err := svc.Query9(ctx.StdContext, itemID)
+		result, err := svc.Query9(ctx.Request().Context(), itemID)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.GET("/query10", func(ctx *loong.Context) error {
+	mux.GET("/query10", func(ctx echo.Context) error {
 		var itemID sql.NullString
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemID.Valid = true
 			itemID.String = s
 		}
 
-		result, err := svc.Query10(ctx.StdContext, itemID)
+		result, err := svc.Query10(ctx.Request().Context(), itemID)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.GET("/query11", func(ctx *loong.Context) error {
+	mux.GET("/query11", func(ctx echo.Context) error {
 		var itemID sql.NullBool
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemID.Valid = true
 			itemID.Bool = ToBool(s)
 		}
 
-		result, err := svc.Query11(ctx.StdContext, itemID)
+		result, err := svc.Query11(ctx.Request().Context(), itemID)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.GET("/query12", func(ctx *loong.Context) error {
+	mux.GET("/query12", func(ctx echo.Context) error {
 		var Name = ctx.QueryParam("Name")
 
-		result, err := svc.Query1WithUpName(ctx.StdContext, Name)
+		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.POST("/query12", func(ctx *loong.Context) error {
+	mux.POST("/query12", func(ctx echo.Context) error {
 		var bindArgs struct {
 			Name string `json:"Name,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		err := svc.Set1WithUpName(ctx.StdContext, bindArgs.Name)
+		err := svc.Set1WithUpName(ctx.Request().Context(), bindArgs.Name)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult("OK")
+		return ctx.JSON(http.StatusCreated, "OK")
 	})
 	// Misc: annotation is missing
 }
 
-func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
-	mux.GET("/impl/files", func(ctx *loong.Context) error {
+func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
+	mux.GET("/impl/files", func(ctx echo.Context) error {
 		var filenames = ctx.QueryParamArray("filenames")
 
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 
 		result := map[string]interface{}{
@@ -877,27 +980,30 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			"total": total,
 		}
 
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/times", func(ctx *loong.Context) error {
+	mux.GET("/impl/times", func(ctx echo.Context) error {
 		var times []time.Time
 		if ss := ctx.QueryParamArray("times"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("times", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "times", ss, err))
+				return nil
 			}
 			times = timesValue
 		} else if ss := ctx.QueryParamArray("times[]"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("times", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "times", ss, err))
+				return nil
 			}
 			times = timesValue
 		}
 
 		list, total, err := svc.GetTimes(times)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 
 		result := map[string]interface{}{
@@ -905,12 +1011,13 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			"total": total,
 		}
 
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/allfiles", func(ctx *loong.Context) error {
+	mux.GET("/impl/allfiles", func(ctx echo.Context) error {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 
 		result := map[string]interface{}{
@@ -918,48 +1025,53 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			"total": total,
 		}
 
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/test_by_key/:key", func(ctx *loong.Context) error {
+	mux.GET("/impl/test_by_key/:key", func(ctx echo.Context) error {
 		var key Key
 		if keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("key", ctx.Param("key"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "key", ctx.Param("key"), err))
+			return nil
 		} else {
 			key = Key(keyValue)
 		}
 
 		err := svc.TestByKey1(key)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test_by_key", func(ctx *loong.Context) error {
+	mux.GET("/impl/test_by_key", func(ctx echo.Context) error {
 		var key Key
 		if s := ctx.QueryParam("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("key", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "key", s, err))
+				return nil
 			}
 			key = Key(keyValue)
 		}
 
 		err := svc.TestByKey2(key)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test_by_strkey/:key", func(ctx *loong.Context) error {
+	mux.GET("/impl/test_by_strkey/:key", func(ctx echo.Context) error {
 		var key = StrKey(ctx.Param("key"))
 
 		err := svc.TestByStrKey1(key)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test_by_strkey", func(ctx *loong.Context) error {
+	mux.GET("/impl/test_by_strkey", func(ctx echo.Context) error {
 		var key StrKey
 		if s := ctx.QueryParam("key"); s != "" {
 			key = StrKey(s)
@@ -967,63 +1079,72 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 
 		err := svc.TestByStrKey2(key)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test64/:id", func(ctx *loong.Context) error {
+	mux.GET("/impl/test64/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 
 		err = svc.TestInt64Path(id)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test64", func(ctx *loong.Context) error {
+	mux.GET("/impl/test64", func(ctx echo.Context) error {
 		var id int64
 		if s := ctx.QueryParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", s, err))
+				return nil
 			}
 			id = idValue
 		}
 
 		err := svc.TestInt64Query(id)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test_query_args1/:id", func(ctx *loong.Context) error {
+	mux.GET("/impl/test_query_args1/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var args QueryArgs
 		if s := ctx.QueryParam("args.fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.fint", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
+				return nil
 			}
 			args.Fint = argsFintValue
 		}
 		args.Fstring = ctx.QueryParam("args.fstring")
 		if s := ctx.QueryParam("args.ftime"); s != "" {
-			argsFtimeValue, err := loong.ToDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.ftime", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
+				return nil
 			}
 			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.fintptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
+				return nil
 			}
 			args.Fintptr = &argsFintptrValue
 		}
@@ -1031,29 +1152,33 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := loong.ToDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.ftimeptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
+				return nil
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test_query_args2/:id", func(ctx *loong.Context) error {
+	mux.GET("/impl/test_query_args2/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var args *QueryArgs
 		if s := ctx.QueryParam("args.fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.fint", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fint", s, err))
+				return nil
 			}
 			args = &QueryArgs{}
 			args.Fint = argsFintValue
@@ -1065,9 +1190,10 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			args.Fstring = s
 		}
 		if s := ctx.QueryParam("args.ftime"); s != "" {
-			argsFtimeValue, err := loong.ToDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.ftime", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftime", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -1077,7 +1203,8 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("args.fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.fintptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.fintptr", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -1091,9 +1218,10 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
-			argsFtimeptrValue, err := loong.ToDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("args.ftimeptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "args.ftimeptr", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -1103,35 +1231,40 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test_query_args3/:id", func(ctx *loong.Context) error {
+	mux.GET("/impl/test_query_args3/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var args QueryArgs
 		if s := ctx.QueryParam("fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("fint", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
+				return nil
 			}
 			args.Fint = argsFintValue
 		}
 		args.Fstring = ctx.QueryParam("fstring")
 		if s := ctx.QueryParam("ftime"); s != "" {
-			argsFtimeValue, err := loong.ToDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("ftime", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
+				return nil
 			}
 			args.Ftime = argsFtimeValue
 		}
 		if s := ctx.QueryParam("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("fintptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
+				return nil
 			}
 			args.Fintptr = &argsFintptrValue
 		}
@@ -1139,29 +1272,33 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := loong.ToDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
+				return nil
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/test_query_args4/:id", func(ctx *loong.Context) error {
+	mux.GET("/impl/test_query_args4/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var args *QueryArgs
 		if s := ctx.QueryParam("fint"); s != "" {
 			argsFintValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("fint", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fint", s, err))
+				return nil
 			}
 			args = &QueryArgs{}
 			args.Fint = argsFintValue
@@ -1173,9 +1310,10 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			args.Fstring = s
 		}
 		if s := ctx.QueryParam("ftime"); s != "" {
-			argsFtimeValue, err := loong.ToDatetime(s)
+			argsFtimeValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("ftime", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftime", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -1185,7 +1323,8 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("fintptr"); s != "" {
 			argsFintptrValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("fintptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "fintptr", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -1199,9 +1338,10 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
-			argsFtimeptrValue, err := loong.ToDatetime(s)
+			argsFtimeptrValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "ftimeptr", s, err))
+				return nil
 			}
 			if args == nil {
 				args = &QueryArgs{}
@@ -1211,55 +1351,61 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 
 		err = svc.TestQueryArgs4(id, args)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/ping", func(ctx *loong.Context) error {
+	mux.GET("/impl/ping", func(ctx echo.Context) error {
 		err := svc.Ping()
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult("OK")
+		return ctx.JSON(http.StatusOK, "OK")
 	})
-	mux.GET("/impl/echo", func(ctx *loong.Context) error {
+	mux.GET("/impl/echo", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 
 		result := svc.Echo(a)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/impl/echo2", func(ctx *loong.Context) error {
+	mux.POST("/impl/echo2", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/impl/echo3", func(ctx *loong.Context) error {
+	mux.POST("/impl/echo3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		result, err := svc.Echo3(ctx.StdContext, bindArgs.A)
+		result, err := svc.Echo3(ctx.Request().Context(), bindArgs.A)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/impl/concat", func(ctx *loong.Context) error {
+	mux.GET("/impl/concat", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var b = ctx.QueryParam("b")
 
 		result, err := svc.Concat0(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/concat1", func(ctx *loong.Context) error {
+	mux.GET("/impl/concat1", func(ctx echo.Context) error {
 		var a *string
 		if s := ctx.QueryParam("a"); s != "" {
 			a = &s
@@ -1271,161 +1417,183 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 
 		result, err := svc.Concat1(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/concat2/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/impl/concat2/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
 		result, err := svc.Concat2(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/concat3/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/impl/concat3/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
 		result, err := svc.Concat3(&a, &b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/sub", func(ctx *loong.Context) error {
+	mux.GET("/impl/sub", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var start int64
 		if s := ctx.QueryParam("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "start", s, err))
+				return nil
 			}
 			start = startValue
 		}
 
 		result, err := svc.Sub(a, start)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/impl/save/:a", func(ctx *loong.Context) error {
+	mux.POST("/impl/save/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", "body", err))
+			return nil
 		}
 
 		result, err := svc.Save(a, b.String())
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/impl/save2/:a", func(ctx *loong.Context) error {
+	mux.POST("/impl/save2/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", "body", err))
+			return nil
 		}
 		var b = bBuilder.String()
 
 		result, err := svc.Save2(&a, &b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/impl/save3", func(ctx *loong.Context) error {
+	mux.POST("/impl/save3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
 		result, err := svc.Save3(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/impl/save4", func(ctx *loong.Context) error {
+	mux.POST("/impl/save4", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
 		result, err := svc.Save4(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/impl/save5", func(ctx *loong.Context) error {
+	mux.POST("/impl/save5", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		result, err := svc.Save5(ctx.StdContext, bindArgs.A, bindArgs.B)
+		result, err := svc.Save5(ctx.Request().Context(), bindArgs.A, bindArgs.B)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/impl/add/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/impl/add/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", ctx.Param("a"), err))
+			return nil
 		}
 		b, err := strconv.Atoi(ctx.Param("b"))
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", ctx.Param("b"), err))
+			return nil
 		}
 
 		result, err := svc.Add1(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/add2/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/impl/add2/:a/:b", func(ctx echo.Context) error {
 		var a *int
 		if aValue, err := strconv.Atoi(ctx.Param("a")); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", ctx.Param("a"), err))
+			return nil
 		} else {
 			a = &aValue
 		}
 		var b *int
 		if bValue, err := strconv.Atoi(ctx.Param("b")); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", ctx.Param("b"), err))
+			return nil
 		} else {
 			b = &bValue
 		}
 
 		result, err := svc.Add2(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/add3", func(ctx *loong.Context) error {
+	mux.GET("/impl/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("a", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", s, err))
+				return nil
 			}
 			a = &aValue
 		}
@@ -1433,32 +1601,36 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if s := ctx.QueryParam("b"); s != "" {
 			bValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("b", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", s, err))
+				return nil
 			}
 			b = &bValue
 		}
 
 		result, err := svc.Add3(a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/query1", func(ctx *loong.Context) error {
+	mux.GET("/impl/query1", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := loong.ToDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
+				return nil
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := loong.ToDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
 			}
 			endAt = endAtValue
 		}
@@ -1468,91 +1640,99 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 
 		result := svc.Query1(a, beginAt, endAt, isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/query2/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/impl/query2/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := loong.ToDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
+				return nil
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := loong.ToDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
 			}
 			endAt = endAtValue
 		}
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query2(a, beginAt, endAt, isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/query3/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/impl/query3/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
 		if s := ctx.QueryParam("begin_at"); s != "" {
-			beginAtValue, err := loong.ToDatetime(s)
+			beginAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("begin_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "begin_at", s, err))
+				return nil
 			}
 			beginAt = beginAtValue
 		}
 		var endAt time.Time
 		if s := ctx.QueryParam("end_at"); s != "" {
-			endAtValue, err := loong.ToDatetime(s)
+			endAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
 			}
 			endAt = endAtValue
 		}
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/query4/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/impl/query4/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := loong.ToDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
+				return nil
 			}
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := loong.ToDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
+				return nil
 			}
 			createdAt.End = createdAtEndValue
 		}
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query4(a, createdAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/query5/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/impl/query5/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := loong.ToDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
+				return nil
 			}
 			createdAt = &TimeRange{}
 			createdAt.Start = createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := loong.ToDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
+				return nil
 			}
 			if createdAt == nil {
 				createdAt = &TimeRange{}
@@ -1562,45 +1742,49 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query5(a, createdAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/query6/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/impl/query6/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := loong.ToDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
+				return nil
 			}
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := loong.ToDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
+				return nil
 			}
 			createdAt.End = &createdAtEndValue
 		}
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query6(a, createdAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/query7/:isRaw", func(ctx *loong.Context) error {
+	mux.GET("/impl/query7/:isRaw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange2
 		if s := ctx.QueryParam("created_at.start"); s != "" {
-			createdAtStartValue, err := loong.ToDatetime(s)
+			createdAtStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.start", s, err))
+				return nil
 			}
 			createdAt = &TimeRange2{}
 			createdAt.Start = &createdAtStartValue
 		}
 		if s := ctx.QueryParam("created_at.end"); s != "" {
-			createdAtEndValue, err := loong.ToDatetime(s)
+			createdAtEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("created_at.end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "created_at.end", s, err))
+				return nil
 			}
 			if createdAt == nil {
 				createdAt = &TimeRange2{}
@@ -1610,126 +1794,138 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		var isRaw = ToBool(ctx.Param("isRaw"))
 
 		result := svc.Query7(a, createdAt, &isRaw)
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/impl/query8", func(ctx *loong.Context) error {
+	mux.GET("/impl/query8", func(ctx echo.Context) error {
 		var itemID int64
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "item_id", s, err))
+				return nil
 			}
 			itemID = itemIDValue
 		}
 
-		result, err := svc.Query8(ctx.StdContext, itemID)
+		result, err := svc.Query8(ctx.Request().Context(), itemID)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.POST("/impl", func(ctx *loong.Context) error {
-		err := svc.CreateWithNoReturn(ctx.StdContext, ctx.Request(), ctx.Response().Writer)
+	mux.POST("/impl", func(ctx echo.Context) error {
+		err := svc.CreateWithNoReturn(ctx.Request().Context(), ctx.Request(), ctx.Response().Writer)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 
 		return nil
 	})
-	mux.GET("/impl/query9", func(ctx *loong.Context) error {
+	mux.GET("/impl/query9", func(ctx echo.Context) error {
 		var itemID sql.NullInt64
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("item_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "item_id", s, err))
+				return nil
 			}
 			itemID.Valid = true
 			itemID.Int64 = itemIDValue
 		}
 
-		result, err := svc.Query9(ctx.StdContext, itemID)
+		result, err := svc.Query9(ctx.Request().Context(), itemID)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.GET("/impl/query10", func(ctx *loong.Context) error {
+	mux.GET("/impl/query10", func(ctx echo.Context) error {
 		var itemID sql.NullString
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemID.Valid = true
 			itemID.String = s
 		}
 
-		result, err := svc.Query10(ctx.StdContext, itemID)
+		result, err := svc.Query10(ctx.Request().Context(), itemID)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.GET("/impl/query11", func(ctx *loong.Context) error {
+	mux.GET("/impl/query11", func(ctx echo.Context) error {
 		var itemID sql.NullBool
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemID.Valid = true
 			itemID.Bool = ToBool(s)
 		}
 
-		result, err := svc.Query11(ctx.StdContext, itemID)
+		result, err := svc.Query11(ctx.Request().Context(), itemID)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.GET("/impl/query12", func(ctx *loong.Context) error {
+	mux.GET("/impl/query12", func(ctx echo.Context) error {
 		var Name = ctx.QueryParam("Name")
 
-		result, err := svc.Query1WithUpName(ctx.StdContext, Name)
+		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
 		return ctx.String(http.StatusOK, result)
 	})
-	mux.POST("/impl/query12", func(ctx *loong.Context) error {
+	mux.POST("/impl/query12", func(ctx echo.Context) error {
 		var bindArgs struct {
 			Name string `json:"Name,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		err := svc.Set1WithUpName(ctx.StdContext, bindArgs.Name)
+		err := svc.Set1WithUpName(ctx.Request().Context(), bindArgs.Name)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult("OK")
+		return ctx.JSON(http.StatusCreated, "OK")
 	})
 	// Misc: annotation is missing
 }
 
-func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
-	mux.GET("/ctx/echo", func(ctx *loong.Context) error {
+func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
+	mux.GET("/ctx/echo", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 
-		result := svc.Echo(ctx.StdContext, a)
-		return ctx.ReturnQueryResult(result)
+		result := svc.Echo(ctx.Request().Context(), a)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/ctx/echo2", func(ctx *loong.Context) error {
-		result, err := svc.EchoBody(ctx.StdContext, ctx.Request().Body)
+	mux.POST("/ctx/echo2", func(ctx echo.Context) error {
+		result, err := svc.EchoBody(ctx.Request().Context(), ctx.Request().Body)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/ctx/concat", func(ctx *loong.Context) error {
+	mux.GET("/ctx/concat", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var b = ctx.QueryParam("b")
 
-		result, err := svc.Concat0(ctx.StdContext, a, b)
+		result, err := svc.Concat0(ctx.Request().Context(), a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/ctx/concat1", func(ctx *loong.Context) error {
+	mux.GET("/ctx/concat1", func(ctx echo.Context) error {
 		var a *string
 		if s := ctx.QueryParam("a"); s != "" {
 			a = &s
@@ -1739,133 +1935,151 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			b = &s
 		}
 
-		result, err := svc.Concat1(ctx.StdContext, a, b)
+		result, err := svc.Concat1(ctx.Request().Context(), a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/ctx/concat2/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/ctx/concat2/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
-		result, err := svc.Concat2(ctx.StdContext, a, b)
+		result, err := svc.Concat2(ctx.Request().Context(), a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/ctx/concat3/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/ctx/concat3/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 
-		result, err := svc.Concat3(ctx.StdContext, &a, &b)
+		result, err := svc.Concat3(ctx.Request().Context(), &a, &b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/ctx/sub", func(ctx *loong.Context) error {
+	mux.GET("/ctx/sub", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var start int64
 		if s := ctx.QueryParam("start"); s != "" {
 			startValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "start", s, err))
+				return nil
 			}
 			start = startValue
 		}
 
-		result, err := svc.Sub(ctx.StdContext, a, start)
+		result, err := svc.Sub(ctx.Request().Context(), a, start)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/ctx/save1/:a", func(ctx *loong.Context) error {
+	mux.POST("/ctx/save1/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", "body", err))
+			return nil
 		}
 
-		result, err := svc.Save1(ctx.StdContext, a, b.String())
+		result, err := svc.Save1(ctx.Request().Context(), a, b.String())
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/ctx/save2/:a", func(ctx *loong.Context) error {
+	mux.POST("/ctx/save2/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", "body", err))
+			return nil
 		}
 		var b = bBuilder.String()
 
-		result, err := svc.Save2(ctx.StdContext, &a, &b)
+		result, err := svc.Save2(ctx.Request().Context(), &a, &b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/ctx/save3", func(ctx *loong.Context) error {
+	mux.POST("/ctx/save3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
 		result, err := svc.Save3(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/ctx/add1/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/ctx/add1/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", ctx.Param("a"), err))
+			return nil
 		}
 		b, err := strconv.Atoi(ctx.Param("b"))
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", ctx.Param("b"), err))
+			return nil
 		}
 
-		result, err := svc.Add1(ctx.StdContext, a, b)
+		result, err := svc.Add1(ctx.Request().Context(), a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/ctx/add2/:a/:b", func(ctx *loong.Context) error {
+	mux.GET("/ctx/add2/:a/:b", func(ctx echo.Context) error {
 		var a *int
 		if aValue, err := strconv.Atoi(ctx.Param("a")); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("a", ctx.Param("a"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", ctx.Param("a"), err))
+			return nil
 		} else {
 			a = &aValue
 		}
 		var b *int
 		if bValue, err := strconv.Atoi(ctx.Param("b")); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("b", ctx.Param("b"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", ctx.Param("b"), err))
+			return nil
 		} else {
 			b = &bValue
 		}
 
-		result, err := svc.Add2(ctx.StdContext, a, b)
+		result, err := svc.Add2(ctx.Request().Context(), a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/ctx/add3", func(ctx *loong.Context) error {
+	mux.GET("/ctx/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("a", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "a", s, err))
+				return nil
 			}
 			a = &aValue
 		}
@@ -1873,16 +2087,18 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		if s := ctx.QueryParam("b"); s != "" {
 			bValue, err := strconv.Atoi(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("b", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "b", s, err))
+				return nil
 			}
 			b = &bValue
 		}
 
-		result, err := svc.Add3(ctx.StdContext, a, b)
+		result, err := svc.Add3(ctx.Request().Context(), a, b)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
 	// Misc: annotation is missing
 }
@@ -1900,13 +2116,14 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 // SubTest3 is skipped
 // SubTest4 is skipped
 
-func InitRequests(mux loong.Party, svc Requests) {
-	mux.GET("/requests/query1", func(ctx *loong.Context) error {
+func InitRequests(mux *echo.Group, svc Requests) {
+	mux.GET("/requests/query1", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.operator_id", s, err))
+				return nil
 			}
 			query = &models.RequestQuery{}
 			query.OperatorID = queryOperatorIDValue
@@ -1914,7 +2131,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.creator_id"); s != "" {
 			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -1924,7 +2142,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.requester_id"); s != "" {
 			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -1934,7 +2153,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("query.request_type_ids"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -1943,7 +2163,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("query.request_type_ids[]"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -1970,7 +2191,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.current_status"); s != "" {
 			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -1999,9 +2221,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
-			queryStartAtValue, err := loong.ToDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2009,9 +2232,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
-			queryEndAtValue, err := loong.ToDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2019,9 +2243,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := loong.ToDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2029,9 +2254,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := loong.ToDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2079,7 +2305,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -2087,7 +2314,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
@@ -2119,18 +2347,20 @@ func InitRequests(mux loong.Party, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.Query1(ctx.StdContext, query, offset, limit, params)
+		result, err := svc.Query1(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/query2", func(ctx *loong.Context) error {
+	mux.GET("/requests/query2", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "operator_id", s, err))
+				return nil
 			}
 			query = &models.RequestQuery{}
 			query.OperatorID = queryOperatorIDValue
@@ -2138,7 +2368,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("creator_id"); s != "" {
 			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2148,7 +2379,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("requester_id"); s != "" {
 			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2158,7 +2390,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("request_type_ids"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2167,7 +2400,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("request_type_ids[]"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2194,7 +2428,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("current_status"); s != "" {
 			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2223,9 +2458,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("start_at"); s != "" {
-			queryStartAtValue, err := loong.ToDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2233,9 +2469,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("end_at"); s != "" {
-			queryEndAtValue, err := loong.ToDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2243,9 +2480,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("overdue_start"); s != "" {
-			queryOverdueStartValue, err := loong.ToDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2253,9 +2491,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("overdue_end"); s != "" {
-			queryOverdueEndValue, err := loong.ToDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -2294,7 +2533,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -2302,23 +2542,26 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
 
-		result, err := svc.Query2(ctx.StdContext, query, offset, limit)
+		result, err := svc.Query2(ctx.Request().Context(), query, offset, limit)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/query3", func(ctx *loong.Context) error {
+	mux.GET("/requests/query3", func(ctx echo.Context) error {
 		var query *AliasRequestQuery
 		if s := ctx.QueryParam("operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "operator_id", s, err))
+				return nil
 			}
 			query = &AliasRequestQuery{}
 			query.OperatorID = queryOperatorIDValue
@@ -2326,7 +2569,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("creator_id"); s != "" {
 			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2336,7 +2580,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("requester_id"); s != "" {
 			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2346,7 +2591,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("request_type_ids"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2355,7 +2601,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("request_type_ids[]"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2382,7 +2629,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("current_status"); s != "" {
 			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2411,9 +2659,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("start_at"); s != "" {
-			queryStartAtValue, err := loong.ToDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2421,9 +2670,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("end_at"); s != "" {
-			queryEndAtValue, err := loong.ToDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2431,9 +2681,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("overdue_start"); s != "" {
-			queryOverdueStartValue, err := loong.ToDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2441,9 +2692,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("overdue_end"); s != "" {
-			queryOverdueEndValue, err := loong.ToDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &AliasRequestQuery{}
@@ -2482,7 +2734,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -2490,23 +2743,26 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
 
-		result, err := svc.Query3(ctx.StdContext, query, offset, limit)
+		result, err := svc.Query3(ctx.Request().Context(), query, offset, limit)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/queryex1", func(ctx *loong.Context) error {
+	mux.GET("/requests/queryex1", func(ctx echo.Context) error {
 		var query *RequestQueryEx1
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.operator_id", s, err))
+				return nil
 			}
 			query = &RequestQueryEx1{}
 			query.OperatorID = queryOperatorIDValue
@@ -2514,7 +2770,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.creator_id"); s != "" {
 			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2524,7 +2781,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.requester_id"); s != "" {
 			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2534,7 +2792,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("query.request_type_ids"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2543,7 +2802,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("query.request_type_ids[]"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2570,7 +2830,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.current_status"); s != "" {
 			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2599,9 +2860,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
-			queryStartAtValue, err := loong.ToDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2609,9 +2871,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
-			queryEndAtValue, err := loong.ToDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2619,9 +2882,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := loong.ToDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2629,9 +2893,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := loong.ToDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx1{}
@@ -2685,7 +2950,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -2693,7 +2959,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
@@ -2726,18 +2993,20 @@ func InitRequests(mux loong.Party, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.QueryEx1(ctx.StdContext, query, offset, limit, params)
+		result, err := svc.QueryEx1(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/queryex2", func(ctx *loong.Context) error {
+	mux.GET("/requests/queryex2", func(ctx echo.Context) error {
 		var query *RequestQueryEx2
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.operator_id", s, err))
+				return nil
 			}
 			query = &RequestQueryEx2{}
 			query.RequestQuery = &models.RequestQuery{}
@@ -2746,7 +3015,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.creator_id"); s != "" {
 			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2759,7 +3029,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.requester_id"); s != "" {
 			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2772,7 +3043,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("query.request_type_ids"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2784,7 +3056,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("query.request_type_ids[]"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2823,7 +3096,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.current_status"); s != "" {
 			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2864,9 +3138,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
-			queryStartAtValue, err := loong.ToDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2877,9 +3152,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
-			queryEndAtValue, err := loong.ToDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2890,9 +3166,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := loong.ToDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2903,9 +3180,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := loong.ToDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx2{}
@@ -2971,7 +3249,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -2979,7 +3258,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
@@ -3012,18 +3292,20 @@ func InitRequests(mux loong.Party, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.QueryEx2(ctx.StdContext, query, offset, limit, params)
+		result, err := svc.QueryEx2(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/queryex3", func(ctx *loong.Context) error {
+	mux.GET("/requests/queryex3", func(ctx echo.Context) error {
 		var query *RequestQueryEx3
 		if s := ctx.QueryParam("query.request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.operator_id", s, err))
+				return nil
 			}
 			query = &RequestQueryEx3{}
 			query.Request.OperatorID = queryRequestOperatorIDValue
@@ -3031,7 +3313,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.request.creator_id"); s != "" {
 			queryRequestCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3041,7 +3324,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.request.requester_id"); s != "" {
 			queryRequestRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3051,7 +3335,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("query.request.request_type_ids"); len(ss) != 0 {
 			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3060,7 +3345,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("query.request.request_type_ids[]"); len(ss) != 0 {
 			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3087,7 +3373,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.request.current_status"); s != "" {
 			queryRequestCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3116,9 +3403,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.start_at"); s != "" {
-			queryRequestStartAtValue, err := loong.ToDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3126,9 +3414,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.QueryParam("query.request.end_at"); s != "" {
-			queryRequestEndAtValue, err := loong.ToDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3136,9 +3425,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := loong.ToDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3146,9 +3436,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := loong.ToDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3202,7 +3493,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -3210,7 +3502,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
@@ -3243,18 +3536,20 @@ func InitRequests(mux loong.Party, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.QueryEx3(ctx.StdContext, query, offset, limit, params)
+		result, err := svc.QueryEx3(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/queryex4", func(ctx *loong.Context) error {
+	mux.GET("/requests/queryex4", func(ctx echo.Context) error {
 		var query *RequestQueryEx4
 		if s := ctx.QueryParam("query.request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.operator_id", s, err))
+				return nil
 			}
 			query = &RequestQueryEx4{}
 			query.Request = &models.RequestQuery{}
@@ -3263,7 +3558,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.request.creator_id"); s != "" {
 			queryRequestCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3276,7 +3572,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.request.requester_id"); s != "" {
 			queryRequestRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3289,7 +3586,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("query.request.request_type_ids"); len(ss) != 0 {
 			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3301,7 +3599,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("query.request.request_type_ids[]"); len(ss) != 0 {
 			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3340,7 +3639,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.request.current_status"); s != "" {
 			queryRequestCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3381,9 +3681,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.request.start_at"); s != "" {
-			queryRequestStartAtValue, err := loong.ToDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3394,9 +3695,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.QueryParam("query.request.end_at"); s != "" {
-			queryRequestEndAtValue, err := loong.ToDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3407,9 +3709,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := loong.ToDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3420,9 +3723,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := loong.ToDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request.overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request.overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3488,7 +3792,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -3496,7 +3801,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
@@ -3529,18 +3835,20 @@ func InitRequests(mux loong.Party, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.QueryEx4(ctx.StdContext, query, offset, limit, params)
+		result, err := svc.QueryEx4(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/queryex3/NoPrefix", func(ctx *loong.Context) error {
+	mux.GET("/requests/queryex3/NoPrefix", func(ctx echo.Context) error {
 		var query *RequestQueryEx3
 		if s := ctx.QueryParam("request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.operator_id", s, err))
+				return nil
 			}
 			query = &RequestQueryEx3{}
 			query.Request.OperatorID = queryRequestOperatorIDValue
@@ -3548,7 +3856,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("request.creator_id"); s != "" {
 			queryRequestCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3558,7 +3867,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("request.requester_id"); s != "" {
 			queryRequestRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3568,7 +3878,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("request.request_type_ids"); len(ss) != 0 {
 			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3577,7 +3888,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("request.request_type_ids[]"); len(ss) != 0 {
 			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3604,7 +3916,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("request.current_status"); s != "" {
 			queryRequestCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3633,9 +3946,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.start_at"); s != "" {
-			queryRequestStartAtValue, err := loong.ToDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3643,9 +3957,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.QueryParam("request.end_at"); s != "" {
-			queryRequestEndAtValue, err := loong.ToDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3653,9 +3968,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.QueryParam("request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := loong.ToDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3663,9 +3979,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.QueryParam("request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := loong.ToDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx3{}
@@ -3719,7 +4036,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -3727,7 +4045,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
@@ -3760,18 +4079,20 @@ func InitRequests(mux loong.Party, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.QueryEx3NoPrefix(ctx.StdContext, query, offset, limit, params)
+		result, err := svc.QueryEx3NoPrefix(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/queryex4/NoPrefix", func(ctx *loong.Context) error {
+	mux.GET("/requests/queryex4/NoPrefix", func(ctx echo.Context) error {
 		var query *RequestQueryEx4
 		if s := ctx.QueryParam("request.operator_id"); s != "" {
 			queryRequestOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.operator_id", s, err))
+				return nil
 			}
 			query = &RequestQueryEx4{}
 			query.Request = &models.RequestQuery{}
@@ -3780,7 +4101,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("request.creator_id"); s != "" {
 			queryRequestCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3793,7 +4115,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("request.requester_id"); s != "" {
 			queryRequestRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3806,7 +4129,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("request.request_type_ids"); len(ss) != 0 {
 			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3818,7 +4142,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("request.request_type_ids[]"); len(ss) != 0 {
 			queryRequestRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3857,7 +4182,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("request.current_status"); s != "" {
 			queryRequestCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3898,9 +4224,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("request.start_at"); s != "" {
-			queryRequestStartAtValue, err := loong.ToDatetime(s)
+			queryRequestStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3911,9 +4238,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.StartAt = queryRequestStartAtValue
 		}
 		if s := ctx.QueryParam("request.end_at"); s != "" {
-			queryRequestEndAtValue, err := loong.ToDatetime(s)
+			queryRequestEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3924,9 +4252,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.EndAt = queryRequestEndAtValue
 		}
 		if s := ctx.QueryParam("request.overdue_start"); s != "" {
-			queryRequestOverdueStartValue, err := loong.ToDatetime(s)
+			queryRequestOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -3937,9 +4266,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.Request.OverdueStart = queryRequestOverdueStartValue
 		}
 		if s := ctx.QueryParam("request.overdue_end"); s != "" {
-			queryRequestOverdueEndValue, err := loong.ToDatetime(s)
+			queryRequestOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("request.overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "request.overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &RequestQueryEx4{}
@@ -4005,7 +4335,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -4013,7 +4344,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
@@ -4046,18 +4378,20 @@ func InitRequests(mux loong.Party, svc Requests) {
 			params[key] = values[len(values)-1]
 		}
 
-		result, err := svc.QueryEx4NoPrefix(ctx.StdContext, query, offset, limit, params)
+		result, err := svc.QueryEx4NoPrefix(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests", func(ctx *loong.Context) error {
+	mux.GET("/requests", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			queryOperatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.operator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.operator_id", s, err))
+				return nil
 			}
 			query = &models.RequestQuery{}
 			query.OperatorID = queryOperatorIDValue
@@ -4065,7 +4399,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.creator_id"); s != "" {
 			queryCreatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.creator_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.creator_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4075,7 +4410,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.requester_id"); s != "" {
 			queryRequesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.requester_id", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.requester_id", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4085,7 +4421,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if ss := ctx.QueryParamArray("query.request_type_ids"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4094,7 +4431,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		} else if ss := ctx.QueryParamArray("query.request_type_ids[]"); len(ss) != 0 {
 			queryRequestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.request_type_ids", ss, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.request_type_ids", ss, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4121,7 +4459,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("query.current_status"); s != "" {
 			queryCurrentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.current_status", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.current_status", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4150,9 +4489,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.IsSuspend.Bool = ToBool(s)
 		}
 		if s := ctx.QueryParam("query.start_at"); s != "" {
-			queryStartAtValue, err := loong.ToDatetime(s)
+			queryStartAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.start_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.start_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4160,9 +4500,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.StartAt = queryStartAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
-			queryEndAtValue, err := loong.ToDatetime(s)
+			queryEndAtValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.end_at", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.end_at", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4170,9 +4511,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.EndAt = queryEndAtValue
 		}
 		if s := ctx.QueryParam("query.overdue_start"); s != "" {
-			queryOverdueStartValue, err := loong.ToDatetime(s)
+			queryOverdueStartValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_start", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_start", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4180,9 +4522,10 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.OverdueStart = queryOverdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
-			queryOverdueEndValue, err := loong.ToDatetime(s)
+			queryOverdueEndValue, err := ToDatetime(s)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("query.overdue_end", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "query.overdue_end", s, err))
+				return nil
 			}
 			if query == nil {
 				query = &models.RequestQuery{}
@@ -4230,7 +4573,8 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "offset", s, err))
+				return nil
 			}
 			offset = offsetValue
 		}
@@ -4238,181 +4582,209 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if s := ctx.QueryParam("limit"); s != "" {
 			limitValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+				ctx.Error(fmt.Errorf("argument %q is invalid - %q", "limit", s, err))
+				return nil
 			}
 			limit = limitValue
 		}
 
-		result, err := svc.List(ctx.StdContext, query, offset, limit)
+		result, err := svc.List(ctx.Request().Context(), query, offset, limit)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.POST("/requests", func(ctx *loong.Context) error {
+	mux.POST("/requests", func(ctx echo.Context) error {
 		var data models.Request
 		if err := ctx.Bind(&data); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("data", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "data", "body", err))
+			return nil
 		}
 
-		result, err := svc.Create(ctx.StdContext, &data)
+		result, err := svc.Create(ctx.Request().Context(), &data)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/requests", func(ctx *loong.Context) error {
+	mux.POST("/requests", func(ctx echo.Context) error {
 		var bindArgs struct {
 			Request *models.Request `json:"request,omitempty"`
 			Testarg int64           `json:"testarg,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		result, err := svc.Create2(ctx.StdContext, bindArgs.Request, bindArgs.Testarg)
+		result, err := svc.Create2(ctx.Request().Context(), bindArgs.Request, bindArgs.Testarg)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.PUT("/requests/:id", func(ctx *loong.Context) error {
+	mux.PUT("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var data models.Request
 		if err := ctx.Bind(&data); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("data", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "data", "body", err))
+			return nil
 		}
 
-		result, err := svc.UpdateByID(ctx.StdContext, id, &data)
+		result, err := svc.UpdateByID(ctx.Request().Context(), id, &data)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnUpdatedResult(result)
+		return ctx.JSON(http.StatusAccepted, result)
 	})
-	mux.PATCH("/requests/:id", func(ctx *loong.Context) error {
+	mux.PATCH("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var bindArgs struct {
 			Params map[string]string `json:"params,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		result, err := svc.Set1ByID(ctx.StdContext, id, bindArgs.Params)
+		result, err := svc.Set1ByID(ctx.Request().Context(), id, bindArgs.Params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnResult(http.StatusOK, result)
-
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.PATCH("/requests/:id", func(ctx *loong.Context) error {
+	mux.PATCH("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
+			return nil
 		}
 
-		result, err := svc.Set2ByID(ctx.StdContext, id, params)
+		result, err := svc.Set2ByID(ctx.Request().Context(), id, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnResult(http.StatusOK, result)
-
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.PUT("/requests/:id", func(ctx *loong.Context) error {
+	mux.PUT("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var bindArgs struct {
 			Params map[string]string `json:"params,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		result, err := svc.Set3ByID(ctx.StdContext, id, bindArgs.Params)
+		result, err := svc.Set3ByID(ctx.Request().Context(), id, bindArgs.Params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnUpdatedResult(result)
+		return ctx.JSON(http.StatusAccepted, result)
 	})
-	mux.PUT("/requests/:id", func(ctx *loong.Context) error {
+	mux.PUT("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
+			return nil
 		}
 
-		result, err := svc.Set4ByID(ctx.StdContext, id, params)
+		result, err := svc.Set4ByID(ctx.Request().Context(), id, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnUpdatedResult(result)
+		return ctx.JSON(http.StatusAccepted, result)
 	})
-	mux.POST("/requests/:id/5", func(ctx *loong.Context) error {
+	mux.POST("/requests/:id/5", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var bindArgs struct {
 			Params map[string]string `json:"params,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "bindArgs", "body", err))
+			return nil
 		}
 
-		result, err := svc.Set5ByID(ctx.StdContext, id, bindArgs.Params)
+		result, err := svc.Set5ByID(ctx.Request().Context(), id, bindArgs.Params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/requests/:id/6", func(ctx *loong.Context) error {
+	mux.POST("/requests/:id/6", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
+			return nil
 		}
 
-		result, err := svc.Set6ByID(ctx.StdContext, id, params)
+		result, err := svc.Set6ByID(ctx.Request().Context(), id, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.POST("/requests/:id/7", func(ctx *loong.Context) error {
+	mux.POST("/requests/:id/7", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "id", ctx.Param("id"), err))
+			return nil
 		}
 		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
-			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
+			ctx.Error(fmt.Errorf("argument %q is invalid - %q", "params", "body", err))
+			return nil
 		}
 
-		result, err := svc.Set7ByID(ctx.StdContext, id, params)
+		result, err := svc.Set7ByID(ctx.Request().Context(), id, params)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnCreatedResult(result)
+		return ctx.JSON(http.StatusCreated, result)
 	})
-	mux.GET("/requests/querysub1", func(ctx *loong.Context) error {
+	mux.GET("/requests/querysub1", func(ctx echo.Context) error {
 		var query *SubTest1
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest1{}
@@ -4443,13 +4815,14 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.ExArg = s
 		}
 
-		result, err := svc.QuerySubTest1(ctx.StdContext, query)
+		result, err := svc.QuerySubTest1(ctx.Request().Context(), query)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/querysub2", func(ctx *loong.Context) error {
+	mux.GET("/requests/querysub2", func(ctx echo.Context) error {
 		var query *SubTest2
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest2{}
@@ -4488,13 +4861,14 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.ExArg = s
 		}
 
-		result, err := svc.QuerySubTest2(ctx.StdContext, query)
+		result, err := svc.QuerySubTest2(ctx.Request().Context(), query)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/querysub3", func(ctx *loong.Context) error {
+	mux.GET("/requests/querysub3", func(ctx echo.Context) error {
 		var query *SubTest3
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest3{}
@@ -4539,13 +4913,14 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.ExArg = s
 		}
 
-		result, err := svc.QuerySubTest3(ctx.StdContext, query)
+		result, err := svc.QuerySubTest3(ctx.Request().Context(), query)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
-	mux.GET("/requests/querysub4", func(ctx *loong.Context) error {
+	mux.GET("/requests/querysub4", func(ctx echo.Context) error {
 		var query *SubTest4
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
 			query = &SubTest4{}
@@ -4603,10 +4978,11 @@ func InitRequests(mux loong.Party, svc Requests) {
 			query.ExArg = s
 		}
 
-		result, err := svc.QuerySubTest4(ctx.StdContext, query)
+		result, err := svc.QuerySubTest4(ctx.Request().Context(), query)
 		if err != nil {
-			return ctx.ReturnError(err)
+			ctx.Error(err)
+			return nil
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.JSON(http.StatusOK, result)
 	})
 }

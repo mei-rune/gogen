@@ -1,3 +1,6 @@
+//go:build !loong
+// +build !loong
+
 // Please don't edit this file!
 package main
 
@@ -15,7 +18,7 @@ type CaseSvcClient struct {
 }
 
 func (client CaseSvcClient) TestCase1(ctx context.Context, name string) error {
-	request := resty.NewRequest(client.Proxy, "/case1/by_name/"+name+"")
+	request := resty.NewRequest(client.Proxy, "/case1/by_name/"+name)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -40,28 +43,28 @@ func (client CaseSvcClient) TestCase2_2(ctx context.Context, name []string) erro
 }
 
 func (client CaseSvcClient) TestCase3_1(ctx context.Context, id int64) error {
-	request := resty.NewRequest(client.Proxy, "/case3_1/by_id/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/case3_1/by_id/"+strconv.FormatInt(id, 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client CaseSvcClient) TestCase3_2(ctx context.Context, id int32) error {
-	request := resty.NewRequest(client.Proxy, "/case3_2/by_id/"+strconv.FormatInt(int64(id), 10)+"")
+	request := resty.NewRequest(client.Proxy, "/case3_2/by_id/"+strconv.FormatInt(int64(id), 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client CaseSvcClient) TestCase3_3(ctx context.Context, id int) error {
-	request := resty.NewRequest(client.Proxy, "/case3_3/by_id/"+strconv.FormatInt(int64(id), 10)+"")
+	request := resty.NewRequest(client.Proxy, "/case3_3/by_id/"+strconv.FormatInt(int64(id), 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client CaseSvcClient) TestCase4(ctx context.Context, id int) error {
-	request := resty.NewRequest(client.Proxy, "/case4/by_id/"+strconv.FormatInt(int64(id), 10)+"")
+	request := resty.NewRequest(client.Proxy, "/case4/by_id/"+strconv.FormatInt(int64(id), 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -132,7 +135,7 @@ func (client CaseSvcClient) TestCase8(ctx context.Context, id sql.NullInt64) err
 }
 
 func (client CaseSvcClient) TestCase9(ctx context.Context, id *string) error {
-	request := resty.NewRequest(client.Proxy, "/case9/by_id/"+*id+"")
+	request := resty.NewRequest(client.Proxy, "/case9/by_id/"+*id)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -149,14 +152,14 @@ func (client CaseSvcClient) TestCase10(ctx context.Context, id *string) error {
 }
 
 func (client CaseSvcClient) TestCase12(ctx context.Context, id *int) error {
-	request := resty.NewRequest(client.Proxy, "/case12/"+strconv.FormatInt(int64(*id), 10)+"")
+	request := resty.NewRequest(client.Proxy, "/case12/"+strconv.FormatInt(int64(*id), 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
 
 func (client CaseSvcClient) TestCase13(ctx context.Context, id *int) error {
-	request := resty.NewRequest(client.Proxy, "/case13/"+strconv.FormatInt(int64(*id), 10)+"")
+	request := resty.NewRequest(client.Proxy, "/case13/"+strconv.FormatInt(int64(*id), 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)

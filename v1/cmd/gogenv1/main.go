@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/runner-mei/gogen/gengen"
+	"github.com/runner-mei/gogen/v1/gengen"
 )
 
 func usage() {

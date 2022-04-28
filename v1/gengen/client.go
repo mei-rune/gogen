@@ -301,7 +301,9 @@ func (c *ClientConfig) GetPath(method Method, paramList []ParamConfig) string {
 		panic(err)
 	})
 	segements, _, _ := parseURL(rawurl)
-	return "\"" + JoinPathSegments(segements, false, replace) + "\""
+	// return "\"" + JoinPathSegments(segements, false, replace) + "\""
+	return strings.TrimSuffix("\"" + JoinPathSegments(segements, false, replace) + "\"", "+ \"\"")
+
 }
 
 type ParamConfig struct {

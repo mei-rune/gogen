@@ -23,7 +23,7 @@ import (
 
 func InitStringSvc(mux iris.Party, svc StringSvc) {
 	mux.Get("/files", func(ctx iris.Context) {
-		var filenames = queryParams["filenames"]
+		var filenames = ctx.URLParamSlice("filenames")
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -39,7 +39,7 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 	})
 	mux.Get("/times", func(ctx iris.Context) {
 		var times []time.Time
-		if ss := queryParams["times"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("times"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -1006,7 +1006,7 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 
 func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 	mux.Get("/impl/files", func(ctx iris.Context) {
-		var filenames = queryParams["filenames"]
+		var filenames = ctx.URLParamSlice("filenames")
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1022,7 +1022,7 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 	})
 	mux.Get("/impl/times", func(ctx iris.Context) {
 		var times []time.Time
-		if ss := queryParams["times"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("times"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2248,7 +2248,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["query.request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("query.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2263,7 +2263,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query == nil {
 			query = new(models.RequestQuery)
 		}
-		query.RequestTypeNames = queryParams["query.request_type_names"]
+		query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names")
 		query.NameLike = ctx.URLParam("query.name_like")
 		if s := ctx.URLParam("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -2460,7 +2460,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2475,7 +2475,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query == nil {
 			query = new(models.RequestQuery)
 		}
-		query.RequestTypeNames = queryParams["request_type_names"]
+		query.RequestTypeNames = ctx.URLParamSlice("request_type_names")
 		query.NameLike = ctx.URLParam("name_like")
 		if s := ctx.URLParam("current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -2664,7 +2664,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2679,7 +2679,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query == nil {
 			query = new(AliasRequestQuery)
 		}
-		query.RequestTypeNames = queryParams["request_type_names"]
+		query.RequestTypeNames = ctx.URLParamSlice("request_type_names")
 		query.NameLike = ctx.URLParam("name_like")
 		if s := ctx.URLParam("current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -2863,7 +2863,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.RequestQuery.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["query.request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("query.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2872,7 +2872,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.RequestQuery.RequestTypeIDs = requestTypeIDsValue
 		}
-		query.RequestQuery.RequestTypeNames = queryParams["query.request_type_names"]
+		query.RequestQuery.RequestTypeNames = ctx.URLParamSlice("query.request_type_names")
 		query.RequestQuery.NameLike = ctx.URLParam("query.name_like")
 		if s := ctx.URLParam("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -3072,7 +3072,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.RequestQuery.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["query.request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("query.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3087,7 +3087,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query.RequestQuery == nil {
 			query.RequestQuery = new(models.RequestQuery)
 		}
-		query.RequestQuery.RequestTypeNames = queryParams["query.request_type_names"]
+		query.RequestQuery.RequestTypeNames = ctx.URLParamSlice("query.request_type_names")
 		query.RequestQuery.NameLike = ctx.URLParam("query.name_like")
 		if s := ctx.URLParam("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -3285,7 +3285,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.Request.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["query.request.request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("query.request.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3300,7 +3300,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query == nil {
 			query = new(RequestQueryEx3)
 		}
-		query.Request.RequestTypeNames = queryParams["query.request.request_type_names"]
+		query.Request.RequestTypeNames = ctx.URLParamSlice("query.request.request_type_names")
 		query.Request.NameLike = ctx.URLParam("query.request.name_like")
 		if s := ctx.URLParam("query.request.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -3505,7 +3505,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.Request.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["query.request.request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("query.request.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3526,7 +3526,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query.Request == nil {
 			query.Request = new(models.RequestQuery)
 		}
-		query.Request.RequestTypeNames = queryParams["query.request.request_type_names"]
+		query.Request.RequestTypeNames = ctx.URLParamSlice("query.request.request_type_names")
 		query.Request.NameLike = ctx.URLParam("query.request.name_like")
 		if s := ctx.URLParam("query.request.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -3724,7 +3724,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.Request.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["request.request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("request.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3739,7 +3739,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query == nil {
 			query = new(RequestQueryEx3)
 		}
-		query.Request.RequestTypeNames = queryParams["request.request_type_names"]
+		query.Request.RequestTypeNames = ctx.URLParamSlice("request.request_type_names")
 		query.Request.NameLike = ctx.URLParam("request.name_like")
 		if s := ctx.URLParam("request.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -3944,7 +3944,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.Request.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["request.request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("request.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3965,7 +3965,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query.Request == nil {
 			query.Request = new(models.RequestQuery)
 		}
-		query.Request.RequestTypeNames = queryParams["request.request_type_names"]
+		query.Request.RequestTypeNames = ctx.URLParamSlice("request.request_type_names")
 		query.Request.NameLike = ctx.URLParam("request.name_like")
 		if s := ctx.URLParam("request.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
@@ -4163,7 +4163,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.RequesterID = requesterIDValue
 		}
-		if ss := queryParams["query.request_type_ids"]; len(ss) != 0 {
+		if ss := ctx.URLParamSlice("query.request_type_ids"); len(ss) != 0 {
 			requestTypeIDsValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4178,7 +4178,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 		if query == nil {
 			query = new(models.RequestQuery)
 		}
-		query.RequestTypeNames = queryParams["query.request_type_names"]
+		query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names")
 		query.NameLike = ctx.URLParam("query.name_like")
 		if s := ctx.URLParam("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)

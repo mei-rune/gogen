@@ -16,7 +16,7 @@ import (
 
 func getGogen() string {
 	for _, pa := range filepath.SplitList(os.Getenv("GOPATH")) {
-		dir := filepath.Join(pa, "src/github.com/runner-mei/gogen")
+		dir := filepath.Join(pa, "src/github.com/runner-mei/gogen/v1")
 		if st, err := os.Stat(dir); err == nil && st.IsDir() {
 			return dir
 		}

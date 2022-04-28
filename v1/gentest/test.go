@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/runner-mei/gogen/gentest/models"
+	"github.com/runner-mei/gogen/v1/gentest/models"
 )
 
 // 用于测试 parse() 方法

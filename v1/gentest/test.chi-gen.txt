@@ -16,7 +16,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/runner-mei/errors"
-	"github.com/runner-mei/gogen/gentest/models"
+	"github.com/runner-mei/gogen/v1/gentest/models"
 )
 
 // TimeRange is skipped

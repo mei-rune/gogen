@@ -4,12 +4,14 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/runner-mei/gogen/gentest/models"
+	"github.com/runner-mei/gogen/v1/gentest/models"
+	"github.com/runner-mei/loong"
 	"github.com/runner-mei/resty"
 )
 
@@ -26,6 +28,8 @@ func (client TestClient) GetFiles(ctx context.Context, filenames []string) ([]st
 		Elist  []string `json:"list"`
 		Etotal int64    `json:"total"`
 	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/files")
 	for idx := range filenames {
@@ -39,6 +43,13 @@ func (client TestClient) GetFiles(ctx context.Context, filenames []string) ([]st
 	if err != nil {
 		return nil, 0, err
 	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
+		return nil, 0, resultWrap.Error
+	}
 	return result.Elist, result.Etotal, nil
 }
 
@@ -47,6 +58,8 @@ func (client TestClient) GetTimes(ctx context.Context, times []time.Time) ([]str
 		Elist  []string `json:"list"`
 		Etotal int64    `json:"total"`
 	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/times")
 	for idx := range times {
@@ -60,6 +73,13 @@ func (client TestClient) GetTimes(ctx context.Context, times []time.Time) ([]str
 	if err != nil {
 		return nil, 0, err
 	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
+		return nil, 0, resultWrap.Error
+	}
 	return result.Elist, result.Etotal, nil
 }
 
@@ -68,9 +88,11 @@ func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, erro
 		Elist  []string `json:"list"`
 		Etotal int64    `json:"total"`
 	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/allfiles").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
@@ -78,11 +100,18 @@ func (client TestClient) GetAllFiles(ctx context.Context) ([]string, int64, erro
 	if err != nil {
 		return nil, 0, err
 	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
+		return nil, 0, resultWrap.Error
+	}
 	return result.Elist, result.Etotal, nil
 }
 
 func (client TestClient) TestByKey1(ctx context.Context, key Key) error {
-	request := resty.NewRequest(client.Proxy, "/test_by_key/"+strconv.FormatInt(int64(key), 10)+"")
+	request := resty.NewRequest(client.Proxy, "/test_by_key/"+strconv.FormatInt(int64(key), 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -97,7 +126,7 @@ func (client TestClient) TestByKey2(ctx context.Context, key Key) error {
 }
 
 func (client TestClient) TestByStrKey1(ctx context.Context, key StrKey) error {
-	request := resty.NewRequest(client.Proxy, "/test_by_strkey/"+key+"")
+	request := resty.NewRequest(client.Proxy, "/test_by_strkey/"+key)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -112,7 +141,7 @@ func (client TestClient) TestByStrKey2(ctx context.Context, key StrKey) error {
 }
 
 func (client TestClient) TestInt64Path(ctx context.Context, id int64) error {
-	request := resty.NewRequest(client.Proxy, "/test64/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/test64/"+strconv.FormatInt(id, 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -127,7 +156,7 @@ func (client TestClient) TestInt64Query(ctx context.Context, id int64) error {
 }
 
 func (client TestClient) TestQueryArgs1(ctx context.Context, id int64, args QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/test_query_args1/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/test_query_args1/"+strconv.FormatInt(id, 10)).
 		SetParam("args.fint", strconv.FormatInt(int64(args.Fint), 10)).
 		SetParam("args.fstring", args.Fstring).
 		SetParam("args.ftime", args.Ftime.Format(client.Proxy.TimeFormat))
@@ -146,7 +175,7 @@ func (client TestClient) TestQueryArgs1(ctx context.Context, id int64, args Quer
 }
 
 func (client TestClient) TestQueryArgs2(ctx context.Context, id int64, args *QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/test_query_args2/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/test_query_args2/"+strconv.FormatInt(id, 10))
 	if args != nil {
 		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.Fint), 10)).
 			SetParam("args.fstring", args.Fstring).
@@ -167,7 +196,7 @@ func (client TestClient) TestQueryArgs2(ctx context.Context, id int64, args *Que
 }
 
 func (client TestClient) TestQueryArgs3(ctx context.Context, id int64, args QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/test_query_args3/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/test_query_args3/"+strconv.FormatInt(id, 10)).
 		SetParam("fint", strconv.FormatInt(int64(args.Fint), 10)).
 		SetParam("fstring", args.Fstring).
 		SetParam("ftime", args.Ftime.Format(client.Proxy.TimeFormat))
@@ -186,7 +215,7 @@ func (client TestClient) TestQueryArgs3(ctx context.Context, id int64, args Quer
 }
 
 func (client TestClient) TestQueryArgs4(ctx context.Context, id int64, args *QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/test_query_args4/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/test_query_args4/"+strconv.FormatInt(id, 10))
 	if args != nil {
 		request = request.SetParam("fint", strconv.FormatInt(int64(args.Fint), 10)).
 			SetParam("fstring", args.Fstring).
@@ -215,57 +244,103 @@ func (client TestClient) Ping(ctx context.Context) error {
 
 func (client TestClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/echo").
 		SetParam("a", a).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/echo2").
 		SetBody(body).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Echo3(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/echo3").
 		SetBody(map[string]interface{}{
 			"a": a,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Concat0(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/concat").
 		SetParam("a", a).
 		SetParam("b", b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/concat1")
 	if a != nil {
@@ -278,137 +353,258 @@ func (client TestClient) Concat1(ctx context.Context, a *string, b *string) (str
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/concat2/"+a+"/"+b+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/concat2/"+a+"/"+b).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/concat3/"+*a+"/"+*b+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/concat3/"+*a+"/"+*b).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/save/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/save/"+a).
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/save2/"+*a+"").
+	request := resty.NewRequest(client.Proxy, "/save2/"+*a).
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/save3").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save4(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/save4").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Save5(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/save5").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Add1(ctx context.Context, a int, b int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/add3")
 	if a != nil {
@@ -421,70 +617,125 @@ func (client TestClient) Add3(ctx context.Context, a *int, b *int) (int, error) 
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/query1").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
 		SetParam("is_raw", BoolToString(isRaw)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query2/"+BoolToString(isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query2/"+BoolToString(isRaw)).
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query3/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query3/"+BoolToString(*isRaw)).
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query4/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query4/"+BoolToString(*isRaw)).
 		SetParam("a", a).
 		SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
 		SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query5/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query5/"+BoolToString(*isRaw)).
 		SetParam("a", a)
 	if createdAt != nil {
 		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
@@ -494,13 +745,24 @@ func (client TestClient) Query5(ctx context.Context, a string, createdAt *TimeRa
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query6/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query6/"+BoolToString(*isRaw)).
 		SetParam("a", a)
 	if createdAt.Start != nil {
 		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat))
@@ -512,13 +774,24 @@ func (client TestClient) Query6(ctx context.Context, a string, createdAt TimeRan
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/query7/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/query7/"+BoolToString(*isRaw)).
 		SetParam("a", a)
 	if createdAt != nil {
 		if createdAt.Start != nil {
@@ -532,19 +805,39 @@ func (client TestClient) Query7(ctx context.Context, a string, createdAt *TimeRa
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query8(ctx context.Context, itemID int64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/query8").
 		SetParam("item_id", strconv.FormatInt(itemID, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) CreateWithNoReturn(ctx context.Context, _request *http.Request, response http.ResponseWriter) error {
@@ -560,6 +853,8 @@ func (client TestClient) CreateWithNoReturn(ctx context.Context, _request *http.
 
 func (client TestClient) Query9(ctx context.Context, itemID sql.NullInt64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/query9")
 	if itemID.Valid {
@@ -569,11 +864,22 @@ func (client TestClient) Query9(ctx context.Context, itemID sql.NullInt64) (stri
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query10(ctx context.Context, itemID sql.NullString) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/query10")
 	if itemID.Valid {
@@ -583,11 +889,22 @@ func (client TestClient) Query10(ctx context.Context, itemID sql.NullString) (st
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query11(ctx context.Context, itemID sql.NullBool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/query11")
 	if itemID.Valid {
@@ -597,19 +914,39 @@ func (client TestClient) Query11(ctx context.Context, itemID sql.NullBool) (stri
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Query1WithUpName(ctx context.Context, Name string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/query12").
 		SetParam("Name", Name).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client TestClient) Set1WithUpName(ctx context.Context, Name string) error {
@@ -633,6 +970,8 @@ func (client StringSvcImplClient) GetFiles(ctx context.Context, filenames []stri
 		Elist  []string `json:"list"`
 		Etotal int64    `json:"total"`
 	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/files")
 	for idx := range filenames {
@@ -646,6 +985,13 @@ func (client StringSvcImplClient) GetFiles(ctx context.Context, filenames []stri
 	if err != nil {
 		return nil, 0, err
 	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
+		return nil, 0, resultWrap.Error
+	}
 	return result.Elist, result.Etotal, nil
 }
 
@@ -654,6 +1000,8 @@ func (client StringSvcImplClient) GetTimes(ctx context.Context, times []time.Tim
 		Elist  []string `json:"list"`
 		Etotal int64    `json:"total"`
 	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/times")
 	for idx := range times {
@@ -667,6 +1015,13 @@ func (client StringSvcImplClient) GetTimes(ctx context.Context, times []time.Tim
 	if err != nil {
 		return nil, 0, err
 	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
+		return nil, 0, resultWrap.Error
+	}
 	return result.Elist, result.Etotal, nil
 }
 
@@ -675,9 +1030,11 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 		Elist  []string `json:"list"`
 		Etotal int64    `json:"total"`
 	}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/allfiles").
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
@@ -685,11 +1042,18 @@ func (client StringSvcImplClient) GetAllFiles(ctx context.Context) ([]string, in
 	if err != nil {
 		return nil, 0, err
 	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+
+		return nil, 0, resultWrap.Error
+	}
 	return result.Elist, result.Etotal, nil
 }
 
 func (client StringSvcImplClient) TestByKey1(ctx context.Context, key Key) error {
-	request := resty.NewRequest(client.Proxy, "/impl/test_by_key/"+strconv.FormatInt(int64(key), 10)+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test_by_key/"+strconv.FormatInt(int64(key), 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -704,7 +1068,7 @@ func (client StringSvcImplClient) TestByKey2(ctx context.Context, key Key) error
 }
 
 func (client StringSvcImplClient) TestByStrKey1(ctx context.Context, key StrKey) error {
-	request := resty.NewRequest(client.Proxy, "/impl/test_by_strkey/"+key+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test_by_strkey/"+key)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -719,7 +1083,7 @@ func (client StringSvcImplClient) TestByStrKey2(ctx context.Context, key StrKey)
 }
 
 func (client StringSvcImplClient) TestInt64Path(ctx context.Context, id int64) error {
-	request := resty.NewRequest(client.Proxy, "/impl/test64/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test64/"+strconv.FormatInt(id, 10))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -734,7 +1098,7 @@ func (client StringSvcImplClient) TestInt64Query(ctx context.Context, id int64) 
 }
 
 func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, args QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/impl/test_query_args1/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/test_query_args1/"+strconv.FormatInt(id, 10)).
 		SetParam("args.fint", strconv.FormatInt(int64(args.Fint), 10)).
 		SetParam("args.fstring", args.Fstring).
 		SetParam("args.ftime", args.Ftime.Format(client.Proxy.TimeFormat))
@@ -753,7 +1117,7 @@ func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, 
 }
 
 func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, args *QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/impl/test_query_args2/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test_query_args2/"+strconv.FormatInt(id, 10))
 	if args != nil {
 		request = request.SetParam("args.fint", strconv.FormatInt(int64(args.Fint), 10)).
 			SetParam("args.fstring", args.Fstring).
@@ -774,7 +1138,7 @@ func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, 
 }
 
 func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, args QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/impl/test_query_args3/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/test_query_args3/"+strconv.FormatInt(id, 10)).
 		SetParam("fint", strconv.FormatInt(int64(args.Fint), 10)).
 		SetParam("fstring", args.Fstring).
 		SetParam("ftime", args.Ftime.Format(client.Proxy.TimeFormat))
@@ -793,7 +1157,7 @@ func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, 
 }
 
 func (client StringSvcImplClient) TestQueryArgs4(ctx context.Context, id int64, args *QueryArgs) error {
-	request := resty.NewRequest(client.Proxy, "/impl/test_query_args4/"+strconv.FormatInt(id, 10)+"")
+	request := resty.NewRequest(client.Proxy, "/impl/test_query_args4/"+strconv.FormatInt(id, 10))
 	if args != nil {
 		request = request.SetParam("fint", strconv.FormatInt(int64(args.Fint), 10)).
 			SetParam("fstring", args.Fstring).
@@ -822,57 +1186,103 @@ func (client StringSvcImplClient) Ping(ctx context.Context) error {
 
 func (client StringSvcImplClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/echo").
 		SetParam("a", a).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/echo2").
 		SetBody(body).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Echo3(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/echo3").
 		SetBody(map[string]interface{}{
 			"a": a,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Concat0(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/concat").
 		SetParam("a", a).
 		SetParam("b", b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/concat1")
 	if a != nil {
@@ -885,137 +1295,258 @@ func (client StringSvcImplClient) Concat1(ctx context.Context, a *string, b *str
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/concat2/"+a+"/"+b+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/impl/concat2/"+a+"/"+b).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/concat3/"+*a+"/"+*b+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/impl/concat3/"+*a+"/"+*b).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/save/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/impl/save/"+a).
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/save2/"+*a+"").
+	request := resty.NewRequest(client.Proxy, "/impl/save2/"+*a).
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/save3").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save4(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/save4").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Save5(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/save5").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Add1(ctx context.Context, a int, b int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/impl/add/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/impl/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/add3")
 	if a != nil {
@@ -1028,70 +1559,125 @@ func (client StringSvcImplClient) Add3(ctx context.Context, a *int, b *int) (int
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query1(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/query1").
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
 		SetParam("is_raw", BoolToString(isRaw)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query2(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/query2/"+BoolToString(isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query2/"+BoolToString(isRaw)).
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query3(ctx context.Context, a string, beginAt time.Time, endAt time.Time, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/query3/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query3/"+BoolToString(*isRaw)).
 		SetParam("a", a).
 		SetParam("begin_at", beginAt.Format(client.Proxy.TimeFormat)).
 		SetParam("end_at", endAt.Format(client.Proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query4(ctx context.Context, a string, createdAt TimeRange, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/query4/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query4/"+BoolToString(*isRaw)).
 		SetParam("a", a).
 		SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
 		SetParam("created_at.end", createdAt.End.Format(client.Proxy.TimeFormat)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdAt *TimeRange, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/query5/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query5/"+BoolToString(*isRaw)).
 		SetParam("a", a)
 	if createdAt != nil {
 		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat)).
@@ -1101,13 +1687,24 @@ func (client StringSvcImplClient) Query5(ctx context.Context, a string, createdA
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdAt TimeRange2, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/query6/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query6/"+BoolToString(*isRaw)).
 		SetParam("a", a)
 	if createdAt.Start != nil {
 		request = request.SetParam("created_at.start", createdAt.Start.Format(client.Proxy.TimeFormat))
@@ -1119,13 +1716,24 @@ func (client StringSvcImplClient) Query6(ctx context.Context, a string, createdA
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdAt *TimeRange2, isRaw *bool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/query7/"+BoolToString(*isRaw)+"").
+	request := resty.NewRequest(client.Proxy, "/impl/query7/"+BoolToString(*isRaw)).
 		SetParam("a", a)
 	if createdAt != nil {
 		if createdAt.Start != nil {
@@ -1139,19 +1747,39 @@ func (client StringSvcImplClient) Query7(ctx context.Context, a string, createdA
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query8(ctx context.Context, itemID int64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/query8").
 		SetParam("item_id", strconv.FormatInt(itemID, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) CreateWithNoReturn(ctx context.Context, _request *http.Request, response http.ResponseWriter) error {
@@ -1167,6 +1795,8 @@ func (client StringSvcImplClient) CreateWithNoReturn(ctx context.Context, _reque
 
 func (client StringSvcImplClient) Query9(ctx context.Context, itemID sql.NullInt64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/query9")
 	if itemID.Valid {
@@ -1176,11 +1806,22 @@ func (client StringSvcImplClient) Query9(ctx context.Context, itemID sql.NullInt
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query10(ctx context.Context, itemID sql.NullString) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/query10")
 	if itemID.Valid {
@@ -1190,11 +1831,22 @@ func (client StringSvcImplClient) Query10(ctx context.Context, itemID sql.NullSt
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query11(ctx context.Context, itemID sql.NullBool) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/query11")
 	if itemID.Valid {
@@ -1204,19 +1856,39 @@ func (client StringSvcImplClient) Query11(ctx context.Context, itemID sql.NullBo
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Query1WithUpName(ctx context.Context, Name string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/impl/query12").
 		SetParam("Name", Name).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcImplClient) Set1WithUpName(ctx context.Context, Name string) error {
@@ -1237,43 +1909,78 @@ type StringSvcWithContextClient struct {
 
 func (client StringSvcWithContextClient) Echo(ctx context.Context, a string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/ctx/echo").
 		SetParam("a", a).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) EchoBody(ctx context.Context, body io.Reader) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/ctx/echo2").
 		SetBody(body).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Concat0(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/ctx/concat").
 		SetParam("a", a).
 		SetParam("b", b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/ctx/concat1")
 	if a != nil {
@@ -1286,107 +1993,206 @@ func (client StringSvcWithContextClient) Concat1(ctx context.Context, a *string,
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Concat2(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/concat2/"+a+"/"+b+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/ctx/concat2/"+a+"/"+b).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Concat3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/concat3/"+*a+"/"+*b+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/ctx/concat3/"+*a+"/"+*b).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Sub(ctx context.Context, a string, start int64) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/ctx/sub").
 		SetParam("a", a).
 		SetParam("start", strconv.FormatInt(start, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Save1(ctx context.Context, a string, b string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/save1/"+a+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/save1/"+a).
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Save2(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/save2/"+*a+"").
+	request := resty.NewRequest(client.Proxy, "/ctx/save2/"+*a).
 		SetBody(b).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Save3(ctx context.Context, a *string, b *string) (string, error) {
 	var result string
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/ctx/save3").
 		SetBody(map[string]interface{}{
 			"a": a,
 			"b": b,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return "", err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return "", errors.New("error is nil!!! wrapper is missing?")
+		}
+		return "", resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Add1(ctx context.Context, a int, b int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/add1/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/ctx/add1/"+strconv.FormatInt(int64(a), 10)+"/"+strconv.FormatInt(int64(b), 10)).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Add2(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)+"").
-		Result(&result)
+	request := resty.NewRequest(client.Proxy, "/ctx/add2/"+strconv.FormatInt(int64(*a), 10)+"/"+strconv.FormatInt(int64(*b), 10)).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *int) (int, error) {
 	var result int
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/ctx/add3")
 	if a != nil {
@@ -1399,7 +2205,16 @@ func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *in
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 // Misc: annotation is missing
@@ -1423,6 +2238,8 @@ type RequestsClient struct {
 
 func (client RequestsClient) Query1(ctx context.Context, query *models.RequestQuery, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/query1")
 	if query != nil {
@@ -1457,15 +2274,26 @@ func (client RequestsClient) Query1(ctx context.Context, query *models.RequestQu
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
 		SetParamValues(params).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) Query2(ctx context.Context, query *models.RequestQuery, offset int64, limit int64) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/query2")
 	if query != nil {
@@ -1499,15 +2327,26 @@ func (client RequestsClient) Query2(ctx context.Context, query *models.RequestQu
 	}
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) Query3(ctx context.Context, query *AliasRequestQuery, offset int64, limit int64) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/query3")
 	if query != nil {
@@ -1541,15 +2380,26 @@ func (client RequestsClient) Query3(ctx context.Context, query *AliasRequestQuer
 	}
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QueryEx1(ctx context.Context, query *RequestQueryEx1, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/queryex1")
 	if query != nil {
@@ -1585,15 +2435,26 @@ func (client RequestsClient) QueryEx1(ctx context.Context, query *RequestQueryEx
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
 		SetParamValues(params).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QueryEx2(ctx context.Context, query *RequestQueryEx2, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/queryex2")
 	if query != nil {
@@ -1631,15 +2492,26 @@ func (client RequestsClient) QueryEx2(ctx context.Context, query *RequestQueryEx
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
 		SetParamValues(params).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QueryEx3(ctx context.Context, query *RequestQueryEx3, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/queryex3")
 	if query != nil {
@@ -1675,15 +2547,26 @@ func (client RequestsClient) QueryEx3(ctx context.Context, query *RequestQueryEx
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
 		SetParamValues(params).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QueryEx4(ctx context.Context, query *RequestQueryEx4, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/queryex4")
 	if query != nil {
@@ -1721,15 +2604,26 @@ func (client RequestsClient) QueryEx4(ctx context.Context, query *RequestQueryEx
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
 		SetParamValues(params).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QueryEx3NoPrefix(ctx context.Context, query *RequestQueryEx3, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/queryex3/NoPrefix")
 	if query != nil {
@@ -1765,15 +2659,26 @@ func (client RequestsClient) QueryEx3NoPrefix(ctx context.Context, query *Reques
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
 		SetParamValues(params).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QueryEx4NoPrefix(ctx context.Context, query *RequestQueryEx4, offset int64, limit int64, params map[string]string) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/queryex4/NoPrefix")
 	if query != nil {
@@ -1811,15 +2716,26 @@ func (client RequestsClient) QueryEx4NoPrefix(ctx context.Context, query *Reques
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
 		SetParamValues(params).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) List(ctx context.Context, query *models.RequestQuery, offset int64, limit int64) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests")
 	if query != nil {
@@ -1853,54 +2769,96 @@ func (client RequestsClient) List(ctx context.Context, query *models.RequestQuer
 	}
 	request = request.SetParam("offset", strconv.FormatInt(offset, 10)).
 		SetParam("limit", strconv.FormatInt(limit, 10)).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) Create(ctx context.Context, data *models.Request) (int64, error) {
 	var result int64
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests").
 		SetBody(data).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) Create2(ctx context.Context, _request *models.Request, testarg int64) (int64, error) {
 	var result int64
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests").
 		SetBody(map[string]interface{}{
 			"request": _request,
 			"testarg": testarg,
 		}).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.POST(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) UpdateByID(ctx context.Context, id int64, data *models.Request) (int64, error) {
 	var result int64
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)).
 		SetBody(data).
-		Result(&result)
+		Result(&resultWrap)
 
 	err := request.PUT(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return 0, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return 0, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return 0, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) Set1ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)).
 		SetBody(map[string]interface{}{
 			"params": params,
 		})
@@ -1910,7 +2868,7 @@ func (client RequestsClient) Set1ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set2ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)).
 		SetBody(params)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -1918,7 +2876,7 @@ func (client RequestsClient) Set2ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set3ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)).
 		SetBody(map[string]interface{}{
 			"params": params,
 		})
@@ -1928,7 +2886,7 @@ func (client RequestsClient) Set3ByID(ctx context.Context, id int64, params map[
 }
 
 func (client RequestsClient) Set4ByID(ctx context.Context, id int64, params map[string]string) error {
-	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)+"").
+	request := resty.NewRequest(client.Proxy, "/requests/"+strconv.FormatInt(id, 10)).
 		SetBody(params)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
@@ -1963,6 +2921,8 @@ func (client RequestsClient) Set7ByID(ctx context.Context, id int64, params inte
 
 func (client RequestsClient) QuerySubTest1(ctx context.Context, query *SubTest1) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/querysub1")
 	if query != nil {
@@ -1976,11 +2936,22 @@ func (client RequestsClient) QuerySubTest1(ctx context.Context, query *SubTest1)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QuerySubTest2(ctx context.Context, query *SubTest2) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/querysub2")
 	if query != nil {
@@ -1998,11 +2969,22 @@ func (client RequestsClient) QuerySubTest2(ctx context.Context, query *SubTest2)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QuerySubTest3(ctx context.Context, query *SubTest3) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/querysub3")
 	if query != nil {
@@ -2021,11 +3003,22 @@ func (client RequestsClient) QuerySubTest3(ctx context.Context, query *SubTest3)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }
 
 func (client RequestsClient) QuerySubTest4(ctx context.Context, query *SubTest4) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
+	var resultWrap loong.Result
+	resultWrap.Data = &result
 
 	request := resty.NewRequest(client.Proxy, "/requests/querysub4")
 	if query != nil {
@@ -2046,5 +3039,14 @@ func (client RequestsClient) QuerySubTest4(ctx context.Context, query *SubTest4)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+	if !resultWrap.Success {
+		if resultWrap.Error == nil {
+			return nil, errors.New("error is nil!!! wrapper is missing?")
+		}
+		return nil, resultWrap.Error
+	}
+	return result, nil
 }

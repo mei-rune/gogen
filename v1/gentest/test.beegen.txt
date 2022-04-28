@@ -17,7 +17,7 @@ import (
 
 	beego "github.com/astaxie/beego"
 	beecontext "github.com/astaxie/beego/context"
-	"github.com/runner-mei/gogen/gentest/models"
+	"github.com/runner-mei/gogen/v1/gentest/models"
 )
 
 func httpCodeWith(err error) int {
