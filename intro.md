@@ -1,6 +1,6 @@
 
 
-[gogen](https://github.com/runner-mei/gogen) 是一个服务端 web api 代码生成工具， 
+[gogen](https://github.com/runner-mei/gogen) 是一个服务端 web api 代码生成工具（ https://github.com/runner-mei/gogen ）， 
 
 
 ## 背景
