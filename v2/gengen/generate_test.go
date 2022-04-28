@@ -37,7 +37,7 @@ func getGogen() string {
 		}
 		parent = d
 	}
-	return filepath.Join(parent, "cmd/github.com/runner-mei/gogen/v2")
+	return filepath.Join(parent, "v2")
 }
 
 func TestGenerate(t *testing.T) {
