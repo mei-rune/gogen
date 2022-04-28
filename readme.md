@@ -17,7 +17,7 @@ a web api generator tool.
 
 ## 使用方法
 
-1. 定义接口
+### 1. 定义接口
 ````golang
 type MoDomains interface {
   // @Summary get domain object by name
@@ -36,7 +36,7 @@ type MoDomains interface {
 
 方法的标注是使用 [github.com/swaggo/swag](https://github.com/swaggo/swag) 的标注，具体文档请看 [swag](https://github.com/swaggo/swag)
 
-2. 生成服务端代码
+### 2. 生成服务端代码
 
 生成 github.com/labstack/echo （由-plugin=echo参数指定） 服务端代码，注意你也可以指定生成 chi, gin 等等
 
@@ -59,11 +59,251 @@ func InitMoDomains(mux loong.Party, svc MoDomains) {
 }
 ````
 
-3. 生成客户端代码
+### 3. 生成客户端代码
 
 gogen client domains.go
 
-4. 生成文档, 请看 [github.com/swaggo/swag](https://github.com/swaggo/swag)，
+### 4. 生成文档, 请看 [github.com/swaggo/swag](https://github.com/swaggo/swag)，
+
+
+## 文档
+
+#### 方法中的参数名
+
+    方法中的参数名和 [swag](https://github.com/swaggo/swag) 中参数名一般要求匹配，不匹配时会出错，
+    匹配时我们将忽略大小写，这意味着方法中参数名为 ignoreCase, 在[swag](https://github.com/swaggo/swag) 中参数名为 ignorecase 是可以的
+    匹配时还会尝试将参数名转为 SnakeCase 形式进行比较，这意味着方法中参数名为 ignoreCase, 在[swag](https://github.com/swaggo/swag) 中参数名为 ignore_case 是可以的
+
+    这么做的原因是为了让你可以自定义参数在请求中的名字
+
+   
+#### 方法中的简单类型参数
+    
+
+   golang 的原生类型 int8, int16, int32, int64, int, uint8, uint16, uint32, uint64, uint, bool, float32, float64 都已经支持
+
+   原生类型的指针都已经支持 
+
+   原生类型的 slice 都已经支持 
+
+   此外常见的  time.Time, net.IP,  net.HardwareAddr 也支持了
+
+
+   此外常见的 database/sql 中的 sql.NullXXX 也支持了
+
+   此外对 context.Context 做了特殊处理，将会从 Request.Context() 方法中获取。
+
+   此外对 \*http.Request, http.ResponseWriter 也做了支持
+
+#### 方法中的 struct 参数
+
+  如果参法中的参数比较复杂，使用了 struct 也是支持的，规则如下
+  struct 类型的参数不支持从 path 中取数，仅支持从 query 或 body 中取值, 
+  
+  如果从 query 取值时，参数的名称以 json 标注中的为准(没有 json 标注时，将字段名转换为  SnakeCase 形式 )
+
+
+##### extensions(x-gogen-extend=inline)
+
+   ````golang
+      type QueryParam struct {
+        Name string `json:"name"`
+        Type string `json:"name"`
+      }
+
+      type Service interface {
+        // @Param   param      query   string     true  "domain name"
+        Get(param QueryParam) (XXXX, error)
+      }
+   ````
+
+   Service.Get() 方法中 param 参数取值时如下
+
+   ````golang
+     var param QueryParam
+     param.Name = ctx.QueryParam("param.name")
+     param.Type = ctx.QueryParam("param.type")
+   ````
+     字段 param.Name 对应的 query 参数名为  param.name
+     字段 param.Type 对应的 query 参数名为  param.type
+
+     但有时我们不想将要这个参数名前面的 "param.",  这时我们可以加 extensions(x-gogen-extend=inline), 如下
+
+   ````golang
+      type QueryParam struct {
+        Name string `json:"name"`
+        Type string `json:"name"`
+      }
+
+      type Service interface {
+        // @Param   param      query   string     true  "domain name" extensions(x-gogen-extend=inline)
+        Get(param QueryParam) (XXXX, error)
+      }
+    ````
+    加了 extensions(x-gogen-extend=inline) 后它们的参数名如下
+
+     字段 param.Name 对应的 query 参数名为  name
+     字段 param.Type 对应的 query 参数名为  type
+
+
+#### 方法中的 body 参数
+
+   当方法中的参数被标注为从 body 中取值时，我们会将将所有参数转换为一个 struct 中， 并以参数名为字段名, 例如
+
+   ````golang
+      type Service interface {
+        // @Param   name      body   string     false  ""
+        // @Param   type      body   string     false  ""
+        Save(name, description string) error
+      }
+    ````
+
+   Service.Get() 方法中 record 参数取值时如下
+   ````golang
+      var bindArgs struct {
+        Name string `json:"name"`
+        Description string `json:"description"`
+      }
+      ctx.ReadJSON(&bindArgs)
+   ````
+
+##### extensions(x-gogen-entire-body=true)
+
+    有时我们只传一个 struct 对象时，这 bindArgs 结构就有点多余了，如
+
+   ````golang
+      type Record struct {
+        Name string `json:"name"`
+        Description string `json:"description"`
+      }
+
+      type Service interface {
+        // @Param   record      body   Record     false  ""
+        Save(record Record) error
+      }
+    ````
+    这时 Service.Save() 方法生成的服务端代码就变成了
+   ````golang
+      var bindArgs struct {
+        Record Record `json:"record"`
+      }
+      ctx.ReadJSON(&bindArgs)
+   ````
+
+    Service.Save() 方法传参数时就要这么传
+
+     ````json
+     {
+      "record": {
+        "name": "xxx",
+        "description": "xxx"
+      }
+     }
+     ````
+
+    这个外层的  "record" 很多余， 这时我们可以加上  extensions(x-gogen-entire-body=true)
+
+   ````golang
+      type Record struct {
+        Name string `json:"name"`
+        Description string `json:"description"`
+      }
+
+      type Service interface {
+        // @Param   record      body   Record     false  ""   extensions(x-gogen-entire-body=true)
+        Save(record Record) error
+      }
+    ````
+
+    这样子，Service.Save() 方法生成的服务端代码就变成了
+   ````golang
+      var record Record
+      ctx.ReadJSON(&record)
+   ````
+
+
+#### 方法中的返回参数
+
+方法中的返回参数中必须有一个 error 参数，并且它必须是最后一个参数。
+
+##### 只有两个返回参数（且其中一个为 error）
+
+   生成的代码如下
+
+   ````golang
+    result, err := svc.XXXX(key)
+    if err != nil {
+      return ctx.JSON(httpCodeWith(err), err)
+    }
+    return ctx.JSON(http.StatusOK, result)
+   ````
+
+##### 两个以上返回参数
+
+   两个以上返回参数时我们求每个返回参数都要有名称, http 请求返回时我们会将所有返回参数放到一个对象中，并以每个返回参数作为对象的字段，参返回参数的名称作为字段名。
+
+   ````golang
+       Get()  (result1 int, result2 int, result3 int, err error)
+   ````
+
+  生成的代码如下
+
+   ````golang
+    result1, result2, result3, err := svc.XXXX(key)
+    if err != nil {
+      return ctx.JSON(httpCodeWith(err), err)
+    }
+    return ctx.JSON(http.StatusOK, map[string]interface{}{
+      "result1": result1,
+      "result2": result2,
+      "result3": result3,
+    })
+   ```` 
+
+
+##### 只有一个 error 返回参数
+
+   生成的代码如下
+
+   ````golang
+    err := svc.XXXX(key)
+    if err != nil {
+      return ctx.JSON(httpCodeWith(err), err)
+    }
+    return ctx.JSON(http.StatusOK, "OK")
+   ````
+
+######  @x-gogen-noreturn
+
+   有时侯我们有一些特列要求需要直接处理 http 的返回， 如下
+
+   ````golang
+      type Service interface {
+        Test(w http.ResponseWriter, xxx string) error
+      }
+    ````
+
+    在 Service.Test() 方法中我们已经处理了响应(http.ResponseWriter)，不然希望生成代码时对响应再次处理, 这时我们再生成如下代码就不对了
+
+    ````golang
+    err := svc.Test(ctx.ResponseWriter(), xxx)
+    if err != nil {
+      return ctx.JSON(httpCodeWith(err), err)
+    }
+    return ctx.JSON(http.StatusOK, "OK")
+   ````
+
+   最后的 return ctx.JSON(http.StatusOK, "OK") 是多余的
+
+   这时我们加上   @x-gogen-noreturn 就能正确处理了， 生成代码如下
+
+    ````golang
+    err := svc.Test(ctx.ResponseWriter(), xxx)
+    if err != nil {
+      return ctx.JSON(httpCodeWith(err), err)
+    }
+    return nil
+   ````
 
 
 ## 最后
