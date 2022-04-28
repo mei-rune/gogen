@@ -9,7 +9,9 @@ import (
 
 var _ Plugin = &loongPlugin{}
 
-type loongPlugin struct{}
+type loongPlugin struct {
+	cfg Config
+}
 
 func (lng *loongPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
@@ -64,15 +66,6 @@ func (lng *loongPlugin) PartyTypeName() string {
 	return "loong.Party"
 }
 
-func (lng *loongPlugin) Features() Config {
-	return Config{
-		BuildTag:        "loong",
-		EnableHttpCode:  true,
-		BoolConvert:     "toBool({{.name}})",
-		DatetimeConvert: "toDatetime({{.name}})",
-	}
-}
-
 func (lng *loongPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
@@ -98,14 +91,6 @@ func (lng *loongPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 }
 
 func (lng *loongPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
-	// renderFunc := "JSON"
-	// errText := ""
-	// if len(method.Operation.Produces) == 1 &&
-	// 	method.Operation.Produces[0] == "text/plain" {
-	// 	renderFunc = "String"
-	// 	errText = ".Error()"
-	// }
-
 	s := renderString(`return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})`,
 		map[string]interface{}{
 			"err":              err,

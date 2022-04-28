@@ -840,7 +840,7 @@ func (c *ClientConfig) GetPath(method *Method) string {
 		panic(err)
 	})
 	segements, _ := parseURL(rawurl)
-	return strings.TrimSuffix("\"" + JoinPathSegments(segements, false, replace) + "\"", "+ \"\"")
+	return strings.TrimSuffix("\""+JoinPathSegments(segements, false, replace)+"\"", "+ \"\"")
 }
 
 func convertToStringLiteral(param *astutil.Param, index, convertNS, timeFormat string) string {

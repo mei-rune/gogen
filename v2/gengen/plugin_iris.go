@@ -13,7 +13,9 @@ import (
 
 var _ Plugin = &irisPlugin{}
 
-type irisPlugin struct{}
+type irisPlugin struct {
+	cfg Config
+}
 
 func (iris *irisPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
@@ -80,22 +82,17 @@ func (iris *irisPlugin) Functions() []Function {
 		},
 	}
 }
-func (iris *irisPlugin) Features() Config {
-	return Config{
-		BuildTag:        "iris",
-		EnableHttpCode:  true,
-		BoolConvert:     "toBool({{.name}})",
-		DatetimeConvert: "toDatetime({{.name}})",
-	}
-}
+
 func (iris *irisPlugin) Imports() map[string]string {
 	return map[string]string{
 		"github.com/kataras/iris/v12": "iris",
 	}
 }
+
 func (iris *irisPlugin) PartyTypeName() string {
 	return "iris.Party"
 }
+
 func (iris *irisPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.UnmarshalBody(" + argName + ", nil)"
 }
@@ -161,8 +158,8 @@ func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	return err
 }
 func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
-	if errCode == "" && iris.Features().EnableHttpCode {
-		errCode = "httpCodeWith(err)"
+	if errCode == "" && iris.cfg.HttpCodeWith != "" {
+		errCode = iris.cfg.HttpCodeWith + "(" + err + ")"
 	}
 
 	renderFunc := "JSON"

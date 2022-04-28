@@ -33,12 +33,12 @@ func TestGenerate(t *testing.T) {
 			os.Remove(filepath.Join(wd, "gentest", name+".gin-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = &ServerGenerator{
-				plugin:   "gin",
-				ext:      ".gin-gen.go",
-				buildTag: "gin",
-				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
-			}
+			var gen = &ServerGenerator{}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+				"-plugin=gin",
+				"-build_tag=gin",
+			})
+
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
@@ -65,12 +65,12 @@ func TestGenerate(t *testing.T) {
 			os.Remove(filepath.Join(wd, "gentest", name+".chi-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = &ServerGenerator{
-				plugin:   "chi",
-				ext:      ".chi-gen.go",
-				buildTag: "chi",
-				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
-			}
+			var gen = &ServerGenerator{}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+				"-plugin=chi",
+				"-build_tag=chi",
+			})
+
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
@@ -96,12 +96,12 @@ func TestGenerate(t *testing.T) {
 			t.Log("=====================", name)
 			os.Remove(filepath.Join(wd, "gentest", name+".echo-gen.go"))
 
-			var gen = &ServerGenerator{
-				plugin:   "echo",
-				ext:      ".echo-gen.go",
-				buildTag: "echo",
-				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
-			}
+			var gen = &ServerGenerator{}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+				"-plugin=echo",
+				"-build_tag=echo",
+			})
+
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
@@ -128,12 +128,12 @@ func TestGenerate(t *testing.T) {
 			os.Remove(filepath.Join(wd, "gentest", name+".iris-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = &ServerGenerator{
-				plugin:   "iris",
-				ext:      ".iris-gen.go",
-				buildTag: "iris",
-				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
-			}
+			var gen = &ServerGenerator{}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+				"-plugin=iris",
+				"-build_tag=iris",
+			})
+
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
@@ -160,12 +160,12 @@ func TestGenerate(t *testing.T) {
 			os.Remove(filepath.Join(wd, "gentest", name+".loong-gen.go"))
 			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
 
-			var gen = &ServerGenerator{
-				plugin:   "loong",
-				ext:      ".loong-gen.go",
-				buildTag: "loong",
-				// includes: filepath.Join(wd, "gentest", "models", "requests.go"),
-			}
+			var gen = &ServerGenerator{}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+				"-plugin=loong",
+				"-build_tag=loong",
+			})
+
 			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
@@ -254,15 +254,13 @@ func TestGenerate(t *testing.T) {
 		}
 	})
 
-
-
 	t.Run("loongclient", func(t *testing.T) {
 		for _, name := range []string{"test"} {
 			t.Log("=====================", name)
 			os.Remove(filepath.Join(wd, "gentest", name+".loongclient-gen.go"))
 
 			var gen = ClientGenerator{
-					ext:      ".loongclient-gen.go",
+				ext: ".loongclient-gen.go",
 			}
 			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
 				"-has-wrapper", "true",

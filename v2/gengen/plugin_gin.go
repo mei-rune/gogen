@@ -9,7 +9,9 @@ import (
 
 var _ Plugin = &ginPlugin{}
 
-type ginPlugin struct{}
+type ginPlugin struct {
+	cfg Config
+}
 
 func (gin *ginPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
@@ -64,14 +66,6 @@ func (gin *ginPlugin) PartyTypeName() string {
 	return "gin.IRouter"
 }
 
-func (gin *ginPlugin) Features() Config {
-	return Config{
-		BuildTag:        "gin",
-		EnableHttpCode:  true,
-		BoolConvert:     "toBool({{.name}})",
-		DatetimeConvert: "toDatetime({{.name}})",
-	}
-}
 func (gin *ginPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
@@ -97,8 +91,8 @@ func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 }
 
 func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
-	if errCode == "" && gin.Features().EnableHttpCode {
-		errCode = "httpCodeWith(err)"
+	if errCode == "" && gin.cfg.HttpCodeWith != "" {
+		errCode = gin.cfg.HttpCodeWith + "(" + err + ")"
 	}
 
 	renderFunc := "JSON"

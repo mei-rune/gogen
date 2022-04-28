@@ -17,8 +17,9 @@ type ServerGenerator struct {
 	ext      string
 	buildTag string
 
-	enableHttpCodeWith bool
+	cfg                Config
 	convertNamespace   string
+	outputHttpCodeWith bool
 }
 
 func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
@@ -26,7 +27,9 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 
 	fs.StringVar(&cmd.plugin, "plugin", "", "指定生成框架，可取值: chi, gin, echo, iris, loong")
-	fs.BoolVar(&cmd.enableHttpCodeWith, "httpCodeWith", false, "生成 enableHttpCodeWith 函数")
+	fs.StringVar(&cmd.cfg.HttpCodeWith, "httpCodeWith", "httpCodeWith", "使用 httpCodeWith 函数")
+	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
+
 	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")
 	return fs
 }
@@ -35,14 +38,14 @@ func (cmd *ServerGenerator) Run(args []string) error {
 	if cmd.plugin == "" {
 		return errors.New("缺少 plugin 参数")
 	}
-	
-	plugin, err := createPlugin(cmd.plugin)
+
+	plugin, err := createPlugin(cmd.plugin, cmd.cfg)
 	if err != nil {
 		return err
 	}
 
 	if cmd.ext == "" {
-		cmd.ext = "."+cmd.plugin+"-gen.go"
+		cmd.ext = "." + cmd.plugin + "-gen.go"
 	}
 
 	swaggerParser := swag.New()
@@ -144,6 +147,16 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		io.WriteString(out, "\""+pa+"\"")
 	}
 	io.WriteString(out, "\r\n)\r\n")
+
+	if cmd.outputHttpCodeWith {
+		if cmd.cfg.HttpCodeWith != "" {
+			txt := strings.Replace(httpCodeWithTxt, "httpCodeWith", cmd.cfg.HttpCodeWith, -1)
+
+			io.WriteString(out, "\r\n")
+			io.WriteString(out, txt)
+			io.WriteString(out, "\r\n")
+		}
+	}
 	return nil
 }
 
@@ -183,8 +196,8 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 
 			ctx := &GenContext{
 				convertNS: cmd.convertNamespace,
-				plugin: plugin,
-				out: out,
+				plugin:    plugin,
+				out:       out,
 			}
 			err = method.renderImpl(ctx)
 			if err != nil {
@@ -204,3 +217,15 @@ func ParseFile(ctx *astutil.Context, filename string) (*astutil.File, error) {
 
 	return ctx.LoadFile(filename)
 }
+
+const httpCodeWithTxt = `func httpCodeWith(err error, statusCode ...int) int {
+  if herr, ok := err.(interface{
+    HTTPCode() int
+    }); ok {
+      return herr.HTTPCode()
+    }
+  if len(statusCode) > 0 {
+  	return statusCode[0]
+  }
+  return http.StatusInternalServerError
+}`

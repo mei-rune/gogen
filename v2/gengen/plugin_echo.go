@@ -9,7 +9,9 @@ import (
 
 var _ Plugin = &echoPlugin{}
 
-type echoPlugin struct{}
+type echoPlugin struct {
+	cfg Config
+}
 
 func (echo *echoPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
@@ -64,15 +66,6 @@ func (echo *echoPlugin) PartyTypeName() string {
 	return "*echo.Group"
 }
 
-func (echo *echoPlugin) Features() Config {
-	return Config{
-		BuildTag:        "echo",
-		EnableHttpCode:  true,
-		BoolConvert:     "toBool({{.name}})",
-		DatetimeConvert: "toDatetime({{.name}})",
-	}
-}
-
 func (echo *echoPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
@@ -98,8 +91,8 @@ func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 }
 
 func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
-	if errCode == "" && echo.Features().EnableHttpCode {
-		errCode = "httpCodeWith(err)"
+	if errCode == "" && echo.cfg.HttpCodeWith != "" {
+		errCode = echo.cfg.HttpCodeWith + "(" + err + ")"
 	}
 
 	renderFunc := "JSON"

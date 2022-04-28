@@ -14,8 +14,8 @@ import (
 
 type GenContext struct {
 	convertNS string
-	plugin Plugin
-	out io.Writer
+	plugin    Plugin
+	out       io.Writer
 }
 
 var specificParamName = "otherValues"
@@ -290,7 +290,6 @@ func (method *Method) renderImpl(ctx *GenContext) error {
 
 	return method.renderInvokeAndReturn(ctx)
 }
-
 
 func (method *Method) HasQueryParam() bool {
 	for idx := range method.Method.Params.List {
@@ -711,7 +710,6 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 			return nil
 		}
 
-
 		var isOptional = false
 
 		// 情况1, 2
@@ -720,9 +718,9 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		} else {
 			if !fn.Required && needParentInitialize(param, fields) {
 				if fn.IsArray {
-					io.WriteString(ctx.out, "\tif ss := " + valueReadText + "; len(ss) != 0 {")
+					io.WriteString(ctx.out, "\tif ss := "+valueReadText+"; len(ss) != 0 {")
 				} else {
-					io.WriteString(ctx.out, "\tif s := " + valueReadText + "; s != \"\" {")
+					io.WriteString(ctx.out, "\tif s := "+valueReadText+"; s != \"\" {")
 				}
 				if err := renderParentInit(ctx, param, fields, true); err != nil {
 					return err
@@ -1142,11 +1140,11 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 		valueReadText = fmt.Sprintf(fn.Format, webParamName)
 	}
 
-	convertFmt, needCast, retError, err := selectConvert(ctx.convertNS,fn.IsArray, fn.ResultType, typ.ToLiteral())
+	convertFmt, needCast, retError, err := selectConvert(ctx.convertNS, fn.IsArray, fn.ResultType, typ.ToLiteral())
 	if err != nil {
 		originErr := err
 		if underlying.IsValid() {
-			convertFmt, needCast, retError, err = selectConvert(ctx.convertNS,fn.IsArray, fn.ResultType, underlying.ToLiteral())
+			convertFmt, needCast, retError, err = selectConvert(ctx.convertNS, fn.IsArray, fn.ResultType, underlying.ToLiteral())
 		}
 		if err != nil {
 			return errors.New("param '" + goVarName + "' of '" +
@@ -1318,9 +1316,7 @@ func GetWebParamName(param *Param, parents []*Field) string {
 	return name
 }
 
-
-
-func needParentInitialize(param *Param, parents []*Field)  bool {
+func needParentInitialize(param *Param, parents []*Field) bool {
 	if len(parents) == 0 {
 		return false
 	}

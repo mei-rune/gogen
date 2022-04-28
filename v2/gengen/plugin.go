@@ -11,10 +11,7 @@ import (
 )
 
 type Config struct {
-	BuildTag        string
-	EnableHttpCode  bool
-	BoolConvert     string
-	DatetimeConvert string
+	HttpCodeWith string
 }
 
 type Function struct {
@@ -27,25 +24,24 @@ type Function struct {
 	ResultBool  bool
 }
 
-func createPlugin(plugin string) (Plugin, error) {
+func createPlugin(plugin string, cfg Config) (Plugin, error) {
 	switch plugin {
 	case "gin":
-		return &ginPlugin{}, nil
+		return &ginPlugin{cfg: cfg}, nil
 	case "chi":
-		return &chiPlugin{}, nil
+		return &chiPlugin{cfg: cfg}, nil
 	case "echo":
-		return &echoPlugin{}, nil
+		return &echoPlugin{cfg: cfg}, nil
 	case "iris":
-		return &irisPlugin{}, nil
+		return &irisPlugin{cfg: cfg}, nil
 	case "loong":
-		return &loongPlugin{}, nil
+		return &loongPlugin{cfg: cfg}, nil
 	default:
 		return nil, errors.New("plugin '" + plugin + "' is unsupported")
 	}
 }
 
 type Plugin interface {
-	Features() Config
 	Imports() map[string]string
 	PartyTypeName() string
 

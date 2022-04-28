@@ -14,6 +14,7 @@ import (
 var _ Plugin = &chiPlugin{}
 
 type chiPlugin struct {
+	cfg Config
 }
 
 func (chi *chiPlugin) Functions() []Function {
@@ -42,15 +43,6 @@ func (chi *chiPlugin) Functions() []Function {
 			ResultError: false,
 			ResultBool:  false,
 		},
-	}
-}
-
-func (chi *chiPlugin) Features() Config {
-	return Config{
-		BuildTag:        "chi",
-		EnableHttpCode:  true,
-		BoolConvert:     "toBool({{.name}})",
-		DatetimeConvert: "toDatetime({{.name}})",
 	}
 }
 
@@ -101,7 +93,7 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 
 	_, err = io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(w http.ResponseWriter, r *http.Request) {")
 	if method.HasQueryParam() {
-			_, err = io.WriteString(out, "\r\n\tqueryParams := r.URL.Query()")
+		_, err = io.WriteString(out, "\r\n\tqueryParams := r.URL.Query()")
 	}
 	return err
 }
@@ -135,8 +127,8 @@ func (chi *chiPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, 
 }
 
 func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
-	if errCode == "" && chi.Features().EnableHttpCode {
-		errCode = "httpCodeWith(err)"
+	if errCode == "" && chi.cfg.HttpCodeWith != "" {
+		errCode = chi.cfg.HttpCodeWith + "(" + err + ")"
 	}
 
 	renderFunc := "JSON"
