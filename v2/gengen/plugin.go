@@ -74,9 +74,9 @@ func getCastErrorText(method *Method, accessFields string, err, value string) st
 	return "NewBadArgument(" + err + ", \"" + method.FullName() + "\", \"" + accessFields + "\")"
 }
 
-func renderCastError(out io.Writer, plugin Plugin, method *Method, accessFields, err, value string) error {
-	txt := plugin.GetCastErrorText(method, accessFields, err, value)
-	return plugin.RenderReturnError(out, method, "http.StatusBadRequest", txt)
+func renderCastError(ctx *GenContext, method *Method, accessFields, err, value string) error {
+	txt := ctx.plugin.GetCastErrorText(method, accessFields, err, value)
+	return ctx.plugin.RenderReturnError(ctx.out, method, "http.StatusBadRequest", txt)
 }
 
 func renderText(txt *template.Template, out io.Writer, renderArgs interface{}) {

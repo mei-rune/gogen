@@ -172,7 +172,7 @@ type ConvertFunc struct {
 
 var ConvertHook func(isArray bool, paramType string) *ConvertFunc
 
-func selectConvert(isArray bool, resultType, paramType string) (string, bool, bool, error) {
+func selectConvert(convertNS string, isArray bool, resultType, paramType string) (string, bool, bool, error) {
 	if isArray {
 		if !strings.HasPrefix(paramType, "[]") {
 			return "", false, false, errors.New("cannot convert to '" + paramType + "', param type isnot match")
@@ -189,87 +189,87 @@ func selectConvert(isArray bool, resultType, paramType string) (string, bool, bo
 	switch paramType {
 	case "int":
 		if isArray {
-			return "ToIntArray(%s)", false, true, nil
+			return convertNS + "ToIntArray(%s)", false, true, nil
 		}
 		return "strconv.Atoi(%s)", false, true, nil
 	case "int64":
 		if isArray {
-			return "ToInt64Array(%s)", false, true, nil
+			return convertNS + "ToInt64Array(%s)", false, true, nil
 		}
 		return "strconv.ParseInt(%s, 10, 64)", false, true, nil
 	case "int32":
 		if isArray {
-			return "ToInt32Array(%s)", false, true, nil
+			return convertNS + "ToInt32Array(%s)", false, true, nil
 		}
 		return "strconv.ParseInt(%s, 10, 32)", true, true, nil
 	case "int16":
 		if isArray {
-			return "ToInt16Array(%s)", false, true, nil
+			return convertNS + "ToInt16Array(%s)", false, true, nil
 		}
 		return "strconv.ParseInt(%s, 10, 16)", true, true, nil
 	case "int8":
 		if isArray {
-			return "ToInt8Array(%s)", false, true, nil
+			return convertNS + "ToInt8Array(%s)", false, true, nil
 		}
 		return "strconv.ParseInt(%s, 10, 8)", true, true, nil
 	case "uint":
 		if isArray {
-			return "ToUintArray(%s)", false, true, nil
+			return convertNS + "ToUintArray(%s)", false, true, nil
 		}
 		return "strconv.ParseUint(%s, 10, 64)", true, true, nil
 	case "uint64":
 		if isArray {
-			return "ToUint64Array(%s)", false, true, nil
+			return convertNS + "ToUint64Array(%s)", false, true, nil
 		}
 		return "strconv.ParseUint(%s, 10, 64)", false, true, nil
 	case "uint32":
 		if isArray {
-			return "ToUint32Array(%s)", false, true, nil
+			return convertNS + "ToUint32Array(%s)", false, true, nil
 		}
 		return "strconv.ParseUint(%s, 10, 32)", true, true, nil
 	case "uint16":
 		if isArray {
-			return "ToUint16Array(%s)", false, true, nil
+			return convertNS + "ToUint16Array(%s)", false, true, nil
 		}
 		return "strconv.ParseUint(%s, 10, 16)", true, true, nil
 	case "uint8":
 		if isArray {
-			return "ToUint8Array(%s)", false, true, nil
+			return convertNS + "ToUint8Array(%s)", false, true, nil
 		}
 		return "strconv.ParseUint(%s, 10, 8)", true, true, nil
 	case "bool":
 		if isArray {
-			return "ToBoolArray(%s)", false, true, nil
+			return convertNS + "ToBoolArray(%s)", false, true, nil
 		}
 		return "strconv.ParseBool(%s)", false, true, nil
 	case "float64":
 		if isArray {
-			return "ToFloat64Array(%s)", false, true, nil
+			return convertNS + "ToFloat64Array(%s)", false, true, nil
 		}
 		return "strconv.ParseFloat(%s, 64)", false, true, nil
 	case "float32":
 		if isArray {
-			return "ToFloat32Array(%s)", false, true, nil
+			return convertNS + "ToFloat32Array(%s)", false, true, nil
 		}
 		return "strconv.ParseFloat(%s, 32)", true, true, nil
 	case "time.Time":
 		if isArray {
-			return "ToDatetimes(%s)", false, true, nil
+			return convertNS + "ToDatetimes(%s)", false, true, nil
 		}
-		return "ToDatetime(%s)", false, true, nil
+		return convertNS + "ToDatetime(%s)", false, true, nil
 	case "time.Duration":
 		if isArray {
-			return "ToDurations(%s)", false, true, nil
+			return convertNS + "ToDurations(%s)", false, true, nil
 		}
 		return "time.ParseDuration(%s)", false, true, nil
 	case "net.IP":
 		if isArray {
-			return "ToIPList(%s)", false, true, nil
+			return convertNS + "ToIPList(%s)", false, true, nil
 		}
-		return "ToIPAddr(%s)", false, true, nil
+		return convertNS + "ToIPAddr(%s)", false, true, nil
 	case "net.HardwareAddr":
 		if isArray {
-			return "ToMacList(%s)", false, true, nil
+			return convertNS + "ToMacList(%s)", false, true, nil
 		}
 		return "net.ParseMAC(%s)", false, true, nil
 	default:

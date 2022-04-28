@@ -181,7 +181,12 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 				return err
 			}
 
-			err = method.renderImpl(plugin, out)
+			ctx := &GenContext{
+				convertNS: cmd.convertNamespace,
+				plugin: plugin,
+				out: out,
+			}
+			err = method.renderImpl(ctx)
 			if err != nil {
 				return err
 			}
