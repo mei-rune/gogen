@@ -191,14 +191,19 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			args = new(QueryArgs)
 			args.Fint = fintValue
 		}
-		if args == nil {
-			args = new(QueryArgs)
+		if s := ctx.QueryParam("args.fstring"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Fstring = ctx.QueryParam("args.fstring")
 		}
-		args.Fstring = ctx.QueryParam("args.fstring")
 		if s := ctx.QueryParam("args.ftime"); s != "" {
 			ftimeValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.ftime"))
+			}
+			if args == nil {
+				args = new(QueryArgs)
 			}
 			args.Ftime = ftimeValue
 		}
@@ -207,15 +212,24 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.fintptr"))
 			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
 			args.Fintptr = &fintptrValue
 		}
 		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
 			ftimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.ftimeptr"))
+			}
+			if args == nil {
+				args = new(QueryArgs)
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
@@ -283,14 +297,19 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			args = new(QueryArgs)
 			args.Fint = fintValue
 		}
-		if args == nil {
-			args = new(QueryArgs)
+		if s := ctx.QueryParam("fstring"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Fstring = ctx.QueryParam("fstring")
 		}
-		args.Fstring = ctx.QueryParam("fstring")
 		if s := ctx.QueryParam("ftime"); s != "" {
 			ftimeValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs4", "ftime"))
+			}
+			if args == nil {
+				args = new(QueryArgs)
 			}
 			args.Ftime = ftimeValue
 		}
@@ -299,15 +318,24 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs4", "fintptr"))
 			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
 			args.Fintptr = &fintptrValue
 		}
 		if s := ctx.QueryParam("fstringptr"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
 			ftimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs4", "ftimeptr"))
+			}
+			if args == nil {
+				args = new(QueryArgs)
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
@@ -969,14 +997,19 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			args = new(QueryArgs)
 			args.Fint = fintValue
 		}
-		if args == nil {
-			args = new(QueryArgs)
+		if s := ctx.QueryParam("args.fstring"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Fstring = ctx.QueryParam("args.fstring")
 		}
-		args.Fstring = ctx.QueryParam("args.fstring")
 		if s := ctx.QueryParam("args.ftime"); s != "" {
 			ftimeValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs2", "args.ftime"))
+			}
+			if args == nil {
+				args = new(QueryArgs)
 			}
 			args.Ftime = ftimeValue
 		}
@@ -985,15 +1018,24 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs2", "args.fintptr"))
 			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
 			args.Fintptr = &fintptrValue
 		}
 		if s := ctx.QueryParam("args.fstringptr"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("args.ftimeptr"); s != "" {
 			ftimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs2", "args.ftimeptr"))
+			}
+			if args == nil {
+				args = new(QueryArgs)
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
@@ -1061,14 +1103,19 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			args = new(QueryArgs)
 			args.Fint = fintValue
 		}
-		if args == nil {
-			args = new(QueryArgs)
+		if s := ctx.QueryParam("fstring"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Fstring = ctx.QueryParam("fstring")
 		}
-		args.Fstring = ctx.QueryParam("fstring")
 		if s := ctx.QueryParam("ftime"); s != "" {
 			ftimeValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs4", "ftime"))
+			}
+			if args == nil {
+				args = new(QueryArgs)
 			}
 			args.Ftime = ftimeValue
 		}
@@ -1077,15 +1124,24 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs4", "fintptr"))
 			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
 			args.Fintptr = &fintptrValue
 		}
 		if s := ctx.QueryParam("fstringptr"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
 			args.Fstringptr = &s
 		}
 		if s := ctx.QueryParam("ftimeptr"); s != "" {
 			ftimeptrValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs4", "ftimeptr"))
+			}
+			if args == nil {
+				args = new(QueryArgs)
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
@@ -1795,15 +1851,25 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query == nil {
-			query = new(models.RequestQuery)
+		if ss := ctx.QueryParams()["query.request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = ctx.QueryParams()["query.request_type_names"]
 		}
-		query.RequestTypeNames = ctx.QueryParams()["query.request_type_names"]
-		query.NameLike = ctx.QueryParam("query.name_like")
+		if s := ctx.QueryParam("query.name_like"); s != "" {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.NameLike = ctx.QueryParam("query.name_like")
+		}
 		if s := ctx.QueryParam("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.current_status"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.CurrentStatus = currentStatusValue
 		}
@@ -1811,6 +1877,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.is_unclosed"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
@@ -1820,6 +1889,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.is_overdued"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
@@ -1827,6 +1899,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.is_suspend"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.IsSuspend.Valid = true
 			query.IsSuspend.Bool = isSuspendValue
@@ -1836,12 +1911,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.start_at"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.end_at"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.EndAt = endAtValue
 		}
@@ -1850,6 +1931,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.overdue_start"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
@@ -1857,12 +1941,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.overdue_end"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Settings == nil {
 				query.Settings = map[string]string{}
@@ -1873,6 +1963,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Args == nil {
 				query.Args = map[string]string{}
@@ -1901,6 +1994,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				strings.HasPrefix(key, "query.settings.") ||
 				strings.HasPrefix(key, "query.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Values == nil {
 				query.Values = url.Values{}
@@ -1976,15 +2072,25 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query == nil {
-			query = new(models.RequestQuery)
+		if ss := ctx.QueryParams()["request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = ctx.QueryParams()["request_type_names"]
 		}
-		query.RequestTypeNames = ctx.QueryParams()["request_type_names"]
-		query.NameLike = ctx.QueryParam("name_like")
+		if s := ctx.QueryParam("name_like"); s != "" {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.NameLike = ctx.QueryParam("name_like")
+		}
 		if s := ctx.QueryParam("current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "current_status"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.CurrentStatus = currentStatusValue
 		}
@@ -1992,6 +2098,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "is_unclosed"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
@@ -2001,6 +2110,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "is_overdued"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
@@ -2008,6 +2120,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "is_suspend"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.IsSuspend.Valid = true
 			query.IsSuspend.Bool = isSuspendValue
@@ -2017,12 +2132,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "start_at"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "end_at"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.EndAt = endAtValue
 		}
@@ -2031,6 +2152,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "overdue_start"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("overdue_end"); s != "" {
@@ -2038,12 +2162,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "overdue_end"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Settings == nil {
 				query.Settings = map[string]string{}
@@ -2054,6 +2184,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Args == nil {
 				query.Args = map[string]string{}
@@ -2081,6 +2214,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				key == "offset" ||
 				key == "limit" {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Values == nil {
 				query.Values = url.Values{}
@@ -2149,15 +2285,25 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query == nil {
-			query = new(AliasRequestQuery)
+		if ss := ctx.QueryParams()["request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.RequestTypeNames = ctx.QueryParams()["request_type_names"]
 		}
-		query.RequestTypeNames = ctx.QueryParams()["request_type_names"]
-		query.NameLike = ctx.QueryParam("name_like")
+		if s := ctx.QueryParam("name_like"); s != "" {
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.NameLike = ctx.QueryParam("name_like")
+		}
 		if s := ctx.QueryParam("current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "current_status"))
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
 			}
 			query.CurrentStatus = currentStatusValue
 		}
@@ -2165,6 +2311,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "is_unclosed"))
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
 			}
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
@@ -2174,6 +2323,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "is_overdued"))
 			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
@@ -2181,6 +2333,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "is_suspend"))
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
 			}
 			query.IsSuspend.Valid = true
 			query.IsSuspend.Bool = isSuspendValue
@@ -2190,12 +2345,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "start_at"))
 			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
 			query.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "end_at"))
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
 			}
 			query.EndAt = endAtValue
 		}
@@ -2204,6 +2365,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "overdue_start"))
 			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
 			query.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("overdue_end"); s != "" {
@@ -2211,12 +2375,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "overdue_end"))
 			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
 			query.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
 			}
 			if query.Settings == nil {
 				query.Settings = map[string]string{}
@@ -2227,6 +2397,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
 			}
 			if query.Args == nil {
 				query.Args = map[string]string{}
@@ -2254,6 +2427,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				key == "offset" ||
 				key == "limit" {
 				continue
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
 			}
 			if query.Values == nil {
 				query.Values = url.Values{}
@@ -2284,12 +2460,17 @@ func InitRequests(mux *echo.Group, svc Requests) {
 	})
 	mux.GET("/requests/queryex1", func(ctx echo.Context) error {
 		var query *RequestQueryEx1
-		query = new(RequestQueryEx1)
-		query.ExArg = ctx.QueryParam("query.ex_arg")
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			query = new(RequestQueryEx1)
+			query.ExArg = ctx.QueryParam("query.ex_arg")
+		}
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.operator_id"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			query.RequestQuery.OperatorID = operatorIDValue
 		}
@@ -2298,12 +2479,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.creator_id"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
 			query.RequestQuery.CreatorID = creatorIDValue
 		}
 		if s := ctx.QueryParam("query.requester_id"); s != "" {
 			requesterIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.requester_id"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			query.RequestQuery.RequesterID = requesterIDValue
 		}
@@ -2312,14 +2499,30 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.request_type_ids"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
 			query.RequestQuery.RequestTypeIDs = requestTypeIDsValue
 		}
-		query.RequestQuery.RequestTypeNames = ctx.QueryParams()["query.request_type_names"]
-		query.RequestQuery.NameLike = ctx.QueryParam("query.name_like")
+		if ss := ctx.QueryParams()["query.request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
+			query.RequestQuery.RequestTypeNames = ctx.QueryParams()["query.request_type_names"]
+		}
+		if s := ctx.QueryParam("query.name_like"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
+			query.RequestQuery.NameLike = ctx.QueryParam("query.name_like")
+		}
 		if s := ctx.QueryParam("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.current_status"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			query.RequestQuery.CurrentStatus = currentStatusValue
 		}
@@ -2327,6 +2530,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_unclosed"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			query.RequestQuery.IsUnclosed.Valid = true
 			query.RequestQuery.IsUnclosed.Bool = isUnclosedValue
@@ -2336,6 +2542,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_overdued"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
 			query.RequestQuery.IsOverdued.Valid = true
 			query.RequestQuery.IsOverdued.Bool = isOverduedValue
 		}
@@ -2343,6 +2552,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_suspend"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			query.RequestQuery.IsSuspend.Valid = true
 			query.RequestQuery.IsSuspend.Bool = isSuspendValue
@@ -2352,12 +2564,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.start_at"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
 			query.RequestQuery.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.end_at"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			query.RequestQuery.EndAt = endAtValue
 		}
@@ -2366,6 +2584,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.overdue_start"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
 			query.RequestQuery.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
@@ -2373,12 +2594,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.overdue_end"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
 			query.RequestQuery.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			if query.Settings == nil {
 				query.Settings = map[string]string{}
@@ -2389,6 +2616,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			if query.Args == nil {
 				query.Args = map[string]string{}
@@ -2418,6 +2648,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				strings.HasPrefix(key, "query.settings.") ||
 				strings.HasPrefix(key, "query.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
 			}
 			if query.Values == nil {
 				query.Values = url.Values{}
@@ -2455,12 +2688,17 @@ func InitRequests(mux *echo.Group, svc Requests) {
 	})
 	mux.GET("/requests/queryex2", func(ctx echo.Context) error {
 		var query *RequestQueryEx2
-		query = new(RequestQueryEx2)
-		query.ExArg = ctx.QueryParam("query.ex_arg")
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			query = new(RequestQueryEx2)
+			query.ExArg = ctx.QueryParam("query.ex_arg")
+		}
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.operator_id"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
 			}
 			query.RequestQuery = new(models.RequestQuery)
 			query.RequestQuery.OperatorID = operatorIDValue
@@ -2469,6 +2707,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			creatorIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.creator_id"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
 			}
 			if query.RequestQuery == nil {
 				query.RequestQuery = new(models.RequestQuery)
@@ -2480,6 +2721,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.requester_id"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
 			if query.RequestQuery == nil {
 				query.RequestQuery = new(models.RequestQuery)
 			}
@@ -2490,20 +2734,42 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.request_type_ids"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
 			if query.RequestQuery == nil {
 				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestQuery.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query.RequestQuery == nil {
-			query.RequestQuery = new(models.RequestQuery)
+		if ss := ctx.QueryParams()["query.request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.RequestQuery.RequestTypeNames = ctx.QueryParams()["query.request_type_names"]
 		}
-		query.RequestQuery.RequestTypeNames = ctx.QueryParams()["query.request_type_names"]
-		query.RequestQuery.NameLike = ctx.QueryParam("query.name_like")
+		if s := ctx.QueryParam("query.name_like"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.RequestQuery.NameLike = ctx.QueryParam("query.name_like")
+		}
 		if s := ctx.QueryParam("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.current_status"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestQuery.CurrentStatus = currentStatusValue
 		}
@@ -2511,6 +2777,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_unclosed"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestQuery.IsUnclosed.Valid = true
 			query.RequestQuery.IsUnclosed.Bool = isUnclosedValue
@@ -2520,6 +2792,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_overdued"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
 			query.RequestQuery.IsOverdued.Valid = true
 			query.RequestQuery.IsOverdued.Bool = isOverduedValue
 		}
@@ -2527,6 +2805,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_suspend"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestQuery.IsSuspend.Valid = true
 			query.RequestQuery.IsSuspend.Bool = isSuspendValue
@@ -2536,12 +2820,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.start_at"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
 			query.RequestQuery.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.end_at"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestQuery.EndAt = endAtValue
 		}
@@ -2550,6 +2846,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.overdue_start"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
 			query.RequestQuery.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
@@ -2557,12 +2859,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.overdue_end"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
 			query.RequestQuery.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
 			}
 			if query.Settings == nil {
 				query.Settings = map[string]string{}
@@ -2573,6 +2887,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
 			}
 			if query.Args == nil {
 				query.Args = map[string]string{}
@@ -2602,6 +2922,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				strings.HasPrefix(key, "query.settings.") ||
 				strings.HasPrefix(key, "query.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
 			}
 			if query.Values == nil {
 				query.Values = url.Values{}
@@ -2677,15 +3003,25 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query == nil {
-			query = new(RequestQueryEx3)
+		if ss := ctx.QueryParams()["query.request.request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeNames = ctx.QueryParams()["query.request.request_type_names"]
 		}
-		query.Request.RequestTypeNames = ctx.QueryParams()["query.request.request_type_names"]
-		query.Request.NameLike = ctx.QueryParam("query.request.name_like")
+		if s := ctx.QueryParam("query.request.name_like"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.NameLike = ctx.QueryParam("query.request.name_like")
+		}
 		if s := ctx.QueryParam("query.request.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.current_status"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
@@ -2693,6 +3029,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.is_unclosed"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
@@ -2702,6 +3041,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.is_overdued"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
@@ -2709,6 +3051,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.is_suspend"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			query.Request.IsSuspend.Valid = true
 			query.Request.IsSuspend.Bool = isSuspendValue
@@ -2718,12 +3063,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.start_at"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			query.Request.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("query.request.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.end_at"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			query.Request.EndAt = endAtValue
 		}
@@ -2732,6 +3083,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.overdue_start"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			query.Request.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_end"); s != "" {
@@ -2739,12 +3093,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.overdue_end"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			query.Request.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.request.settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			if query.Request.Settings == nil {
 				query.Request.Settings = map[string]string{}
@@ -2755,6 +3115,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.request.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			if query.Request.Args == nil {
 				query.Request.Args = map[string]string{}
@@ -2784,12 +3147,20 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				strings.HasPrefix(key, "query.request.ttargstt.") {
 				continue
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			if query.Request.Values == nil {
 				query.Request.Values = url.Values{}
 			}
 			query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
 		}
-		query.ExArg = ctx.QueryParam("query.ex_arg")
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.ExArg = ctx.QueryParam("query.ex_arg")
+		}
 		var offset int64
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -2869,18 +3240,34 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query == nil {
-			query = new(RequestQueryEx4)
+		if ss := ctx.QueryParams()["query.request.request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeNames = ctx.QueryParams()["query.request.request_type_names"]
 		}
-		if query.Request == nil {
-			query.Request = new(models.RequestQuery)
+		if s := ctx.QueryParam("query.request.name_like"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.NameLike = ctx.QueryParam("query.request.name_like")
 		}
-		query.Request.RequestTypeNames = ctx.QueryParams()["query.request.request_type_names"]
-		query.Request.NameLike = ctx.QueryParam("query.request.name_like")
 		if s := ctx.QueryParam("query.request.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.current_status"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
@@ -2888,6 +3275,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.is_unclosed"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
@@ -2897,6 +3290,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.is_overdued"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
@@ -2904,6 +3303,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.is_suspend"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			query.Request.IsSuspend.Valid = true
 			query.Request.IsSuspend.Bool = isSuspendValue
@@ -2913,12 +3318,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.start_at"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			query.Request.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("query.request.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.end_at"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			query.Request.EndAt = endAtValue
 		}
@@ -2927,6 +3344,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.overdue_start"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			query.Request.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("query.request.overdue_end"); s != "" {
@@ -2934,12 +3357,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.overdue_end"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			query.Request.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.request.settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			if query.Request.Settings == nil {
 				query.Request.Settings = map[string]string{}
@@ -2950,6 +3385,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.request.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			if query.Request.Args == nil {
 				query.Request.Args = map[string]string{}
@@ -2979,12 +3420,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				strings.HasPrefix(key, "query.request.ttargstt.") {
 				continue
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			if query.Request.Values == nil {
 				query.Request.Values = url.Values{}
 			}
 			query.Request.Values[strings.TrimPrefix(key, "query.request.")] = values
 		}
-		query.ExArg = ctx.QueryParam("query.ex_arg")
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			query.ExArg = ctx.QueryParam("query.ex_arg")
+		}
 		var offset int64
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -3054,15 +3506,25 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query == nil {
-			query = new(RequestQueryEx3)
+		if ss := ctx.QueryParams()["request.request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeNames = ctx.QueryParams()["request.request_type_names"]
 		}
-		query.Request.RequestTypeNames = ctx.QueryParams()["request.request_type_names"]
-		query.Request.NameLike = ctx.QueryParam("request.name_like")
+		if s := ctx.QueryParam("request.name_like"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.NameLike = ctx.QueryParam("request.name_like")
+		}
 		if s := ctx.QueryParam("request.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.current_status"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
@@ -3070,6 +3532,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.is_unclosed"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
@@ -3079,6 +3544,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.is_overdued"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
@@ -3086,6 +3554,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.is_suspend"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			query.Request.IsSuspend.Valid = true
 			query.Request.IsSuspend.Bool = isSuspendValue
@@ -3095,12 +3566,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.start_at"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			query.Request.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("request.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.end_at"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			query.Request.EndAt = endAtValue
 		}
@@ -3109,6 +3586,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.overdue_start"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			query.Request.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("request.overdue_end"); s != "" {
@@ -3116,12 +3596,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.overdue_end"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			query.Request.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "request.settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			if query.Request.Settings == nil {
 				query.Request.Settings = map[string]string{}
@@ -3132,6 +3618,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "request.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
 			}
 			if query.Request.Args == nil {
 				query.Request.Args = map[string]string{}
@@ -3161,12 +3650,20 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				strings.HasPrefix(key, "request.ttargstt.") {
 				continue
 			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
 			if query.Request.Values == nil {
 				query.Request.Values = url.Values{}
 			}
 			query.Request.Values[strings.TrimPrefix(key, "request.")] = values
 		}
-		query.ExArg = ctx.QueryParam("ex_arg")
+		if s := ctx.QueryParam("ex_arg"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.ExArg = ctx.QueryParam("ex_arg")
+		}
 		var offset int64
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -3246,18 +3743,34 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query == nil {
-			query = new(RequestQueryEx4)
+		if ss := ctx.QueryParams()["request.request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeNames = ctx.QueryParams()["request.request_type_names"]
 		}
-		if query.Request == nil {
-			query.Request = new(models.RequestQuery)
+		if s := ctx.QueryParam("request.name_like"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.NameLike = ctx.QueryParam("request.name_like")
 		}
-		query.Request.RequestTypeNames = ctx.QueryParams()["request.request_type_names"]
-		query.Request.NameLike = ctx.QueryParam("request.name_like")
 		if s := ctx.QueryParam("request.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.current_status"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
@@ -3265,6 +3778,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.is_unclosed"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
@@ -3274,6 +3793,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.is_overdued"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
@@ -3281,6 +3806,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.is_suspend"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			query.Request.IsSuspend.Valid = true
 			query.Request.IsSuspend.Bool = isSuspendValue
@@ -3290,12 +3821,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.start_at"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			query.Request.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("request.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.end_at"))
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			query.Request.EndAt = endAtValue
 		}
@@ -3304,6 +3847,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.overdue_start"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			query.Request.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("request.overdue_end"); s != "" {
@@ -3311,12 +3860,24 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.overdue_end"))
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			query.Request.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "request.settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			if query.Request.Settings == nil {
 				query.Request.Settings = map[string]string{}
@@ -3327,6 +3888,12 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "request.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
 			}
 			if query.Request.Args == nil {
 				query.Request.Args = map[string]string{}
@@ -3356,12 +3923,23 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				strings.HasPrefix(key, "request.ttargstt.") {
 				continue
 			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
 			if query.Request.Values == nil {
 				query.Request.Values = url.Values{}
 			}
 			query.Request.Values[strings.TrimPrefix(key, "request.")] = values
 		}
-		query.ExArg = ctx.QueryParam("ex_arg")
+		if s := ctx.QueryParam("ex_arg"); s != "" {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			query.ExArg = ctx.QueryParam("ex_arg")
+		}
 		var offset int64
 		if s := ctx.QueryParam("offset"); s != "" {
 			offsetValue, err := strconv.ParseInt(s, 10, 64)
@@ -3431,15 +4009,25 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
 		}
-		if query == nil {
-			query = new(models.RequestQuery)
+		if ss := ctx.QueryParams()["query.request_type_names"]; len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = ctx.QueryParams()["query.request_type_names"]
 		}
-		query.RequestTypeNames = ctx.QueryParams()["query.request_type_names"]
-		query.NameLike = ctx.QueryParam("query.name_like")
+		if s := ctx.QueryParam("query.name_like"); s != "" {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.NameLike = ctx.QueryParam("query.name_like")
+		}
 		if s := ctx.QueryParam("query.current_status"); s != "" {
 			currentStatusValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.current_status"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.CurrentStatus = currentStatusValue
 		}
@@ -3447,6 +4035,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.is_unclosed"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
@@ -3456,6 +4047,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.is_overdued"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
@@ -3463,6 +4057,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.is_suspend"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.IsSuspend.Valid = true
 			query.IsSuspend.Bool = isSuspendValue
@@ -3472,12 +4069,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.start_at"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.StartAt = startAtValue
 		}
 		if s := ctx.QueryParam("query.end_at"); s != "" {
 			endAtValue, err := ToDatetime(s)
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.end_at"))
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			query.EndAt = endAtValue
 		}
@@ -3486,6 +4089,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.overdue_start"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.OverdueStart = overdueStartValue
 		}
 		if s := ctx.QueryParam("query.overdue_end"); s != "" {
@@ -3493,12 +4099,18 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			if err != nil {
 				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.overdue_end"))
 			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
 			query.OverdueEnd = overdueEndValue
 		}
 
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.settings.") {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Settings == nil {
 				query.Settings = map[string]string{}
@@ -3509,6 +4121,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		for key, values := range ctx.QueryParams() {
 			if !strings.HasPrefix(key, "query.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Args == nil {
 				query.Args = map[string]string{}
@@ -3537,6 +4152,9 @@ func InitRequests(mux *echo.Group, svc Requests) {
 				strings.HasPrefix(key, "query.settings.") ||
 				strings.HasPrefix(key, "query.ttargstt.") {
 				continue
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
 			}
 			if query.Values == nil {
 				query.Values = url.Values{}
@@ -3718,12 +4336,34 @@ func InitRequests(mux *echo.Group, svc Requests) {
 	})
 	mux.GET("/requests/querysub1", func(ctx echo.Context) error {
 		var query *SubTest1
-		query = new(SubTest1)
-		query.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
-		query.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
-		query.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
-		query.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
-		query.ExArg = ctx.QueryParam("query.ex_arg")
+		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
+			query = new(SubTest1)
+			query.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
+		}
+		if s := ctx.QueryParam("query.sub1.a2"); s != "" {
+			if query == nil {
+				query = new(SubTest1)
+			}
+			query.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
+		}
+		if s := ctx.QueryParam("query.sub2.b1"); s != "" {
+			if query == nil {
+				query = new(SubTest1)
+			}
+			query.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
+		}
+		if s := ctx.QueryParam("query.sub2.b2"); s != "" {
+			if query == nil {
+				query = new(SubTest1)
+			}
+			query.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
+		}
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = new(SubTest1)
+			}
+			query.ExArg = ctx.QueryParam("query.ex_arg")
+		}
 		result, err := svc.QuerySubTest1(ctx.Request().Context(), query)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
@@ -3732,14 +4372,42 @@ func InitRequests(mux *echo.Group, svc Requests) {
 	})
 	mux.GET("/requests/querysub2", func(ctx echo.Context) error {
 		var query *SubTest2
-		query = new(SubTest2)
-		query.Sub1 = new(Sub1)
-		query.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
-		query.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
-		query.Sub2 = new(Sub2)
-		query.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
-		query.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
-		query.ExArg = ctx.QueryParam("query.ex_arg")
+		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
+			query = new(SubTest2)
+			query.Sub1 = new(Sub1)
+			query.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
+		}
+		if s := ctx.QueryParam("query.sub1.a2"); s != "" {
+			if query == nil {
+				query = new(SubTest2)
+			}
+			if query.Sub1 == nil {
+				query.Sub1 = new(Sub1)
+			}
+			query.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
+		}
+		if s := ctx.QueryParam("query.sub2.b1"); s != "" {
+			if query == nil {
+				query = new(SubTest2)
+			}
+			query.Sub2 = new(Sub2)
+			query.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
+		}
+		if s := ctx.QueryParam("query.sub2.b2"); s != "" {
+			if query == nil {
+				query = new(SubTest2)
+			}
+			if query.Sub2 == nil {
+				query.Sub2 = new(Sub2)
+			}
+			query.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
+		}
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = new(SubTest2)
+			}
+			query.ExArg = ctx.QueryParam("query.ex_arg")
+		}
 		result, err := svc.QuerySubTest2(ctx.Request().Context(), query)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
@@ -3748,15 +4416,48 @@ func InitRequests(mux *echo.Group, svc Requests) {
 	})
 	mux.GET("/requests/querysub3", func(ctx echo.Context) error {
 		var query *SubTest3
-		query = new(SubTest3)
-		query.ExArg = ctx.QueryParam("query.ex_arg")
-		query.SubTest2.Sub1 = new(Sub1)
-		query.SubTest2.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
-		query.SubTest2.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
-		query.SubTest2.Sub2 = new(Sub2)
-		query.SubTest2.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
-		query.SubTest2.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
-		query.SubTest2.ExArg = ctx.QueryParam("query.ex_arg")
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			query = new(SubTest3)
+			query.ExArg = ctx.QueryParam("query.ex_arg")
+		}
+		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
+			if query == nil {
+				query = new(SubTest3)
+			}
+			query.SubTest2.Sub1 = new(Sub1)
+			query.SubTest2.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
+		}
+		if s := ctx.QueryParam("query.sub1.a2"); s != "" {
+			if query == nil {
+				query = new(SubTest3)
+			}
+			if query.SubTest2.Sub1 == nil {
+				query.SubTest2.Sub1 = new(Sub1)
+			}
+			query.SubTest2.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
+		}
+		if s := ctx.QueryParam("query.sub2.b1"); s != "" {
+			if query == nil {
+				query = new(SubTest3)
+			}
+			query.SubTest2.Sub2 = new(Sub2)
+			query.SubTest2.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
+		}
+		if s := ctx.QueryParam("query.sub2.b2"); s != "" {
+			if query == nil {
+				query = new(SubTest3)
+			}
+			if query.SubTest2.Sub2 == nil {
+				query.SubTest2.Sub2 = new(Sub2)
+			}
+			query.SubTest2.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
+		}
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = new(SubTest3)
+			}
+			query.SubTest2.ExArg = ctx.QueryParam("query.ex_arg")
+		}
 		result, err := svc.QuerySubTest3(ctx.Request().Context(), query)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
@@ -3765,16 +4466,61 @@ func InitRequests(mux *echo.Group, svc Requests) {
 	})
 	mux.GET("/requests/querysub4", func(ctx echo.Context) error {
 		var query *SubTest4
-		query = new(SubTest4)
-		query.ExArg = ctx.QueryParam("query.ex_arg")
-		query.SubTest2 = new(SubTest2)
-		query.SubTest2.Sub1 = new(Sub1)
-		query.SubTest2.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
-		query.SubTest2.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
-		query.SubTest2.Sub2 = new(Sub2)
-		query.SubTest2.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
-		query.SubTest2.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
-		query.SubTest2.ExArg = ctx.QueryParam("query.ex_arg")
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			query = new(SubTest4)
+			query.ExArg = ctx.QueryParam("query.ex_arg")
+		}
+		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
+			if query == nil {
+				query = new(SubTest4)
+			}
+			query.SubTest2 = new(SubTest2)
+			query.SubTest2.Sub1 = new(Sub1)
+			query.SubTest2.Sub1.A1 = ctx.QueryParam("query.sub1.a1")
+		}
+		if s := ctx.QueryParam("query.sub1.a2"); s != "" {
+			if query == nil {
+				query = new(SubTest4)
+			}
+			if query.SubTest2 == nil {
+				query.SubTest2 = new(SubTest2)
+			}
+			if query.SubTest2.Sub1 == nil {
+				query.SubTest2.Sub1 = new(Sub1)
+			}
+			query.SubTest2.Sub1.A2 = ctx.QueryParam("query.sub1.a2")
+		}
+		if s := ctx.QueryParam("query.sub2.b1"); s != "" {
+			if query == nil {
+				query = new(SubTest4)
+			}
+			if query.SubTest2 == nil {
+				query.SubTest2 = new(SubTest2)
+			}
+			query.SubTest2.Sub2 = new(Sub2)
+			query.SubTest2.Sub2.B1 = ctx.QueryParam("query.sub2.b1")
+		}
+		if s := ctx.QueryParam("query.sub2.b2"); s != "" {
+			if query == nil {
+				query = new(SubTest4)
+			}
+			if query.SubTest2 == nil {
+				query.SubTest2 = new(SubTest2)
+			}
+			if query.SubTest2.Sub2 == nil {
+				query.SubTest2.Sub2 = new(Sub2)
+			}
+			query.SubTest2.Sub2.B2 = ctx.QueryParam("query.sub2.b2")
+		}
+		if s := ctx.QueryParam("query.ex_arg"); s != "" {
+			if query == nil {
+				query = new(SubTest4)
+			}
+			if query.SubTest2 == nil {
+				query.SubTest2 = new(SubTest2)
+			}
+			query.SubTest2.ExArg = ctx.QueryParam("query.ex_arg")
+		}
 		result, err := svc.QuerySubTest4(ctx.Request().Context(), query)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)

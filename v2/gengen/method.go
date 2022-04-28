@@ -707,14 +707,29 @@ func (method *Method) renderPrimitiveTypeParam(plugin Plugin, out io.Writer, par
 			return nil
 		}
 
+
+		var isOptional = false
+
 		// 情况1, 2
 		if len(fields) == 0 {
 			io.WriteString(out, "\tvar ")
 		} else {
-			if err := renderParentInit(plugin, out, param, fields, true); err != nil {
-				return err
+			if !fn.Required && needParentInitialize(param, fields) {
+				if fn.IsArray {
+					io.WriteString(out, "\tif ss := " + valueReadText + "; len(ss) != 0 {")
+				} else {
+					io.WriteString(out, "\tif s := " + valueReadText + "; s != \"\" {")
+				}
+				if err := renderParentInit(plugin, out, param, fields, true); err != nil {
+					return err
+				}
+				isOptional = true
+			} else {
+				if err := renderParentInit(plugin, out, param, fields, true); err != nil {
+					return err
+				}
+				setParentInitialized(param, fields)
 			}
-			setParentInitialized(param, fields)
 		}
 		io.WriteString(out, goVarName+" = ")
 
@@ -727,6 +742,10 @@ func (method *Method) renderPrimitiveTypeParam(plugin Plugin, out io.Writer, par
 
 		if underlying.IsValid() {
 			io.WriteString(out, ")")
+		}
+
+		if isOptional {
+			io.WriteString(out, "}")
 		}
 		return nil
 	}
@@ -1293,6 +1312,25 @@ func GetWebParamName(param *Param, parents []*Field) string {
 		name = name + jsonName
 	}
 	return name
+}
+
+
+
+func needParentInitialize(param *Param, parents []*Field)  bool {
+	if len(parents) == 0 {
+		return false
+	}
+
+	if len(parents) == 1 {
+		return param.Type().IsPtrType()
+	}
+
+	for idx := len(parents) - 1; idx >= 0; idx-- {
+		if parents[idx].Type().IsPtrType() {
+			return true
+		}
+	}
+	return param.Type().IsPtrType()
 }
 
 func setParentInitialized(param *Param, parents []*Field) {
