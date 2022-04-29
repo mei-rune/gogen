@@ -7,7 +7,9 @@ package main
 import (
 	"database/sql"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -378,6 +380,120 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 			id = &idValue
 		}
 		err := svc.TestCase14_3(id)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/case_map", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var otherValues = map[string]string{}
+		for key, values := range r.URL.Query() {
+			if !strings.HasPrefix(key, "otherValues.") {
+				continue
+			}
+			otherValues[strings.TrimPrefix(key, "otherValues.")] = values[len(values)-1]
+		}
+		err := svc.TestCaseOtherValuesForMap(otherValues)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/case_map_inline", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var otherValues = map[string]string{}
+		for key, values := range r.URL.Query() {
+			if key == "offset" ||
+				key == "limit" {
+				continue
+			}
+			otherValues[key] = values[len(values)-1]
+		}
+		var offset int
+		if s := queryParams.Get("offset"); s != "" {
+			offsetValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForMapInline", "offset"))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int
+		if s := queryParams.Get("limit"); s != "" {
+			limitValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForMapInline", "limit"))
+				return
+			}
+			limit = limitValue
+		}
+		err := svc.TestCaseOtherValuesForMapInline(otherValues, offset, limit)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/case_url_values", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var otherValues = url.Values{}
+		for key, values := range r.URL.Query() {
+			if !strings.HasPrefix(key, "otherValues.") {
+				continue
+			}
+			otherValues[strings.TrimPrefix(key, "otherValues.")] = values
+		}
+		err := svc.TestCaseOtherValuesForUrlValues(otherValues)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/case_url_values_inline", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var otherValues = url.Values{}
+		for key, values := range r.URL.Query() {
+			if key == "offset" ||
+				key == "limit" {
+				continue
+			}
+			otherValues[key] = values
+		}
+		var offset int
+		if s := queryParams.Get("offset"); s != "" {
+			offsetValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForUrlValuesInline", "offset"))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int
+		if s := queryParams.Get("limit"); s != "" {
+			limitValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForUrlValuesInline", "limit"))
+				return
+			}
+			limit = limitValue
+		}
+		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)

@@ -182,6 +182,74 @@ func (method *Method) renderImpl(ctx *GenContext) error {
 		param := &method.Method.Params.List[idx]
 
 		paramType := param.Type()
+
+		switch paramType.ToLiteral() {
+		case "map[string]string":
+			st := searchStructParam(method.Operation, param.Name)
+			if st == nil {
+				foundIndex := searchParam(method.Operation, param.Name)
+				if foundIndex >= 0 {
+					st = &method.Operation.Parameters[foundIndex]
+				}
+			}
+			if st != nil {
+				if st.In == "body" || st.In == "formData" {
+					method.goArgumentLiterals[idx] = ""
+
+					inBody = append(inBody, BodyParam{
+						Param:  param,
+						Option: st,
+						Index:  idx,
+					})
+					continue
+				}
+			}
+
+			method.goArgumentLiterals[idx] = param.Name
+			io.WriteString(ctx.out, "\r\n")
+			err := method.renderMapParam(ctx,
+				&Param{Param: param, option: st, index: idx},
+				nil,
+				"map[string]string",
+				"[len(values)-1]")
+			if err != nil {
+				return err
+			}
+			continue
+		case "url.Values":
+			st := searchStructParam(method.Operation, param.Name)
+			if st == nil {
+				foundIndex := searchParam(method.Operation, param.Name)
+				if foundIndex >= 0 {
+					st = &method.Operation.Parameters[foundIndex]
+				}
+			}
+			if  st != nil {
+				if st.In == "body" || st.In == "formData" {
+					method.goArgumentLiterals[idx] = ""
+
+					inBody = append(inBody, BodyParam{
+						Param:  param,
+						Option: st,
+						Index:  idx,
+					})
+					continue
+				}
+			}
+
+			method.goArgumentLiterals[idx] = param.Name
+			io.WriteString(ctx.out, "\r\n")
+			err := method.renderMapParam(ctx,
+				&Param{Param: param, option: st, index: idx},
+				nil,
+				"url.Values",
+				"")
+			if err != nil {
+				return err
+			}
+			continue
+		}
+
 		if s, ok := ctx.plugin.GetSpecificTypeArgument(paramType.ToLiteral()); ok {
 			method.goArgumentLiterals[idx] = s
 			continue
@@ -200,46 +268,7 @@ func (method *Method) renderImpl(ctx *GenContext) error {
 				})
 				continue
 			}
-		}
 
-		switch paramType.ToLiteral() {
-		case "map[string]string":
-			method.goArgumentLiterals[idx] = param.Name
-
-			var option *spec.Parameter
-			if foundIndex >= 0 {
-				option = &method.Operation.Parameters[foundIndex]
-			}
-			io.WriteString(ctx.out, "\r\n")
-			err := method.renderMapParam(ctx,
-				&Param{Param: param, option: option, index: idx},
-				nil,
-				"map[string]string",
-				"[len(values)-1]")
-			if err != nil {
-				return err
-			}
-			continue
-		case "url.Values":
-			method.goArgumentLiterals[idx] = param.Name
-
-			var option *spec.Parameter
-			if foundIndex >= 0 {
-				option = &method.Operation.Parameters[foundIndex]
-			}
-			io.WriteString(ctx.out, "\r\n")
-			err := method.renderMapParam(ctx,
-				&Param{Param: param, option: option, index: idx},
-				nil,
-				"url.Values",
-				"")
-			if err != nil {
-				return err
-			}
-			continue
-		}
-
-		if foundIndex >= 0 {
 			method.goArgumentLiterals[idx] = param.Name
 
 			option := &method.Operation.Parameters[foundIndex]
@@ -1330,15 +1359,14 @@ func GetGoVarName(param *Param, parents []*Field, hideAnonymous ...bool) string 
 }
 
 func GetWebParamName(param *Param, parents []*Field) string {
-	if len(parents) == 0 {
-		return param.option.Name
+	var name string 
+	if param.option != nil {
+		if !isExtendInline(param.option) {
+			name = param.option.Name
+		}
+	} else {
+		name = toSnakeCase(param.Name)
 	}
-
-	name := param.option.Name
-	if isExtendInline(param.option) {
-		name = ""
-	}
-
 	for idx := range parents {
 		jsonName, _ := getTagValue(parents[idx].Field, "json")
 		jsonName = getJSONName(jsonName)
@@ -1539,6 +1567,17 @@ func (method *Method) renderMapParam(ctx *GenContext, param *Param, parents []*F
 	var tagName string
 	if len(parents) == 0 {
 		tagName = toLowerCamelCase(param.Name)
+		if param.option != nil {
+			if isExtendInline(param.option) {
+				siblingNames, err := method.getSiblingParamNames([]string{"query"})
+				if err != nil {
+					return err
+				}
+				return method.renderMapParamWithAnonymous(ctx, param, parents, siblingNames, typeStr, valueIndex)
+			}
+
+			tagName = param.option.Name
+		}
 		io.WriteString(ctx.out, "var "+goVarName+" = "+typeStr+"{}")
 	} else {
 		if parents[len(parents)-1].IsAnonymous {
@@ -1584,12 +1623,12 @@ func (method *Method) renderMapParam(ctx *GenContext, param *Param, parents []*F
 	if err := renderParentInit(ctx, param, parents, false); err != nil {
 		return err
 	}
-
 	if len(parents) > 0 {
 		io.WriteString(ctx.out, "\r\n\t\tif "+goVarName+" == nil {")
 		io.WriteString(ctx.out, "\r\n\t\t\t"+goVarName+" = "+typeStr+"{}")
 		io.WriteString(ctx.out, "\r\n\t\t}")
 	}
+
 	if tagName == "" {
 		io.WriteString(ctx.out, "\r\n\t\t"+goVarName+"[key] = values"+valueIndex)
 	} else {

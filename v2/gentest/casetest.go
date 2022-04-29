@@ -259,5 +259,49 @@ type CaseSvc interface {
 	// @Router /case14_3/by_name [get]
 	TestCase14_3(id *int) error
 
+	// @Summary TestCaseOtherValuesForMap
+	// @Description test by int64 ID
+	// @ID TestCaseOtherValuesForMap
+	// @Param   otherValues      query   map[string]string     true  "other values"
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {string} string	"ok"
+	// @Router /case_map [get]
+	TestCaseOtherValuesForMap(otherValues map[string]string) error
+
+	// @Summary TestCaseOtherValuesForMapInline
+	// @Description test by int64 ID
+	// @ID TestCaseOtherValuesForMapInline
+	// @Param   otherValues      query   map[string]string     true  "other values" extensions(x-gogen-extend=inline)
+	// @Param   offset      query   int     true  "offset"
+	// @Param   limit      query   int     true  "offset"
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {string} string	"ok"
+	// @Router /case_map_inline [get]
+	TestCaseOtherValuesForMapInline(otherValues map[string]string, offset, limit int) error
+
+	// @Summary TestCaseOtherValuesForUrlValues
+	// @Description test by int64 ID
+	// @ID TestCaseOtherValuesForUrlValues
+	// @Param   otherValues      query   url.Values     true  "other values"
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {string} string	"ok"
+	// @Router /case_url_values [get]
+	TestCaseOtherValuesForUrlValues(otherValues url.Values) error
+
+	// @Summary TestCaseOtherValuesForUrlValuesInline
+	// @Description test by int64 ID
+	// @ID TestCaseOtherValuesForUrlValuesInline
+	// @Param   otherValues      query   url.Values     true  "other values" extensions(x-gogen-extend=inline)
+	// @Param   offset      query   int     true  "offset"
+	// @Param   limit      query   int     true  "offset"
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {string} string	"ok"
+	// @Router /case_url_values_inline [get]
+	TestCaseOtherValuesForUrlValuesInline(otherValues url.Values, offset, limit int) error
+
 	// Misc() string
 }

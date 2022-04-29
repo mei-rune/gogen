@@ -385,6 +385,85 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			continue
 		}
 
+
+		switch param.Type().ToLiteral() {
+		case "map[string]string":
+			webPrefix := toSnakeCase(param.Name)
+
+			st := searchStructParam(method.Operation, param.Name)
+			if st == nil {
+				foundIndex := searchParam(method.Operation, param.Name)
+				if foundIndex >= 0 {
+					st = &method.Operation.Parameters[foundIndex]
+				}
+			}
+			if st != nil {
+				if st.In != "query" {
+					inBody = append(inBody, param)
+					inParameters = append(inParameters, *st)
+					continue
+				}
+
+				if isExtendInline(st) {
+					webPrefix = ""
+				} else {
+					webPrefix = st.Name
+				}
+			}
+
+			if needAssignment {
+				io.WriteString(out, "\r\nrequest = request.")
+			} else {
+				io.WriteString(out, ".\r\n")
+			}
+			needAssignment = false
+
+			if webPrefix == "" {
+				io.WriteString(out, "SetParamValues("+formatParamName(param.Name)+")")
+			} else {
+				io.WriteString(out, "SetParamValuesWithPrefix(\""+webPrefix+".\", "+formatParamName(param.Name)+")")
+			}
+			continue
+		case "url.Values":
+			webPrefix := toSnakeCase(param.Name)
+
+			st := searchStructParam(method.Operation, param.Name)
+			if st == nil {
+				foundIndex := searchParam(method.Operation, param.Name)
+				if foundIndex >= 0 {
+					st = &method.Operation.Parameters[foundIndex]
+				}
+			}
+			if st != nil {
+				if st.In != "query" {
+					inBody = append(inBody, param)
+					inParameters = append(inParameters, *st)
+					continue
+				}
+
+				if isExtendInline(st) {
+					webPrefix = ""
+				} else {
+					webPrefix = st.Name
+				}
+			}
+
+			if needAssignment {
+				io.WriteString(out, "\r\nrequest = request.")
+			} else {
+				io.WriteString(out, ".\r\n")
+			}
+			needAssignment = false
+
+			if webPrefix == "" {
+				io.WriteString(out, "SetParams("+formatParamName(param.Name)+")")
+			} else {
+				io.WriteString(out, "SetParamsWithPrefix(\""+webPrefix+".\", "+formatParamName(param.Name)+")")
+			}
+			continue
+		}
+
+
 		foundIndex := searchParam(method.Operation, param.Name)
 		if foundIndex >=  0 {
 			option := method.Operation.Parameters[foundIndex]
@@ -415,17 +494,22 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 				continue
 			}
 
-			isPtrType := param.Type().IsPtrType()
-			if isPtrType {
-				needAssignment = true
-				io.WriteString(out, "\r\nif "+param.Name+" != nil {")
-			}
+
 
 			webPrefix := parent.Name
 			if isExtendInline(parent) {
 				webPrefix = ""
 			}
 			param.Name = formatParamName(param.Name)
+
+
+
+			isPtrType := param.Type().IsPtrType()
+			if isPtrType {
+				needAssignment = true
+				io.WriteString(out, "\r\nif "+param.Name+" != nil {")
+			}
+
 			err := cmd.genInterfaceMethodStructParam(out, method, &param, webPrefix, &needAssignment)
 			if err != nil {
 				return err
@@ -438,10 +522,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			continue
 		}
 
-		err := cmd.genInterfaceMethodSpecificParam(out, method, &param, &needAssignment)
-		if err != nil {
-			return err
-		}
+		return errors.New("'" + param.Name + "' is unsupported type - '" + param.Type().ToLiteral() + "'")
 	}
 
 	if len(inBody) > 0 {
@@ -579,36 +660,6 @@ func (cmd *ClientGenerator) genInterfaceMethodInvokeAndReturn(out io.Writer, rec
 
 	io.WriteString(out, "\r\n}")
 	return nil
-}
-
-func (cmd *ClientGenerator) genInterfaceMethodSpecificParam(out io.Writer, method *Method, param *astutil.Param, needAssignment *bool) error {
-	typeStr := param.Type().ToLiteral()
-
-	if *needAssignment {
-		io.WriteString(out, "\r\nrequest = request.")
-	} else {
-		io.WriteString(out, ".\r\n")
-	}
-	*needAssignment = false
-
-	switch typeStr {
-	case "map[string]string":
-		if param.Name == specificParamName {
-			io.WriteString(out, "SetParamValues("+formatParamName(param.Name)+")")
-		} else {
-			io.WriteString(out, "SetParamValuesWithPrefix(\""+toLowerCamelCase(param.Name)+".\", "+formatParamName(param.Name)+")")
-		}
-		return nil
-	case "url.Values":
-		if param.Name == specificParamName {
-			io.WriteString(out, "SetParams("+formatParamName(param.Name)+")")
-		} else {
-			io.WriteString(out, "SetParamsWithPrefix(\""+toLowerCamelCase(param.Name)+".\", "+formatParamName(param.Name)+")")
-		}
-		return nil
-	default:
-		return errors.New("'" + param.Name + "' is unsupported type - '" + typeStr + "'")
-	}
 }
 
 func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method *Method, param *astutil.Param, webPrefix string, needAssignment *bool) error {

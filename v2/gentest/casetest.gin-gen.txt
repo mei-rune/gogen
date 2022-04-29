@@ -7,7 +7,9 @@ package main
 import (
 	"database/sql"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -328,6 +330,108 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 			id = &idValue
 		}
 		err := svc.TestCase14_3(id)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/case_map", func(ctx *gin.Context) {
+		var otherValues = map[string]string{}
+		for key, values := range ctx.Request.URL.Query() {
+			if !strings.HasPrefix(key, "otherValues.") {
+				continue
+			}
+			otherValues[strings.TrimPrefix(key, "otherValues.")] = values[len(values)-1]
+		}
+		err := svc.TestCaseOtherValuesForMap(otherValues)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/case_map_inline", func(ctx *gin.Context) {
+		var otherValues = map[string]string{}
+		for key, values := range ctx.Request.URL.Query() {
+			if key == "offset" ||
+				key == "limit" {
+				continue
+			}
+			otherValues[key] = values[len(values)-1]
+		}
+		var offset int
+		if s := ctx.Query("offset"); s != "" {
+			offsetValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForMapInline", "offset"))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int
+		if s := ctx.Query("limit"); s != "" {
+			limitValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForMapInline", "limit"))
+				return
+			}
+			limit = limitValue
+		}
+		err := svc.TestCaseOtherValuesForMapInline(otherValues, offset, limit)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/case_url_values", func(ctx *gin.Context) {
+		var otherValues = url.Values{}
+		for key, values := range ctx.Request.URL.Query() {
+			if !strings.HasPrefix(key, "otherValues.") {
+				continue
+			}
+			otherValues[strings.TrimPrefix(key, "otherValues.")] = values
+		}
+		err := svc.TestCaseOtherValuesForUrlValues(otherValues)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/case_url_values_inline", func(ctx *gin.Context) {
+		var otherValues = url.Values{}
+		for key, values := range ctx.Request.URL.Query() {
+			if key == "offset" ||
+				key == "limit" {
+				continue
+			}
+			otherValues[key] = values
+		}
+		var offset int
+		if s := ctx.Query("offset"); s != "" {
+			offsetValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForUrlValuesInline", "offset"))
+				return
+			}
+			offset = offsetValue
+		}
+		var limit int
+		if s := ctx.Query("limit"); s != "" {
+			limitValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForUrlValuesInline", "limit"))
+				return
+			}
+			limit = limitValue
+		}
+		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return

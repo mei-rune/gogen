@@ -7,7 +7,9 @@ package main
 import (
 	"database/sql"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/runner-mei/loong"
 )
@@ -272,6 +274,96 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 			id = &idValue
 		}
 		err := svc.TestCase14_3(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case_map", func(ctx *loong.Context) error {
+		var otherValues = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "otherValues.") {
+				continue
+			}
+			otherValues[strings.TrimPrefix(key, "otherValues.")] = values[len(values)-1]
+		}
+		err := svc.TestCaseOtherValuesForMap(otherValues)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case_map_inline", func(ctx *loong.Context) error {
+		var otherValues = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if key == "offset" ||
+				key == "limit" {
+				continue
+			}
+			otherValues[key] = values[len(values)-1]
+		}
+		var offset int
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		err := svc.TestCaseOtherValuesForMapInline(otherValues, offset, limit)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case_url_values", func(ctx *loong.Context) error {
+		var otherValues = url.Values{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "otherValues.") {
+				continue
+			}
+			otherValues[strings.TrimPrefix(key, "otherValues.")] = values
+		}
+		err := svc.TestCaseOtherValuesForUrlValues(otherValues)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/case_url_values_inline", func(ctx *loong.Context) error {
+		var otherValues = url.Values{}
+		for key, values := range ctx.QueryParams() {
+			if key == "offset" ||
+				key == "limit" {
+				continue
+			}
+			otherValues[key] = values
+		}
+		var offset int
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("offset", s, err), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("limit", s, err), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
