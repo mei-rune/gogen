@@ -637,9 +637,36 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		typ = fields[len(fields)-1].Type()
 	}
 
+	goVarName := GetGoVarName(param, fields)
+
+	if len(fields) == 0 {
+		if param.IsVariadic {
+			isArray = true
+
+			if  typ.IsSliceType() {
+				return errors.New("param '" + goVarName + "' of '" +
+						method.FullName() +
+						"' is unsupported type - '..."+typ.ToLiteral()+"'")
+			}
+
+			typ = astutil.Type{
+				File: typ.File,
+				Expr: &ast.ArrayType{
+					Lbrack: param.Expr.Pos(),
+					Elt:    typ.Expr,
+				},
+			}
+		}
+	}
+
+	if !isArray {
+		isArray = typ.IsSliceType()
+	} 
+
+
+
 	var elmType, underlying, elmUnderlying astutil.Type
-	if typ.IsSliceType() {
-		isArray = true
+	if isArray {
 		elmType = typ.SliceElemType()
 		elmUnderlying = elmType.GetUnderlyingType()
 
@@ -658,7 +685,6 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		underlying = typ.GetUnderlyingType()
 	}
 
-	goVarName := GetGoVarName(param, fields)
 
 	var fn *Function
 	if isArray {
@@ -903,11 +929,16 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 	}
 	if !typ.IsSqlNullableType() {
 		return errors.New("type '" + typ.ToLiteral() + "' is unsupported for renderNullableParam")
-		// isArray = true
-		// typ = typ.SliceElemType()
 	}
 
 	goVarName := GetGoVarName(param, fields)
+
+	if len(fields) == 0 && param.IsVariadic {
+		return errors.New("param '" + goVarName + "' of '" +
+			method.FullName() +
+			"' is unsupported type - '..."+typ.ToLiteral()+"'")
+	}
+
 
 	fn := selectFunction(ctx.plugin, required, isArray, ElemTypeForNullable(typ))
 	if fn != nil {
@@ -1056,6 +1087,15 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 	if !typ.IsPtrType() {
 		return errors.New("type '" + typ.ToLiteral() + "' is unsupported for renderPtrTypeParam")
 	}
+
+	goVarName := GetGoVarName(param, fields)
+
+	if len(fields) == 0 && param.IsVariadic {
+		return errors.New("param '" + goVarName + "' of '" +
+			method.FullName() +
+			"' is unsupported type - '..."+typ.ToLiteral()+"'")
+	}
+
 	typ = typ.PtrElemType()
 
 	if typ.IsSliceType() {
@@ -1064,7 +1104,6 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 		// typ = typ.SliceElemType()
 	}
 
-	goVarName := GetGoVarName(param, fields)
 	underlying := typ.GetUnderlyingType()
 
 	// elemTypeStr := typ.ToLiteral()
@@ -1678,6 +1717,10 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 			io.WriteString(ctx.out, ", ")
 		}
 		io.WriteString(ctx.out, param)
+
+		if method.Method.Params.List[idx].IsVariadic {
+			io.WriteString(ctx.out, "...")
+		}
 	}
 	io.WriteString(ctx.out, ")")
 

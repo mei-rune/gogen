@@ -825,6 +825,14 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		return ctx.ReturnCreatedResult("OK")
 	})
+	mux.POST("/query13", func(ctx *loong.Context) error {
+		var names = ctx.QueryParamArray("names")
+		err := svc.QueryVarArgs(ctx.StdContext, names...)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult("OK")
+	})
 }
 
 func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
@@ -1631,6 +1639,14 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 		return ctx.ReturnCreatedResult("OK")
 	})
+	mux.POST("/impl/query13", func(ctx *loong.Context) error {
+		var names = ctx.QueryParamArray("names")
+		err := svc.QueryVarArgs(ctx.StdContext, names...)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult("OK")
+	})
 }
 
 func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
@@ -1795,6 +1811,14 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 			return ctx.ReturnError(err)
 		}
 		return ctx.ReturnQueryResult(result)
+	})
+	mux.POST("/ctx/query13", func(ctx *loong.Context) error {
+		var names = ctx.QueryParamArray("names")
+		err := svc.QueryVarArgs(ctx.StdContext, names...)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult("OK")
 	})
 }
 

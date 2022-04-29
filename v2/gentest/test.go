@@ -497,6 +497,16 @@ type StringSvc interface {
 	// @Router /query12 [post]
 	Set1WithUpName(ctx context.Context, Name string) error
 
+
+	// @Summary query12 Name is Upper
+	// @Description query12 Name is Upper
+	// @ID QueryVarArgs
+	// @Param   names      query   []string     true  "arg a"
+	// @Accept  json
+	// @Produce  json
+	// @Router /query13 [post]
+	QueryVarArgs(ctx context.Context, names ...string) error
+
 	Misc() string
 }
 
@@ -1021,6 +1031,17 @@ func (svc *StringSvcImpl) Set1WithUpName(ctx context.Context, Name string) error
 	return nil
 }
 
+// @Summary query12 Name is Upper
+// @Description query12 Name is Upper
+// @ID StringSvcImpl.QueryVarArgs
+// @Param   names      query   []string     true  "arg a"
+// @Accept  json
+// @Produce  json
+// @Router /impl/query13 [post]
+func (svc *StringSvcImpl) QueryVarArgs(ctx context.Context, names ...string) error {
+	return nil
+}
+
 func (svc *StringSvcImpl) Misc() string {
 	return ""
 }
@@ -1181,6 +1202,17 @@ func (svc *StringSvcWithContext) Add2(ctx context.Context, a, b *int) (int, erro
 // @Router /ctx/add3 [get]
 func (svc *StringSvcWithContext) Add3(ctx context.Context, a, b *int) (int, error) {
 	return *a + *b, nil
+}
+
+// @Summary query13 Name is Upper
+// @Description query13 Name is Upper
+// @ID StringSvcWithContext.QueryVarArgs
+// @Param   names      query   []string     true  "arg a"
+// @Accept  json
+// @Produce  json
+// @Router /ctx/query13 [post]
+func (svc *StringSvcWithContext) QueryVarArgs(ctx context.Context, names ...string) error {
+	return nil
 }
 
 func (svc *StringSvcWithContext) Misc() string {

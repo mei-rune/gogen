@@ -302,11 +302,6 @@ func TestGenerate(t *testing.T) {
 					}
 					t.Error(result)
 				}
-				fmt.Println("===============")
-				for _, result := range actual {
-					fmt.Println(result)
-				}
-
 			}
 		}
 	})

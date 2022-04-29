@@ -35,11 +35,9 @@ func (client TestClient) GetFiles(ctx context.Context, filenames []string) ([]st
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/files")
-	for idx := range filenames {
-		request = request.AddParam("filenames", filenames[idx])
-	}
-	request = request.Result(&resultWrap)
+	request := resty.NewRequest(client.Proxy, "/files").
+		SetParamArray("filenames", filenames).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
@@ -956,6 +954,14 @@ func (client TestClient) Set1WithUpName(ctx context.Context, Name string) error 
 	return request.POST(ctx)
 }
 
+func (client TestClient) QueryVarArgs(ctx context.Context, names ...string) error {
+	request := resty.NewRequest(client.Proxy, "/query13").
+		SetParamArray("names", names)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
 type StringSvcImplClient struct {
 	Proxy *resty.Proxy
 }
@@ -968,11 +974,9 @@ func (client StringSvcImplClient) GetFiles(ctx context.Context, filenames []stri
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/files")
-	for idx := range filenames {
-		request = request.AddParam("filenames", filenames[idx])
-	}
-	request = request.Result(&resultWrap)
+	request := resty.NewRequest(client.Proxy, "/impl/files").
+		SetParamArray("filenames", filenames).
+		Result(&resultWrap)
 
 	err := request.GET(ctx)
 	resty.ReleaseRequest(client.Proxy, request)
@@ -1889,6 +1893,14 @@ func (client StringSvcImplClient) Set1WithUpName(ctx context.Context, Name strin
 	return request.POST(ctx)
 }
 
+func (client StringSvcImplClient) QueryVarArgs(ctx context.Context, names ...string) error {
+	request := resty.NewRequest(client.Proxy, "/impl/query13").
+		SetParamArray("names", names)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
 type StringSvcWithContextClient struct {
 	Proxy *resty.Proxy
 }
@@ -2203,6 +2215,14 @@ func (client StringSvcWithContextClient) Add3(ctx context.Context, a *int, b *in
 	return result, nil
 }
 
+func (client StringSvcWithContextClient) QueryVarArgs(ctx context.Context, names ...string) error {
+	request := resty.NewRequest(client.Proxy, "/ctx/query13").
+		SetParamArray("names", names)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
 // RequestQueryEx1is skipped
 // RequestQueryEx2is skipped
 // RequestQueryEx3is skipped
@@ -2232,10 +2252,8 @@ func (client RequestsClient) Query1(ctx context.Context, query *models.RequestQu
 		for idx := range query.RequestTypeIDs {
 			request = request.AddParam("query.request_type_ids", strconv.FormatInt(query.RequestTypeIDs[idx], 10))
 		}
-		for idx := range query.RequestTypeNames {
-			request = request.AddParam("query.request_type_names", query.RequestTypeNames[idx])
-		}
-		request = request.SetParam("query.name_like", query.NameLike).
+		request = request.SetParamArray("query.request_type_names", query.RequestTypeNames).
+			SetParam("query.name_like", query.NameLike).
 			SetParam("query.current_status", strconv.FormatInt(query.CurrentStatus, 10))
 		if query.IsUnclosed.Valid {
 			request = request.SetParam("query.is_unclosed", BoolToString(query.IsUnclosed.Bool))
@@ -2286,10 +2304,8 @@ func (client RequestsClient) Query2(ctx context.Context, query *models.RequestQu
 		for idx := range query.RequestTypeIDs {
 			request = request.AddParam("request_type_ids", strconv.FormatInt(query.RequestTypeIDs[idx], 10))
 		}
-		for idx := range query.RequestTypeNames {
-			request = request.AddParam("request_type_names", query.RequestTypeNames[idx])
-		}
-		request = request.SetParam("name_like", query.NameLike).
+		request = request.SetParamArray("request_type_names", query.RequestTypeNames).
+			SetParam("name_like", query.NameLike).
 			SetParam("current_status", strconv.FormatInt(query.CurrentStatus, 10))
 		if query.IsUnclosed.Valid {
 			request = request.SetParam("is_unclosed", BoolToString(query.IsUnclosed.Bool))
@@ -2339,10 +2355,8 @@ func (client RequestsClient) Query3(ctx context.Context, query *AliasRequestQuer
 		for idx := range query.RequestTypeIDs {
 			request = request.AddParam("request_type_ids", strconv.FormatInt(query.RequestTypeIDs[idx], 10))
 		}
-		for idx := range query.RequestTypeNames {
-			request = request.AddParam("request_type_names", query.RequestTypeNames[idx])
-		}
-		request = request.SetParam("name_like", query.NameLike).
+		request = request.SetParamArray("request_type_names", query.RequestTypeNames).
+			SetParam("name_like", query.NameLike).
 			SetParam("current_status", strconv.FormatInt(query.CurrentStatus, 10))
 		if query.IsUnclosed.Valid {
 			request = request.SetParam("is_unclosed", BoolToString(query.IsUnclosed.Bool))
@@ -2393,10 +2407,8 @@ func (client RequestsClient) QueryEx1(ctx context.Context, query *RequestQueryEx
 		for idx := range query.RequestTypeIDs {
 			request = request.AddParam("query.request_type_ids", strconv.FormatInt(query.RequestTypeIDs[idx], 10))
 		}
-		for idx := range query.RequestTypeNames {
-			request = request.AddParam("query.request_type_names", query.RequestTypeNames[idx])
-		}
-		request = request.SetParam("query.name_like", query.NameLike).
+		request = request.SetParamArray("query.request_type_names", query.RequestTypeNames).
+			SetParam("query.name_like", query.NameLike).
 			SetParam("query.current_status", strconv.FormatInt(query.CurrentStatus, 10))
 		if query.IsUnclosed.Valid {
 			request = request.SetParam("query.is_unclosed", BoolToString(query.IsUnclosed.Bool))
@@ -2449,10 +2461,8 @@ func (client RequestsClient) QueryEx2(ctx context.Context, query *RequestQueryEx
 			for idx := range query.RequestTypeIDs {
 				request = request.AddParam("query.request_type_ids", strconv.FormatInt(query.RequestTypeIDs[idx], 10))
 			}
-			for idx := range query.RequestTypeNames {
-				request = request.AddParam("query.request_type_names", query.RequestTypeNames[idx])
-			}
-			request = request.SetParam("query.name_like", query.NameLike).
+			request = request.SetParamArray("query.request_type_names", query.RequestTypeNames).
+				SetParam("query.name_like", query.NameLike).
 				SetParam("query.current_status", strconv.FormatInt(query.CurrentStatus, 10))
 			if query.IsUnclosed.Valid {
 				request = request.SetParam("query.is_unclosed", BoolToString(query.IsUnclosed.Bool))
@@ -2504,10 +2514,8 @@ func (client RequestsClient) QueryEx3(ctx context.Context, query *RequestQueryEx
 		for idx := range query.Request.RequestTypeIDs {
 			request = request.AddParam("query.request.request_type_ids", strconv.FormatInt(query.Request.RequestTypeIDs[idx], 10))
 		}
-		for idx := range query.Request.RequestTypeNames {
-			request = request.AddParam("query.request.request_type_names", query.Request.RequestTypeNames[idx])
-		}
-		request = request.SetParam("query.request.name_like", query.Request.NameLike).
+		request = request.SetParamArray("query.request.request_type_names", query.Request.RequestTypeNames).
+			SetParam("query.request.name_like", query.Request.NameLike).
 			SetParam("query.request.current_status", strconv.FormatInt(query.Request.CurrentStatus, 10))
 		if query.Request.IsUnclosed.Valid {
 			request = request.SetParam("query.request.is_unclosed", BoolToString(query.Request.IsUnclosed.Bool))
@@ -2560,10 +2568,8 @@ func (client RequestsClient) QueryEx4(ctx context.Context, query *RequestQueryEx
 			for idx := range query.Request.RequestTypeIDs {
 				request = request.AddParam("query.request.request_type_ids", strconv.FormatInt(query.Request.RequestTypeIDs[idx], 10))
 			}
-			for idx := range query.Request.RequestTypeNames {
-				request = request.AddParam("query.request.request_type_names", query.Request.RequestTypeNames[idx])
-			}
-			request = request.SetParam("query.request.name_like", query.Request.NameLike).
+			request = request.SetParamArray("query.request.request_type_names", query.Request.RequestTypeNames).
+				SetParam("query.request.name_like", query.Request.NameLike).
 				SetParam("query.request.current_status", strconv.FormatInt(query.Request.CurrentStatus, 10))
 			if query.Request.IsUnclosed.Valid {
 				request = request.SetParam("query.request.is_unclosed", BoolToString(query.Request.IsUnclosed.Bool))
@@ -2616,10 +2622,8 @@ func (client RequestsClient) QueryEx3NoPrefix(ctx context.Context, query *Reques
 		for idx := range query.Request.RequestTypeIDs {
 			request = request.AddParam("request.request_type_ids", strconv.FormatInt(query.Request.RequestTypeIDs[idx], 10))
 		}
-		for idx := range query.Request.RequestTypeNames {
-			request = request.AddParam("request.request_type_names", query.Request.RequestTypeNames[idx])
-		}
-		request = request.SetParam("request.name_like", query.Request.NameLike).
+		request = request.SetParamArray("request.request_type_names", query.Request.RequestTypeNames).
+			SetParam("request.name_like", query.Request.NameLike).
 			SetParam("request.current_status", strconv.FormatInt(query.Request.CurrentStatus, 10))
 		if query.Request.IsUnclosed.Valid {
 			request = request.SetParam("request.is_unclosed", BoolToString(query.Request.IsUnclosed.Bool))
@@ -2672,10 +2676,8 @@ func (client RequestsClient) QueryEx4NoPrefix(ctx context.Context, query *Reques
 			for idx := range query.Request.RequestTypeIDs {
 				request = request.AddParam("request.request_type_ids", strconv.FormatInt(query.Request.RequestTypeIDs[idx], 10))
 			}
-			for idx := range query.Request.RequestTypeNames {
-				request = request.AddParam("request.request_type_names", query.Request.RequestTypeNames[idx])
-			}
-			request = request.SetParam("request.name_like", query.Request.NameLike).
+			request = request.SetParamArray("request.request_type_names", query.Request.RequestTypeNames).
+				SetParam("request.name_like", query.Request.NameLike).
 				SetParam("request.current_status", strconv.FormatInt(query.Request.CurrentStatus, 10))
 			if query.Request.IsUnclosed.Valid {
 				request = request.SetParam("request.is_unclosed", BoolToString(query.Request.IsUnclosed.Bool))
@@ -2728,10 +2730,8 @@ func (client RequestsClient) List(ctx context.Context, query *models.RequestQuer
 		for idx := range query.RequestTypeIDs {
 			request = request.AddParam("query.request_type_ids", strconv.FormatInt(query.RequestTypeIDs[idx], 10))
 		}
-		for idx := range query.RequestTypeNames {
-			request = request.AddParam("query.request_type_names", query.RequestTypeNames[idx])
-		}
-		request = request.SetParam("query.name_like", query.NameLike).
+		request = request.SetParamArray("query.request_type_names", query.RequestTypeNames).
+			SetParam("query.name_like", query.NameLike).
 			SetParam("query.current_status", strconv.FormatInt(query.CurrentStatus, 10))
 		if query.IsUnclosed.Valid {
 			request = request.SetParam("query.is_unclosed", BoolToString(query.IsUnclosed.Bool))

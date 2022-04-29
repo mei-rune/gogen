@@ -33,7 +33,7 @@ func (cmd *ClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.config.newRequest, "new-request", "resty.NewRequest({{.proxy}},{{.url}})", "")
 	fs.StringVar(&cmd.config.releaseRequest, "free-request", "resty.ReleaseRequest({{.proxy}},{{.request}})", "")
 
-	fs.StringVar(&cmd.config.ConvertNS, "convertNS", "", "")
+	fs.StringVar(&cmd.config.ConvertNS, "convert_ns", "", "")
 	fs.StringVar(&cmd.config.TimeFormat, "timeFormat", "client.Proxy.TimeFormat", "")
 
 	fs.BoolVar(&cmd.config.HasWrapper, "has-wrapper", false, "")
@@ -286,7 +286,12 @@ func (cmd *ClientGenerator) genInterfaceMethodSignature(out io.Writer, recvClass
 		if param.Type().IsContextType() {
 			continue
 		}
-		io.WriteString(out, ", "+formatParamName(param.Name)+" "+param.Type().ToLiteral())
+		
+		io.WriteString(out, ", "+formatParamName(param.Name)+" ")
+		if param.IsVariadic {
+			io.WriteString(out, "...")
+		}
+		io.WriteString(out, param.Type().ToLiteral())
 	}
 	io.WriteString(out, ") (")
 
@@ -381,16 +386,29 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 		}
 
 		foundIndex := searchParam(method.Operation, param.Name)
-		if foundIndex < 0 {
-			parent := searchStructParam(method.Operation, param.Name)
-			if parent == nil {
-				err := cmd.genInterfaceMethodSpecificParam(out, method, &param, &needAssignment)
-				if err != nil {
-					return err
-				}
+		if foundIndex >=  0 {
+			option := method.Operation.Parameters[foundIndex]
+
+			if option.In == "path" {
 				continue
 			}
 
+			if option.In != "query" {
+				inBody = append(inBody, param)
+				inParameters = append(inParameters, option)
+				continue
+			}
+
+			param.Name = formatParamName(param.Name)
+			err := cmd.genInterfaceMethodParam(out, method, &param, &option, &needAssignment)
+			if err != nil {
+				return err
+			}
+			continue
+		}
+
+		parent := searchStructParam(method.Operation, param.Name)
+		if parent != nil {
 			if parent.In != "query" {
 				inBody = append(inBody, param)
 				inParameters = append(inParameters, *parent)
@@ -420,20 +438,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			continue
 		}
 
-		option := method.Operation.Parameters[foundIndex]
-
-		if option.In == "path" {
-			continue
-		}
-
-		if option.In != "query" {
-			inBody = append(inBody, param)
-			inParameters = append(inParameters, option)
-			continue
-		}
-
-		param.Name = formatParamName(param.Name)
-		err := cmd.genInterfaceMethodParam(out, method, &param, &option, &needAssignment)
+		err := cmd.genInterfaceMethodSpecificParam(out, method, &param, &needAssignment)
 		if err != nil {
 			return err
 		}
@@ -589,7 +594,7 @@ func (cmd *ClientGenerator) genInterfaceMethodSpecificParam(out io.Writer, metho
 	switch typeStr {
 	case "map[string]string":
 		if param.Name == specificParamName {
-			io.WriteString(out, "SetParamValues1("+formatParamName(param.Name)+")")
+			io.WriteString(out, "SetParamValues("+formatParamName(param.Name)+")")
 		} else {
 			io.WriteString(out, "SetParamValuesWithPrefix(\""+toLowerCamelCase(param.Name)+".\", "+formatParamName(param.Name)+")")
 		}
@@ -746,11 +751,29 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 		io.WriteString(out, "\r\n}")
 		*needAssignment = true
 	} else {
-		if param.Type().IsSliceType() {
-			io.WriteString(out, "\r\nfor idx := range "+param.Name+" {")
-			io.WriteString(out, "\r\n  request = request.AddParam(\""+option.Name+"\", "+convertToStringLiteral(param, "[idx]", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
-			io.WriteString(out, "\r\n}")
-			*needAssignment = true
+		if param.Type().IsSliceType() || param.IsVariadic {
+			isStr := param.Type().IsStringType(true)
+			if !isStr {
+				if param.Type().IsSliceType() {
+					typ := param.Type().SliceElemType()
+					isStr = typ.IsStringType(true)
+				}
+			}
+
+			if isStr {
+				if *needAssignment {
+					io.WriteString(out, "\r\nrequest = request.")
+				} else {
+					io.WriteString(out, ".\r\n")
+				}
+				io.WriteString(out, "SetParamArray(\""+option.Name+"\", "+  param.Name +")")
+				*needAssignment = false
+			} else {
+				io.WriteString(out, "\r\nfor idx := range "+param.Name+" {")
+				io.WriteString(out, "\r\n  request = request.AddParam(\""+option.Name+"\", "+convertToStringLiteral(param, "[idx]", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+				io.WriteString(out, "\r\n}")
+				*needAssignment = true
+			}
 		} else if param.Type().IsSqlNullableType() {
 			io.WriteString(out, "\r\nif "+param.Name+".Valid {")
 			io.WriteString(out, "\r\n  request = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")

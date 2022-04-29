@@ -33,10 +33,8 @@ func (client CaseSvcClient) TestCase2_1(ctx context.Context, name string) error 
 }
 
 func (client CaseSvcClient) TestCase2_2(ctx context.Context, name []string) error {
-	request := resty.NewRequest(client.Proxy, "/case2_2/by_names")
-	for idx := range name {
-		request = request.AddParam("name", name[idx])
-	}
+	request := resty.NewRequest(client.Proxy, "/case2_2/by_names").
+		SetParamArray("name", name)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)

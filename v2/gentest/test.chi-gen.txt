@@ -1093,6 +1093,18 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	mux.Post("/query13", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var names = queryParams["names"]
+		err := svc.QueryVarArgs(r.Context(), names...)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
 }
 
 func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
@@ -2166,6 +2178,18 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	mux.Post("/impl/query13", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var names = queryParams["names"]
+		err := svc.QueryVarArgs(r.Context(), names...)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
 }
 
 func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
@@ -2391,6 +2415,18 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 			return
 		}
 		render.JSON(w, r, result)
+		return
+	})
+	mux.Post("/ctx/query13", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var names = queryParams["names"]
+		err := svc.QueryVarArgs(r.Context(), names...)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
 		return
 	})
 }
