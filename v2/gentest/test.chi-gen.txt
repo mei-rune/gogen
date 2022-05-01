@@ -1105,6 +1105,7 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	// Misc: annotation is missing
 }
 
 func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
@@ -2190,6 +2191,7 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	// Misc: annotation is missing
 }
 
 func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
@@ -2429,6 +2431,7 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	// Misc: annotation is missing
 }
 
 // RequestQueryEx1 is skipped

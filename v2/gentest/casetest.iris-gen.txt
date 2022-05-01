@@ -14,6 +14,8 @@ import (
 	iris "github.com/kataras/iris/v12"
 )
 
+// Options is skipped
+
 func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 	mux.Get("/case1/by_name/:name", func(ctx iris.Context) {
 		var name = ctx.Params().GetString("name")
@@ -466,6 +468,29 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 			limit = limitValue
 		}
 		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test_type1", func(ctx iris.Context) {
+		var typ TypeInfo
+		typ.Name = ctx.URLParam("typ.name")
+		err := svc.TestType1(typ)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test_type2", func(ctx iris.Context) {
+		var opts Options
+		err := svc.TestType2(opts)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)

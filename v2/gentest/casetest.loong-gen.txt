@@ -14,6 +14,8 @@ import (
 	"github.com/runner-mei/loong"
 )
 
+// Options is skipped
+
 func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 	mux.GET("/case1/by_name/:name", func(ctx *loong.Context) error {
 		var name = ctx.Param("name")
@@ -364,6 +366,23 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 			limit = limitValue
 		}
 		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_type1", func(ctx *loong.Context) error {
+		var typ TypeInfo
+		typ.Name = ctx.QueryParam("typ.name")
+		err := svc.TestType1(typ)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/test_type2", func(ctx *loong.Context) error {
+		var opts Options
+		err := svc.TestType2(opts)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}

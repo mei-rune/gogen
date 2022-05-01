@@ -14,6 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Options is skipped
+
 func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 	mux.GET("/case1/by_name/:name", func(ctx *gin.Context) {
 		var name = ctx.Param("name")
@@ -432,6 +434,27 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 			limit = limitValue
 		}
 		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test_type1", func(ctx *gin.Context) {
+		var typ TypeInfo
+		typ.Name = ctx.Query("typ.name")
+		err := svc.TestType1(typ)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/test_type2", func(ctx *gin.Context) {
+		var opts Options
+		err := svc.TestType2(opts)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return

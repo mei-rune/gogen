@@ -833,6 +833,7 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		}
 		return ctx.ReturnCreatedResult("OK")
 	})
+	// Misc: annotation is missing
 }
 
 func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
@@ -1647,6 +1648,7 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		}
 		return ctx.ReturnCreatedResult("OK")
 	})
+	// Misc: annotation is missing
 }
 
 func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
@@ -1820,6 +1822,7 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 		}
 		return ctx.ReturnCreatedResult("OK")
 	})
+	// Misc: annotation is missing
 }
 
 // RequestQueryEx1 is skipped

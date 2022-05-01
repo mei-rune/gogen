@@ -1041,6 +1041,7 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		ctx.JSON("OK")
 		return
 	})
+	// Misc: annotation is missing
 }
 
 func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
@@ -2063,6 +2064,7 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		ctx.JSON("OK")
 		return
 	})
+	// Misc: annotation is missing
 }
 
 func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
@@ -2286,6 +2288,7 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		ctx.JSON("OK")
 		return
 	})
+	// Misc: annotation is missing
 }
 
 // RequestQueryEx1 is skipped

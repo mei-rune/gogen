@@ -25,10 +25,15 @@ func resolveMethods(swaggerParser *swag.Parser, ts *astutil.TypeSpec) ([]*Method
 	list := ts.Methods()
 	for idx, method := range list {
 		var doc = method.Doc()
+
+		operation := swag.NewOperation(swaggerParser)
 		if doc == nil || len(doc.List) == 0 {
+			methods = append(methods, &Method{
+				Method:    &list[idx],
+				Operation: operation,
+			})
 			continue
 		}
-		operation := swag.NewOperation(swaggerParser)
 		for _, comment := range doc.List {
 			err := operation.ParseComment(comment.Text, ts.File.AstFile)
 			if err != nil {

@@ -962,6 +962,8 @@ func (client TestClient) QueryVarArgs(ctx context.Context, names ...string) erro
 	return request.POST(ctx)
 }
 
+// Misc: annotation is missing
+
 type StringSvcImplClient struct {
 	Proxy *resty.Proxy
 }
@@ -1901,6 +1903,8 @@ func (client StringSvcImplClient) QueryVarArgs(ctx context.Context, names ...str
 	return request.POST(ctx)
 }
 
+// Misc: annotation is missing
+
 type StringSvcWithContextClient struct {
 	Proxy *resty.Proxy
 }
@@ -2223,6 +2227,7 @@ func (client StringSvcWithContextClient) QueryVarArgs(ctx context.Context, names
 	return request.POST(ctx)
 }
 
+// Misc: annotation is missing
 // RequestQueryEx1is skipped
 // RequestQueryEx2is skipped
 // RequestQueryEx3is skipped

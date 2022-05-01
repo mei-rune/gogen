@@ -15,6 +15,8 @@ import (
 	"github.com/go-chi/render"
 )
 
+// Options is skipped
+
 func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 	mux.Get("/case1/by_name/:name", func(w http.ResponseWriter, r *http.Request) {
 		var name = chi.URLParam(r, "name")
@@ -494,6 +496,31 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 			limit = limitValue
 		}
 		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_type1", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var typ TypeInfo
+		typ.Name = queryParams.Get("typ.name")
+		err := svc.TestType1(typ)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/test_type2", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var opts Options
+		err := svc.TestType2(opts)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)

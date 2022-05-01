@@ -173,7 +173,15 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 		if err != nil {
 			return err
 		}
-		if len(methods) == 0 {
+
+		count := 0 
+		for idx := range methods {
+			if len(methods[idx].Operation.RouterProperties) == 0 {
+				continue
+			}
+			count ++
+		}
+		if count == 0 {
 			io.WriteString(out, "\r\n// "+ts.Name+" is skipped")
 			continue
 		}
@@ -183,11 +191,13 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			// RenderFuncHeader 将输出： mux.Get("/allfiles", func(w http.ResponseWriter, r *http.Request) {
 			switch len(method.Operation.RouterProperties) {
 			case 0:
-				return errors.New("RouterProperties is empty")
+				io.WriteString(out, "\r\n// "+method.Method.Name+": annotation is missing")
+				continue
+				// return errors.New(method.Method.PostionString() + ": RouterProperties is empty")
 			case 1:
 				break
 			default:
-				return errors.New("RouterProperties is mult choices")
+				return errors.New(method.Method.PostionString() + ": RouterProperties is mult choices")
 			}
 			err := plugin.RenderFuncHeader(out, method, method.Operation.RouterProperties[0])
 			if err != nil {

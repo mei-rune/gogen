@@ -14,6 +14,8 @@ import (
 	"github.com/runner-mei/resty"
 )
 
+// Optionsis skipped
+
 type CaseSvcClient struct {
 	Proxy *resty.Proxy
 }
@@ -225,6 +227,21 @@ func (client CaseSvcClient) TestCaseOtherValuesForUrlValuesInline(ctx context.Co
 		SetParams(otherValues).
 		SetParam("offset", strconv.FormatInt(int64(offset), 10)).
 		SetParam("limit", strconv.FormatInt(int64(limit), 10))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestType1(ctx context.Context, typ TypeInfo) error {
+	request := resty.NewRequest(client.Proxy, "/test_type1").
+		SetParam("typ.name", typ.Name)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
+func (client CaseSvcClient) TestType2(ctx context.Context, opts Options) error {
+	request := resty.NewRequest(client.Proxy, "/test_type2")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)

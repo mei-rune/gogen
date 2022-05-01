@@ -4,6 +4,8 @@ import (
 	"database/sql"
 )
 
+type Options struct {}
+
 // @http.Client(name="TestClient", ref="true")
 type CaseSvc interface {
 
@@ -302,6 +304,24 @@ type CaseSvc interface {
 	// @Success 200 {string} string	"ok"
 	// @Router /case_url_values_inline [get]
 	TestCaseOtherValuesForUrlValuesInline(otherValues url.Values, offset, limit int) error
+
+	// @Summary TestType1
+	// @ID TestType1
+	// @Param   typ      query   TypeInfo   true  "type"
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {string} string	"ok"
+	// @Router /test_type1 [get]
+	TestType1(typ TypeInfo) error
+
+	// @Summary TestType2
+	// @ID TestType2
+	// @Param   opts      query   Options   true  "opts"
+	// @Accept  json
+	// @Produce  json
+	// @Success 200 {string} string	"ok"
+	// @Router /test_type2 [get]
+	TestType2(opts Options) error
 
 	// Misc() string
 }

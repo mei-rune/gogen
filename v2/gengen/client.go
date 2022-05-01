@@ -212,8 +212,15 @@ func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.
 	if err != nil {
 		return err
 	}
+	count := 0 
+	for idx := range methods {
+		if len(methods[idx].Operation.RouterProperties) == 0 {
+			continue
+		}
+		count ++
+	}
 
-	if len(methods) == 0 {
+	if count == 0 {
 		io.WriteString(out, "\r\n// ")
 		io.WriteString(out, ts.Name)
 		io.WriteString(out, "is skipped")
@@ -226,6 +233,10 @@ func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.
 	io.WriteString(out, "\r\n}\r\n")
 
 	for idx := range methods {
+		if len(methods[idx].Operation.RouterProperties) == 0 {
+			io.WriteString(out, "\r\n// " + methods[idx].Method.Name+": annotation is missing")
+			continue
+		}
 		err := cmd.genInterfaceMethod(out, recvClassName, methods[idx])
 		if err != nil {
 			return err
