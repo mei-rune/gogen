@@ -518,6 +518,12 @@ func (method *Method) renderStructParam(ctx *GenContext, param *Param, parents [
 			"' cannot convert to type spec: " + err.Error())
 	}
 
+	if ts.Struct == nil {
+		return errors.New("param '" + GetGoVarName(param, parents, true) + "' of '" +
+			method.FullName() +
+			"' cannot convert to struct")
+	}
+
 	var fields = ts.Fields()
 	for _, f := range ts.Struct.Embedded {
 		fields = append(fields, f)

@@ -373,5 +373,9 @@ func getJSONName(s string) string {
 	}
 
 	ss := strings.Split(s, ",")
-	return strings.TrimSpace(ss[0])
+	s = strings.TrimSpace(ss[0])
+	if s == "-" {
+		return ""
+	}
+	return s
 }
