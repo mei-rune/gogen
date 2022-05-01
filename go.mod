@@ -16,7 +16,8 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/render v1.0.1
-	github.com/go-openapi/spec v0.20.4
+	github.com/go-openapi/spec v0.20.6
+	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/grsmv/inflect v0.0.0-20140723132642-a28d3de3b3ad
 	github.com/hjson/hjson-go v3.1.0+incompatible
@@ -29,12 +30,13 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta1 // indirect
 	github.com/klauspost/compress v1.15.2 // indirect
 	github.com/labstack/echo/v4 v4.1.14
+	github.com/lib/pq v1.10.5 // indirect
 	github.com/mattn/goveralls v0.0.11 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/runner-mei/GoBatis v1.5.3
+	github.com/runner-mei/GoBatis v1.5.4
 	github.com/runner-mei/errors v0.0.0-20220303013420-f8ef04b1558b
 	github.com/runner-mei/loong v1.0.8
 	github.com/runner-mei/resty v0.0.0-20210621130733-e026567bec34
@@ -48,11 +50,11 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
+	golang.org/x/sys v0.0.0-20220429233432-b5fbb4746d32 // indirect
 	golang.org/x/tools v0.1.10 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 )
 
-replace github.com/swaggo/swag v1.8.1 => github.com/runner-mei/swag v1.8.2-0.20220428004705-b0fb9e2e1989
+replace github.com/swaggo/swag v1.8.1 => github.com/runner-mei/swag v1.8.2-0.20220501110145-f519c2518c79
 
 go 1.13

@@ -37,7 +37,7 @@ func resolveMethods(swaggerParser *swag.Parser, ts *astutil.TypeSpec) ([]*Method
 		for _, comment := range doc.List {
 			err := operation.ParseComment(comment.Text, ts.File.AstFile)
 			if err != nil {
-				return nil, fmt.Errorf("ParseComment error in file %s :%+v", ts.File.Filename, err)
+				return nil, fmt.Errorf(method.PostionString() + ": ParseComment error:%+v", err)
 			}
 		}
 
