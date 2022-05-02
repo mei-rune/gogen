@@ -148,7 +148,23 @@ gogen client domains.go
 
 #### 方法中的 body 参数
 
-   当方法中的参数被标注为从 body 中取值时，我们会将将所有参数转换为一个 struct 中， 并以参数名为字段名, 例如
+  当方法中的有且仅有一个（等于1时）参数被标注为从 body 中取值时，我们会将整个请求的 body 作为这个参数的值, 例如
+
+   ````golang
+      type Service interface {
+        // @Param   record      body   Record     false  ""
+        Save(record Record) error
+      }
+    ````
+
+   Service.Save() 方法中 record 参数取值时如下
+   ````golang
+      var record Record
+      ctx.ReadJSON(&record)
+   ````
+
+
+   当方法中的有多个（大于1时）参数被标注为从 body 中取值时，我们会将将所有参数转换为一个 struct 中， 并以参数名为字段名, 例如
 
    ````golang
       type Service interface {
@@ -158,7 +174,7 @@ gogen client domains.go
       }
     ````
 
-   Service.Get() 方法中 record 参数取值时如下
+   Service.Save() 方法中 record 参数取值时如下
    ````golang
       var bindArgs struct {
         Name string `json:"name"`
@@ -167,9 +183,9 @@ gogen client domains.go
       ctx.ReadJSON(&bindArgs)
    ````
 
-##### extensions(x-gogen-entire-body=true)
+##### extensions(x-gogen-entire-body=false)
 
-    有时我们只传一个 struct 对象时，这 bindArgs 结构就有点多余了，如
+    有时我们只传一个 struct 对象时，我们仍然想将这参数放在一个结构中，我们可以加上这个，如
 
    ````golang
       type Record struct {
@@ -178,7 +194,7 @@ gogen client domains.go
       }
 
       type Service interface {
-        // @Param   record      body   Record     false  ""
+        // @Param   record      body   Record     false  "record"  extensions(x-gogen-entire-body=false)
         Save(record Record) error
       }
     ````
@@ -200,26 +216,6 @@ gogen client domains.go
       }
      }
      ````
-
-    这个外层的  "record" 很多余， 这时我们可以加上  extensions(x-gogen-entire-body=true)
-
-   ````golang
-      type Record struct {
-        Name string `json:"name"`
-        Description string `json:"description"`
-      }
-
-      type Service interface {
-        // @Param   record      body   Record     false  ""   extensions(x-gogen-entire-body=true)
-        Save(record Record) error
-      }
-    ````
-
-    这样子，Service.Save() 方法生成的服务端代码就变成了
-   ````golang
-      var record Record
-      ctx.ReadJSON(&record)
-   ````
 
 
 #### 方法中的返回参数

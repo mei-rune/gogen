@@ -216,7 +216,7 @@ type StringSvc interface {
 	// @Summary test by body
 	// @Description test by body
 	// @ID Echo3
-	// @Param   a      body   string     false  "Some ID"
+	// @Param   a      body   string     false  "Some ID" extensions(x-gogen-entire-body=false)
 	// @Accept  json
 	// @Produce  json
 	// @Router /echo3 [post]
@@ -276,7 +276,7 @@ type StringSvc interface {
 	// @Description test save
 	// @ID Save1
 	// @Param   a      path   string     true  "arg a"
-	// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
+	// @Param   b      body   string    true  "arg b" 
 	// @Accept  json
 	// @Produce  json
 	// @Router /save/{a} [post]
@@ -286,7 +286,7 @@ type StringSvc interface {
 	// @Description test by query
 	// @ID Save2
 	// @Param   a      path   string     true  "arg a"
-	// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
+	// @Param   b      body   string    true  "arg b" 
 	// @Accept  json
 	// @Produce  json
 	// @Router /save2/{a} [post]
@@ -491,7 +491,7 @@ type StringSvc interface {
 	// @Summary query12 Name is Upper
 	// @Description query12 Name is Upper
 	// @ID Query1WithUpName
-	// @Param   Name      body   string     true  "arg a"
+	// @Param   Name      body   string     true  "arg a"  extensions(x-gogen-entire-body=false)
 	// @Accept  json
 	// @Produce  json
 	// @Router /query12 [post]
@@ -696,7 +696,7 @@ func (svc *StringSvcImpl) EchoBody(body io.Reader) (string, error) {
 // @Summary test by body
 // @Description test by body
 // @ID StringSvcImpl.Echo3
-// @Param   a      body   string     false  "Some ID"
+// @Param   a      body   string     false  "Some ID" extensions(x-gogen-entire-body=false)
 // @Accept  json
 // @Produce  json
 // @Router /impl/echo3 [post]
@@ -768,7 +768,7 @@ func (svc *StringSvcImpl) Sub(a string, start int64) (string, error) {
 // @Description test save
 // @ID StringSvcImpl.Save1
 // @Param   a      path   string     true  "arg a"
-// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
+// @Param   b      body   string    true  "arg b" 
 // @Accept  json
 // @Produce  json
 // @Router /impl/save/{a} [post]
@@ -780,7 +780,7 @@ func (svc *StringSvcImpl) Save(a, b string) (string, error) {
 // @Description test by query
 // @ID StringSvcImpl.Save2
 // @Param   a      path   string     true  "arg a"
-// @Param   b      body   string    true  "arg b" extensions(x-gogen-entire-body=true)
+// @Param   b      body   string    true  "arg b" 
 // @Accept  json
 // @Produce  json
 // @Router /impl/save2/{a} [post]
@@ -1023,7 +1023,7 @@ func (svc *StringSvcImpl) Query1WithUpName(ctx context.Context, Name string) (st
 // @Summary query12 Name is Upper
 // @Description query12 Name is Upper
 // @ID StringSvcImpl.Query1WithUpName
-// @Param   Name      body   string     true  "arg a"
+// @Param   Name      body   string     true  "arg a" extensions(x-gogen-entire-body=false)
 // @Accept  json
 // @Produce  json
 // @Router /impl/query12 [post]
@@ -1422,7 +1422,7 @@ type Requests interface {
 	// @Summary UpdateByID
 	// @Description UpdateByID
 	// @ID Requests.UpdateByID
-	// @Param   data    body   models.Request     false  "request query param" extensions(x-gogen-entire-body=true)
+	// @Param   data    body   models.Request     false  "request query param"
 	// @Param   id  path   int     false  "id"
 	// @Accept  json
 	// @Produce  json
@@ -1432,7 +1432,7 @@ type Requests interface {
 	// @Summary Set1ByID
 	// @Description Set1ByID
 	// @ID Requests.Set1ByID
-	// @Param   params     body   map[string]string     false  "params"
+	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=false)
 	// @Param   id  path   int     false  "id"
 	// @Accept  json
 	// @Produce  json
@@ -1453,7 +1453,7 @@ type Requests interface {
 	// @Description Set3ByID
 	// @ID Requests.Set3ByID
 	// @Param   id         path   int     false  "id"
-	// @Param   params     body   map[string]string     false  "params"
+	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=false)
 	// @Accept  json
 	// @Produce  json
 	// @Router /requests/set3/{id} [put]
@@ -1473,7 +1473,7 @@ type Requests interface {
 	// @Description Set5ByID
 	// @ID Requests.Set5ByID
 	// @Param   id         path   int     false  "id"
-	// @Param   params     body   map[string]string     false  "params"
+	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=false)
 	// @Accept  json
 	// @Produce  json
 	// @Router /requests/set5/{id} [post]

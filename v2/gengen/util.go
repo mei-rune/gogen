@@ -241,6 +241,9 @@ func selectConvert(convertNS string, isArray bool, resultType, paramType string)
 		if isArray {
 			return convertNS + "ToBoolArray(%s)", false, true, nil
 		}
+
+		// return r.Format, r.NeedCast, r.HasRetError, nil
+		// return "ToBool(%s)", false, false, nil
 		return "strconv.ParseBool(%s)", false, true, nil
 	case "float64":
 		if isArray {
@@ -357,7 +360,10 @@ func zeroValueLiteral(typ astutil.Type) string {
 }
 
 func isExtendEntire(param *spec.Parameter) bool {
-	s, _ := param.Extensions.GetString("x-gogen-entire-body")
+	s, ok := param.Extensions.GetString("x-gogen-entire-body")
+	if !ok {
+		return true
+	}
 	return strings.ToLower(s) == "true"
 }
 
