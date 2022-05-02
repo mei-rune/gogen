@@ -939,7 +939,7 @@ func convertToStringLiteral(param *astutil.Param, index, convertNS, timeFormat s
 
 	typ := param.Type()
 	var typeStr = typ.ToLiteral()
-	if strings.HasPrefix(typeStr, "[]") {
+	if strings.HasPrefix(typeStr, "[]") || param.IsVariadic {
 		typ = typ.GetElemType(false)
 		typeStr = strings.TrimPrefix(typeStr, "[]")
 		if index == "" {
