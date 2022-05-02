@@ -246,3 +246,14 @@ func (client CaseSvcClient) TestType2(ctx context.Context, opts Options) error {
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
+
+type OptionalPrefixSvcClient struct {
+	Proxy *resty.Proxy
+}
+
+func (client OptionalPrefixSvcClient) Get(ctx context.Context) error {
+	request := resty.NewRequest(client.Proxy, "/optpre/get")
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}

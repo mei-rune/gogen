@@ -93,6 +93,10 @@ func (iris *irisPlugin) PartyTypeName() string {
 	return "iris.Party"
 }
 
+func (iris *irisPlugin) IsPartyFluentStyle() bool {
+	return true
+}
+
 func (iris *irisPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.UnmarshalBody(" + argName + ", nil)"
 }
@@ -110,23 +114,11 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	if err != nil {
 		return err
 	}
-	if urlstr == "/" {
-		urlstr = ""
-	}
+	// if urlstr == "/" {
+	// 	urlstr = ""
+	// }
 
-	io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx iris.Context) {")
-	// TODO: XXXX
-	// params, err := method.GetParams(iris)
-	// if err != nil {
-	// 	return err
-	// }
-	// for _, param := range params {
-	// 	if (param.Option.In == "query" && param.Option.SimpleSchema.Type == swag.ARRAY) ||
-	// 		(param.Option.In == "" && hasQueryArray(param)) {
-	// 		_, err = io.WriteString(out, "\r\n\tqueryParams := ctx.Request().URL.Query()")
-	// 		break
-	// 	}
-	// }
+	_, err = io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx iris.Context) {")
 	return err
 }
 func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error {

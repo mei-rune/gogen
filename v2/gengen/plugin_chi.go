@@ -57,6 +57,10 @@ func (chi *chiPlugin) PartyTypeName() string {
 	return "chi.Router"
 }
 
+func (chi *chiPlugin) IsPartyFluentStyle() bool {
+	return false
+}
+
 func (chi *chiPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	args := map[string]string{
 		"url.Values":          "r.URL.Query()",
@@ -87,9 +91,9 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	if err != nil {
 		return err
 	}
-	if urlstr == "/" {
-		urlstr = ""
-	}
+	// if urlstr == "/" {
+	// 	urlstr = ""
+	// }
 
 	_, err = io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(w http.ResponseWriter, r *http.Request) {")
 	if method.HasQueryParam() {

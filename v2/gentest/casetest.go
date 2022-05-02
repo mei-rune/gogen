@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"net/url"
 )
 
 type Options struct {}
@@ -324,4 +325,13 @@ type CaseSvc interface {
 	TestType2(opts Options) error
 
 	// Misc() string
+}
+
+// @gogen.optional_route_prefix /optpre
+type OptionalPrefixSvc interface {
+	// @Summary Get
+	// @Accept  json
+	// @Produce  json
+	// @Router /optpre/get [get]
+	Get() error
 }

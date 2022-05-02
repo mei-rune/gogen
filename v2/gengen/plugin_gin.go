@@ -66,6 +66,10 @@ func (gin *ginPlugin) PartyTypeName() string {
 	return "gin.IRouter"
 }
 
+func (gin *ginPlugin) IsPartyFluentStyle() bool {
+	return true
+}
+
 func (gin *ginPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
@@ -83,9 +87,9 @@ func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	if err != nil {
 		return err
 	}
-	if urlstr == "/" {
-		urlstr = ""
-	}
+	// if urlstr == "/" {
+	// 	urlstr = ""
+	// }
 	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx *gin.Context) {")
 	return err
 }

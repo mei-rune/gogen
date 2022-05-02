@@ -389,3 +389,16 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 		return ctx.ReturnQueryResult("OK")
 	})
 }
+
+func InitOptionalPrefixSvc(mux loong.Party, enabledPrefix bool, svc OptionalPrefixSvc) {
+	if enabledPrefix {
+		mux = mux.Group("/optpre")
+	}
+	mux.GET("/get", func(ctx *loong.Context) error {
+		err := svc.Get()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+}

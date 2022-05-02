@@ -500,3 +500,19 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		return
 	})
 }
+
+func InitOptionalPrefixSvc(mux iris.Party, enabledPrefix bool, svc OptionalPrefixSvc) {
+	if enabledPrefix {
+		mux = mux.Group("/optpre")
+	}
+	mux.Get("/get", func(ctx iris.Context) {
+		err := svc.Get()
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+}

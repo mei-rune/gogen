@@ -463,3 +463,18 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		return
 	})
 }
+
+func InitOptionalPrefixSvc(mux gin.IRouter, enabledPrefix bool, svc OptionalPrefixSvc) {
+	if enabledPrefix {
+		mux = mux.Group("/optpre")
+	}
+	mux.GET("/get", func(ctx *gin.Context) {
+		err := svc.Get()
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+}

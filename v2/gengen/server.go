@@ -165,6 +165,28 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 		if ts.Struct == nil && ts.Interface == nil {
 			continue
 		}
+
+
+		var optionalRoutePrefix string
+		var ignore bool
+
+		if doc := ts.Doc(); doc != nil {
+			for _, comment := range doc.List {
+				line := strings.TrimSpace(strings.TrimLeft(comment.Text, "/"))
+
+				if strings.HasPrefix(line, "@gogen.optional_route_prefix") {
+					optionalRoutePrefix = strings.TrimSpace(strings.TrimPrefix(line, "@gogen.optional_route_prefix"))
+				} else if strings.HasPrefix(line, "@gogen.ignore") {
+					ignore = true
+				}
+			}
+		}
+		if ignore {
+			io.WriteString(out, "\r\n// "+ts.Name+" is skipped")
+			continue
+		}
+
+
 		star := ""
 		if ts.Struct != nil {
 			star = "*"
@@ -186,7 +208,19 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			continue
 		}
 
-		io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", svc "+star+ts.Name+") {")
+		if optionalRoutePrefix != "" {
+				io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", enabledPrefix bool, svc "+star+ts.Name+") {")
+				if !plugin.IsPartyFluentStyle() {
+						io.WriteString(out, "\r\ninitFunc := func(mux "+plugin.PartyTypeName()+") {")
+				} else {
+					io.WriteString(out, "\r\n\tif enabledPrefix {")
+					io.WriteString(out, "\r\n\t\tmux = mux.Group(\""+optionalRoutePrefix+"\")")
+					io.WriteString(out, "\r\n\t}")
+				}
+		} else {
+				io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", svc "+star+ts.Name+") {")
+		}
+
 		for _, method := range methods {
 			// RenderFuncHeader 将输出： mux.Get("/allfiles", func(w http.ResponseWriter, r *http.Request) {
 			switch len(method.Operation.RouterProperties) {
@@ -199,7 +233,14 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			default:
 				return errors.New(method.Method.PostionString() + ": RouterProperties is mult choices")
 			}
-			err := plugin.RenderFuncHeader(out, method, method.Operation.RouterProperties[0])
+
+			routeProps := method.Operation.RouterProperties[0]
+			if optionalRoutePrefix != "" {
+				if strings.HasPrefix(routeProps.Path, optionalRoutePrefix) {
+					routeProps.Path = strings.TrimPrefix(routeProps.Path, optionalRoutePrefix)
+				}
+			}
+			err := plugin.RenderFuncHeader(out, method, routeProps)
 			if err != nil {
 				return err
 			}
@@ -215,6 +256,17 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			}
 			io.WriteString(out, "\r\n})")
 		}
+
+
+		if optionalRoutePrefix != "" && !plugin.IsPartyFluentStyle() {
+			io.WriteString(out, "\r\n\t}")
+			io.WriteString(out, "\r\n\tif enabledPrefix {")
+			io.WriteString(out, "\r\n\t\tmux = mux.Route(\""+optionalRoutePrefix+"\", initFunc)")
+			io.WriteString(out, "\r\n\t} else {")
+			io.WriteString(out, "\r\n\t\tinitFunc(mux)")
+			io.WriteString(out, "\r\n\t}")
+		}
+
 		io.WriteString(out, "\r\n}")
 	}
 	return nil

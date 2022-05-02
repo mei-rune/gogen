@@ -389,3 +389,16 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc) {
 		return ctx.JSON(http.StatusOK, "OK")
 	})
 }
+
+func InitOptionalPrefixSvc(mux *echo.Group, enabledPrefix bool, svc OptionalPrefixSvc) {
+	if enabledPrefix {
+		mux = mux.Group("/optpre")
+	}
+	mux.GET("/get", func(ctx echo.Context) error {
+		err := svc.Get()
+		if err != nil {
+			return ctx.JSON(httpCodeWith(err), err)
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
+}

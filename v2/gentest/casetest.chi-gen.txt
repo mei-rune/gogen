@@ -391,7 +391,6 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 		return
 	})
 	mux.Get("/case_map", func(w http.ResponseWriter, r *http.Request) {
-		queryParams := r.URL.Query()
 		var otherValues = map[string]string{}
 		for key, values := range r.URL.Query() {
 			if !strings.HasPrefix(key, "otherValues.") {
@@ -448,7 +447,6 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 		return
 	})
 	mux.Get("/case_url_values", func(w http.ResponseWriter, r *http.Request) {
-		queryParams := r.URL.Query()
 		var otherValues = url.Values{}
 		for key, values := range r.URL.Query() {
 			if !strings.HasPrefix(key, "otherValues.") {
@@ -529,4 +527,24 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 		render.JSON(w, r, "OK")
 		return
 	})
+}
+
+func InitOptionalPrefixSvc(mux chi.Router, enabledPrefix bool, svc OptionalPrefixSvc) {
+	initFunc := func(mux chi.Router) {
+		mux.Get("/get", func(w http.ResponseWriter, r *http.Request) {
+			err := svc.Get()
+			if err != nil {
+				render.Status(r, httpCodeWith(err))
+				render.JSON(w, r, err)
+				return
+			}
+			render.JSON(w, r, "OK")
+			return
+		})
+	}
+	if enabledPrefix {
+		mux = mux.Route("/optpre", initFunc)
+	} else {
+		initFunc(mux)
+	}
 }

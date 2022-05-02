@@ -66,6 +66,10 @@ func (echo *echoPlugin) PartyTypeName() string {
 	return "*echo.Group"
 }
 
+func (echo *echoPlugin) IsPartyFluentStyle() bool {
+	return true
+}
+
 func (echo *echoPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }

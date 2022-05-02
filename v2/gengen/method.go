@@ -332,13 +332,21 @@ func (method *Method) HasQueryParam() bool {
 			continue
 		}
 
+
+		switch param.Type().ToLiteral() {
+		case "map[string]string":
+			continue
+		case "url.Values":
+			continue
+		}
+
 		var option *spec.Parameter
 		foundIndex := searchParam(method.Operation, param.Name)
 		if foundIndex >= 0 {
-			if method.Operation.Parameters[foundIndex].In == "query" {
-				return true
+			if method.Operation.Parameters[foundIndex].In != "query" {
+				continue
 			}
-			continue
+			return true
 		}
 		if option == nil {
 			option = searchStructParam(method.Operation, param.Name)
@@ -351,12 +359,6 @@ func (method *Method) HasQueryParam() bool {
 			continue
 		}
 
-		switch param.Type().ToLiteral() {
-		case "map[string]string":
-			return true
-		case "url.Values":
-			return true
-		}
 	}
 	return false
 }
@@ -677,7 +679,7 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		typ = fields[len(fields)-1].Type()
 	}
 
-	goVarName := GetGoVarName(param, fields)
+	goVarName := GetGoVarName(param, fields, true)
 
 	if len(fields) == 0 {
 		if param.IsVariadic {
@@ -971,7 +973,7 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 		return errors.New("type '" + typ.ToLiteral() + "' is unsupported for renderNullableParam")
 	}
 
-	goVarName := GetGoVarName(param, fields)
+	goVarName := GetGoVarName(param, fields, true)
 
 	if len(fields) == 0 && param.IsVariadic {
 		return errors.New("param '" + goVarName + "' of '" +
@@ -1128,7 +1130,7 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 		return errors.New("type '" + typ.ToLiteral() + "' is unsupported for renderPtrTypeParam")
 	}
 
-	goVarName := GetGoVarName(param, fields)
+	goVarName := GetGoVarName(param, fields, true)
 
 	if len(fields) == 0 && param.IsVariadic {
 		return errors.New("param '" + goVarName + "' of '" +
@@ -1337,11 +1339,11 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 				return err
 			}
 			if needCast {
-				io.WriteString(ctx.out, "\r\n\t\t*"+goVarName+"Value := "+typ.ToLiteral()+"("+fmt.Sprintf(convertFmt, "s")+")")
+				io.WriteString(ctx.out, "\r\n\t\t*"+fieldName(param, fields)+"Value := "+typ.ToLiteral()+"("+fmt.Sprintf(convertFmt, "s")+")")
 			} else {
-				io.WriteString(ctx.out, "\r\n\t\t"+goVarName+"Value := "+fmt.Sprintf(convertFmt, "s"))
+				io.WriteString(ctx.out, "\r\n\t\t"+fieldName(param, fields)+"Value := "+fmt.Sprintf(convertFmt, "s"))
 			}
-			io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = &"+goVarName+"Value")
+			io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = &"+fieldName(param, fields)+"Value")
 		}
 		io.WriteString(ctx.out, "\r\n\t}")
 	}

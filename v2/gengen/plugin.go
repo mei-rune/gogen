@@ -44,6 +44,7 @@ func createPlugin(plugin string, cfg Config) (Plugin, error) {
 type Plugin interface {
 	Imports() map[string]string
 	PartyTypeName() string
+	IsPartyFluentStyle() bool
 
 	GetSpecificTypeArgument(typeStr string) (string, bool)
 

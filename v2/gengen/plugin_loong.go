@@ -66,6 +66,10 @@ func (lng *loongPlugin) PartyTypeName() string {
 	return "loong.Party"
 }
 
+func (lng *loongPlugin) IsPartyFluentStyle() bool {
+	return true
+}
+
 func (lng *loongPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
