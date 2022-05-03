@@ -641,6 +641,8 @@ github.com/runner-mei/GoBatis v1.5.3 h1:PW0To8qlcBR7Cp6+ZGAOnMVtUHbOwyjnISgNm6lt
 github.com/runner-mei/GoBatis v1.5.3/go.mod h1:2micuHDAxYX4XeGI77Rig/xHRaR2EU2f3QdvpkwyojA=
 github.com/runner-mei/GoBatis v1.5.4 h1:2Scnji7D1eEmi2uqzG3gpfCiI5jZfU77YYXN7nw3qWo=
 github.com/runner-mei/GoBatis v1.5.4/go.mod h1:2micuHDAxYX4XeGI77Rig/xHRaR2EU2f3QdvpkwyojA=
+github.com/runner-mei/GoBatis v1.5.5 h1:t310h7H3diXpFuK2FdID47R8opGTxJvm3WUIptpivEo=
+github.com/runner-mei/GoBatis v1.5.5/go.mod h1:2micuHDAxYX4XeGI77Rig/xHRaR2EU2f3QdvpkwyojA=
 github.com/runner-mei/errors v0.0.0-20191030090348-38af1672ff66/go.mod h1:A9g5ObsQyz8QUKR+IbHEmUlfkbrRMYLWPrtGJHzAWKs=
 github.com/runner-mei/errors v0.0.0-20200925124023-a98df9958a8b h1:PLnYfurNN4zAqQAKD6ZegSszIMO64M2uq49f++6JYUk=
 github.com/runner-mei/errors v0.0.0-20200925124023-a98df9958a8b/go.mod h1:A9g5ObsQyz8QUKR+IbHEmUlfkbrRMYLWPrtGJHzAWKs=
@@ -658,6 +660,8 @@ github.com/runner-mei/swag v1.8.2-0.20220428004705-b0fb9e2e1989 h1:JVj6SBlFh9RS/
 github.com/runner-mei/swag v1.8.2-0.20220428004705-b0fb9e2e1989/go.mod h1:ugemnJsPZm/kRwFUnzBlbHRd0JY9zE1M4F+uy2pAaPQ=
 github.com/runner-mei/swag v1.8.2-0.20220501110145-f519c2518c79 h1:9twXnkMAK1koU5jSMXV6gsThwdafdLaaTFIjgRwJyqY=
 github.com/runner-mei/swag v1.8.2-0.20220501110145-f519c2518c79/go.mod h1:ugemnJsPZm/kRwFUnzBlbHRd0JY9zE1M4F+uy2pAaPQ=
+github.com/runner-mei/swag v1.8.2-0.20220503105851-3a25400cd379 h1:prbtITbcgjg0Vucl+r0Z3fooUrILPQaJdA8kJB6n/CU=
+github.com/runner-mei/swag v1.8.2-0.20220503105851-3a25400cd379/go.mod h1:ugemnJsPZm/kRwFUnzBlbHRd0JY9zE1M4F+uy2pAaPQ=
 github.com/russross/blackfriday v1.5.2 h1:HyvC0ARfnZBqnXwABFeSZHpKvJHJJfPz81GNueLj0oo=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/russross/blackfriday/v2 v2.0.1 h1:lPqVAte+HuHNfhJ/0LC98ESWRz8afy9tM/0RK8m9o+Q=
