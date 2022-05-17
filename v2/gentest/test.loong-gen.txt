@@ -4273,7 +4273,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
 		}
@@ -4306,7 +4306,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
 		}
@@ -4338,7 +4338,7 @@ func InitRequests(mux loong.Party, svc Requests) {
 		if err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
 		}

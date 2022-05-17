@@ -490,7 +490,7 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 
 			} else {
 				err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() +
-					": param '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
+					": param1 '"+method.Params.List[idx].Name.Name+"' of '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
 				log.Fatalln(err)
 			}
 			continue
@@ -555,7 +555,7 @@ func (mux *DefaultStye) ToParamList(method Method) ServerMethod {
 		for idx := range results {
 			if results[idx].InBody {
 				err := errors.New(method.Ctx.PostionFor(method.Node.Pos()).String() +
-					": param '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
+					": param '"+results[idx].Name.Name+"' of '" + method.Clazz.Name.Name + ":" + method.Name.Name + "' is invalid")
 				log.Fatalln(err)
 			}
 		}

@@ -4772,7 +4772,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set2ByID", "id"))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set2ByID", "params"))
 			return
@@ -4812,7 +4812,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set4ByID", "id"))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set4ByID", "params"))
 			return
@@ -4852,7 +4852,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set6ByID", "id"))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set6ByID", "params"))
 			return

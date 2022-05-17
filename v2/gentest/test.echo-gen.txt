@@ -4272,7 +4272,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set2ByID", "id"))
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set2ByID", "params"))
 		}
@@ -4304,7 +4304,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set4ByID", "id"))
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set4ByID", "params"))
 		}
@@ -4336,7 +4336,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set6ByID", "id"))
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.Bind(&params); err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set6ByID", "params"))
 		}

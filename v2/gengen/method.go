@@ -1690,10 +1690,18 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 			return nil
 		} else {
 			if params[0].Param.Type().PtrElemType().IsValid() {
-				io.WriteString(ctx.out, "\r\n\tvar "+varName+" "+params[0].Param.Type().PtrElemType().ToLiteral())
+				if params[0].Param.Type().PtrElemType().IsMapType() {
+					io.WriteString(ctx.out, "\r\n\tvar "+varName+" = "+params[0].Param.Type().PtrElemType().ToLiteral() + "{}")
+				} else {
+					io.WriteString(ctx.out, "\r\n\tvar "+varName+" "+params[0].Param.Type().PtrElemType().ToLiteral())
+				}
 				method.goArgumentLiterals[params[0].Index] = "&" + varName
 			} else {
-				io.WriteString(ctx.out, "\r\n\tvar "+varName+" "+params[0].Param.Type().ToLiteral())
+				if params[0].Param.Type().IsMapType() {
+					io.WriteString(ctx.out, "\r\n\tvar "+varName+" = "+params[0].Param.Type().ToLiteral() + "{}")
+				} else {
+					io.WriteString(ctx.out, "\r\n\tvar "+varName+" "+params[0].Param.Type().ToLiteral())
+				}
 				method.goArgumentLiterals[params[0].Index] = varName
 			}
 		}

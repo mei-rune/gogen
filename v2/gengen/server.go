@@ -103,6 +103,9 @@ func (cmd *ServerGenerator) Run(args []string) error {
 
 func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *swag.Parser, file *astutil.File) error {
 	if cmd.buildTag != "" {
+		io.WriteString(out, "//go:build ")
+		io.WriteString(out, cmd.buildTag)
+		io.WriteString(out, "\r\n")
 		io.WriteString(out, "// +build ")
 		io.WriteString(out, cmd.buildTag)
 		io.WriteString(out, "\r\n")

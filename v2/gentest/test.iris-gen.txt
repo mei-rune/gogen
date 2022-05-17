@@ -5074,7 +5074,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			ctx.JSON(NewBadArgument(err, "Requests.Set2ByID", "id"))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.UnmarshalBody(&params, nil); err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
 			ctx.JSON(NewBadArgument(err, "Requests.Set2ByID", "params"))
@@ -5120,7 +5120,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			ctx.JSON(NewBadArgument(err, "Requests.Set4ByID", "id"))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.UnmarshalBody(&params, nil); err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
 			ctx.JSON(NewBadArgument(err, "Requests.Set4ByID", "params"))
@@ -5166,7 +5166,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			ctx.JSON(NewBadArgument(err, "Requests.Set6ByID", "id"))
 			return
 		}
-		var params map[string]string
+		var params = map[string]string{}
 		if err := ctx.UnmarshalBody(&params, nil); err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
 			ctx.JSON(NewBadArgument(err, "Requests.Set6ByID", "params"))
