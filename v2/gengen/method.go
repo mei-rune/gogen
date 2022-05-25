@@ -1073,21 +1073,22 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 
 	io.WriteString(ctx.out, "if s := ")
 	io.WriteString(ctx.out, valueReadText)
-	io.WriteString(ctx.out, "; s != \"\" {")
+
+	resultType := ElemTypeForNullable(typ)
+	if resultType == "bool" {
+		io.WriteString(ctx.out, "; s != \"\" && s != \"none\" {")
+	} else {
+		io.WriteString(ctx.out, "; s != \"\" {")
+	}
 
 	if retError {
 		io.WriteString(ctx.out, "\r\n\t\t"+fieldName(param, fields)+"Value")
-		if retError {
-			io.WriteString(ctx.out, ", err ")
-		}
+		io.WriteString(ctx.out, ", err ")
 		io.WriteString(ctx.out, " :=")
 		io.WriteString(ctx.out, fmt.Sprintf(convertFmt, "s"))
-
-		if retError {
 			io.WriteString(ctx.out, "\r\n\t\tif err != nil {\r\n")
 			renderCastError(ctx, method, webParamName, "err", "s")
 			io.WriteString(ctx.out, "\r\n\t\t}")
-		}
 
 		if err := renderParentInit(ctx, param, fields, false); err != nil {
 			return err

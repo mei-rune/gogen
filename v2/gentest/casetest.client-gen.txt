@@ -135,6 +135,16 @@ func (client CaseSvcClient) TestCase8(ctx context.Context, id sql.NullInt64) err
 	return request.GET(ctx)
 }
 
+func (client CaseSvcClient) TestCastForNullBool(ctx context.Context, ok sql.NullBool) error {
+	request := resty.NewRequest(client.Proxy, "/cast_for_nullbool")
+	if ok.Valid {
+		request = request.SetParam("ok", BoolToString(ok.Bool))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
 func (client CaseSvcClient) TestCase9(ctx context.Context, id *string) error {
 	request := resty.NewRequest(client.Proxy, "/case9/by_id/"+*id)
 

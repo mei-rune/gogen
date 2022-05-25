@@ -194,6 +194,22 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 		}
 		return ctx.ReturnQueryResult("OK")
 	})
+	mux.GET("/cast_for_nullbool", func(ctx *loong.Context) error {
+		var ok sql.NullBool
+		if s := ctx.QueryParam("ok"); s != "" && s != "none" {
+			okValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("ok", s, err), http.StatusBadRequest)
+			}
+			ok.Valid = true
+			ok.Bool = okValue
+		}
+		err := svc.TestCastForNullBool(ok)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
 	mux.GET("/case9/by_id/:id", func(ctx *loong.Context) error {
 		var id = ctx.Param("id")
 		err := svc.TestCase9(&id)

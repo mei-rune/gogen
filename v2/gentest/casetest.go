@@ -178,6 +178,16 @@ type CaseSvc interface {
 	// @Router /case8/by_id [get]
 	TestCase8(id sql.NullInt64) error
 
+	// @Summary TestCastForNullBool
+	// @Accept  json
+	// @Produce  json
+	// @Param   ok      query   sql.NullBool     true  "Some ID" Format(int)
+	// @Success 200 {string} string	"ok"
+	// @Failure 400 {object} string "We need ID!!"
+	// @Failure 404 {object} string "Can not find ID"
+	// @Router /cast_for_nullbool [get]
+	TestCastForNullBool(ok sql.NullBool) error
+
 	// @Summary test by int ID
 	// @Description test by int64 ID
 	// @ID TestCase9

@@ -924,7 +924,7 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 	})
 	mux.GET("/query11", func(ctx *gin.Context) {
 		var itemID sql.NullBool
-		if s := ctx.Query("item_id"); s != "" {
+		if s := ctx.Query("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.String(http.StatusBadRequest, NewBadArgument(err, "StringSvc.Query11", "item_id").Error())
@@ -1883,7 +1883,7 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 	})
 	mux.GET("/impl/query11", func(ctx *gin.Context) {
 		var itemID sql.NullBool
-		if s := ctx.Query("item_id"); s != "" {
+		if s := ctx.Query("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.String(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.Query11", "item_id").Error())
@@ -2230,7 +2230,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("query.is_unclosed"); s != "" {
+		if s := ctx.Query("query.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.is_unclosed"))
@@ -2242,7 +2242,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("query.is_overdued"); s != "" {
+		if s := ctx.Query("query.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.is_overdued"))
@@ -2254,7 +2254,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("query.is_suspend"); s != "" {
+		if s := ctx.Query("query.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query1", "query.is_suspend"))
@@ -2467,7 +2467,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("is_unclosed"); s != "" {
+		if s := ctx.Query("is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "is_unclosed"))
@@ -2479,7 +2479,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("is_overdued"); s != "" {
+		if s := ctx.Query("is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "is_overdued"))
@@ -2491,7 +2491,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("is_suspend"); s != "" {
+		if s := ctx.Query("is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query2", "is_suspend"))
@@ -2696,7 +2696,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("is_unclosed"); s != "" {
+		if s := ctx.Query("is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "is_unclosed"))
@@ -2708,7 +2708,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("is_overdued"); s != "" {
+		if s := ctx.Query("is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "is_overdued"))
@@ -2720,7 +2720,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("is_suspend"); s != "" {
+		if s := ctx.Query("is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Query3", "is_suspend"))
@@ -2931,7 +2931,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("query.is_unclosed"); s != "" {
+		if s := ctx.Query("query.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_unclosed"))
@@ -2943,7 +2943,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("query.is_overdued"); s != "" {
+		if s := ctx.Query("query.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_overdued"))
@@ -2955,7 +2955,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("query.is_suspend"); s != "" {
+		if s := ctx.Query("query.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx1", "query.is_suspend"))
@@ -3194,7 +3194,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("query.is_unclosed"); s != "" {
+		if s := ctx.Query("query.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_unclosed"))
@@ -3209,7 +3209,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("query.is_overdued"); s != "" {
+		if s := ctx.Query("query.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_overdued"))
@@ -3224,7 +3224,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("query.is_suspend"); s != "" {
+		if s := ctx.Query("query.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx2", "query.is_suspend"))
@@ -3462,7 +3462,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("query.request.is_unclosed"); s != "" {
+		if s := ctx.Query("query.request.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.is_unclosed"))
@@ -3474,7 +3474,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("query.request.is_overdued"); s != "" {
+		if s := ctx.Query("query.request.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.is_overdued"))
@@ -3486,7 +3486,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("query.request.is_suspend"); s != "" {
+		if s := ctx.Query("query.request.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3", "query.request.is_suspend"))
@@ -3724,7 +3724,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("query.request.is_unclosed"); s != "" {
+		if s := ctx.Query("query.request.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.is_unclosed"))
@@ -3739,7 +3739,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("query.request.is_overdued"); s != "" {
+		if s := ctx.Query("query.request.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.is_overdued"))
@@ -3754,7 +3754,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("query.request.is_suspend"); s != "" {
+		if s := ctx.Query("query.request.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4", "query.request.is_suspend"))
@@ -3997,7 +3997,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("request.is_unclosed"); s != "" {
+		if s := ctx.Query("request.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.is_unclosed"))
@@ -4009,7 +4009,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("request.is_overdued"); s != "" {
+		if s := ctx.Query("request.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.is_overdued"))
@@ -4021,7 +4021,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("request.is_suspend"); s != "" {
+		if s := ctx.Query("request.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.is_suspend"))
@@ -4259,7 +4259,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("request.is_unclosed"); s != "" {
+		if s := ctx.Query("request.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.is_unclosed"))
@@ -4274,7 +4274,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("request.is_overdued"); s != "" {
+		if s := ctx.Query("request.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.is_overdued"))
@@ -4289,7 +4289,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("request.is_suspend"); s != "" {
+		if s := ctx.Query("request.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.is_suspend"))
@@ -4532,7 +4532,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.Query("query.is_unclosed"); s != "" {
+		if s := ctx.Query("query.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.is_unclosed"))
@@ -4544,7 +4544,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.Query("query.is_overdued"); s != "" {
+		if s := ctx.Query("query.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.is_overdued"))
@@ -4556,7 +4556,7 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.Query("query.is_suspend"); s != "" {
+		if s := ctx.Query("query.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.List", "query.is_suspend"))

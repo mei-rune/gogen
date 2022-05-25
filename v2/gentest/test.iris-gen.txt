@@ -982,7 +982,7 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 	})
 	mux.Get("/query11", func(ctx iris.Context) {
 		var itemID sql.NullBool
-		if s := ctx.URLParam("item_id"); s != "" {
+		if s := ctx.URLParam("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2005,7 +2005,7 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 	})
 	mux.Get("/impl/query11", func(ctx iris.Context) {
 		var itemID sql.NullBool
-		if s := ctx.URLParam("item_id"); s != "" {
+		if s := ctx.URLParam("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2376,7 +2376,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("query.is_unclosed"); s != "" {
+		if s := ctx.URLParam("query.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2389,7 +2389,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("query.is_overdued"); s != "" {
+		if s := ctx.URLParam("query.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2402,7 +2402,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("query.is_suspend"); s != "" {
+		if s := ctx.URLParam("query.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2628,7 +2628,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("is_unclosed"); s != "" {
+		if s := ctx.URLParam("is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2641,7 +2641,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("is_overdued"); s != "" {
+		if s := ctx.URLParam("is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2654,7 +2654,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("is_suspend"); s != "" {
+		if s := ctx.URLParam("is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2872,7 +2872,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("is_unclosed"); s != "" {
+		if s := ctx.URLParam("is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2885,7 +2885,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("is_overdued"); s != "" {
+		if s := ctx.URLParam("is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2898,7 +2898,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("is_suspend"); s != "" {
+		if s := ctx.URLParam("is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3122,7 +3122,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("query.is_unclosed"); s != "" {
+		if s := ctx.URLParam("query.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3135,7 +3135,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("query.is_overdued"); s != "" {
+		if s := ctx.URLParam("query.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3148,7 +3148,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("query.is_suspend"); s != "" {
+		if s := ctx.URLParam("query.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3400,7 +3400,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("query.is_unclosed"); s != "" {
+		if s := ctx.URLParam("query.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3416,7 +3416,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("query.is_overdued"); s != "" {
+		if s := ctx.URLParam("query.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3432,7 +3432,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("query.is_suspend"); s != "" {
+		if s := ctx.URLParam("query.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3683,7 +3683,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("query.request.is_unclosed"); s != "" {
+		if s := ctx.URLParam("query.request.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3696,7 +3696,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("query.request.is_overdued"); s != "" {
+		if s := ctx.URLParam("query.request.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3709,7 +3709,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("query.request.is_suspend"); s != "" {
+		if s := ctx.URLParam("query.request.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3960,7 +3960,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("query.request.is_unclosed"); s != "" {
+		if s := ctx.URLParam("query.request.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3976,7 +3976,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("query.request.is_overdued"); s != "" {
+		if s := ctx.URLParam("query.request.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -3992,7 +3992,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("query.request.is_suspend"); s != "" {
+		if s := ctx.URLParam("query.request.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4248,7 +4248,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("request.is_unclosed"); s != "" {
+		if s := ctx.URLParam("request.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4261,7 +4261,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("request.is_overdued"); s != "" {
+		if s := ctx.URLParam("request.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4274,7 +4274,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("request.is_suspend"); s != "" {
+		if s := ctx.URLParam("request.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4525,7 +4525,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.Request.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("request.is_unclosed"); s != "" {
+		if s := ctx.URLParam("request.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4541,7 +4541,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.Request.IsUnclosed.Valid = true
 			query.Request.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("request.is_overdued"); s != "" {
+		if s := ctx.URLParam("request.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4557,7 +4557,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.Request.IsOverdued.Valid = true
 			query.Request.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("request.is_suspend"); s != "" {
+		if s := ctx.URLParam("request.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4813,7 +4813,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			}
 			query.CurrentStatus = currentStatusValue
 		}
-		if s := ctx.URLParam("query.is_unclosed"); s != "" {
+		if s := ctx.URLParam("query.is_unclosed"); s != "" && s != "none" {
 			isUnclosedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4826,7 +4826,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsUnclosed.Valid = true
 			query.IsUnclosed.Bool = isUnclosedValue
 		}
-		if s := ctx.URLParam("query.is_overdued"); s != "" {
+		if s := ctx.URLParam("query.is_overdued"); s != "" && s != "none" {
 			isOverduedValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -4839,7 +4839,7 @@ func InitRequests(mux iris.Party, svc Requests) {
 			query.IsOverdued.Valid = true
 			query.IsOverdued.Bool = isOverduedValue
 		}
-		if s := ctx.URLParam("query.is_suspend"); s != "" {
+		if s := ctx.URLParam("query.is_suspend"); s != "" && s != "none" {
 			isSuspendValue, err := strconv.ParseBool(s)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)

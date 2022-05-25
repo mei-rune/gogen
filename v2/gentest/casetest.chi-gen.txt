@@ -268,6 +268,28 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	mux.Get("/cast_for_nullbool", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var ok sql.NullBool
+		if s := queryParams.Get("ok"); s != "" && s != "none" {
+			okValue, err := strconv.ParseBool(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCastForNullBool", "ok"))
+				return
+			}
+			ok.Valid = true
+			ok.Bool = okValue
+		}
+		err := svc.TestCastForNullBool(ok)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
 	mux.Get("/case9/by_id/:id", func(w http.ResponseWriter, r *http.Request) {
 		var id = chi.URLParam(r, "id")
 		err := svc.TestCase9(&id)
