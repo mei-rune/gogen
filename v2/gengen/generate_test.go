@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+	"strings"
 
 	"github.com/aryann/difflib"
 )
@@ -303,6 +304,56 @@ func TestGenerate(t *testing.T) {
 					t.Error(result)
 				}
 			}
+		}
+	})
+
+
+
+	t.Run("chi", func(t *testing.T) {
+		for _, test := range []struct{
+			Name string
+			Error string
+			Code string
+		} {
+			{
+				Name: "path fail",
+				Error: "param 'trigger_id' isnot exists in the url path",
+				Code: `package main
+
+						type Test interface {
+							// @Summary  按 trigger ID 获取所有的告警或历史记录等规则
+							// @Param    trigger_id        path   int             true     "trigger 规则的 ID "
+							// @Accept   json
+							// @Produce  json
+							// @Router /query14/{triggerID} [get]
+							// @Success 200 {object} interface{}
+							FindByTriggerID(triggerID int64) (interface{}, error)
+						}`,
+			},
+		} {
+			t.Log("=====================", test.Name)
+			os.Remove(filepath.Join(wd, "gentest", test.Name+".chi-gen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+
+			var gen = &ServerGenerator{}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+				"-plugin=chi",
+				"-build_tag=chi",
+			})
+
+			name := "test_error"
+
+
+			filename := filepath.Join(wd, "gentest", name + ".go")
+			ioutil.WriteFile(filename, []byte(test.Code), 0666)
+
+			if err := gen.Run([]string{filename}); err != nil {
+				if !strings.Contains(err.Error(), err.Error()) {
+					t.Error(err)
+				}
+				continue
+			}
+			t.Error("want error got ok")
 		}
 	})
 }

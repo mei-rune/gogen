@@ -1502,7 +1502,6 @@ type Requests interface {
 	// @Summary QuerySubTest1
 	// @Description QuerySubTest1
 	// @ID Requests.QuerySubTest1
-	// @Param   id         path   int     false  "id"
 	// @Param   query     query   SubTest1     false  "params"
 	// @Accept  json
 	// @Produce  json
@@ -1512,7 +1511,6 @@ type Requests interface {
 	// @Summary QuerySubTest2
 	// @Description QuerySubTest2
 	// @ID Requests.QuerySubTest2
-	// @Param   id         path   int     false  "id"
 	// @Param   query     query   SubTest2     false  "params"
 	// @Accept  json
 	// @Produce  json
@@ -1522,7 +1520,6 @@ type Requests interface {
 	// @Summary QuerySubTest3
 	// @Description QuerySubTest3
 	// @ID Requests.QuerySubTest3
-	// @Param   id         path   int     false  "id"
 	// @Param   query     query   SubTest3     false  "params"
 	// @Accept  json
 	// @Produce  json
@@ -1532,7 +1529,6 @@ type Requests interface {
 	// @Summary QuerySubTest4
 	// @Description QuerySubTest4
 	// @ID Requests.QuerySubTest4
-	// @Param   id         path   int     false  "id"
 	// @Param   query     query   SubTest4     false  "params"
 	// @Accept  json
 	// @Produce  json

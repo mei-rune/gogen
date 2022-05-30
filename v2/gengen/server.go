@@ -243,6 +243,10 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 					routeProps.Path = strings.TrimPrefix(routeProps.Path, optionalRoutePrefix)
 				}
 			}
+
+			if err := checkUrlValid(method, routeProps); err != nil {
+				return err
+			}
 			err := plugin.RenderFuncHeader(out, method, routeProps)
 			if err != nil {
 				return err
@@ -281,6 +285,19 @@ func ParseFile(ctx *astutil.Context, filename string) (*astutil.File, error) {
 	}
 
 	return ctx.LoadFile(filename)
+}
+
+func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
+	for _, param := range method.Operation.Parameters {
+		if param.In != "path" {
+			continue
+		}
+
+		if !strings.Contains(routeProps.Path, "{"+param.Name+"}") {
+			return errors.New(method.Method.PostionString() +  ": param '"+param.Name+"' isnot exists in the url path")
+		}
+	}
+	return nil
 }
 
 const httpCodeWithTxt = `func httpCodeWith(err error, statusCode ...int) int {

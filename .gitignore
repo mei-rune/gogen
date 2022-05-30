@@ -22,5 +22,6 @@
 *.*gen.go
 *.log
 tmp
+v2/gentest/test_error.go
 
 profile.cov
