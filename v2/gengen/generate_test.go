@@ -330,6 +330,21 @@ func TestGenerate(t *testing.T) {
 							FindByTriggerID(triggerID int64) (interface{}, error)
 						}`,
 			},
+			{
+				Name: "query fail",
+				Error: "param 'abc' isnot exists in the method param list",
+				Code: `package main
+
+						type Test interface {
+							// @Summary  按 trigger ID 获取所有的告警或历史记录等规则
+							// @Param    abc        query   int             true     "trigger 规则的 ID "
+							// @Accept   json
+							// @Produce  json
+							// @Router /query14 [get]
+							// @Success 200 {object} interface{}
+							FindByTriggerID() (interface{}, error)
+						}`,
+			},
 		} {
 			t.Log("=====================", test.Name)
 			os.Remove(filepath.Join(wd, "gentest", test.Name+".chi-gen.go"))
@@ -348,7 +363,7 @@ func TestGenerate(t *testing.T) {
 			ioutil.WriteFile(filename, []byte(test.Code), 0666)
 
 			if err := gen.Run([]string{filename}); err != nil {
-				if !strings.Contains(err.Error(), err.Error()) {
+				if !strings.Contains(err.Error(), test.Error) {
 					t.Error(err)
 				}
 				continue

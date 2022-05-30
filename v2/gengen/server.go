@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"fmt"
 
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
 	"github.com/swaggo/swag"
@@ -295,6 +296,47 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 
 		if !strings.Contains(routeProps.Path, "{"+param.Name+"}") {
 			return errors.New(method.Method.PostionString() +  ": param '"+param.Name+"' isnot exists in the url path")
+		}
+	}
+
+	for idx := range method.Operation.Parameters {
+		if method.Operation.Parameters[idx].In != "query" {
+			continue
+		}
+
+
+		oname := method.Operation.Parameters[idx].Name
+
+
+		localstructargname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-gogen-extend-struct")
+		// localname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-gogen-extend-field")
+
+		if localstructargname != "" {
+			continue
+		}
+
+		found := false
+		for idx := range method.Method.Params.List {
+			param := &method.Method.Params.List[idx]
+
+			if strings.EqualFold(oname, param.Name) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			for idx := range method.Method.Params.List {
+				param := &method.Method.Params.List[idx]
+
+				snakeParamName := toSnakeCase(param.Name)
+				if strings.EqualFold(oname, snakeParamName) {
+					found = true
+					break
+				}
+			}
+		}
+		if !found {
+			return errors.New(method.Method.PostionString() +  ": param '"+oname+"' isnot exists in the method param list")
 		}
 	}
 	return nil
