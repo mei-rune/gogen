@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"fmt"
 
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
 	"github.com/swaggo/swag"
