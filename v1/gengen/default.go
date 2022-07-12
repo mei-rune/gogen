@@ -781,13 +781,22 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			if identType, ok := starType.X.(*ast.Ident); ok {
 				stType = method.Ctx.GetClass(identType.Name)
 				if stType == nil {
-					panic("identType.Name isnot found")
+					for _, ctx := range mux.includeFiles {
+							stType = ctx.GetClass(identType.Name)	
+					}
+					// if stType == nil && !isPrimaryType(identType.Name) {
+					// 		panic(identType.Name + " isnot found-1")
+					// }
 				}
 			} else if selectorExpr, ok := starType.X.(*ast.SelectorExpr); ok {
 				for _, ctx := range mux.includeFiles {
 					if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
 						stType = ctx.GetClass(selectorExpr.Sel.Name)
 					}
+
+					// if stType == nil && !isPrimaryType(identType.Name) {
+					// 		panic(selectorExpr.Sel.Name + " isnot found-2")
+					// 	}
 				}
 			}
 		} else if identType, ok := param.Typ.(*ast.Ident); ok {
@@ -796,6 +805,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			for _, ctx := range mux.includeFiles {
 				if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
 					stType = ctx.GetClass(selectorExpr.Sel.Name)
+					// if stType == nil && !isPrimaryType(identType.Name) {
+					// 		panic(selectorExpr.Sel.Name + " isnot found-3")
+					// 	}
 				}
 			}
 		}
@@ -810,7 +822,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 			}
 
 			if !found {
-				panic(fmt.Sprint(stType.AliasName.X) + "." + stType.AliasName.Sel.Name + " isnot found")
+				panic(fmt.Sprint(stType.AliasName.X) + "." + stType.AliasName.Sel.Name + " isnot found-4")
 			}
 		}
 		return stType

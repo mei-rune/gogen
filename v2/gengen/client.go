@@ -678,7 +678,7 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 	if typ.IsPtrType() {
 		typ = typ.PtrElemType()
 	}
-
+	
 	ts, err := typ.ToTypeSpec(true)
 	if err != nil {
 		return errors.New("param '" + param.Name + "' of '" +
@@ -690,6 +690,7 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 	for _, f := range ts.Struct.Embedded {
 		fields = append(fields, f)
 	}
+
 	for idx := range fields {
 		var s, _ = getTagValue(&fields[idx], "swaggerignore")
 		if strings.ToLower(s) == "true" {
@@ -756,6 +757,7 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 			!fieldType.IsSqlNullableType() &&
 			!isBultinType(fieldType.ToLiteral()) {
 			subparam := *param
+			subparam.ExprFile = fieldType.File
 			subparam.Expr = fieldType.Expr
 
 			if isPtrType {
@@ -790,6 +792,7 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 
 		subparam := *param
 		subparam.Name = param.Name + "." + fields[idx].Name
+		subparam.ExprFile = fields[idx].Clazz.File
 		subparam.Expr = fields[idx].Expr
 
 		option := &method.Operation.Parameters[optidx]
