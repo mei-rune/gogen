@@ -776,11 +776,13 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 	}
 
 	getStructType := func(param Param) *Class {
-
 		var stType *Class
 		if starType, ok := param.Typ.(*ast.StarExpr); ok {
 			if identType, ok := starType.X.(*ast.Ident); ok {
 				stType = method.Ctx.GetClass(identType.Name)
+				if stType == nil {
+					panic("identType.Name isnot found")
+				}
 			} else if selectorExpr, ok := starType.X.(*ast.SelectorExpr); ok {
 				for _, ctx := range mux.includeFiles {
 					if ctx.Pkg.Name == fmt.Sprint(selectorExpr.X) {
@@ -901,6 +903,7 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				}
 
 				stType := getStructType(p2.Param)
+
 				if stType != nil {
 					if paramName2 != "" && !strings.HasPrefix(paramName2, ".") {
 						paramName2 = paramName2 + "."
