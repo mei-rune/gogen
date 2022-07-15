@@ -713,6 +713,13 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		elmUnderlying = elmType.GetUnderlyingType()
 
 		if elmUnderlying.IsValid() {
+			if elmUnderlying.IsInterfaceType() {
+					elmUnderlying = astutil.Type{
+						File: elmUnderlying.File,
+						Expr: castToExceptedParamType(param, elmUnderlying.Expr.Pos()),
+					}
+			}
+
 			arrayExpr := typ.Expr.(*ast.ArrayType)
 			underlying = astutil.Type{
 				File: typ.File,
@@ -725,6 +732,18 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		}
 	} else {
 		underlying = typ.GetUnderlyingType()
+
+		if underlying.IsValid() && underlying.IsInterfaceType(){
+				underlying = astutil.Type{
+					File: underlying.File,
+					Expr: castToExceptedParamType(param, underlying.Expr.Pos()),
+				}
+		} else if typ.IsInterfaceType() {
+				typ = astutil.Type{
+					File: typ.File,
+					Expr: castToExceptedParamType(param, typ.Expr.Pos()),
+				}
+		}
 	}
 
 

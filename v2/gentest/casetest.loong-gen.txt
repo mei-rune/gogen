@@ -41,6 +41,14 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 		}
 		return ctx.ReturnQueryResult("OK")
 	})
+	mux.GET("/case2_3/by_name", func(ctx *loong.Context) error {
+		var name = ctx.QueryParam("name")
+		err := svc.TestCase2_3(name)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
 	mux.GET("/case3_1/by_id/:id", func(ctx *loong.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {

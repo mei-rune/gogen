@@ -50,6 +50,17 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
+	mux.Get("/case2_3/by_name", func(ctx iris.Context) {
+		var name = ctx.URLParam("name")
+		err := svc.TestCase2_3(name)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
 	mux.Get("/case3_1/by_id/:id", func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {

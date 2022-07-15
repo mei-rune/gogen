@@ -43,6 +43,14 @@ func (client CaseSvcClient) TestCase2_2(ctx context.Context, name []string) erro
 	return request.GET(ctx)
 }
 
+func (client CaseSvcClient) TestCase2_3(ctx context.Context, name interface{}) error {
+	request := resty.NewRequest(client.Proxy, "/case2_3/by_name").
+		SetParam("name", fmt.Sprint(name))
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
 func (client CaseSvcClient) TestCase3_1(ctx context.Context, id int64) error {
 	request := resty.NewRequest(client.Proxy, "/case3_1/by_id/"+strconv.FormatInt(id, 10))
 

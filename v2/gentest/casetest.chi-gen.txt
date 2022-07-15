@@ -53,6 +53,18 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	mux.Get("/case2_3/by_name", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var name = queryParams.Get("name")
+		err := svc.TestCase2_3(name)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
 	mux.Get("/case3_1/by_id/:id", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 		if err != nil {

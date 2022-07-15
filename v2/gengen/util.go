@@ -3,6 +3,7 @@ package gengen
 import (
 	"errors"
 	"go/ast"
+	"go/token"
 	"reflect"
 	"strings"
 	"unicode"
@@ -372,7 +373,6 @@ func isExtendInline(param *spec.Parameter) bool {
 	return strings.ToLower(s) == "inline"
 }
 
-
 func getJSONName(s string) string {
 	if s == "" {
 		return ""
@@ -384,4 +384,29 @@ func getJSONName(s string) string {
 		return ""
 	}
 	return s
+}
+
+func castToExceptedParamType(param *Param, pos token.Pos) ast.Expr {
+	switch param.option.Type {
+	case "int", "int64", "int32", "int16", "int8":
+		return &ast.Ident{
+			NamePos: pos,
+			Name:    "int64",
+		}
+	case "uint", "uint64", "uint32", "uint16", "uint8":
+		return &ast.Ident{
+			NamePos: pos,
+			Name:    "uint64",
+		}
+	case "bool":
+		return &ast.Ident{
+			NamePos: pos,
+			Name:    "bool",
+		}
+	default:
+		return &ast.Ident{
+			NamePos: pos,
+			Name:    "string",
+		}
+	}
 }

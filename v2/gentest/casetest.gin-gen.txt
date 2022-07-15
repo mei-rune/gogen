@@ -47,6 +47,16 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
+	mux.GET("/case2_3/by_name", func(ctx *gin.Context) {
+		var name = ctx.Query("name")
+		err := svc.TestCase2_3(name)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
 	mux.GET("/case3_1/by_id/:id", func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {

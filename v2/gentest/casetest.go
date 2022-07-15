@@ -46,6 +46,18 @@ type CaseSvc interface {
 	// @Router /case2_2/by_names [get]
 	TestCase2_2(name []string) error
 
+	// @Summary test by name
+	// @Description test by int64 ID
+	// @ID TestCase2_3
+	// @Accept  json
+	// @Produce  json
+	// @Param   name      query   string     true  "Some ID" Format(string)
+	// @Success 200 {string} string	"ok"
+	// @Failure 400 {object} string "We need ID!!"
+	// @Failure 404 {object} string "Can not find ID"
+	// @Router /case2_3/by_name [get]
+	TestCase2_3(name interface{}) error
+
 	// @Summary test by int64 ID
 	// @Description test by int64 ID
 	// @ID TestCase3_1
