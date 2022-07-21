@@ -112,7 +112,18 @@ func (cmd *WebServerGenerator) Run(args []string) error {
 
 		file, err := ParseFile(pa)
 		if err != nil {
-			return err
+			ss := filepath.SplitList(os.Getenv("GOPATH"))
+			for _, s := range ss {
+					var e error
+					file, e = ParseFile(filepath.Join(s, "src", filename))
+					if e == nil {
+						err = nil
+						break
+					}
+			}
+			if err != nil {
+				return err
+			}
 		}
 		includeFiles = append(includeFiles, file)
 	}
