@@ -70,8 +70,19 @@ func (method *Method) FullName() string {
 }
 
 func (method *Method) NoReturn() bool {
-	// TODO: implement it
-	return false
+	noreturn := false
+	if o := method.Operation.Extensions["x-gogen-noreturn"]; o != nil {
+		noreturn = strings.ToLower(fmt.Sprint(o)) == "true"
+	}
+	return noreturn
+}
+
+func WithCode(method *Method) string {
+	withCode := ""
+	if o := method.Operation.Extensions["x-gogen-status-code"]; o != nil {
+		withCode = fmt.Sprint(o)
+	}
+	return withCode
 }
 
 func searchParam(operation *swag.Operation, paramName string) int {
@@ -1804,10 +1815,7 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 	}
 	io.WriteString(ctx.out, ")")
 
-	noreturn := false
-	if o := method.Operation.Extensions["x-gogen-noreturn"]; o != nil {
-		noreturn = strings.ToLower(fmt.Sprint(o)) == "true"
-	}
+	noreturn := method.NoReturn()
 
 	/// 输出返回
 	if len(method.Method.Results.List) > 2 {

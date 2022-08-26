@@ -24,6 +24,8 @@ var loongConfig = map[string]interface{}{
 	"read_format":           "{{.ctx}}.{{.readMethodName}}(\"{{.name}}\")",
 	"ok_func_format": `{{if .noreturn}}
 	return nil
+	{{- else if .withCode -}} 
+	return ctx.ReturnResult({{.withCode}}, {{.data}})
 	{{- else if eq .method "POST" -}} 
 	return ctx.ReturnCreatedResult({{.data}})
 	{{- else if eq .method "PUT" -}}

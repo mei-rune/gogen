@@ -1544,13 +1544,19 @@ func (mux *DefaultStye) PlainTextFunc(method Method, args ...string) string {
 		okCode = "http.StatusAccepted"
 	}
 
-	var sb strings.Builder
-	renderText(mux.plainTextTemplate, &sb, map[string]interface{}{
+	params := map[string]interface{}{
 		"method":     methodName,
 		"statusCode": okCode,
 		"data":       strings.Join(args, ","),
 		"noreturn":   noreturn,
-	})
+	}
+	if statusCode := ann.Attributes["status_code"]; statusCode != "" {
+		okCode = statusCode
+		params["withCode"] = statusCode  /// 仅为 loong 使用
+	}
+
+	var sb strings.Builder
+	renderText(mux.plainTextTemplate, &sb, params)
 	return sb.String()
 }
 

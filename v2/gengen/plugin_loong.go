@@ -114,12 +114,18 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 		args["statusCode"] = statusCode
 	} else {
 		args["statusCode"] = statusCodeLiteralByMethod(method.Operation.RouterProperties[0].HTTPMethod)
+
+		if withCode := WithCode(method); withCode != "" {
+			args["withCode"] = withCode
+		}
 	}
 
 	args["method"] = strings.ToUpper(method.Operation.RouterProperties[0].HTTPMethod)
 
 	s := renderString(`{{- if .noreturn -}}
 	return nil
+	{{- else if .withCode -}} 
+	return ctx.ReturnResult({{.withCode}}, {{.data}})
 	{{- else if eq .method "POST" -}} 
 	return ctx.ReturnCreatedResult({{.data}})
 	{{- else if eq .method "PUT" -}}
