@@ -135,7 +135,7 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 	for _, pa := range file.Imports {
 		io.WriteString(out, "\r\n\t")
 
-		if pa.Name != nil {
+		if pa.Name != nil && pa.Name.Name != "_" {
 			io.WriteString(out, astutil.ToString(pa.Name))
 			io.WriteString(out, " ")
 		}
