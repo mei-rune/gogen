@@ -325,6 +325,7 @@ type ParamConfig struct {
 	IsSkipUse        bool
 	IsCodeSegement   bool
 	IsQueryParam     bool
+	HasOmitEmpty     bool
 	Prefix           string
 	IsMultQueryValue bool
 	IsPathParam      bool
@@ -488,12 +489,23 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				fieldQueryName = prefix + typeName
 				fieldParam.Name.Name = param.Name.Name + "." + typeName
 			}
+
+			var hasOmitEmpty bool
 			if field.Tag != nil {
 				tagValue := field.GetTag(c.TagName)
 				if tagValue != "" {
+					if tagValue == "-" {
+						continue
+					}
+
 					ss := strings.Split(tagValue, ",")
 					if len(ss) > 0 && ss[0] != "" {
 						fieldQueryName = prefix + ss[0]
+					}
+					for _, s := range ss {
+						if s == "omitempty" {
+							hasOmitEmpty = true
+						}
 					}
 				}
 			}
@@ -521,6 +533,8 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 						newParam.Prefix = fieldQueryName
 					}
 				}
+
+				newParam.HasOmitEmpty = hasOmitEmpty
 			}
 			paramList = append(paramList, newParam)
 		}
@@ -751,6 +765,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
         	request = request.SetParam("{{ $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
         }
         {{- $needAssignment = true -}}
+
       {{- else -}}
       
         {{- if $param.IsMultQueryValue }}
@@ -763,6 +778,11 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
             request = request.SetParam("{{ $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
           }
           {{- $needAssignment = true -}}
+	      {{- else if $param.HasOmitEmpty }}
+	        if {{isZeroExpr $param.Name.Name $typeName}} {
+	        	request = request.SetParam("{{ $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
+	        }
+	        {{- $needAssignment = true -}}
         {{- else}}
           {{- if $needAssignment}}
           request = request.

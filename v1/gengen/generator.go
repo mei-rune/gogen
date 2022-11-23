@@ -216,22 +216,20 @@ var Funcs = template.FuncMap{
 	"convertToStringLiteral2": convertToStringLiteral2,
 	"goify":                   Goify,
 	"underscore":              Underscore,
-	"zeroValue": func(typ ast.Expr) string {
-		switch typ.(type) {
-		case *ast.StarExpr:
-			return "nil"
-		case *ast.ArrayType:
-			return "nil"
-		case *ast.MapType:
-			return "nil"
+	"isZeroExpr":  func(fieldName string, typ interface{}) string {
+		if exp, ok := typ.(ast.Expr); ok {
+			s := typePrint(exp)
+			if s == "time.Time" {
+				return fieldName + ".IsZero()"
+			}
+		} else if s, ok := typ.(string); ok {
+			if s == "time.Time" {
+				return fieldName + ".IsZero()"
+			}
 		}
-
-		s := typePrint(typ)
-		if lit, ok := zeroLits[s]; ok {
-			return lit
-		}
-		return "0"
-	},
+		return fieldName + " != " + zeroValue(typ)
+	},    
+	"zeroValue": zeroValue,
 	"isNull": func(typ ast.Expr) bool {
 		s := typePrint(typ)
 		return s == "sql.NullBool" ||
@@ -246,4 +244,29 @@ var zeroLits = map[string]string{
 	"bool":      "false",
 	"time.Time": "time.Time{}",
 	"string":    "\"\"",
+}
+
+func zeroValue(typ interface{}) string {
+	var s string
+	switch v := typ.(type) {
+	case *ast.StarExpr:
+		return "nil"
+	case *ast.ArrayType:
+		return "nil"
+	case *ast.MapType:
+		return "nil"
+	case string:
+		s = v
+	default:
+		if exp, ok := typ.(ast.Expr); ok {
+			s = typePrint(exp)
+		} else {
+			return "0"
+		}
+	}
+
+	if lit, ok := zeroLits[s]; ok {
+		return lit
+	}
+	return "0"
 }

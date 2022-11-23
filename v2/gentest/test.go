@@ -62,6 +62,11 @@ type QueryArgs struct {
 	Fintptr    *int
 	Fstringptr *string
 	Ftimeptr   *time.Time
+
+	Oint    int   `json:"oint,omitempty"`
+	Ostring string `json:"ostring,omitempty"`
+	Otime   time.Time `json:"otime,omitempty"`
+	Oignore   time.Time `json:"-" swaggerignore:"true"`
 }
 
 // @http.Client name="TestClient" reference="false"
@@ -108,8 +113,17 @@ type StringSvc interface {
 	// @Param   key      query   int     false  "Some ID" Format(int)
 	// @Accept  json
 	// @Produce  json
-	// @Router /test_by_key [get]
+	// @Router /test_by_key2 [get]
 	TestByKey2(key Key) error
+
+	// @Summary test by int key
+	// @Description test by key
+	// @ID TestByKey2
+	// @Param   key      query   int     true  "Some ID" Format(int)
+	// @Accept  json
+	// @Produce  json
+	// @Router /test_by_key3 [get]
+	TestByKey3(key Key) error
 
 	// @Summary test by str key
 	// @Description test by key
@@ -229,8 +243,18 @@ type StringSvc interface {
 	// @Param   b      query   string     false  "Some ID"
 	// @Accept  json
 	// @Produce  json
-	// @Router /concat [get]
-	Concat0(a, b string) (string, error)
+	// @Router /concat0_1 [get]
+	Concat0_1(a, b string) (string, error)
+
+	// @Summary test by query
+	// @Description test by query
+	// @ID Concat0
+	// @Param   a      query   string     true  "Some ID"
+	// @Param   b      query   string     true  "Some ID"
+	// @Accept  json
+	// @Produce  json
+	// @Router /concat0_2 [get]
+	Concat0_2(a, b string) (string, error)
 
 	// @Summary test by query
 	// @Description test by query

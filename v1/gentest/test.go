@@ -60,6 +60,11 @@ type QueryArgs struct {
 	Fintptr    *int
 	Fstringptr *string
 	Ftimeptr   *time.Time
+
+	Oint    int   `json:"oint,omitempty"`
+	Ostring string `json:"ostring,omitempty"`
+	Otime   time.Time `json:"otime,omitempty"`
+	Oignore   time.Time `json:"-"`
 }
 
 // @http.Client(name="TestClient", ref="true")

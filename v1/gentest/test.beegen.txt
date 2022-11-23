@@ -265,6 +265,25 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
+		if s := ctx.Input.Query("args.oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.oint, s, err).Error())
+				return
+			}
+			args.Oint = argsOintValue
+		}
+		args.Ostring = ctx.Input.Query("args.ostring")
+		if s := ctx.Input.Query("args.otime"); s != "" {
+			argsOtimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.otime, s, err).Error())
+				return
+			}
+			args.Otime = argsOtimeValue
+		}
 
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
@@ -342,6 +361,36 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
+		if s := ctx.Input.Query("args.oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.oint, s, err).Error())
+				return
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Oint = argsOintValue
+		}
+		if s := ctx.Input.Query("args.ostring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Ostring = s
+		}
+		if s := ctx.Input.Query("args.otime"); s != "" {
+			argsOtimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.otime, s, err).Error())
+				return
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Otime = argsOtimeValue
+		}
 
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
@@ -400,6 +449,25 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				return
 			}
 			args.Ftimeptr = &argsFtimeptrValue
+		}
+		if s := ctx.Input.Query("oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", oint, s, err).Error())
+				return
+			}
+			args.Oint = argsOintValue
+		}
+		args.Ostring = ctx.Input.Query("ostring")
+		if s := ctx.Input.Query("otime"); s != "" {
+			argsOtimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", otime, s, err).Error())
+				return
+			}
+			args.Otime = argsOtimeValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -477,6 +545,36 @@ func InitStringSvc(mux *beego.Namespace, svc StringSvc) {
 				args = &QueryArgs{}
 			}
 			args.Ftimeptr = &argsFtimeptrValue
+		}
+		if s := ctx.Input.Query("oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", oint, s, err).Error())
+				return
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Oint = argsOintValue
+		}
+		if s := ctx.Input.Query("ostring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Ostring = s
+		}
+		if s := ctx.Input.Query("otime"); s != "" {
+			argsOtimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", otime, s, err).Error())
+				return
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Otime = argsOtimeValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1377,6 +1475,25 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
+		if s := ctx.Input.Query("args.oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.oint, s, err).Error())
+				return
+			}
+			args.Oint = argsOintValue
+		}
+		args.Ostring = ctx.Input.Query("args.ostring")
+		if s := ctx.Input.Query("args.otime"); s != "" {
+			argsOtimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.otime, s, err).Error())
+				return
+			}
+			args.Otime = argsOtimeValue
+		}
 
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
@@ -1454,6 +1571,36 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
+		if s := ctx.Input.Query("args.oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.oint, s, err).Error())
+				return
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Oint = argsOintValue
+		}
+		if s := ctx.Input.Query("args.ostring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Ostring = s
+		}
+		if s := ctx.Input.Query("args.otime"); s != "" {
+			argsOtimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", args.otime, s, err).Error())
+				return
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Otime = argsOtimeValue
+		}
 
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
@@ -1512,6 +1659,25 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				return
 			}
 			args.Ftimeptr = &argsFtimeptrValue
+		}
+		if s := ctx.Input.Query("oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", oint, s, err).Error())
+				return
+			}
+			args.Oint = argsOintValue
+		}
+		args.Ostring = ctx.Input.Query("ostring")
+		if s := ctx.Input.Query("otime"); s != "" {
+			argsOtimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", otime, s, err).Error())
+				return
+			}
+			args.Otime = argsOtimeValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -1589,6 +1755,36 @@ func InitStringSvcImpl(mux *beego.Namespace, svc *StringSvcImpl) {
 				args = &QueryArgs{}
 			}
 			args.Ftimeptr = &argsFtimeptrValue
+		}
+		if s := ctx.Input.Query("oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", oint, s, err).Error())
+				return
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Oint = argsOintValue
+		}
+		if s := ctx.Input.Query("ostring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Ostring = s
+		}
+		if s := ctx.Input.Query("otime"); s != "" {
+			argsOtimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.Output.SetStatus(http.StatusBadRequest)
+				ctx.WriteString(fmt.Errorf("argument %q is invalid - %q", otime, s, err).Error())
+				return
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Otime = argsOtimeValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)

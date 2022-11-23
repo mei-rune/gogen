@@ -195,6 +195,21 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
+		if s := ctx.QueryParam("args.oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.oint", s, err), http.StatusBadRequest)
+			}
+			args.Oint = argsOintValue
+		}
+		args.Ostring = ctx.QueryParam("args.ostring")
+		if s := ctx.QueryParam("args.otime"); s != "" {
+			argsOtimeValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.otime", s, err), http.StatusBadRequest)
+			}
+			args.Otime = argsOtimeValue
+		}
 
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
@@ -258,6 +273,32 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
+		if s := ctx.QueryParam("args.oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.oint", s, err), http.StatusBadRequest)
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Oint = argsOintValue
+		}
+		if s := ctx.QueryParam("args.ostring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Ostring = s
+		}
+		if s := ctx.QueryParam("args.otime"); s != "" {
+			argsOtimeValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.otime", s, err), http.StatusBadRequest)
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Otime = argsOtimeValue
+		}
 
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
@@ -302,6 +343,21 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
 			}
 			args.Ftimeptr = &argsFtimeptrValue
+		}
+		if s := ctx.QueryParam("oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("oint", s, err), http.StatusBadRequest)
+			}
+			args.Oint = argsOintValue
+		}
+		args.Ostring = ctx.QueryParam("ostring")
+		if s := ctx.QueryParam("otime"); s != "" {
+			argsOtimeValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("otime", s, err), http.StatusBadRequest)
+			}
+			args.Otime = argsOtimeValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -365,6 +421,32 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 				args = &QueryArgs{}
 			}
 			args.Ftimeptr = &argsFtimeptrValue
+		}
+		if s := ctx.QueryParam("oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("oint", s, err), http.StatusBadRequest)
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Oint = argsOintValue
+		}
+		if s := ctx.QueryParam("ostring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Ostring = s
+		}
+		if s := ctx.QueryParam("otime"); s != "" {
+			argsOtimeValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("otime", s, err), http.StatusBadRequest)
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Otime = argsOtimeValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)
@@ -1037,6 +1119,21 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
+		if s := ctx.QueryParam("args.oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.oint", s, err), http.StatusBadRequest)
+			}
+			args.Oint = argsOintValue
+		}
+		args.Ostring = ctx.QueryParam("args.ostring")
+		if s := ctx.QueryParam("args.otime"); s != "" {
+			argsOtimeValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.otime", s, err), http.StatusBadRequest)
+			}
+			args.Otime = argsOtimeValue
+		}
 
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
@@ -1100,6 +1197,32 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 			}
 			args.Ftimeptr = &argsFtimeptrValue
 		}
+		if s := ctx.QueryParam("args.oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.oint", s, err), http.StatusBadRequest)
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Oint = argsOintValue
+		}
+		if s := ctx.QueryParam("args.ostring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Ostring = s
+		}
+		if s := ctx.QueryParam("args.otime"); s != "" {
+			argsOtimeValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("args.otime", s, err), http.StatusBadRequest)
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Otime = argsOtimeValue
+		}
 
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
@@ -1144,6 +1267,21 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 				return ctx.ReturnError(loong.ErrBadArgument("ftimeptr", s, err), http.StatusBadRequest)
 			}
 			args.Ftimeptr = &argsFtimeptrValue
+		}
+		if s := ctx.QueryParam("oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("oint", s, err), http.StatusBadRequest)
+			}
+			args.Oint = argsOintValue
+		}
+		args.Ostring = ctx.QueryParam("ostring")
+		if s := ctx.QueryParam("otime"); s != "" {
+			argsOtimeValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("otime", s, err), http.StatusBadRequest)
+			}
+			args.Otime = argsOtimeValue
 		}
 
 		err = svc.TestQueryArgs3(id, args)
@@ -1207,6 +1345,32 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 				args = &QueryArgs{}
 			}
 			args.Ftimeptr = &argsFtimeptrValue
+		}
+		if s := ctx.QueryParam("oint"); s != "" {
+			argsOintValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("oint", s, err), http.StatusBadRequest)
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Oint = argsOintValue
+		}
+		if s := ctx.QueryParam("ostring"); s != "" {
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Ostring = s
+		}
+		if s := ctx.QueryParam("otime"); s != "" {
+			argsOtimeValue, err := loong.ToDatetime(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("otime", s, err), http.StatusBadRequest)
+			}
+			if args == nil {
+				args = &QueryArgs{}
+			}
+			args.Otime = argsOtimeValue
 		}
 
 		err = svc.TestQueryArgs4(id, args)

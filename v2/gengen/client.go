@@ -697,6 +697,7 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 			continue
 		}
 
+		hasOmitEmpty := false
 		webParamName := webPrefix
 		goFieldName := param.Name
 		var jsonName string
@@ -704,6 +705,16 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 			jsonName, _ = getTagValue(&fields[idx], "json")
 			if jsonName == "" {
 				jsonName = toSnakeCase(fields[idx].Name)
+			} else {
+				ss := strings.Split(jsonName, ",")
+				if len(ss) >= 1 && ss[0] != "" {
+					jsonName = ss[0]
+				}
+				for _, s := range ss {
+					if s == "omitempty" {
+						hasOmitEmpty = true
+					}
+				}
 			}
 			if webPrefix == "" {
 				webParamName = jsonName
@@ -796,6 +807,11 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 		subparam.Expr = fields[idx].Expr
 
 		option := &method.Operation.Parameters[optidx]
+		if option.In == "query" && hasOmitEmpty {
+			option.Required = false
+		} else {
+			option.Required = true
+		}
 		err := cmd.genInterfaceMethodParam(out, method, &subparam, option, needAssignment)
 		if err != nil {
 			return err
@@ -842,6 +858,17 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 		} else if param.Type().IsSqlNullableType() {
 			io.WriteString(out, "\r\nif "+param.Name+".Valid {")
 			io.WriteString(out, "\r\n  request = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			io.WriteString(out, "\r\n}")
+			*needAssignment = true
+		} else if !option.Required {
+			if param.Type().ToLiteral() == "time.Time" {
+				io.WriteString(out, "\r\nif "+param.Name+".IsZero() {")
+			} else {
+				io.WriteString(out, "\r\nif "+param.Name+" != ")
+				io.WriteString(out, zeroValueLiteral(param.Type()))
+				io.WriteString(out," {")
+			}
+			io.WriteString(out, "\r\n\trequest = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
 			io.WriteString(out, "\r\n}")
 			*needAssignment = true
 		} else {

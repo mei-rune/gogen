@@ -169,6 +169,15 @@ func (client TestClient) TestQueryArgs1(ctx context.Context, id int64, args Quer
 	if args.Ftimeptr != nil {
 		request = request.SetParam("args.ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 	}
+	if args.Oint != 0 {
+		request = request.SetParam("args.oint", strconv.FormatInt(int64(args.Oint), 10))
+	}
+	if args.Ostring != "" {
+		request = request.SetParam("args.ostring", args.Ostring)
+	}
+	if args.Otime.IsZero() {
+		request = request.SetParam("args.otime", args.Otime.Format(client.Proxy.TimeFormat))
+	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -188,6 +197,15 @@ func (client TestClient) TestQueryArgs2(ctx context.Context, id int64, args *Que
 		}
 		if args.Ftimeptr != nil {
 			request = request.SetParam("args.ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
+		}
+		if args.Oint != 0 {
+			request = request.SetParam("args.oint", strconv.FormatInt(int64(args.Oint), 10))
+		}
+		if args.Ostring != "" {
+			request = request.SetParam("args.ostring", args.Ostring)
+		}
+		if args.Otime.IsZero() {
+			request = request.SetParam("args.otime", args.Otime.Format(client.Proxy.TimeFormat))
 		}
 	}
 
@@ -209,6 +227,15 @@ func (client TestClient) TestQueryArgs3(ctx context.Context, id int64, args Quer
 	if args.Ftimeptr != nil {
 		request = request.SetParam("ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 	}
+	if args.Oint != 0 {
+		request = request.SetParam("oint", strconv.FormatInt(int64(args.Oint), 10))
+	}
+	if args.Ostring != "" {
+		request = request.SetParam("ostring", args.Ostring)
+	}
+	if args.Otime.IsZero() {
+		request = request.SetParam("otime", args.Otime.Format(client.Proxy.TimeFormat))
+	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -228,6 +255,15 @@ func (client TestClient) TestQueryArgs4(ctx context.Context, id int64, args *Que
 		}
 		if args.Ftimeptr != nil {
 			request = request.SetParam("ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
+		}
+		if args.Oint != 0 {
+			request = request.SetParam("oint", strconv.FormatInt(int64(args.Oint), 10))
+		}
+		if args.Ostring != "" {
+			request = request.SetParam("ostring", args.Ostring)
+		}
+		if args.Otime.IsZero() {
+			request = request.SetParam("otime", args.Otime.Format(client.Proxy.TimeFormat))
 		}
 	}
 
@@ -1111,6 +1147,15 @@ func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, 
 	if args.Ftimeptr != nil {
 		request = request.SetParam("args.ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 	}
+	if args.Oint != 0 {
+		request = request.SetParam("args.oint", strconv.FormatInt(int64(args.Oint), 10))
+	}
+	if args.Ostring != "" {
+		request = request.SetParam("args.ostring", args.Ostring)
+	}
+	if args.Otime.IsZero() {
+		request = request.SetParam("args.otime", args.Otime.Format(client.Proxy.TimeFormat))
+	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -1130,6 +1175,15 @@ func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, 
 		}
 		if args.Ftimeptr != nil {
 			request = request.SetParam("args.ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
+		}
+		if args.Oint != 0 {
+			request = request.SetParam("args.oint", strconv.FormatInt(int64(args.Oint), 10))
+		}
+		if args.Ostring != "" {
+			request = request.SetParam("args.ostring", args.Ostring)
+		}
+		if args.Otime.IsZero() {
+			request = request.SetParam("args.otime", args.Otime.Format(client.Proxy.TimeFormat))
 		}
 	}
 
@@ -1151,6 +1205,15 @@ func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, 
 	if args.Ftimeptr != nil {
 		request = request.SetParam("ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
 	}
+	if args.Oint != 0 {
+		request = request.SetParam("oint", strconv.FormatInt(int64(args.Oint), 10))
+	}
+	if args.Ostring != "" {
+		request = request.SetParam("ostring", args.Ostring)
+	}
+	if args.Otime.IsZero() {
+		request = request.SetParam("otime", args.Otime.Format(client.Proxy.TimeFormat))
+	}
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -1170,6 +1233,15 @@ func (client StringSvcImplClient) TestQueryArgs4(ctx context.Context, id int64, 
 		}
 		if args.Ftimeptr != nil {
 			request = request.SetParam("ftimeptr", args.Ftimeptr.Format(client.Proxy.TimeFormat))
+		}
+		if args.Oint != 0 {
+			request = request.SetParam("oint", strconv.FormatInt(int64(args.Oint), 10))
+		}
+		if args.Ostring != "" {
+			request = request.SetParam("ostring", args.Ostring)
+		}
+		if args.Otime.IsZero() {
+			request = request.SetParam("otime", args.Otime.Format(client.Proxy.TimeFormat))
 		}
 	}
 

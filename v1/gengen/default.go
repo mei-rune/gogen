@@ -899,6 +899,9 @@ func (mux *DefaultStye) ToParam(c *context, method Method, param Param, isEdit b
 				if field.Tag != nil {
 					tagValue := field.GetTag(mux.TagName)
 					if tagValue != "" {
+						if tagValue == "-" {
+							continue
+						}
 						ss := strings.Split(tagValue, ",")
 						if len(ss) > 0 && ss[0] != "" {
 							paramName2 = paramNamePrefix + ss[0]

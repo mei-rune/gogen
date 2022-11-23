@@ -91,7 +91,7 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		ctx.JSON("OK")
 		return
 	})
-	mux.Get("/test_by_key", func(ctx iris.Context) {
+	mux.Get("/test_by_key2", func(ctx iris.Context) {
 		var key Key
 		if s := ctx.URLParam("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
@@ -103,6 +103,26 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 			key = Key(keyValue)
 		}
 		err := svc.TestByKey2(key)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/test_by_key3", func(ctx iris.Context) {
+		var key Key
+		if s := ctx.URLParam("key"); s != "" {
+			keyValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestByKey3", "key"))
+				return
+			}
+			key = Key(keyValue)
+		}
+		err := svc.TestByKey3(key)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
@@ -217,6 +237,25 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
+		if s := ctx.URLParam("args.oint"); s != "" {
+			ointValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestQueryArgs1", "args.oint"))
+				return
+			}
+			args.Oint = ointValue
+		}
+		args.Ostring = ctx.URLParam("args.ostring")
+		if s := ctx.URLParam("args.otime"); s != "" {
+			otimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestQueryArgs1", "args.otime"))
+				return
+			}
+			args.Otime = otimeValue
+		}
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -292,6 +331,36 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
+		if s := ctx.URLParam("args.oint"); s != "" {
+			ointValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.oint"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Oint = ointValue
+		}
+		if s := ctx.URLParam("args.ostring"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Ostring = ctx.URLParam("args.ostring")
+		}
+		if s := ctx.URLParam("args.otime"); s != "" {
+			otimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestQueryArgs2", "args.otime"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Otime = otimeValue
+		}
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -348,6 +417,25 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 				return
 			}
 			args.Ftimeptr = &ftimeptrValue
+		}
+		if s := ctx.URLParam("oint"); s != "" {
+			ointValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestQueryArgs3", "oint"))
+				return
+			}
+			args.Oint = ointValue
+		}
+		args.Ostring = ctx.URLParam("ostring")
+		if s := ctx.URLParam("otime"); s != "" {
+			otimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestQueryArgs3", "otime"))
+				return
+			}
+			args.Otime = otimeValue
 		}
 		err = svc.TestQueryArgs3(id, args)
 		if err != nil {
@@ -424,6 +512,36 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
+		if s := ctx.URLParam("oint"); s != "" {
+			ointValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestQueryArgs4", "oint"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Oint = ointValue
+		}
+		if s := ctx.URLParam("ostring"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Ostring = ctx.URLParam("ostring")
+		}
+		if s := ctx.URLParam("otime"); s != "" {
+			otimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.TestQueryArgs4", "otime"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Otime = otimeValue
+		}
 		err = svc.TestQueryArgs4(id, args)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -477,10 +595,22 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		ctx.JSON(result)
 		return
 	})
-	mux.Get("/concat", func(ctx iris.Context) {
+	mux.Get("/concat0_1", func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var b = ctx.URLParam("b")
-		result, err := svc.Concat0(a, b)
+		result, err := svc.Concat0_1(a, b)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON(result)
+		return
+	})
+	mux.Get("/concat0_2", func(ctx iris.Context) {
+		var a = ctx.URLParam("a")
+		var b = ctx.URLParam("b")
+		result, err := svc.Concat0_2(a, b)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
@@ -1240,6 +1370,25 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
+		if s := ctx.URLParam("args.oint"); s != "" {
+			ointValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.TestQueryArgs1", "args.oint"))
+				return
+			}
+			args.Oint = ointValue
+		}
+		args.Ostring = ctx.URLParam("args.ostring")
+		if s := ctx.URLParam("args.otime"); s != "" {
+			otimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.TestQueryArgs1", "args.otime"))
+				return
+			}
+			args.Otime = otimeValue
+		}
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1315,6 +1464,36 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 			}
 			args.Ftimeptr = &ftimeptrValue
 		}
+		if s := ctx.URLParam("args.oint"); s != "" {
+			ointValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.TestQueryArgs2", "args.oint"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Oint = ointValue
+		}
+		if s := ctx.URLParam("args.ostring"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Ostring = ctx.URLParam("args.ostring")
+		}
+		if s := ctx.URLParam("args.otime"); s != "" {
+			otimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.TestQueryArgs2", "args.otime"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Otime = otimeValue
+		}
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1371,6 +1550,25 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 				return
 			}
 			args.Ftimeptr = &ftimeptrValue
+		}
+		if s := ctx.URLParam("oint"); s != "" {
+			ointValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.TestQueryArgs3", "oint"))
+				return
+			}
+			args.Oint = ointValue
+		}
+		args.Ostring = ctx.URLParam("ostring")
+		if s := ctx.URLParam("otime"); s != "" {
+			otimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.TestQueryArgs3", "otime"))
+				return
+			}
+			args.Otime = otimeValue
 		}
 		err = svc.TestQueryArgs3(id, args)
 		if err != nil {
@@ -1446,6 +1644,36 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 				args = new(QueryArgs)
 			}
 			args.Ftimeptr = &ftimeptrValue
+		}
+		if s := ctx.URLParam("oint"); s != "" {
+			ointValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.TestQueryArgs4", "oint"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Oint = ointValue
+		}
+		if s := ctx.URLParam("ostring"); s != "" {
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Ostring = ctx.URLParam("ostring")
+		}
+		if s := ctx.URLParam("otime"); s != "" {
+			otimeValue, err := ToDatetime(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.TestQueryArgs4", "otime"))
+				return
+			}
+			if args == nil {
+				args = new(QueryArgs)
+			}
+			args.Otime = otimeValue
 		}
 		err = svc.TestQueryArgs4(id, args)
 		if err != nil {
