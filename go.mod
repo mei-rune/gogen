@@ -30,13 +30,13 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta1 // indirect
 	github.com/klauspost/compress v1.15.2 // indirect
 	github.com/labstack/echo/v4 v4.1.14
-	github.com/lib/pq v1.10.5 // indirect
+	github.com/lib/pq v1.10.7 // indirect
 	github.com/mattn/goveralls v0.0.11 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.18 // indirect
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/runner-mei/GoBatis v1.5.5
+	github.com/runner-mei/GoBatis v1.5.7
 	github.com/runner-mei/errors v0.0.0-20220303013420-f8ef04b1558b
 	github.com/runner-mei/loong v1.0.8
 	github.com/runner-mei/resty v0.0.0-20210621130733-e026567bec34
@@ -48,10 +48,8 @@ require (
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sys v0.0.0-20220429233432-b5fbb4746d32 // indirect
-	golang.org/x/tools v0.1.10 // indirect
+	golang.org/x/crypto v0.7.0 // indirect
+	golang.org/x/tools v0.6.0 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 )
 
