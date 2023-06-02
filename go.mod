@@ -15,7 +15,6 @@ require (
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
 	github.com/kataras/iris/v12 v12.2.0-beta1
 	github.com/klauspost/compress v1.15.2 // indirect
-	github.com/labstack/echo/v4 v4.1.14
 	github.com/mattn/goveralls v0.0.11
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
