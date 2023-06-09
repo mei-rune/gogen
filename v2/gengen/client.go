@@ -862,7 +862,7 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 			*needAssignment = true
 		} else if !option.Required {
 			if param.Type().ToLiteral() == "time.Time" {
-				io.WriteString(out, "\r\nif "+param.Name+".IsZero() {")
+				io.WriteString(out, "\r\nif !"+param.Name+".IsZero() {")
 			} else {
 				io.WriteString(out, "\r\nif "+param.Name+" != ")
 				io.WriteString(out, zeroValueLiteral(param.Type()))
