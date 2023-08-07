@@ -266,11 +266,23 @@ func (client CaseSvcClient) TestType2(ctx context.Context, opts Options) error {
 }
 
 type OptionalPrefixSvcClient struct {
-	Proxy *resty.Proxy
+	Proxy         *resty.Proxy
+	NoRoutePrefix bool
+}
+
+func (client *OptionalPrefixSvcClient) SetRoutePrefix(enable bool) {
+	client.NoRoutePrefix = !enable
+}
+
+func (client OptionalPrefixSvcClient) routePrefix() string {
+	if client.NoRoutePrefix {
+		return ""
+	}
+	return "/optpre"
 }
 
 func (client OptionalPrefixSvcClient) Get(ctx context.Context) error {
-	request := resty.NewRequest(client.Proxy, "/optpre/get")
+	request := resty.NewRequest(client.Proxy, client.routePrefix()+"/get")
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)

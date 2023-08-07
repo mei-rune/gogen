@@ -194,6 +194,26 @@ func getClassName(doc *ast.CommentGroup) (name string, reference bool, ok bool) 
 }
 
 func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.Parser, ts *astutil.TypeSpec) error {
+		var optionalRoutePrefix string
+		var ignore bool
+
+		if doc := ts.Doc(); doc != nil {
+			for _, comment := range doc.List {
+				line := strings.TrimSpace(strings.TrimLeft(comment.Text, "/"))
+
+				if strings.HasPrefix(line, "@gogen.optional_route_prefix") {
+					optionalRoutePrefix = strings.TrimSpace(strings.TrimPrefix(line, "@gogen.optional_route_prefix"))
+				} else if strings.HasPrefix(line, "@gogen.ignore") {
+					ignore = true
+				}
+			}
+		}
+		if ignore {
+			io.WriteString(out, "\r\n// "+ts.Name+" is skipped")
+			return nil
+		}
+
+
 	className := ts.Name + "Client"
 	recvClassName := className
 	// @http.Client name="TestClient" reference="true"
@@ -230,14 +250,36 @@ func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.
 	io.WriteString(out, "\r\n\r\ntype ")
 	io.WriteString(out, className+" struct {")
 	io.WriteString(out, "\r\n\t"+cmd.config.RestyField+" "+cmd.config.RestyName)
-	io.WriteString(out, "\r\n}\r\n")
+	
+
+	if optionalRoutePrefix != "" {
+		io.WriteString(out, "\r\n  NoRoutePrefix bool")
+
+		// close struct
+		io.WriteString(out, "\r\n}\r\n")
+
+		io.WriteString(out, "func (client *"+className+") SetRoutePrefix(enable bool) {\r\n")
+		io.WriteString(out, "	client.NoRoutePrefix = !enable\r\n")
+		io.WriteString(out, "}\r\n\r\n")
+
+		io.WriteString(out, "func (client "+className+") routePrefix() string {\r\n")
+		io.WriteString(out, "	 if client.NoRoutePrefix {\r\n")
+		io.WriteString(out, "	   return \"\"\r\n")
+		io.WriteString(out, "	 }\r\n")
+		io.WriteString(out, "  return \""+optionalRoutePrefix+"\"\r\n")
+		io.WriteString(out, "}\r\n")
+	} else {
+		// close struct
+		io.WriteString(out, "\r\n}\r\n")
+	}
+
 
 	for idx := range methods {
 		if len(methods[idx].Operation.RouterProperties) == 0 {
 			io.WriteString(out, "\r\n// " + methods[idx].Method.Name+": annotation is missing")
 			continue
 		}
-		err := cmd.genInterfaceMethod(out, recvClassName, methods[idx])
+		err := cmd.genInterfaceMethod(out, recvClassName, methods[idx], optionalRoutePrefix)
 		if err != nil {
 			return err
 		}
@@ -371,7 +413,7 @@ func (cmd *ClientGenerator) genInterfaceMethodReturnVars(out io.Writer, recvClas
 	return nil
 }
 
-func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName string, method *Method) error {
+func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName string, method *Method, optionalRoutePrefix string) error {
 	if err := cmd.genInterfaceMethodSignature(out, recvClassName, method); err != nil {
 		return err
 	}
@@ -381,7 +423,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 	}
 
 	io.WriteString(out, "\r\n\trequest := ")
-	io.WriteString(out, cmd.config.NewRequest("client."+cmd.config.RestyField, cmd.config.GetPath(method)))
+	io.WriteString(out, cmd.config.NewRequest("client."+cmd.config.RestyField, cmd.config.GetPath(optionalRoutePrefix, method)))
 
 	needAssignment := false
 	var inBody []astutil.Param
@@ -947,7 +989,7 @@ func (c *ClientConfig) RouteFunc(method *Method) string {
 	return method.Operation.RouterProperties[0].HTTPMethod
 }
 
-func (c *ClientConfig) GetPath(method *Method) string {
+func (c *ClientConfig) GetPath(optionalRoutePrefix string, method *Method) string {
 	rawurl := method.Operation.RouterProperties[0].Path
 	var replace = ReplaceFunc(func(segement PathSegement) string {
 		for idx := range method.Method.Params.List {
@@ -961,7 +1003,15 @@ func (c *ClientConfig) GetPath(method *Method) string {
 		panic(err)
 	})
 	segements, _ := parseURL(rawurl)
-	return strings.TrimSuffix("\""+JoinPathSegments(segements, false, replace)+"\"", "+ \"\"")
+
+	urlPath := JoinPathSegments(segements, false, replace)
+
+	if optionalRoutePrefix == "" {
+		return strings.TrimSuffix("\""+urlPath+"\"", "+ \"\"")
+	}
+
+	urlPath = strings.TrimPrefix(urlPath, optionalRoutePrefix)
+	return strings.TrimSuffix("client.routePrefix() + \""+urlPath+"\"", "+ \"\"")
 }
 
 func convertToStringLiteral(param *astutil.Param, index, convertNS, timeFormat string) string {
