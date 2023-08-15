@@ -124,6 +124,7 @@ gogen client domains.go
      param.Name = ctx.QueryParam("param.name")
      param.Type = ctx.QueryParam("param.type")
    ````
+
      字段 param.Name 对应的 query 参数名为  param.name
      字段 param.Type 对应的 query 参数名为  param.type
 
@@ -139,7 +140,8 @@ gogen client domains.go
         // @Param   param      query   string     true  "domain name" extensions(x-gogen-extend=inline)
         Get(param QueryParam) (XXXX, error)
       }
-    ````
+   ````
+
     加了 extensions(x-gogen-extend=inline) 后它们的参数名如下
 
      字段 param.Name 对应的 query 参数名为  name
