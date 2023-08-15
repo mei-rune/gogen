@@ -157,7 +157,7 @@ gogen client domains.go
         // @Param   record      body   Record     false  ""
         Save(record Record) error
       }
-    ````
+   ````
 
    Service.Save() 方法中 record 参数取值时如下
    ````golang
@@ -174,7 +174,7 @@ gogen client domains.go
         // @Param   type      body   string     false  ""
         Save(name, description string) error
       }
-    ````
+   ````
 
    Service.Save() 方法中 record 参数取值时如下
    ````golang
@@ -199,7 +199,7 @@ gogen client domains.go
         // @Param   record      body   Record     false  "record"  extensions(x-gogen-entire-body=false)
         Save(record Record) error
       }
-    ````
+   ````
     这时 Service.Save() 方法生成的服务端代码就变成了
    ````golang
       var bindArgs struct {
