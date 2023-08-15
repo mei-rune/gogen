@@ -28,9 +28,11 @@
     })
  ````
 
+
 大致流程都是先从 ctx 读参数， 再业务处理， 再返回， 当参数少时还行，参数多时读数据，再转换真的好烦，我就想为什么不能像 java 的框架一样呢
 
- ````java
+
+````java
 	    @Path("/show-on-screen")
 		public class JerseyHelloWorldService
 		{
@@ -41,7 +43,7 @@
 		        return "Message requested : " + msg;
 		    }
 		}
- ````
+````
 
 可能原来因为 golang 不支持在方法上加 [tag literal](https://github.com/golang/go/issues/18702) 吧, golang 短时间内不会加这个啦， 但我写的 restful 太多了， 所以就想用生成代码的方式来解决这个问题。
 
