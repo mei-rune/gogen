@@ -283,13 +283,13 @@ gogen client domains.go
 
     在 Service.Test() 方法中我们已经处理了响应(http.ResponseWriter)，不然希望生成代码时对响应再次处理, 这时我们再生成如下代码就不对了
 
-    ````golang
+   ````golang
     err := svc.Test(ctx.ResponseWriter(), xxx)
     if err != nil {
       return ctx.JSON(httpCodeWith(err), err)
     }
     return ctx.JSON(http.StatusOK, "OK")
-    ````
+   ````
 
    最后的 return ctx.JSON(http.StatusOK, "OK") 是多余的
 
@@ -301,7 +301,7 @@ gogen client domains.go
       return ctx.JSON(httpCodeWith(err), err)
     }
     return nil
-   ````
+  ````
 
 
 
