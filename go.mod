@@ -8,8 +8,7 @@ require (
 	github.com/axw/gocov v1.1.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-chi/chi v1.5.4
-	github.com/go-openapi/spec v0.20.6
-	github.com/go-openapi/swag v0.21.1 // indirect
+	github.com/go-openapi/spec v0.20.9
 	github.com/grsmv/inflect v0.0.0-20140723132642-a28d3de3b3ad
 	github.com/hjson/hjson-go v3.1.0+incompatible
 	github.com/k0kubun/colorstring v0.0.0-20150214042306-9440f1994b88 // indirect
@@ -19,17 +18,17 @@ require (
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/runner-mei/GoBatis v1.5.7
-	github.com/runner-mei/errors v0.0.0-20220303013420-f8ef04b1558b // indirect
-	github.com/runner-mei/log v1.0.0
-	github.com/runner-mei/loong v1.0.8
-	github.com/swaggo/echo-swagger v1.3.0
-	github.com/swaggo/swag v1.8.1
+	github.com/runner-mei/log v1.0.10
+	github.com/runner-mei/loong v1.1.22
+	github.com/swaggo/echo-swagger v1.4.0
+	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2 // indirect
+	github.com/swaggo/swag v1.16.1
 	github.com/tdewolff/minify/v2 v2.11.2 // indirect
 	github.com/ugorji/go v1.1.7 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
-	go.uber.org/multierr v1.8.0 // indirect
 )
 
 replace github.com/swaggo/swag v1.8.1 => github.com/runner-mei/swag v1.8.2-0.20220503105851-3a25400cd379
+
+exclude github.com/dgrijalva/jwt-go v3.2.0+incompatible
 
 go 1.13
