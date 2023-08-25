@@ -124,6 +124,7 @@ gogen client domains.go
      param.Name = ctx.QueryParam("param.name")
      param.Type = ctx.QueryParam("param.type")
    ````
+
      字段 param.Name 对应的 query 参数名为  param.name
      字段 param.Type 对应的 query 参数名为  param.type
 
@@ -139,7 +140,8 @@ gogen client domains.go
         // @Param   param      query   string     true  "domain name" extensions(x-gogen-extend=inline)
         Get(param QueryParam) (XXXX, error)
       }
-    ````
+   ````
+
     加了 extensions(x-gogen-extend=inline) 后它们的参数名如下
 
      字段 param.Name 对应的 query 参数名为  name
@@ -155,7 +157,7 @@ gogen client domains.go
         // @Param   record      body   Record     false  ""
         Save(record Record) error
       }
-    ````
+   ````
 
    Service.Save() 方法中 record 参数取值时如下
    ````golang
@@ -172,7 +174,7 @@ gogen client domains.go
         // @Param   type      body   string     false  ""
         Save(name, description string) error
       }
-    ````
+   ````
 
    Service.Save() 方法中 record 参数取值时如下
    ````golang
@@ -197,7 +199,7 @@ gogen client domains.go
         // @Param   record      body   Record     false  "record"  extensions(x-gogen-entire-body=false)
         Save(record Record) error
       }
-    ````
+   ````
     这时 Service.Save() 方法生成的服务端代码就变成了
    ````golang
       var bindArgs struct {
@@ -277,11 +279,11 @@ gogen client domains.go
       type Service interface {
         Test(w http.ResponseWriter, xxx string) error
       }
-    ````
+   ````
 
     在 Service.Test() 方法中我们已经处理了响应(http.ResponseWriter)，不然希望生成代码时对响应再次处理, 这时我们再生成如下代码就不对了
 
-    ````golang
+   ````golang
     err := svc.Test(ctx.ResponseWriter(), xxx)
     if err != nil {
       return ctx.JSON(httpCodeWith(err), err)
@@ -293,13 +295,14 @@ gogen client domains.go
 
    这时我们加上   @x-gogen-noreturn 就能正确处理了， 生成代码如下
 
-    ````golang
+  ````golang
     err := svc.Test(ctx.ResponseWriter(), xxx)
     if err != nil {
       return ctx.JSON(httpCodeWith(err), err)
     }
     return nil
-   ````
+  ````
+
 
 
 ## 最后
