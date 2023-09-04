@@ -353,6 +353,10 @@ func zeroValueLiteral(typ astutil.Type) string {
 		return "nil"
 	}
 
+	if typ.IsStringType(true) {
+		return "\"\""
+	}
+
 	s := typ.ToLiteral()
 	if lit, ok := zeroLits[s]; ok {
 		return lit
