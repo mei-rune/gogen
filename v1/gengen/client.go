@@ -371,13 +371,14 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 	paramList := make([]ParamConfig, 0, len(method.Params.List))
 
-	add := func(param Param, queryName string, isSkipDeclared, isSkipUse bool) ParamConfig {
+	add := func(param Param, queryName string, isSkipDeclared, isSkipUse, isQueryParam bool) ParamConfig {
 		cp := ParamConfig{
 			Param:          param,
 			QueryParamName: Underscore(queryName),
 			IsSkipDeclared: isSkipDeclared,
 			IsSkipUse:      isSkipUse,
 		}
+		fmt.Println("====", queryName, cp.QueryParamName)
 
 		typ := typePrint(param.Typ)
 		if strings.HasSuffix(typ, ".Context") {
@@ -397,6 +398,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				bodyExists = true
 			} else if newName, ok := queryNames[param.Name.Name]; ok && newName != "" {
 				cp.QueryParamName = newName
+			} else if isQueryParam {
 			} else if isEdit {
 				inBody = append(inBody, param)
 				cp.IsSkipUse = true
@@ -451,8 +453,8 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		return stType
 	}
 
-	var addStructField func(prefix, fullName string, param Param, stType *Class)
-	addStructField = func(prefix, fullName string, param Param, stType *Class) {
+	var addStructField func(prefix, fullName string, param Param, stType *Class, isQueryParam bool)
+	addStructField = func(prefix, fullName string, param Param, stType *Class, isQueryParam bool) {
 
 		isPtr := IsPtrType(param.Typ)
 		if isPtr {
@@ -519,11 +521,11 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 				} else if !strings.HasSuffix(fieldQueryName, ".") {
 					fieldQueryName = fieldQueryName + "."
 				}
-				addStructField(fieldQueryName, fullName, fieldParam, stType)
+				addStructField(fieldQueryName, fullName, fieldParam, stType, isQueryParam)
 				continue
 			}
 
-			newParam := add(fieldParam, fieldQueryName, true, false)
+			newParam := add(fieldParam, fieldQueryName, true, false, isQueryParam)
 			if newParam.IsQueryParam {
 				if typePrint(fieldParam.Typ) == "map[string]string" ||
 					typePrint(fieldParam.Typ) == "url.Values" {
@@ -536,6 +538,7 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 				newParam.HasOmitEmpty = hasOmitEmpty
 			}
+			fmt.Println( method.Name, newParam, fieldQueryName, newParam.QueryParamName)
 			paramList = append(paramList, newParam)
 		}
 
@@ -558,16 +561,17 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 		}
 
 		if data != "" && data == param.Name.Name {
-			paramList = append(paramList, add(param, queryName, false, false))
+			paramList = append(paramList, add(param, queryName, false, false, false))
 			continue
 		}
 
 		var prefix = param.Name.Name + "."
-		if newName, ok := queryNames[param.Name.Name]; ok && newName != "" {
-			if newName == "<none>" {
+		newCfgName, isQueryParam := queryNames[param.Name.Name]
+		if  isQueryParam && newCfgName != "" {
+			if newCfgName == "<none>" {
 				prefix = ""
-			} else {
-				prefix = newName + "."
+			} else {				
+				prefix = newCfgName + "."
 			}
 		}
 		if isEdit {
@@ -578,20 +582,21 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 					break
 				}
 			}
-			if !isPathParam {
-				paramList = append(paramList, add(param, queryName, false, false))
+
+			if !isPathParam && !isQueryParam {
+				paramList = append(paramList, add(param, queryName, false, false, isQueryParam))
 				continue
 			}
 		}
 
 		stType := toClass(param.Typ)
 		if stType != nil {
-			paramList = append(paramList, add(param, "", false, true))
-			addStructField(prefix, param.Name.Name, param, stType)
+			paramList = append(paramList, add(param, "", false, true, isQueryParam))
+			addStructField(prefix, param.Name.Name, param, stType, isQueryParam)
 			continue
 		}
 
-		paramList = append(paramList, add(param, queryName, false, false))
+		paramList = append(paramList, add(param, queryName, false, false, isQueryParam))
 	}
 
 	if len(inBody) > 0 {

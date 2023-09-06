@@ -222,9 +222,15 @@ var Funcs = template.FuncMap{
 			if s == "time.Time" {
 				return fieldName + ".IsZero()"
 			}
+			if s == "bool" {
+				return fieldName
+			}
 		} else if s, ok := typ.(string); ok {
 			if s == "time.Time" {
 				return fieldName + ".IsZero()"
+			}
+			if s == "bool" {
+				return fieldName
 			}
 		}
 		return fieldName + " != " + zeroValue(typ)
