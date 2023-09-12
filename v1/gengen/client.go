@@ -378,7 +378,6 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 			IsSkipDeclared: isSkipDeclared,
 			IsSkipUse:      isSkipUse,
 		}
-		fmt.Println("====", queryName, cp.QueryParamName)
 
 		typ := typePrint(param.Typ)
 		if strings.HasSuffix(typ, ".Context") {
@@ -538,7 +537,6 @@ func (c *ClientConfig) ToParamList(method Method) []ParamConfig {
 
 				newParam.HasOmitEmpty = hasOmitEmpty
 			}
-			fmt.Println( method.Name, newParam, fieldQueryName, newParam.QueryParamName)
 			paramList = append(paramList, newParam)
 		}
 
