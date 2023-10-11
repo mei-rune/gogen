@@ -9,7 +9,7 @@ install:
   - export PATH=$PATH:$HOME/gopath/bin
   - go get github.com/aryann/difflib
   - go get github.com/grsmv/inflect
-  - go get github.com/hjson/hjson-go
+  - go get github.com/hjson/hjson-go/v4
   - go get github.com/mitchellh/mapstructure
   
 script:

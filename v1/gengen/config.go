@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"time"
 
-	hjson "github.com/hjson/hjson-go"
+	hjson "github.com/hjson/hjson-go/v4"
 	"github.com/mitchellh/mapstructure"
 )
 
