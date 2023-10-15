@@ -105,7 +105,7 @@ func (lng *loongPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	return e
 }
 
-func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error {
+func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
 		"data":     data,
@@ -121,6 +121,33 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	}
 
 	args["method"] = strings.ToUpper(method.Operation.RouterProperties[0].HTTPMethod)
+
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+
+		if dataType == "[]byte" {
+			s := renderString(`{{- if .noreturn -}}
+			return nil
+			{{- else if .withCode -}} 
+			return ctx.Blob({{.withCode}}, "text/plain", {{.data}})
+			{{- else -}}
+			return ctx.Blob({{.statusCode}}, "text/plain", {{.data}})
+			{{end}}`, args)
+			_, e := io.WriteString(out, s)
+			return e
+		}
+
+
+		s := renderString(`{{- if .noreturn -}}
+		return nil
+		{{- else if .withCode -}} 
+		return ctx.String({{.withCode}}, {{.data}})
+		{{- else -}}
+		return ctx.String({{.statusCode}}, {{.data}})
+		{{end}}`, args)
+		_, e := io.WriteString(out, s)
+		return e
+	}
 
 	s := renderString(`{{- if .noreturn -}}
 	return nil

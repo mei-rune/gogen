@@ -857,7 +857,8 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.POST("", func(ctx *loong.Context) error {
 		err := svc.CreateWithNoReturn(ctx.StdContext, ctx.Request(), ctx.Response().Writer)
@@ -880,7 +881,8 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.GET("/query10", func(ctx *loong.Context) error {
 		var itemID sql.NullString
@@ -892,7 +894,8 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.GET("/query11", func(ctx *loong.Context) error {
 		var itemID sql.NullBool
@@ -908,7 +911,8 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.GET("/query12", func(ctx *loong.Context) error {
 		var Name = ctx.QueryParam("Name")
@@ -916,7 +920,8 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.POST("/query12", func(ctx *loong.Context) error {
 		var bindArgs struct {
@@ -1754,7 +1759,8 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.POST("/impl", func(ctx *loong.Context) error {
 		err := svc.CreateWithNoReturn(ctx.StdContext, ctx.Request(), ctx.Response().Writer)
@@ -1777,7 +1783,8 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.GET("/impl/query10", func(ctx *loong.Context) error {
 		var itemID sql.NullString
@@ -1789,7 +1796,8 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.GET("/impl/query11", func(ctx *loong.Context) error {
 		var itemID sql.NullBool
@@ -1805,7 +1813,8 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.GET("/impl/query12", func(ctx *loong.Context) error {
 		var Name = ctx.QueryParam("Name")
@@ -1813,7 +1822,8 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
-		return ctx.ReturnQueryResult(result)
+		return ctx.String(http.StatusOK, result)
+
 	})
 	mux.POST("/impl/query12", func(ctx *loong.Context) error {
 		var bindArgs struct {

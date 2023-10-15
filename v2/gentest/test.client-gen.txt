@@ -117,7 +117,7 @@ func (client TestClient) TestByStrKey1(ctx context.Context, key StrKey) error {
 
 func (client TestClient) TestByStrKey2(ctx context.Context, key StrKey) error {
 	request := resty.NewRequest(client.Proxy, "/test_by_strkey")
-	if key != 0 {
+	if key != "" {
 		request = request.SetParam("key", fmt.Sprint(key))
 	}
 
@@ -785,7 +785,7 @@ func (client StringSvcImplClient) TestByStrKey1(ctx context.Context, key StrKey)
 
 func (client StringSvcImplClient) TestByStrKey2(ctx context.Context, key StrKey) error {
 	request := resty.NewRequest(client.Proxy, "/impl/test_by_strkey")
-	if key != 0 {
+	if key != "" {
 		request = request.SetParam("key", fmt.Sprint(key))
 	}
 

@@ -52,7 +52,7 @@ type Plugin interface {
 
 	ReadBodyFunc(argName string) string
 	RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error
-	RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error
+	RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error
 	RenderReturnError(out io.Writer, method *Method, errCode, err string) error
 	RenderReturnEmpty(out io.Writer, method *Method) error
 

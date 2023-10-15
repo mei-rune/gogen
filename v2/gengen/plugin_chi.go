@@ -102,7 +102,7 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	return err
 }
 
-func (chi *chiPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error {
+func (chi *chiPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
 		"data":     data,

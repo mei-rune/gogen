@@ -121,7 +121,7 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	_, err = io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx iris.Context) {")
 	return err
 }
-func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error {
+func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
 		"data":     data,

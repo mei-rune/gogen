@@ -121,7 +121,7 @@ func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 	return e
 }
 
-func (gin *ginPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error {
+func (gin *ginPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
 		"data":     data,

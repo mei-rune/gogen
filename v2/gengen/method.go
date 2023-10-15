@@ -1837,7 +1837,7 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 			io.WriteString(ctx.out, ",")
 		}
 		io.WriteString(ctx.out, "\r\n\t}\r\n")
-		ctx.plugin.RenderReturnOK(ctx.out, method, "", "result")
+		ctx.plugin.RenderReturnOK(ctx.out, method, "", "map", "result")
 	} else if len(method.Method.Results.List) == 1 {
 
 		arg := method.Method.Results.List[0]
@@ -1847,7 +1847,7 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 			io.WriteString(ctx.out, "\r\n}")
 			io.WriteString(ctx.out, "\r\n")
 			if !noreturn {
-				ctx.plugin.RenderReturnOK(ctx.out, method, "", "\"OK\"")
+				ctx.plugin.RenderReturnOK(ctx.out, method, "", "string", "\"OK\"")
 			} else {
 				ctx.plugin.RenderReturnEmpty(ctx.out, method)
 			}
@@ -1856,7 +1856,7 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 			//  	{{$.mux.PlainTextFunc $method "result"}}
 			// } else {
 			io.WriteString(ctx.out, "\r\n")
-			ctx.plugin.RenderReturnOK(ctx.out, method, "", "result")
+			ctx.plugin.RenderReturnOK(ctx.out, method, "", arg.Type().ToLiteral(), "result")
 			// }
 		}
 
@@ -1868,7 +1868,9 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 		// {{- if $methodParams.IsPlainText }}
 		//   {{$.mux.PlainTextFunc $method "result"}}
 		// {{- else}}
-		ctx.plugin.RenderReturnOK(ctx.out, method, "", "result")
+
+		arg := method.Method.Results.List[0]
+		ctx.plugin.RenderReturnOK(ctx.out, method, "", arg.Type().ToLiteral(), "result")
 		// {{- end}}
 	}
 

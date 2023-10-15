@@ -120,7 +120,7 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	return e
 }
 
-func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, data string) error {
+func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
 		"data":     data,
