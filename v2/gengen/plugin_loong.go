@@ -132,7 +132,7 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 			return ctx.Blob({{.withCode}}, "text/plain", {{.data}})
 			{{- else -}}
 			return ctx.Blob({{.statusCode}}, "text/plain", {{.data}})
-			{{end}}`, args)
+			{{- end}}`, args)
 			_, e := io.WriteString(out, s)
 			return e
 		}
@@ -144,7 +144,7 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 		return ctx.String({{.withCode}}, {{.data}})
 		{{- else -}}
 		return ctx.String({{.statusCode}}, {{.data}})
-		{{end}}`, args)
+		{{- end}}`, args)
 		_, e := io.WriteString(out, s)
 		return e
 	}
@@ -163,7 +163,7 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	return ctx.ReturnQueryResult({{.data}})
 	{{- else -}}
 	return ctx.ReturnResult({{.statusCode}}, {{.data}})
-	{{end}}`, args)
+	{{- end}}`, args)
 	_, e := io.WriteString(out, s)
 	return e
 }
