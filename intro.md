@@ -76,7 +76,7 @@ type MoDomains interface {
 
 生成 github.com/gin-gonic/gin （由-plugin=gin参数指定） 服务端代码，注意你也可以指定生成 chi, echo, gin 等等
 
-gogen server -plugin=chi file.go
+gogen server -plugin=gin file.go
 
 它会生成下面代码
 
