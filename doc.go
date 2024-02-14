@@ -1,6 +1,6 @@
 package main
 
 import (
-	"github.com/axw/gocov/gocov"
+	"github.com/axw/gocov"
 	"github.com/mattn/goveralls"
 )
