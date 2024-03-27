@@ -284,6 +284,19 @@ type CaseSvc interface {
 	// @Router /case14_3/by_name [get]
 	TestCase14_3(id *int) error
 
+
+	// @Summary test by bool ID
+	// @Description test by bool ID
+	// @ID TestCase15_1
+	// @Accept  json
+	// @Produce  json
+	// @Param   a      query   bool     false  "Some ID"
+	// @Success 200 {string} string	"ok"
+	// @Failure 400 {object} string "We need ID!!"
+	// @Failure 404 {object} string "Can not find ID"
+	// @Router /case14_3/by_name [get]
+	TestCase15_1(a bool) error
+
 	// @Summary TestCaseOtherValuesForMap
 	// @Description test by int64 ID
 	// @ID TestCaseOtherValuesForMap

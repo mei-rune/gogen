@@ -305,6 +305,21 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc) {
 		}
 		return ctx.JSON(http.StatusOK, "OK")
 	})
+	mux.GET("/case14_3/by_name", func(ctx echo.Context) error {
+		var a bool
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase15_1", "a"))
+			}
+			a = aValue
+		}
+		err := svc.TestCase15_1(a)
+		if err != nil {
+			return ctx.JSON(httpCodeWith(err), err)
+		}
+		return ctx.JSON(http.StatusOK, "OK")
+	})
 	mux.GET("/case_map", func(ctx echo.Context) error {
 		var otherValues = map[string]string{}
 		for key, values := range ctx.QueryParams() {

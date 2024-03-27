@@ -398,6 +398,26 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		ctx.JSON("OK")
 		return
 	})
+	mux.Get("/case14_3/by_name", func(ctx iris.Context) {
+		var a bool
+		if s := ctx.URLParam("a"); s != "" {
+			aValue, err := strconv.ParseBool(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "CaseSvc.TestCase15_1", "a"))
+				return
+			}
+			a = aValue
+		}
+		err := svc.TestCase15_1(a)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
 	mux.Get("/case_map", func(ctx iris.Context) {
 		var otherValues = map[string]string{}
 		for key, values := range ctx.Request().URL.Query() {

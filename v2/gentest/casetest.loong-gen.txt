@@ -305,6 +305,21 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 		}
 		return ctx.ReturnQueryResult("OK")
 	})
+	mux.GET("/case14_3/by_name", func(ctx *loong.Context) error {
+		var a bool
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("a", s, err), http.StatusBadRequest)
+			}
+			a = aValue
+		}
+		err := svc.TestCase15_1(a)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
 	mux.GET("/case_map", func(ctx *loong.Context) error {
 		var otherValues = map[string]string{}
 		for key, values := range ctx.QueryParams() {

@@ -214,6 +214,16 @@ func (client CaseSvcClient) TestCase14_3(ctx context.Context, id *int) error {
 	return request.GET(ctx)
 }
 
+func (client CaseSvcClient) TestCase15_1(ctx context.Context, a bool) error {
+	request := resty.NewRequest(client.Proxy, "/case14_3/by_name")
+	if a {
+		request = request.SetParam("a", BoolToString(a))
+	}
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.GET(ctx)
+}
+
 func (client CaseSvcClient) TestCaseOtherValuesForMap(ctx context.Context, otherValues map[string]string) error {
 	request := resty.NewRequest(client.Proxy, "/case_map").
 		SetParamValuesWithPrefix("otherValues.", otherValues)

@@ -197,7 +197,7 @@ func TestGenerate(t *testing.T) {
 					if result.Delta == difflib.Common {
 						continue
 					}
-					t.Error(result)
+						t.Error(result)
 				}
 			}
 		}
@@ -301,6 +301,7 @@ func TestGenerate(t *testing.T) {
 					if result.Delta == difflib.Common {
 						continue
 					}
+					t.Error(result.Delta)
 					t.Error(result)
 				}
 			}

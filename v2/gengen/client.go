@@ -905,6 +905,8 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 		} else if !option.Required {
 			if param.Type().ToLiteral() == "time.Time" {
 				io.WriteString(out, "\r\nif !"+param.Name+".IsZero() {")
+			} else if param.Type().ToLiteral() == "bool" {
+				io.WriteString(out, "\r\nif "+param.Name+" {")
 			} else {
 				io.WriteString(out, "\r\nif "+param.Name+" != ")
 				io.WriteString(out, zeroValueLiteral(param.Type()))
