@@ -3,6 +3,7 @@ module github.com/runner-mei/gogen
 require (
 	emperror.dev/emperror v0.33.0 // indirect
 	emperror.dev/errors v0.8.1 // indirect
+	gitee.com/runner.mei/dm v0.0.0-20220207044607-a9ba0dc20bf7 // indirect
 	github.com/aryann/difflib v0.0.0-20170710044230-e206f873d14a
 	github.com/astaxie/beego v1.12.3
 	github.com/axw/gocov v1.1.0
@@ -17,7 +18,7 @@ require (
 	github.com/mattn/goveralls v0.0.12
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/runner-mei/GoBatis v1.5.11-0.20240323160609-04e46ff83945
+	github.com/runner-mei/GoBatis v1.5.11
 	github.com/runner-mei/log v1.0.10
 	github.com/runner-mei/loong v1.1.22
 	github.com/swaggo/echo-swagger v1.4.0

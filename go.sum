@@ -42,6 +42,7 @@ emperror.dev/emperror v0.33.0/go.mod h1:CeOIKPcppTE8wn+3xBNcdzdHMMIP77sLOHS0Ik56
 emperror.dev/errors v0.8.0/go.mod h1:YcRvLPh626Ubn2xqtoprejnA5nFha+TJ+2vew48kWuE=
 emperror.dev/errors v0.8.1 h1:UavXZ5cSX/4u9iyvH6aDcuGkVjeexUGJ7Ij7G4VfQT0=
 emperror.dev/errors v0.8.1/go.mod h1:YcRvLPh626Ubn2xqtoprejnA5nFha+TJ+2vew48kWuE=
+gitee.com/chunanyong/dm v1.8.15-0.20240130091939-38fab3047677/go.mod h1:EPRJnuPFgbyOFgJ0TRYCTGzhq+ZT4wdyaj/GW/LLcNg=
 gitee.com/opengauss/openGauss-connector-go-pq v1.0.2/go.mod h1:iGO30dANt2l6pO09C/5i0UgWanu1bDMeFdG0fldAE5g=
 gitee.com/runner.mei/dm v0.0.0-20220207044607-a9ba0dc20bf7/go.mod h1:QGFsdjGTWX7H+RXoGcXvnQdghfGcjHVGm+iWFCdwC7w=
 gitee.com/runner.mei/gokb v0.0.0-20211216112635-582e81b3d7ad/go.mod h1:JFhswQCXRyuO3Cem86EcC1I6qV1NgOxeJ+HRCmz1Ozo=
@@ -576,6 +577,8 @@ github.com/runner-mei/GoBatis v1.5.7 h1:iht9RAE4Zpztdg3MhQFeY2Gl+bCom6es3zydGy18
 github.com/runner-mei/GoBatis v1.5.7/go.mod h1:2micuHDAxYX4XeGI77Rig/xHRaR2EU2f3QdvpkwyojA=
 github.com/runner-mei/GoBatis v1.5.11-0.20240323160609-04e46ff83945 h1:oopUC/Cdx7bYpbfWAUBL+BEalVkA/A0bIFJwkbq20a4=
 github.com/runner-mei/GoBatis v1.5.11-0.20240323160609-04e46ff83945/go.mod h1:2micuHDAxYX4XeGI77Rig/xHRaR2EU2f3QdvpkwyojA=
+github.com/runner-mei/GoBatis v1.5.11 h1:duNO9c3UWkk8nT9zt9yobWcasHSeMoYO8dK1udFDNrc=
+github.com/runner-mei/GoBatis v1.5.11/go.mod h1:fMct4SsoJkIrDvXZs3+C7Y7WM9UvRmIoYbfB3514FNc=
 github.com/runner-mei/errors v0.0.0-20191030090348-38af1672ff66/go.mod h1:A9g5ObsQyz8QUKR+IbHEmUlfkbrRMYLWPrtGJHzAWKs=
 github.com/runner-mei/errors v0.0.0-20220303013420-f8ef04b1558b h1:EJbm8BcMWBW4rodwYWwuhFmQi2mRJt4NdS7InxiHQ2g=
 github.com/runner-mei/errors v0.0.0-20220303013420-f8ef04b1558b/go.mod h1:A9g5ObsQyz8QUKR+IbHEmUlfkbrRMYLWPrtGJHzAWKs=
