@@ -26,7 +26,8 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.ext, "ext", "", "文件后缀名")
 	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 
-	fs.StringVar(&cmd.plugin, "plugin", "", "指定生成框架，可取值: chi, gin, echo, iris, loong")
+	defaultPlugin := os.Getenv("GOGEN_PLUGIN")
+	fs.StringVar(&cmd.plugin, "plugin", defaultPlugin, "指定生成框架，可取值: chi, gin, echo, iris, loong")
 	fs.StringVar(&cmd.cfg.HttpCodeWith, "httpCodeWith", "httpCodeWith", "使用 httpCodeWith 函数")
 	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
 
