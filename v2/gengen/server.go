@@ -28,7 +28,12 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 
 	defaultPlugin := os.Getenv("GOGEN_PLUGIN")
 	fs.StringVar(&cmd.plugin, "plugin", defaultPlugin, "指定生成框架，可取值: chi, gin, echo, iris, loong")
-	fs.StringVar(&cmd.cfg.HttpCodeWith, "httpCodeWith", "httpCodeWith", "使用 httpCodeWith 函数")
+	
+	defaultHttpCodeWith := os.Getenv("GOGEN_HTTPCODEWITH")
+	if defaultHttpCodeWith == "" {
+		defaultHttpCodeWith = "httpCodeWith"
+	}
+	fs.StringVar(&cmd.cfg.HttpCodeWith, "httpCodeWith", defaultHttpCodeWith, "使用 httpCodeWith 函数")
 	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
 
 	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")
