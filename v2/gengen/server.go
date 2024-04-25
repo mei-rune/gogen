@@ -34,8 +34,12 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 		defaultHttpCodeWith = "httpCodeWith"
 	}
 	fs.StringVar(&cmd.cfg.HttpCodeWith, "httpCodeWith", defaultHttpCodeWith, "使用 httpCodeWith 函数")
+	defaultBadArgument := os.Getenv("GOGEN_BADARGUMENT")
+	if defaultBadArgument == "" {
+		defaultBadArgument = "NewBadArgument"
+	}
+	fs.StringVar(&cmd.cfg.NewBadArgument, "badArgument", defaultBadArgument, "使用 NewBadArgument 函数")
 	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
-
 	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")
 	return fs
 }

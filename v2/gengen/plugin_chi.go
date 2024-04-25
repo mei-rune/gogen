@@ -75,11 +75,11 @@ func (chi *chiPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 }
 
 func (chi *chiPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return getBodyErrorText(method, bodyName, err)
+	return getBodyErrorText(chi.cfg.NewBadArgument, method, bodyName, err)
 }
 
 func (chi *chiPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
-	return getCastErrorText(method, accessFields, err, value)
+	return getCastErrorText(chi.cfg.NewBadArgument, method, accessFields, err, value)
 }
 
 func (chi *chiPlugin) ReadBodyFunc(argName string) string {

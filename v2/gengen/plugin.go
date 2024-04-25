@@ -12,6 +12,7 @@ import (
 
 type Config struct {
 	HttpCodeWith string
+	NewBadArgument string
 }
 
 type Function struct {
@@ -60,15 +61,15 @@ type Plugin interface {
 	GetCastErrorText(method *Method, accessFields string, err, value string) string
 }
 
-func getBodyErrorText(method *Method, bodyName, err string) string {
-	txt := "NewBadArgument(" + err + ", \"" + method.FullName() + "\", \"" + bodyName + "\")"
+func getBodyErrorText(badArg string, method *Method, bodyName, err string) string {
+	txt := badArg + "(" + err + ", \"" + method.FullName() + "\", \"" + bodyName + "\")"
 	// return "fmt.Errorf(\"argument %q is invalid - %q\", \""+bodyName+"\", \"body\", "+ err + ")"
 	return txt
 }
 
-func getCastErrorText(method *Method, accessFields string, err, value string) string {
+func getCastErrorText(badArg string, method *Method, accessFields string, err, value string) string {
 	// txt := "fmt.Errorf(\"argument %q is invalid - %q\", \""+param.WebParamName()+"\", "+value+", "+err+")"
-	return "NewBadArgument(" + err + ", \"" + method.FullName() + "\", \"" + accessFields + "\")"
+	return badArg + "(" + err + ", \"" + method.FullName() + "\", \"" + accessFields + "\")"
 }
 
 func renderCastError(ctx *GenContext, method *Method, accessFields, err, value string) error {

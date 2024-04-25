@@ -102,11 +102,11 @@ func (iris *irisPlugin) ReadBodyFunc(argName string) string {
 }
 
 func (iris *irisPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return getBodyErrorText(method, bodyName, err)
+	return getBodyErrorText(iris.cfg.NewBadArgument, method, bodyName, err)
 }
 
 func (iris *irisPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
-	return getCastErrorText(method, accessFields, err, value)
+	return getCastErrorText(iris.cfg.NewBadArgument, method, accessFields, err, value)
 }
 
 func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {

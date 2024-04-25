@@ -75,11 +75,11 @@ func (echo *echoPlugin) ReadBodyFunc(argName string) string {
 }
 
 func (echo *echoPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return getBodyErrorText(method, bodyName, err)
+	return getBodyErrorText(echo.cfg.NewBadArgument, method, bodyName, err)
 }
 
 func (echo *echoPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
-	return getCastErrorText(method, accessFields, err, value)
+	return getCastErrorText(echo.cfg.NewBadArgument, method, accessFields, err, value)
 }
 
 func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {

@@ -75,11 +75,11 @@ func (gin *ginPlugin) ReadBodyFunc(argName string) string {
 }
 
 func (gin *ginPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return getBodyErrorText(method, bodyName, err)
+	return getBodyErrorText(gin.cfg.NewBadArgument, method, bodyName, err)
 }
 
 func (gin *ginPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
-	return getCastErrorText(method, accessFields, err, value)
+	return getCastErrorText(gin.cfg.NewBadArgument, method, accessFields, err, value)
 }
 
 func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
