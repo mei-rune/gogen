@@ -159,6 +159,12 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		}
 		io.WriteString(out, "\""+pa+"\"")
 	}
+	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
+		for _, pa := range strings.Split(s, ",") {
+			io.WriteString(out, "\r\n\t")
+			io.WriteString(out, "\""+pa+"\"")
+		}
+	}
 	io.WriteString(out, "\r\n)\r\n")
 
 	if cmd.outputHttpCodeWith {
