@@ -136,7 +136,11 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		}
 	}
 	if !found {
-		io.WriteString(out, "\r\n\t\"errors\"")
+		if s := os.Getenv("GOGEN_ERRORS"); s != "" {
+			io.WriteString(out, "\r\n\t\""+s+"\"")
+		} else {
+			io.WriteString(out, "\r\n\t\"errors\"")
+		}
 	}
 	for _, pa := range file.Imports {
 		io.WriteString(out, "\r\n\t")
