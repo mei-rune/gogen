@@ -359,6 +359,25 @@ type CaseSvc interface {
 	// @Router /test_type2 [get]
 	TestType2(opts Options) error
 
+
+	// @Summary TestResult1
+	// @ID TestResult1
+	// @Param   opts      query   Options   true  "opts"
+	// @Accept  json
+	// @Produce  json
+  // @success 200 {object} JSONResult{data=string} "ok"
+	// @Router /TestResult1 [get]
+	TestResult1() (string, error)
+
+	// @Summary TestResult2
+	// @ID TestResult2
+	// @Param   opts      query   Options   true  "opts"
+	// @Accept  json
+	// @Produce  json
+  // @success 200 {object} JSONResult{count=int,data=string} "ok"
+	// @Router /TestResult2 [get]
+	TestResult2() (int, string, error)
+
 	// Misc() string
 }
 
@@ -369,4 +388,11 @@ type OptionalPrefixSvc interface {
 	// @Produce  json
 	// @Router /optpre/get [get]
 	Get() error
+}
+
+type JSONResult struct {
+    Code    int          `json:"code" `
+    Message string       `json:"message"`
+    Count   int          `json:"count"` 
+    Data    interface{}  `json:"data"`
 }

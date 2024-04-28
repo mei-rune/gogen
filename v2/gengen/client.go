@@ -132,7 +132,11 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 		}
 	}
 	if !found {
-		io.WriteString(out, "\r\n\t\"errors\"")
+		if s := os.Getenv("GOGEN_ERRORS"); s != "" {
+			io.WriteString(out, "\r\n\t\""+s+"\"")
+		} else {
+			io.WriteString(out, "\r\n\t\"errors\"")
+		}
 	}
 	for _, pa := range file.Imports {
 		io.WriteString(out, "\r\n\t")
@@ -148,6 +152,18 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 	io.WriteString(out, `"github.com/runner-mei/loong"`)
 	io.WriteString(out, "\r\n\t")
 	io.WriteString(out, `"github.com/runner-mei/resty"`)
+
+
+	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
+		for _, pa := range strings.Split(s, ",") {
+			io.WriteString(out, "\r\n\t")
+			if strings.HasSuffix(pa, "\"") {
+				io.WriteString(out, pa)
+			} else {
+				io.WriteString(out, "\""+pa+"\"")
+			}
+		}
+	}
 
 	// for pa, alias := range cfg.Imports() {
 	// 	io.WriteString(out, "\r\n\t")
