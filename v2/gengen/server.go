@@ -166,6 +166,7 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
 		for _, pa := range strings.Split(s, ",") {
 			io.WriteString(out, "\r\n\t")
+			pa = strings.TrimSpace(pa)
 			if strings.HasSuffix(pa, "\"") {
 				io.WriteString(out, pa)
 			} else {
