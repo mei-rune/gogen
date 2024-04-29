@@ -100,17 +100,18 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	}
 
 	renderFunc := "JSON"
-	errText := ""
 	if len(method.Operation.Produces) == 1 &&
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "String"
-		errText = ".Error()"
+		err = err + ".Error()"
+	} else if echo.cfg.ErrorToJSONError != "" {
+		err = echo.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 
 	s := renderString(`{{- if .hasRealErrorCode -}}
-    return ctx.`+renderFunc+`({{.errCode}}, {{.err}}`+errText+`)
+    return ctx.`+renderFunc+`({{.errCode}}, {{.err}})
   {{- else -}}
-    return ctx.`+renderFunc+`(http.StatusInternalServerError, {{.err}}`+errText+`)
+    return ctx.`+renderFunc+`(http.StatusInternalServerError, {{.err}})
   {{- end}}`, map[string]interface{}{
 		"err":              err,
 		"hasRealErrorCode": errCode != "",

@@ -509,6 +509,28 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		ctx.JSON(http.StatusOK, "OK")
 		return
 	})
+	mux.GET("/TestResult1", func(ctx *gin.Context) {
+		result, err := svc.TestResult1()
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
+	mux.GET("/TestResult2", func(ctx *gin.Context) {
+		code, data, err := svc.TestResult2()
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		result := map[string]interface{}{
+			"code": code,
+			"data": data,
+		}
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
 }
 
 func InitOptionalPrefixSvc(mux gin.IRouter, enabledPrefix bool, svc OptionalPrefixSvc) {
@@ -525,3 +547,5 @@ func InitOptionalPrefixSvc(mux gin.IRouter, enabledPrefix bool, svc OptionalPref
 		return
 	})
 }
+
+// JSONResult is skipped

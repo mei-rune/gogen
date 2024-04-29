@@ -155,11 +155,12 @@ func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	}
 
 	renderFunc := "JSON"
-	errText := ""
 	if len(method.Operation.Produces) == 1 &&
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "Text"
-		errText = ".Error()"
+		err = err + ".Error()"
+	} else if iris.cfg.ErrorToJSONError != "" {
+		err = iris.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 
 	s := renderString(`{{- if .hasRealErrorCode -}}
@@ -167,7 +168,7 @@ func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode
   {{else -}}
     ctx.StatusCode(http.StatusInternalServerError)
   {{end -}}
-  ctx.`+renderFunc+`({{.err}}`+errText+`)
+  ctx.`+renderFunc+`({{.err}})
   return`, map[string]interface{}{
 		"err":              err,
 		"hasRealErrorCode": errCode != "",

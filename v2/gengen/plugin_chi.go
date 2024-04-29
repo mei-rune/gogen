@@ -136,11 +136,12 @@ func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 	}
 
 	renderFunc := "JSON"
-	errText := ""
 	if len(method.Operation.Produces) == 1 &&
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "PlainText"
-		errText = ".Error()"
+		err = err + ".Error()"
+	} else if chi.cfg.ErrorToJSONError != "" {
+		err = chi.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 
 	s := renderString(`{{- if .hasRealErrorCode -}}
@@ -148,7 +149,7 @@ func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
   {{else -}}
     render.Status(r, http.StatusInternalServerError)
   {{end -}}
-  render.`+renderFunc+`(w, r, {{.err}}`+errText+`)
+  render.`+renderFunc+`(w, r, {{.err}})
   return`, map[string]interface{}{
 		"err":              err,
 		"hasRealErrorCode": errCode != "",

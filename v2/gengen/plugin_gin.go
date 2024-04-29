@@ -100,17 +100,18 @@ func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 	}
 
 	renderFunc := "JSON"
-	errText := ""
 	if len(method.Operation.Produces) == 1 &&
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "String"
-		errText = ".Error()"
+		err = err + ".Error()"
+	} else if gin.cfg.ErrorToJSONError != "" {
+		err = gin.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 
 	s := renderString(`{{- if .hasRealErrorCode -}}
-    ctx.`+renderFunc+`({{.errCode}}, {{.err}}`+errText+`)
+    ctx.`+renderFunc+`({{.errCode}}, {{.err}})
   {{- else -}}
-    ctx.`+renderFunc+`(http.StatusInternalServerError, {{.err}}`+errText+`)
+    ctx.`+renderFunc+`(http.StatusInternalServerError, {{.err}})
   {{- end}}
     return`, map[string]interface{}{
 		"err":              err,

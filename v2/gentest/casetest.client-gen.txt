@@ -275,6 +275,35 @@ func (client CaseSvcClient) TestType2(ctx context.Context, opts Options) error {
 	return request.GET(ctx)
 }
 
+func (client CaseSvcClient) TestResult1(ctx context.Context) (string, error) {
+	var result string
+
+	request := resty.NewRequest(client.Proxy, "/TestResult1").
+		Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+	return result, err
+}
+
+func (client CaseSvcClient) TestResult2(ctx context.Context) (int, string, error) {
+	var result struct {
+		Ecode int    `json:"code"`
+		Edata string `json:"data"`
+	}
+
+	request := resty.NewRequest(client.Proxy, "/TestResult2").
+		Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+
+	if err != nil {
+		return 0, "", err
+	}
+	return result.Ecode, result.Edata, nil
+}
+
 type OptionalPrefixSvcClient struct {
 	Proxy         *resty.Proxy
 	NoRoutePrefix bool
@@ -297,3 +326,5 @@ func (client OptionalPrefixSvcClient) Get(ctx context.Context) error {
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
 }
+
+// JSONResultis skipped

@@ -362,21 +362,19 @@ type CaseSvc interface {
 
 	// @Summary TestResult1
 	// @ID TestResult1
-	// @Param   opts      query   Options   true  "opts"
 	// @Accept  json
 	// @Produce  json
-  // @success 200 {object} JSONResult{data=string} "ok"
+    // @success 200 {object} JSONResult{data=string} "ok"
 	// @Router /TestResult1 [get]
 	TestResult1() (string, error)
 
 	// @Summary TestResult2
 	// @ID TestResult2
-	// @Param   opts      query   Options   true  "opts"
 	// @Accept  json
 	// @Produce  json
-  // @success 200 {object} JSONResult{count=int,data=string} "ok"
+    // @success 200 {object} JSONResult{count=int,data=string} "ok"
 	// @Router /TestResult2 [get]
-	TestResult2() (int, string, error)
+	TestResult2() (code int, data string, err error)
 
 	// Misc() string
 }

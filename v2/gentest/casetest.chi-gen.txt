@@ -582,6 +582,30 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 		render.JSON(w, r, "OK")
 		return
 	})
+	mux.Get("/TestResult1", func(w http.ResponseWriter, r *http.Request) {
+		result, err := svc.TestResult1()
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/TestResult2", func(w http.ResponseWriter, r *http.Request) {
+		code, data, err := svc.TestResult2()
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		result := map[string]interface{}{
+			"code": code,
+			"data": data,
+		}
+		render.JSON(w, r, result)
+		return
+	})
 }
 
 func InitOptionalPrefixSvc(mux chi.Router, enabledPrefix bool, svc OptionalPrefixSvc) {
@@ -603,3 +627,5 @@ func InitOptionalPrefixSvc(mux chi.Router, enabledPrefix bool, svc OptionalPrefi
 		initFunc(mux)
 	}
 }
+
+// JSONResult is skipped

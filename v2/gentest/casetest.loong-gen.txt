@@ -427,6 +427,24 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 		}
 		return ctx.ReturnQueryResult("OK")
 	})
+	mux.GET("/TestResult1", func(ctx *loong.Context) error {
+		result, err := svc.TestResult1()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/TestResult2", func(ctx *loong.Context) error {
+		code, data, err := svc.TestResult2()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"code": code,
+			"data": data,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
 }
 
 func InitOptionalPrefixSvc(mux loong.Party, enabledPrefix bool, svc OptionalPrefixSvc) {
@@ -441,3 +459,5 @@ func InitOptionalPrefixSvc(mux loong.Party, enabledPrefix bool, svc OptionalPref
 		return ctx.ReturnQueryResult("OK")
 	})
 }
+
+// JSONResult is skipped
