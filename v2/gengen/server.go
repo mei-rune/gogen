@@ -18,6 +18,8 @@ type ServerGenerator struct {
 	buildTag string
 
 	cfg                Config
+
+	enableResultWrap bool
 	convertNamespace   string
 	outputHttpCodeWith bool
 }
@@ -45,7 +47,7 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	// }
 	fs.StringVar(&cmd.cfg.ErrorToJSONError, "toEncodedError", defaultToJSONError, "使用 ToEncodedError 函数")
 
-
+	fs.BoolVar(&cmd.enableResultWrap, "enableResultWrap", os.Getenv("GOGEN_ENABLE_RESULT_WRAP") == "true", "默认启用 @x-gogen-result-wrap")
 	fs.StringVar(&cmd.cfg.OkResult, "okResult", os.Getenv("GOGEN_OK_RESULT"), "使用 NewOkResult 函数")
 	fs.StringVar(&cmd.cfg.ErrorResult, "errorResult", os.Getenv("GOGEN_ERROR_RESULT"), "使用 NewErrorResult 函数")
 
@@ -288,6 +290,7 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			}
 
 			ctx := &GenContext{
+				enableResultWrap: cmd.enableResultWrap,
 				convertNS: cmd.convertNamespace,
 				plugin:    plugin,
 				out:       out,

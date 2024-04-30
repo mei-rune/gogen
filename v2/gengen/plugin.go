@@ -16,6 +16,7 @@ type Config struct {
 	ErrorToJSONError string
 	ErrorResult string
 	OkResult string
+	EnableResultWrap bool
 }
 
 type Function struct {

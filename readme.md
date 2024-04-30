@@ -342,6 +342,8 @@ gogen client domains.go
 
   NewOkResult 和  NewErrorResult 这两个参数可以在命令中用 okResult 和 errorResult 参数指定
 
+  或者你也可以用命令行参数 enableResultWrap 全局启用它
+
 ##### error 的处理
 
    一般正常生成的代码如下

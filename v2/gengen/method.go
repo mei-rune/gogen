@@ -13,6 +13,7 @@ import (
 )
 
 type GenContext struct {
+	enableResultWrap bool
 	convertNS string
 	plugin    Plugin
 	out       io.Writer
@@ -1778,7 +1779,10 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 }
 
 func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
-	hasResultWrap := HasResultWrap(method)
+	hasResultWrap := ctx.enableResultWrap
+	if !hasResultWrap {
+		hasResultWrap = HasResultWrap(method)
+	}
 
 	io.WriteString(ctx.out, "\r\n")
 	/// 输出返回参数
