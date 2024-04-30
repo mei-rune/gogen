@@ -74,13 +74,13 @@ func (gin *ginPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
 
-func (gin *ginPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return getBodyErrorText(gin.cfg.NewBadArgument, method, bodyName, err)
-}
+// func (gin *ginPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
+// 	return getBodyErrorText(gin.cfg.NewBadArgument, method, bodyName, err)
+// }
 
-func (gin *ginPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
-	return getCastErrorText(gin.cfg.NewBadArgument, method, accessFields, err, value)
-}
+// func (gin *ginPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+// 	return getCastErrorText(gin.cfg.NewBadArgument, method, accessFields, err, value)
+// }
 
 func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
@@ -94,7 +94,18 @@ func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	return err
 }
 
-func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
+func (gin *ginPlugin) RenderBodyError(out io.Writer, method *Method, bodyName, err string) error {
+	txt := getBodyErrorText(gin.cfg.NewBadArgument, method, bodyName, err)
+
+	return gin.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
+}
+
+func (gin *ginPlugin) RenderCastError(out io.Writer, method *Method, accessFields, value, err string) error {
+	txt := getCastErrorText(gin.cfg.NewBadArgument,  method, accessFields, err, value)
+	return gin.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
+}
+
+func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string, errwrapped ...bool) error {
 	if errCode == "" && gin.cfg.HttpCodeWith != "" {
 		errCode = gin.cfg.HttpCodeWith + "(" + err + ")"
 	}
@@ -104,7 +115,7 @@ func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "String"
 		err = err + ".Error()"
-	} else if gin.cfg.ErrorToJSONError != "" {
+	} else if len(errwrapped) > 0 && !errwrapped[0] && gin.cfg.ErrorToJSONError != "" {
 		err = gin.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 

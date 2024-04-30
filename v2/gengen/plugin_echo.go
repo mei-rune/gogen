@@ -74,13 +74,13 @@ func (echo *echoPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
 
-func (echo *echoPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return getBodyErrorText(echo.cfg.NewBadArgument, method, bodyName, err)
-}
+// func (echo *echoPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
+// 	return getBodyErrorText(echo.cfg.NewBadArgument, method, bodyName, err)
+// }
 
-func (echo *echoPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
-	return getCastErrorText(echo.cfg.NewBadArgument, method, accessFields, err, value)
-}
+// func (echo *echoPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+// 	return getCastErrorText(echo.cfg.NewBadArgument, method, accessFields, err, value)
+// }
 
 func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
@@ -94,7 +94,18 @@ func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	return err
 }
 
-func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
+func (echo *echoPlugin) RenderBodyError(out io.Writer, method *Method, bodyName, err string) error {
+	txt := getBodyErrorText(echo.cfg.NewBadArgument, method, bodyName, err)
+
+	return echo.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
+}
+
+func (echo *echoPlugin) RenderCastError(out io.Writer, method *Method, accessFields, value, err string) error {
+	txt := getCastErrorText(echo.cfg.NewBadArgument, method, accessFields, err, value)
+	return echo.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
+}
+
+func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string, errwrapped ...bool) error {
 	if errCode == "" && echo.cfg.HttpCodeWith != "" {
 		errCode = echo.cfg.HttpCodeWith + "(" + err + ")"
 	}
@@ -104,7 +115,7 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "String"
 		err = err + ".Error()"
-	} else if echo.cfg.ErrorToJSONError != "" {
+	} else if len(errwrapped) > 0 && !errwrapped[0] && echo.cfg.ErrorToJSONError != "" {
 		err = echo.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 

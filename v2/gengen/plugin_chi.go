@@ -74,13 +74,13 @@ func (chi *chiPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	return s, ok
 }
 
-func (chi *chiPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return getBodyErrorText(chi.cfg.NewBadArgument, method, bodyName, err)
-}
+// func (chi *chiPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
+// 	return getBodyErrorText(chi.cfg.NewBadArgument, method, bodyName, err)
+// }
 
-func (chi *chiPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
-	return getCastErrorText(chi.cfg.NewBadArgument, method, accessFields, err, value)
-}
+// func (chi *chiPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+// 	return getCastErrorText(chi.cfg.NewBadArgument, method, accessFields, err, value)
+// }
 
 func (chi *chiPlugin) ReadBodyFunc(argName string) string {
 	return "render.Decode(r, " + argName + ")"
@@ -130,7 +130,17 @@ func (chi *chiPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, 
 	return err
 }
 
-func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
+func (chi *chiPlugin) RenderBodyError(out io.Writer, method *Method, bodyName, err string) error {
+	txt := getBodyErrorText(chi.cfg.NewBadArgument, method, bodyName, err)
+	return chi.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
+}
+
+func (chi *chiPlugin) RenderCastError(out io.Writer, method *Method, accessFields, value, err string) error {
+	txt := getCastErrorText(chi.cfg.NewBadArgument, method, accessFields, err, value)
+	return chi.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
+}
+
+func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string, errwrapped ...bool) error {
 	if errCode == "" && chi.cfg.HttpCodeWith != "" {
 		errCode = chi.cfg.HttpCodeWith + "(" + err + ")"
 	}
@@ -140,7 +150,7 @@ func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "PlainText"
 		err = err + ".Error()"
-	} else if chi.cfg.ErrorToJSONError != "" {
+	} else if len(errwrapped) > 0 && !errwrapped[0] && chi.cfg.ErrorToJSONError != "" {
 		err = chi.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 

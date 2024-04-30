@@ -101,13 +101,13 @@ func (iris *irisPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.UnmarshalBody(" + argName + ", nil)"
 }
 
-func (iris *irisPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
-	return getBodyErrorText(iris.cfg.NewBadArgument, method, bodyName, err)
-}
+// func (iris *irisPlugin) GetBodyErrorText(method *Method, bodyName, err string) string {
+// 	return getBodyErrorText(iris.cfg.NewBadArgument, method, bodyName, err)
+// }
 
-func (iris *irisPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
-	return getCastErrorText(iris.cfg.NewBadArgument, method, accessFields, err, value)
-}
+// func (iris *irisPlugin) GetCastErrorText(method *Method, accessFields, err, value string) string {
+// 	return getCastErrorText(iris.cfg.NewBadArgument, method, accessFields, err, value)
+// }
 
 func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
@@ -149,7 +149,19 @@ func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	_, err := io.WriteString(out, s)
 	return err
 }
-func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
+
+func (iris *irisPlugin) RenderBodyError(out io.Writer, method *Method, bodyName, err string) error {
+	txt := getBodyErrorText(iris.cfg.NewBadArgument, method, bodyName, err)
+
+	return iris.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
+}
+
+func (iris *irisPlugin) RenderCastError(out io.Writer, method *Method, accessFields, value, err string) error {
+	txt := getCastErrorText(iris.cfg.NewBadArgument, method, accessFields, err, value)
+	return iris.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
+}
+
+func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string, errwrapped ...bool) error {
 	if errCode == "" && iris.cfg.HttpCodeWith != "" {
 		errCode = iris.cfg.HttpCodeWith + "(" + err + ")"
 	}
@@ -159,7 +171,7 @@ func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "Text"
 		err = err + ".Error()"
-	} else if iris.cfg.ErrorToJSONError != "" {
+	} else if len(errwrapped) > 0 && !errwrapped[0] && iris.cfg.ErrorToJSONError != "" {
 		err = iris.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 

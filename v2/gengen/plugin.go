@@ -55,11 +55,11 @@ type Plugin interface {
 	ReadBodyFunc(argName string) string
 	RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error
 	RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error
-	RenderReturnError(out io.Writer, method *Method, errCode, err string) error
 	RenderReturnEmpty(out io.Writer, method *Method) error
+	RenderReturnError(out io.Writer, method *Method, errCode, err string, errwrapped ...bool) error
 
-	GetBodyErrorText(method *Method, bodyName, err string) string
-	GetCastErrorText(method *Method, accessFields string, err, value string) string
+	RenderBodyError(out io.Writer, method *Method, accessFields, err string) error
+	RenderCastError(out io.Writer, method *Method, accessFields, err, value string) error
 }
 
 func getBodyErrorText(badArg string, method *Method, bodyName, err string) string {
@@ -73,10 +73,10 @@ func getCastErrorText(badArg string, method *Method, accessFields string, err, v
 	return badArg + "(" + err + ", \"" + method.FullName() + "\", \"" + accessFields + "\")"
 }
 
-func renderCastError(ctx *GenContext, method *Method, accessFields, err, value string) error {
-	txt := ctx.plugin.GetCastErrorText(method, accessFields, err, value)
-	return ctx.plugin.RenderReturnError(ctx.out, method, "http.StatusBadRequest", txt)
-}
+// func renderCastError(ctx *GenContext, method *Method, accessFields, err, value string) error {
+// 	txt := ctx.plugin.GetCastErrorText(method, accessFields, err, value)
+// 	return ctx.plugin.RenderCastError(ctx.out, method, "http.StatusBadRequest", txt)
+// }
 
 func renderText(txt *template.Template, out io.Writer, renderArgs interface{}) {
 	err := txt.Execute(out, renderArgs)

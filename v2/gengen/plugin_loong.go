@@ -94,7 +94,17 @@ func (lng *loongPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	return err
 }
 
-func (lng *loongPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string) error {
+func (lng *loongPlugin) RenderBodyError(out io.Writer, method *Method, bodyName, err string) error {
+	txt := lng.GetBodyErrorText(method, bodyName, err)
+	return lng.RenderReturnError(out, method, "http.StatusBadRequest", txt, false)
+}
+
+func (lng *loongPlugin) RenderCastError(out io.Writer, method *Method, accessFields, value, err string) error {
+	txt := lng.GetCastErrorText(method, accessFields, err, value)
+	return lng.RenderReturnError(out, method, "http.StatusBadRequest", txt, false)
+}
+
+func (lng *loongPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string, errwrapped ...bool) error {
 	s := renderString(`return ctx.ReturnError({{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})`,
 		map[string]interface{}{
 			"err":              err,

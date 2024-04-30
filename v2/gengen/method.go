@@ -789,13 +789,13 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 				io.WriteString(ctx.out, ", ok := ")
 				io.WriteString(ctx.out, valueReadText)
 				io.WriteString(ctx.out, "\r\n\tif !ok {\r\n")
-				renderCastError(ctx, method, webParamName, "nil", "\"\"")
+				ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "nil")
 				io.WriteString(ctx.out, "\r\n\t}")
 			} else {
 				io.WriteString(ctx.out, ", err := ")
 				io.WriteString(ctx.out, valueReadText)
 				io.WriteString(ctx.out, "\r\n\tif err != nil {\r\n")
-				renderCastError(ctx, method, webParamName, "err", "\"\"")
+				ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "err")
 				io.WriteString(ctx.out, "\r\n\t}")
 
 				method.SetErrorDeclared()
@@ -911,7 +911,7 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 
 		if retError {
 			io.WriteString(ctx.out, "\r\n\tif err != nil {\r\n")
-			renderCastError(ctx, method, webParamName, "err", valueReadText)
+			ctx.plugin.RenderCastError(ctx.out, method, webParamName, valueReadText, "err")
 			io.WriteString(ctx.out, "\r\n\t}")
 		}
 
@@ -960,7 +960,7 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		io.WriteString(ctx.out, ", err :="+fmt.Sprintf(convertFmt, tmpVarName))
 
 		io.WriteString(ctx.out, "\r\n\t\tif err != nil {\r\n")
-		renderCastError(ctx, method, webParamName, "err", tmpVarName)
+		ctx.plugin.RenderCastError(ctx.out, method, webParamName, tmpVarName, "err")
 		io.WriteString(ctx.out, "\r\n\t\t}")
 
 		if err := renderParentInit(ctx, param, fields, false); err != nil {
@@ -1041,12 +1041,12 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 				io.WriteString(ctx.out, "if"+fieldName(param, fields)+"Value, ok := ")
 				io.WriteString(ctx.out, valueReadText)
 				io.WriteString(ctx.out, "; !ok {\r\n")
-				renderCastError(ctx, method, webParamName, "nil", "\"\"")
+				ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "nil")
 			} else {
 				io.WriteString(ctx.out, "if"+fieldName(param, fields)+"Value, err := ")
 				io.WriteString(ctx.out, valueReadText)
 				io.WriteString(ctx.out, "; err != nil {\r\n")
-				renderCastError(ctx, method, webParamName, "err", "\"\"")
+				ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "err")
 			}
 			io.WriteString(ctx.out, "\r\n\t} else {")
 			io.WriteString(ctx.out, "\r\n"+goVarName+".Valid = true")
@@ -1117,7 +1117,7 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 		io.WriteString(ctx.out, " :=")
 		io.WriteString(ctx.out, fmt.Sprintf(convertFmt, "s"))
 			io.WriteString(ctx.out, "\r\n\t\tif err != nil {\r\n")
-			renderCastError(ctx, method, webParamName, "err", "s")
+			ctx.plugin.RenderCastError(ctx.out, method, webParamName, "s", "err")
 			io.WriteString(ctx.out, "\r\n\t\t}")
 
 		if err := renderParentInit(ctx, param, fields, false); err != nil {
@@ -1280,7 +1280,7 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 				io.WriteString(ctx.out, fmt.Sprintf(convertFmt, valueReadText))
 
 				io.WriteString(ctx.out, "\r\n\t if err != nil {\r\n")
-				renderCastError(ctx, method, webParamName, "err", valueReadText)
+				ctx.plugin.RenderCastError(ctx.out, method, webParamName, valueReadText, "err")
 				io.WriteString(ctx.out, "\r\n\t}")
 
 				method.goArgumentLiterals[param.index] = "&" + goVarName
@@ -1301,7 +1301,7 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 
 				io.WriteString(ctx.out, fmt.Sprintf(convertFmt, valueReadText))
 				io.WriteString(ctx.out, "; err != nil {\r\n")
-				renderCastError(ctx, method, webParamName, "err", valueReadText)
+				ctx.plugin.RenderCastError(ctx.out, method, webParamName, valueReadText, "err")
 				io.WriteString(ctx.out, "\r\n\t} else {")
 
 				if err := renderParentInit(ctx, param, fields, false); err != nil {
@@ -1353,7 +1353,7 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 			io.WriteString(ctx.out, "\r\n\t\t"+fieldName(param, fields)+"Value")
 			io.WriteString(ctx.out, ", err :="+fmt.Sprintf(convertFmt, "s"))
 			io.WriteString(ctx.out, "\r\n\t\tif err != nil {\r\n")
-			renderCastError(ctx, method, webParamName, "err", "s")
+			ctx.plugin.RenderCastError(ctx.out, method, webParamName, "s", "err")
 			io.WriteString(ctx.out, "\r\n\t\t}")
 
 			if err := renderParentInit(ctx, param, fields, false); err != nil {
@@ -1702,8 +1702,8 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 			s, _ := ctx.plugin.GetSpecificTypeArgument("io.Reader")
 
 			io.WriteString(ctx.out, "\r\n\tif _, err := io.Copy(&"+varName+", "+s+"); err != nil {\r\n\t\t")
-			txt := ctx.plugin.GetBodyErrorText(method, varName, "err")
-			ctx.plugin.RenderReturnError(ctx.out, method, "http.StatusBadRequest", txt)
+			// txt := ctx.plugin.GetBodyErrorText(method, varName, "err")
+			ctx.plugin.RenderBodyError(ctx.out, method, varName, "err")
 			io.WriteString(ctx.out, "\r\n}")
 
 			if isStringPtr {
@@ -1762,9 +1762,9 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 	io.WriteString(ctx.out, ctx.plugin.ReadBodyFunc("&"+varName))
 	io.WriteString(ctx.out, "; err != nil {\r\n")
 	// txt := `NewBadArgument(err, "bindArgs", "body")`
-	txt := ctx.plugin.GetBodyErrorText(method, varName, "err")
+	// txt := ctx.plugin.GetBodyErrorText(method, varName, "err")
 
-	ctx.plugin.RenderReturnError(ctx.out, method, "http.StatusBadRequest", txt)
+	ctx.plugin.RenderBodyError(ctx.out, method, varName, "err")
 	io.WriteString(ctx.out, "\r\n\t}")
 
 	return nil
