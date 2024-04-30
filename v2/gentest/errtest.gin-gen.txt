@@ -1,0 +1,69 @@
+//go:build gin
+// +build gin
+
+// Please don't edit this file!
+package main
+
+import (
+	"errors"
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+)
+
+func InitErrStringSvc(mux gin.IRouter, svc ErrStringSvc) {
+	mux.GET("/files1", func(ctx *gin.Context) {
+		list, total, err := svc.Get1()
+		if err != nil {
+			ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
+	mux.GET("/files2", func(ctx *gin.Context) {
+		list, total, err := svc.Get2()
+		if err != nil {
+			ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		ctx.JSON(http.StatusOK, result)
+		return
+	})
+	mux.GET("/files3", func(ctx *gin.Context) {
+		err := svc.Get3()
+		if err != nil {
+			ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+	mux.GET("/files4", func(ctx *gin.Context) {
+		var id int
+		if s := ctx.Query("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, errors.NewBadArgument(err, "ErrStringSvc.Get4", "id"))
+				return
+			}
+			id = idValue
+		}
+		err := svc.Get4(id)
+		if err != nil {
+			ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
+			return
+		}
+		ctx.JSON(http.StatusOK, "OK")
+		return
+	})
+}

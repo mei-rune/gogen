@@ -171,7 +171,7 @@ func (iris *irisPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "Text"
 		err = err + ".Error()"
-	} else if len(errwrapped) > 0 && !errwrapped[0] && iris.cfg.ErrorToJSONError != "" {
+	} else if (len(errwrapped) == 0 || !errwrapped[0]) && iris.cfg.ErrorToJSONError != "" {
 		err = iris.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 

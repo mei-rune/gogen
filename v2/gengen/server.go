@@ -40,9 +40,9 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	}
 	fs.StringVar(&cmd.cfg.NewBadArgument, "badArgument", defaultBadArgument, "使用 NewBadArgument 函数")
 	defaultToJSONError := os.Getenv("GOGEN_TOJSONERROR")
-	if defaultToJSONError == "" {
-		defaultToJSONError = "ToEncodedError"
-	}
+	// if defaultToJSONError == "" {
+	// 	defaultToJSONError = "ToEncodedError"
+	// }
 	fs.StringVar(&cmd.cfg.ErrorToJSONError, "toEncodedError", defaultToJSONError, "使用 ToEncodedError 函数")
 	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
 	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")

@@ -1,0 +1,76 @@
+//go:build chi
+// +build chi
+
+// Please don't edit this file!
+package main
+
+import (
+	"errors"
+	"net/http"
+	"strconv"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
+)
+
+func InitErrStringSvc(mux chi.Router, svc ErrStringSvc) {
+	mux.Get("/files1", func(w http.ResponseWriter, r *http.Request) {
+		list, total, err := svc.Get1()
+		if err != nil {
+			render.Status(r, errors.GetHttpCode(err))
+			render.JSON(w, r, errors.ToEncodedError(err))
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/files2", func(w http.ResponseWriter, r *http.Request) {
+		list, total, err := svc.Get2()
+		if err != nil {
+			render.Status(r, errors.GetHttpCode(err))
+			render.JSON(w, r, errors.ToEncodedError(err))
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		render.JSON(w, r, result)
+		return
+	})
+	mux.Get("/files3", func(w http.ResponseWriter, r *http.Request) {
+		err := svc.Get3()
+		if err != nil {
+			render.Status(r, errors.GetHttpCode(err))
+			render.JSON(w, r, errors.ToEncodedError(err))
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+	mux.Get("/files4", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var id int
+		if s := queryParams.Get("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, errors.NewBadArgument(err, "ErrStringSvc.Get4", "id"))
+				return
+			}
+			id = idValue
+		}
+		err := svc.Get4(id)
+		if err != nil {
+			render.Status(r, errors.GetHttpCode(err))
+			render.JSON(w, r, errors.ToEncodedError(err))
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
+}

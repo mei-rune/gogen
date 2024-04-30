@@ -1,0 +1,59 @@
+//go:build loong
+// +build loong
+
+// Please don't edit this file!
+package main
+
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/runner-mei/loong"
+)
+
+func InitErrStringSvc(mux loong.Party, svc ErrStringSvc) {
+	mux.GET("/files1", func(ctx *loong.Context) error {
+		list, total, err := svc.Get1()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/files2", func(ctx *loong.Context) error {
+		list, total, err := svc.Get2()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
+	mux.GET("/files3", func(ctx *loong.Context) error {
+		err := svc.Get3()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+	mux.GET("/files4", func(ctx *loong.Context) error {
+		var id int
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("id", s, err), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		err := svc.Get4(id)
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnQueryResult("OK")
+	})
+}

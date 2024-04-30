@@ -115,7 +115,7 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "String"
 		err = err + ".Error()"
-	} else if len(errwrapped) > 0 && !errwrapped[0] && echo.cfg.ErrorToJSONError != "" {
+	} else if (len(errwrapped) == 0 || !errwrapped[0]) && echo.cfg.ErrorToJSONError != "" {
 		err = echo.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 

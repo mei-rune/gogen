@@ -150,7 +150,7 @@ func (chi *chiPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "PlainText"
 		err = err + ".Error()"
-	} else if len(errwrapped) > 0 && !errwrapped[0] && chi.cfg.ErrorToJSONError != "" {
+	} else if (len(errwrapped) == 0 || !errwrapped[0]) && chi.cfg.ErrorToJSONError != "" {
 		err = chi.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 

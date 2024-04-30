@@ -115,7 +115,7 @@ func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 		method.Operation.Produces[0] == "text/plain" {
 		renderFunc = "String"
 		err = err + ".Error()"
-	} else if len(errwrapped) > 0 && !errwrapped[0] && gin.cfg.ErrorToJSONError != "" {
+	} else if (len(errwrapped) == 0 || !errwrapped[0]) && gin.cfg.ErrorToJSONError != "" {
 		err = gin.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 

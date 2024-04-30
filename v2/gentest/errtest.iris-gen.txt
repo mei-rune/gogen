@@ -1,0 +1,74 @@
+//go:build iris
+// +build iris
+
+// Please don't edit this file!
+package main
+
+import (
+	"errors"
+	"net/http"
+	"strconv"
+
+	iris "github.com/kataras/iris/v12"
+)
+
+func InitErrStringSvc(mux iris.Party, svc ErrStringSvc) {
+	mux.Get("/files1", func(ctx iris.Context) {
+		list, total, err := svc.Get1()
+		if err != nil {
+			ctx.StatusCode(errors.GetHttpCode(err))
+			ctx.JSON(errors.ToEncodedError(err))
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		ctx.JSON(result)
+		return
+	})
+	mux.Get("/files2", func(ctx iris.Context) {
+		list, total, err := svc.Get2()
+		if err != nil {
+			ctx.StatusCode(errors.GetHttpCode(err))
+			ctx.JSON(errors.ToEncodedError(err))
+			return
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		ctx.JSON(result)
+		return
+	})
+	mux.Get("/files3", func(ctx iris.Context) {
+		err := svc.Get3()
+		if err != nil {
+			ctx.StatusCode(errors.GetHttpCode(err))
+			ctx.JSON(errors.ToEncodedError(err))
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+	mux.Get("/files4", func(ctx iris.Context) {
+		var id int
+		if s := ctx.URLParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(errors.NewBadArgument(err, "ErrStringSvc.Get4", "id"))
+				return
+			}
+			id = idValue
+		}
+		err := svc.Get4(id)
+		if err != nil {
+			ctx.StatusCode(errors.GetHttpCode(err))
+			ctx.JSON(errors.ToEncodedError(err))
+			return
+		}
+		ctx.JSON("OK")
+		return
+	})
+}

@@ -44,26 +44,47 @@ func getGogen() string {
 func TestGenerate(t *testing.T) {
 	wd := getGogen()
 
+	type TestCase struct {
+		Name string
+		Args []string
+	}
+
+	testCases := []TestCase {
+		{
+			Name: "casetest",
+		},
+		{
+			Name: "test",
+		},
+		{
+			Name: "errtest",
+			Args: []string{
+				"-httpCodeWith=errors.GetHttpCode",
+				"-badArgument=errors.NewBadArgument",
+				"-toEncodedError=errors.ToEncodedError", 
+			},
+		},
+	}
 	t.Run("gingen", func(t *testing.T) {
-		for _, name := range []string{"casetest", "test"} {
-			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".gin-gen.go"))
-			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+		for _, test := range testCases {
+			t.Log("=====================", test.Name)
+			os.Remove(filepath.Join(wd, "gentest", test.Name+".gin-gen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", test.Name+".gobatis.go"))
 
 			var gen = &ServerGenerator{}
-			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse(append([]string{
 				"-plugin=gin",
 				"-build_tag=gin",
-			})
+			}, test.Args...))
 
-			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", test.Name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
 				continue
 			}
 
-			actual := readFile(filepath.Join(wd, "gentest", name+".gin-gen.go"))
-			excepted := readFile(filepath.Join(wd, "gentest", name+".gin-gen.txt"))
+			actual := readFile(filepath.Join(wd, "gentest", test.Name+".gin-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", test.Name+".gin-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {
@@ -77,25 +98,25 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("chi", func(t *testing.T) {
-		for _, name := range []string{"casetest", "test"} {
-			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".chi-gen.go"))
-			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+		for _, test := range testCases {
+			t.Log("=====================", test.Name)
+			os.Remove(filepath.Join(wd, "gentest", test.Name+".chi-gen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", test.Name+".gobatis.go"))
 
 			var gen = &ServerGenerator{}
-			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse(append([]string{
 				"-plugin=chi",
 				"-build_tag=chi",
-			})
+			}, test.Args...))
 
-			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", test.Name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
 				continue
 			}
 
-			actual := readFile(filepath.Join(wd, "gentest", name+".chi-gen.go"))
-			excepted := readFile(filepath.Join(wd, "gentest", name+".chi-gen.txt"))
+			actual := readFile(filepath.Join(wd, "gentest", test.Name+".chi-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", test.Name+".chi-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {
@@ -109,24 +130,24 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("echo", func(t *testing.T) {
-		for _, name := range []string{"casetest", "test"} {
-			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".echo-gen.go"))
+		for _, test := range testCases {
+			t.Log("=====================", test.Name)
+			os.Remove(filepath.Join(wd, "gentest", test.Name+".echo-gen.go"))
 
 			var gen = &ServerGenerator{}
-			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse(append([]string{
 				"-plugin=echo",
 				"-build_tag=echo",
-			})
+			}, test.Args...))
 
-			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", test.Name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
 				continue
 			}
 
-			actual := readFile(filepath.Join(wd, "gentest", name+".echo-gen.go"))
-			excepted := readFile(filepath.Join(wd, "gentest", name+".echo-gen.txt"))
+			actual := readFile(filepath.Join(wd, "gentest", test.Name+".echo-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", test.Name+".echo-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {
@@ -140,25 +161,25 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("iris", func(t *testing.T) {
-		for _, name := range []string{"casetest", "test"} {
-			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".iris-gen.go"))
-			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+		for _, test := range testCases {
+			t.Log("=====================", test.Name)
+			os.Remove(filepath.Join(wd, "gentest", test.Name+".iris-gen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", test.Name+".gobatis.go"))
 
 			var gen = &ServerGenerator{}
-			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse(append([]string{
 				"-plugin=iris",
 				"-build_tag=iris",
-			})
+			}, test.Args...))
 
-			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", test.Name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
 				continue
 			}
 
-			actual := readFile(filepath.Join(wd, "gentest", name+".iris-gen.go"))
-			excepted := readFile(filepath.Join(wd, "gentest", name+".iris-gen.txt"))
+			actual := readFile(filepath.Join(wd, "gentest", test.Name+".iris-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", test.Name+".iris-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {
@@ -172,25 +193,25 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("loong", func(t *testing.T) {
-		for _, name := range []string{"casetest", "test"} {
-			t.Log("=====================", name)
-			os.Remove(filepath.Join(wd, "gentest", name+".loong-gen.go"))
-			// fmt.Println(filepath.Join(wd, "gentest", name+".gobatis.go"))
+		for _, test := range testCases {
+			t.Log("=====================", test.Name)
+			os.Remove(filepath.Join(wd, "gentest", test.Name+".loong-gen.go"))
+			// fmt.Println(filepath.Join(wd, "gentest", test.Name+".gobatis.go"))
 
 			var gen = &ServerGenerator{}
-			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse([]string{
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse(append([]string{
 				"-plugin=loong",
 				"-build_tag=loong",
-			})
+			}, test.Args...))
 
-			if err := gen.Run([]string{filepath.Join(wd, "gentest", name+".go")}); err != nil {
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", test.Name+".go")}); err != nil {
 				fmt.Println(err)
 				t.Error(err)
 				continue
 			}
 
-			actual := readFile(filepath.Join(wd, "gentest", name+".loong-gen.go"))
-			excepted := readFile(filepath.Join(wd, "gentest", name+".loong-gen.txt"))
+			actual := readFile(filepath.Join(wd, "gentest", test.Name+".loong-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", test.Name+".loong-gen.txt"))
 			if !reflect.DeepEqual(actual, excepted) {
 				results := difflib.Diff(excepted, actual)
 				for _, result := range results {
@@ -307,8 +328,6 @@ func TestGenerate(t *testing.T) {
 			}
 		}
 	})
-
-
 
 	t.Run("chi", func(t *testing.T) {
 		for _, test := range []struct{
