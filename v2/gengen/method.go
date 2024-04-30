@@ -76,6 +76,13 @@ func (method *Method) NoReturn() bool {
 	}
 	return noreturn
 }
+func HasResultWrap(method *Method) bool {
+	value := ""
+	if o := method.Operation.Extensions["x-gogen-result-wrap"]; o != nil {
+		value = fmt.Sprint(o)
+	}
+	return value == "true"
+}
 
 func WithCode(method *Method) string {
 	withCode := ""
@@ -1771,6 +1778,8 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 }
 
 func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
+	hasResultWrap := HasResultWrap(method)
+
 	io.WriteString(ctx.out, "\r\n")
 	/// 输出返回参数
 	if len(method.Method.Results.List) > 2 {
@@ -1793,10 +1802,18 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 				io.WriteString(ctx.out, "err :=")
 			}
 		} else {
-			io.WriteString(ctx.out, "result :=")
+			if hasResultWrap {
+				io.WriteString(ctx.out, "data :=")
+			} else {
+				io.WriteString(ctx.out, "result :=")
+			}
 		}
 	} else {
-		io.WriteString(ctx.out, "result, err :=")
+		if hasResultWrap {
+			io.WriteString(ctx.out, "data, err :=")
+		} else {
+			io.WriteString(ctx.out, "result, err :=")
+		}
 	}
 
 	/// 输出调用
@@ -1820,30 +1837,57 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 	/// 输出返回
 	if len(method.Method.Results.List) > 2 {
 		io.WriteString(ctx.out, "\r\n\tif err != nil {\r\n")
-		ctx.plugin.RenderReturnError(ctx.out, method, "", "err")
+		if hasResultWrap {
+			io.WriteString(ctx.out, "\r\n\tstatusCode, result := ")
+			io.WriteString(ctx.out, ctx.plugin.GetErrorResult("err"))
+			ctx.plugin.RenderReturnOK(ctx.out, method, "statusCode", "", "result")
+		} else {
+			ctx.plugin.RenderReturnError(ctx.out, method, "", "err")
+		}
 		io.WriteString(ctx.out, "\r\n\t}")
 
-		io.WriteString(ctx.out, "\r\n\tresult := map[string]interface{}{")
+		if hasResultWrap {
+			io.WriteString(ctx.out, "\r\n\tresult := ")
+			io.WriteString(ctx.out, ctx.plugin.GetOkResult())
+			for _, result := range method.Method.Results.List {
+				if result.Type().IsErrorType() {
+					continue
+				}
 
-		for _, result := range method.Method.Results.List {
-			if result.Type().IsErrorType() {
-				continue
+				io.WriteString(ctx.out, "\r\n\tresult.")
+				io.WriteString(ctx.out, CamelCase(result.Name))
+				io.WriteString(ctx.out, " = ")
+				io.WriteString(ctx.out, result.Name)
 			}
+			io.WriteString(ctx.out, "\r\n")
+			ctx.plugin.RenderReturnOK(ctx.out, method, "", "", "result")
+		} else {
+			io.WriteString(ctx.out, "\r\n\tresult := map[string]interface{}{")
+			for _, result := range method.Method.Results.List {
+				if result.Type().IsErrorType() {
+					continue
+				}
 
-			io.WriteString(ctx.out, "\r\n\t\"")
-			io.WriteString(ctx.out, Underscore(result.Name))
-			io.WriteString(ctx.out, "\":")
-			io.WriteString(ctx.out, result.Name)
-			io.WriteString(ctx.out, ",")
+				io.WriteString(ctx.out, "\r\n\t\"")
+				io.WriteString(ctx.out, Underscore(result.Name))
+				io.WriteString(ctx.out, "\":")
+				io.WriteString(ctx.out, result.Name)
+				io.WriteString(ctx.out, ",")
+			}
+			io.WriteString(ctx.out, "\r\n\t}\r\n")
+			ctx.plugin.RenderReturnOK(ctx.out, method, "", "map", "result")
 		}
-		io.WriteString(ctx.out, "\r\n\t}\r\n")
-		ctx.plugin.RenderReturnOK(ctx.out, method, "", "map", "result")
 	} else if len(method.Method.Results.List) == 1 {
-
-		arg := method.Method.Results.List[0]
-		if arg.Type().IsErrorType() {
-			io.WriteString(ctx.out, "\r\nif err != nil {\r\n")
-			ctx.plugin.RenderReturnError(ctx.out, method, "", "err")
+		resultDef := method.Method.Results.List[0]
+		if resultDef.Type().IsErrorType() {
+			io.WriteString(ctx.out, "\r\nif err != nil {\r\n")			
+			if hasResultWrap {
+				io.WriteString(ctx.out, "\r\n\tstatusCode, result := ")
+				io.WriteString(ctx.out, ctx.plugin.GetErrorResult("err"))
+				ctx.plugin.RenderReturnOK(ctx.out, method, "statusCode", "", "result")
+			} else {
+				ctx.plugin.RenderReturnError(ctx.out, method, "", "err")
+			}
 			io.WriteString(ctx.out, "\r\n}")
 			io.WriteString(ctx.out, "\r\n")
 			if !noreturn {
@@ -1855,22 +1899,48 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 			// if methodParams.IsPlainText {
 			//  	{{$.mux.PlainTextFunc $method "result"}}
 			// } else {
-			io.WriteString(ctx.out, "\r\n")
-			ctx.plugin.RenderReturnOK(ctx.out, method, "", arg.Type().ToLiteral(), "result")
+			if hasResultWrap {
+				io.WriteString(ctx.out, "\r\n\tresult := ")
+				io.WriteString(ctx.out, ctx.plugin.GetOkResult())
+				io.WriteString(ctx.out, "\r\n\tresult.")
+				io.WriteString(ctx.out, CamelCase(resultDef.Name))
+				io.WriteString(ctx.out, " = data")
+				io.WriteString(ctx.out, "\r\n")
+				ctx.plugin.RenderReturnOK(ctx.out, method, "", "", "result")
+			} else {
+				io.WriteString(ctx.out, "\r\n")
+				ctx.plugin.RenderReturnOK(ctx.out, method, "", resultDef.Type().ToLiteral(), "result")
+			}
 			// }
 		}
 
 	} else {
 		io.WriteString(ctx.out, "\r\n\tif err != nil {\r\n")
-		ctx.plugin.RenderReturnError(ctx.out, method, "", "err")
+		if hasResultWrap {
+			io.WriteString(ctx.out, "\r\n\tstatusCode, result := ")
+			io.WriteString(ctx.out, ctx.plugin.GetErrorResult("err"))
+			ctx.plugin.RenderReturnOK(ctx.out, method, "statusCode", "", "result")
+		} else {
+			ctx.plugin.RenderReturnError(ctx.out, method, "", "err")
+		}
 		io.WriteString(ctx.out, "\r\n\t}\r\n")
 
 		// {{- if $methodParams.IsPlainText }}
 		//   {{$.mux.PlainTextFunc $method "result"}}
 		// {{- else}}
 
-		arg := method.Method.Results.List[0]
-		ctx.plugin.RenderReturnOK(ctx.out, method, "", arg.Type().ToLiteral(), "result")
+		resultDef := method.Method.Results.List[0]
+		if hasResultWrap {
+				io.WriteString(ctx.out, "\r\n\tresult := ")
+				io.WriteString(ctx.out, ctx.plugin.GetOkResult())
+				io.WriteString(ctx.out, "\r\n\tresult.")
+				io.WriteString(ctx.out, CamelCase(resultDef.Name))
+				io.WriteString(ctx.out, " = data")
+				io.WriteString(ctx.out, "\r\n")
+			ctx.plugin.RenderReturnOK(ctx.out, method, "", "", "result")
+		} else {
+			ctx.plugin.RenderReturnOK(ctx.out, method, "", resultDef.Type().ToLiteral(), "result")
+		}
 		// {{- end}}
 	}
 

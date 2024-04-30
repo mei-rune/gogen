@@ -14,6 +14,8 @@ type Config struct {
 	HttpCodeWith string
 	NewBadArgument string
 	ErrorToJSONError string
+	ErrorResult string
+	OkResult string
 }
 
 type Function struct {
@@ -60,6 +62,9 @@ type Plugin interface {
 
 	RenderBodyError(out io.Writer, method *Method, accessFields, err string) error
 	RenderCastError(out io.Writer, method *Method, accessFields, err, value string) error
+
+	GetErrorResult(err string) string
+	GetOkResult() string
 }
 
 func getBodyErrorText(badArg string, method *Method, bodyName, err string) string {

@@ -115,6 +115,20 @@ func (lng *loongPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	return e
 }
 
+func (lng *loongPlugin) GetErrorResult(err string) string {
+	if lng.cfg.ErrorResult != "" {
+		return lng.cfg.ErrorResult + "(" + err + ")"
+	}
+	return "NewErrorResult("+err+")"
+}
+
+func (lng *loongPlugin) GetOkResult() string {
+	if lng.cfg.OkResult != "" {
+		return lng.cfg.OkResult + "()"
+	}
+	return "NewOkResult()"
+}
+
 func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),

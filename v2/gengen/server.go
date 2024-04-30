@@ -44,6 +44,11 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	// 	defaultToJSONError = "ToEncodedError"
 	// }
 	fs.StringVar(&cmd.cfg.ErrorToJSONError, "toEncodedError", defaultToJSONError, "使用 ToEncodedError 函数")
+
+
+	fs.StringVar(&cmd.cfg.OkResult, "okResult", os.Getenv("GOGEN_OK_RESULT"), "使用 NewOkResult 函数")
+	fs.StringVar(&cmd.cfg.ErrorResult, "errorResult", os.Getenv("GOGEN_ERROR_RESULT"), "使用 NewErrorResult 函数")
+
 	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
 	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")
 	return fs

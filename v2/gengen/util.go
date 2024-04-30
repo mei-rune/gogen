@@ -288,6 +288,10 @@ func UnderscoreSimple(name string) string {
 	return strings.Replace(inflect.Underscore(name), "_i_d", "_id", -1)
 }
 
+func CamelCase(name string) string {
+	return strings.Replace(inflect.Camelize(name), "Id", "ID", -1)
+}
+
 func Underscore(name string) string {
 	ss := strings.Split(name, ".")
 	for idx := range ss {

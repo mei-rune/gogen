@@ -133,6 +133,20 @@ func (gin *ginPlugin) RenderReturnError(out io.Writer, method *Method, errCode, 
 	return e
 }
 
+func (gin *ginPlugin) GetErrorResult(err string) string {
+	if gin.cfg.ErrorResult != "" {
+		return gin.cfg.ErrorResult + "(" + err + ")"
+	}
+	return "NewErrorResult("+err+")"
+}
+
+func (gin *ginPlugin) GetOkResult() string {
+	if gin.cfg.OkResult != "" {
+		return gin.cfg.OkResult + "()"
+	}
+	return "NewOkResult()"
+}
+
 func (gin *ginPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),

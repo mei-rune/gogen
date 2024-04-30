@@ -304,6 +304,88 @@ gogen client domains.go
   ````
 
 
+######  @x-gogen-result-wrap
+
+   有时侯我们对返回结果有一些统一的格式要求, 例如
+
+   ````golang
+   type Result {
+    Success bool `json:"success"`              // 操作是否成功
+    Message string `json:"message,omitempty"`  // 失败时的消息
+    Total int  `json:"total,omitempty"`        // 查询分页数据时返回的记录总数
+    Data interface{} `json:"data,omitempty"`   // 成功时的数据
+   }
+   ````
+
+   但是我们并不希望接口的返回值都变成 Result， 如果那样子就太没有意思了，所能我们对它作了支持
+
+
+
+   ````golang
+        Test(w http.ResponseWriter, xxx string) (data1 xxx, data2 xxx, err error)
+   ````
+
+   加上 @x-gogen-result-wrap 后生成代码如下
+
+
+  ````golang
+    data1, data2, err := svc.Test(ctx.ResponseWriter(), xxx)
+    if err != nil {
+      statuscode, result := NewErrorResult(err)
+      return ctx.JSON(statuscode, result)
+    }
+    result := NewOkResult(err)
+    result.Data1 = data1
+    result.Data2 = data2
+    return ctx.JSON(http.StatusOK, result)
+  ````
+
+  NewOkResult 和  NewErrorResult 这两个参数可以在命令中用 okResult 和 errorResult 参数指定
+
+##### error 的处理
+
+   一般正常生成的代码如下
+
+   ````golang
+    id, err := strconv.ParseInt(ctx.QueryParam("id"), 10, 64)
+    if err != nil {
+      return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "xxxx", "id", ctx.QueryParam("id")))
+    }
+    value, err := svc.XXXX(key)
+    if err != nil {
+      return ctx.JSON(httpCodeWith(err), err)
+    }
+    return ctx.JSON(http.StatusOK, value)
+   ````
+
+   这里有两个问题
+   1.  NewBadArgument 可能是未定义的
+   2.  ctx.JSON(httpCodeWith(err), err) 中 httpCodeWith 可能是未定义的，err 可能不能直接作为参数给 ctx.JSON 方法
+
+   我们提供了三个命令参数， 让你可以处理这个情况
+   badArgument 参数， 让你可以指定 NewBadArgument 方法的名称， 如 -badArgument=myerrors.NewBadArgument
+   httpCodeWith 参数， 让你可以指定 httpCodeWith 方法的名称， 如 -httpCodeWith=myerrors.GetErrorCode
+   toEncodedError 参数， 让你可以指定 toEncodedError 方法的名称， 如 -toEncodedError=myerrors.ToEncodedError
+
+
+   当你在命令中指定了上面三个参数，那么代码就如下
+
+   ````golang
+    id, err := strconv.ParseInt(ctx.QueryParam("id"), 10, 64)
+    if err != nil {
+      return ctx.JSON(http.StatusBadRequest, myerrors.NewBadArgument(err, "xxxx", "id", ctx.QueryParam("id")))
+    }
+    value, err := svc.XXXX(key)
+    if err != nil {
+      return ctx.JSON(myerrors.GetErrorCode(err), myerrors.ToEncodedError(err))
+    }
+    return ctx.JSON(http.StatusOK, value)
+   ````
+
+   这样子这些错误变成了你自已的处理代码
+
+
+
 
 ## 最后
 

@@ -102,6 +102,20 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	return err
 }
 
+func (chi *chiPlugin) GetErrorResult(err string) string {
+	if chi.cfg.ErrorResult != "" {
+		return chi.cfg.ErrorResult + "(" + err + ")"
+	}
+	return "NewErrorResult("+err+")"
+}
+
+func (chi *chiPlugin) GetOkResult() string {
+	if chi.cfg.OkResult != "" {
+		return chi.cfg.OkResult + "()"
+	}
+	return "NewOkResult()"
+}
+
 func (chi *chiPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),

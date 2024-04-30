@@ -132,6 +132,20 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	return e
 }
 
+func (echo *echoPlugin) GetErrorResult(err string) string {
+	if echo.cfg.ErrorResult != "" {
+		return echo.cfg.ErrorResult + "(" + err + ")"
+	}
+	return "NewErrorResult("+err+")"
+}
+
+func (echo *echoPlugin) GetOkResult() string {
+	if echo.cfg.OkResult != "" {
+		return echo.cfg.OkResult + "()"
+	}
+	return "NewOkResult()"
+}
+
 func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
