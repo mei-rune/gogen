@@ -2,6 +2,7 @@ package gengen
 
 import (
 	"io"
+	"os"
 	"strings"
 
 	"github.com/swaggo/swag"
@@ -14,6 +15,13 @@ type loongPlugin struct {
 }
 
 func (lng *loongPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
+	if typeStr == "context.Context" {
+		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		if ctx != "" {
+			return ctx, true
+		}
+	}
+
 	args := map[string]string{
 		"url.Values":          "ctx.QueryParams()",
 		"*http.Request":       "ctx.Request()",
@@ -119,7 +127,7 @@ func (lng *loongPlugin) GetErrorResult(err string) string {
 	if lng.cfg.ErrorResult != "" {
 		return lng.cfg.ErrorResult + "(" + err + ")"
 	}
-	return "NewErrorResult("+err+")"
+	return "NewErrorResult(" + err + ")"
 }
 
 func (lng *loongPlugin) GetOkResult() string {
@@ -160,7 +168,6 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 			_, e := io.WriteString(out, s)
 			return e
 		}
-
 
 		s := renderString(`{{- if .noreturn -}}
 		return nil

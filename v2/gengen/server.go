@@ -17,9 +17,9 @@ type ServerGenerator struct {
 	ext      string
 	buildTag string
 
-	cfg                Config
+	cfg Config
 
-	enableResultWrap bool
+	enableResultWrap   bool
 	convertNamespace   string
 	outputHttpCodeWith bool
 }
@@ -30,7 +30,7 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 
 	defaultPlugin := os.Getenv("GOGEN_PLUGIN")
 	fs.StringVar(&cmd.plugin, "plugin", defaultPlugin, "指定生成框架，可取值: chi, gin, echo, iris, loong")
-	
+
 	defaultHttpCodeWith := os.Getenv("GOGEN_HTTPCODEWITH")
 	if defaultHttpCodeWith == "" {
 		defaultHttpCodeWith = "httpCodeWith"
@@ -206,7 +206,6 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			continue
 		}
 
-
 		var optionalRoutePrefix string
 		var ignore bool
 
@@ -226,7 +225,6 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			continue
 		}
 
-
 		star := ""
 		if ts.Struct != nil {
 			star = "*"
@@ -236,12 +234,12 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			return err
 		}
 
-		count := 0 
+		count := 0
 		for idx := range methods {
 			if len(methods[idx].Operation.RouterProperties) == 0 {
 				continue
 			}
-			count ++
+			count++
 		}
 		if count == 0 {
 			io.WriteString(out, "\r\n// "+ts.Name+" is skipped")
@@ -249,16 +247,16 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 		}
 
 		if optionalRoutePrefix != "" {
-				io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", enabledPrefix bool, svc "+star+ts.Name+") {")
-				if !plugin.IsPartyFluentStyle() {
-						io.WriteString(out, "\r\ninitFunc := func(mux "+plugin.PartyTypeName()+") {")
-				} else {
-					io.WriteString(out, "\r\n\tif enabledPrefix {")
-					io.WriteString(out, "\r\n\t\tmux = mux.Group(\""+optionalRoutePrefix+"\")")
-					io.WriteString(out, "\r\n\t}")
-				}
+			io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", enabledPrefix bool, svc "+star+ts.Name+") {")
+			if !plugin.IsPartyFluentStyle() {
+				io.WriteString(out, "\r\ninitFunc := func(mux "+plugin.PartyTypeName()+") {")
+			} else {
+				io.WriteString(out, "\r\n\tif enabledPrefix {")
+				io.WriteString(out, "\r\n\t\tmux = mux.Group(\""+optionalRoutePrefix+"\")")
+				io.WriteString(out, "\r\n\t}")
+			}
 		} else {
-				io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", svc "+star+ts.Name+") {")
+			io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", svc "+star+ts.Name+") {")
 		}
 
 		for _, method := range methods {
@@ -291,9 +289,9 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 
 			ctx := &GenContext{
 				enableResultWrap: cmd.enableResultWrap,
-				convertNS: cmd.convertNamespace,
-				plugin:    plugin,
-				out:       out,
+				convertNS:        cmd.convertNamespace,
+				plugin:           plugin,
+				out:              out,
 			}
 			err = method.renderImpl(ctx)
 			if err != nil {
@@ -301,7 +299,6 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			}
 			io.WriteString(out, "\r\n})")
 		}
-
 
 		if optionalRoutePrefix != "" && !plugin.IsPartyFluentStyle() {
 			io.WriteString(out, "\r\n\t}")
@@ -332,7 +329,7 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 		}
 
 		if !strings.Contains(routeProps.Path, "{"+param.Name+"}") {
-			return errors.New(method.Method.PostionString() +  ": param '"+param.Name+"' isnot exists in the url path")
+			return errors.New(method.Method.PostionString() + ": param '" + param.Name + "' isnot exists in the url path")
 		}
 	}
 
@@ -341,9 +338,7 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 			continue
 		}
 
-
 		oname := method.Operation.Parameters[idx].Name
-
 
 		localstructargname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-gogen-extend-struct")
 		// localname, _ := method.Operation.Parameters[idx].Extensions.GetString("x-gogen-extend-field")
@@ -373,7 +368,7 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 			}
 		}
 		if !found {
-			return errors.New(method.Method.PostionString() +  ": param '"+oname+"' isnot exists in the method param list")
+			return errors.New(method.Method.PostionString() + ": param '" + oname + "' isnot exists in the method param list")
 		}
 	}
 	return nil

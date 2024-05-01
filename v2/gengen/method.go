@@ -14,9 +14,9 @@ import (
 
 type GenContext struct {
 	enableResultWrap bool
-	convertNS string
-	plugin    Plugin
-	out       io.Writer
+	convertNS        string
+	plugin           Plugin
+	out              io.Writer
 }
 
 var specificParamName = "otherValues"
@@ -38,7 +38,7 @@ func resolveMethods(swaggerParser *swag.Parser, ts *astutil.TypeSpec) ([]*Method
 		for _, comment := range doc.List {
 			err := operation.ParseComment(comment.Text, ts.File.AstFile)
 			if err != nil {
-				return nil, fmt.Errorf(method.PostionString() + ": ParseComment error:%+v", err)
+				return nil, fmt.Errorf(method.PostionString()+": ParseComment error:%+v", err)
 			}
 		}
 
@@ -248,7 +248,7 @@ func (method *Method) renderImpl(ctx *GenContext) error {
 					st = &method.Operation.Parameters[foundIndex]
 				}
 			}
-			if  st != nil {
+			if st != nil {
 				if st.In == "body" || st.In == "formData" {
 					method.goArgumentLiterals[idx] = ""
 
@@ -350,7 +350,6 @@ func (method *Method) HasQueryParam() bool {
 		if param.Type().IsContextType() {
 			continue
 		}
-
 
 		switch param.Type().ToLiteral() {
 		case "map[string]string":
@@ -704,10 +703,10 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		if param.IsVariadic {
 			isArray = true
 
-			if  typ.IsSliceType() {
+			if typ.IsSliceType() {
 				return errors.New("param '" + goVarName + "' of '" +
-						method.FullName() +
-						"' is unsupported type - '..."+typ.ToLiteral()+"'")
+					method.FullName() +
+					"' is unsupported type - '..." + typ.ToLiteral() + "'")
 			}
 
 			typ = astutil.Type{
@@ -722,9 +721,7 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 
 	if !isArray {
 		isArray = typ.IsSliceType()
-	} 
-
-
+	}
 
 	var elmType, underlying, elmUnderlying astutil.Type
 	if isArray {
@@ -733,10 +730,10 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 
 		if elmUnderlying.IsValid() {
 			if elmUnderlying.IsInterfaceType() {
-					elmUnderlying = astutil.Type{
-						File: elmUnderlying.File,
-						Expr: castToExceptedParamType(param, elmUnderlying.Expr.Pos()),
-					}
+				elmUnderlying = astutil.Type{
+					File: elmUnderlying.File,
+					Expr: castToExceptedParamType(param, elmUnderlying.Expr.Pos()),
+				}
 			}
 
 			arrayExpr := typ.Expr.(*ast.ArrayType)
@@ -752,19 +749,18 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 	} else {
 		underlying = typ.GetUnderlyingType()
 
-		if underlying.IsValid() && underlying.IsInterfaceType(){
-				underlying = astutil.Type{
-					File: underlying.File,
-					Expr: castToExceptedParamType(param, underlying.Expr.Pos()),
-				}
+		if underlying.IsValid() && underlying.IsInterfaceType() {
+			underlying = astutil.Type{
+				File: underlying.File,
+				Expr: castToExceptedParamType(param, underlying.Expr.Pos()),
+			}
 		} else if typ.IsInterfaceType() {
-				typ = astutil.Type{
-					File: typ.File,
-					Expr: castToExceptedParamType(param, typ.Expr.Pos()),
-				}
+			typ = astutil.Type{
+				File: typ.File,
+				Expr: castToExceptedParamType(param, typ.Expr.Pos()),
+			}
 		}
 	}
-
 
 	var fn *Function
 	if isArray {
@@ -1016,9 +1012,8 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 	if len(fields) == 0 && param.IsVariadic {
 		return errors.New("param '" + goVarName + "' of '" +
 			method.FullName() +
-			"' is unsupported type - '..."+typ.ToLiteral()+"'")
+			"' is unsupported type - '..." + typ.ToLiteral() + "'")
 	}
-
 
 	fn := selectFunction(ctx.plugin, required, isArray, ElemTypeForNullable(typ))
 	if fn != nil {
@@ -1124,9 +1119,9 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 		io.WriteString(ctx.out, ", err ")
 		io.WriteString(ctx.out, " :=")
 		io.WriteString(ctx.out, fmt.Sprintf(convertFmt, "s"))
-			io.WriteString(ctx.out, "\r\n\t\tif err != nil {\r\n")
-			ctx.plugin.RenderCastError(ctx.out, method, webParamName, "s", "err")
-			io.WriteString(ctx.out, "\r\n\t\t}")
+		io.WriteString(ctx.out, "\r\n\t\tif err != nil {\r\n")
+		ctx.plugin.RenderCastError(ctx.out, method, webParamName, "s", "err")
+		io.WriteString(ctx.out, "\r\n\t\t}")
 
 		if err := renderParentInit(ctx, param, fields, false); err != nil {
 			return err
@@ -1174,7 +1169,7 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 	if len(fields) == 0 && param.IsVariadic {
 		return errors.New("param '" + goVarName + "' of '" +
 			method.FullName() +
-			"' is unsupported type - '..."+typ.ToLiteral()+"'")
+			"' is unsupported type - '..." + typ.ToLiteral() + "'")
 	}
 
 	typ = typ.PtrElemType()
@@ -1411,7 +1406,7 @@ func GetGoVarName(param *Param, parents []*Field, hideAnonymous ...bool) string 
 }
 
 func GetWebParamName(param *Param, parents []*Field) string {
-	var name string 
+	var name string
 	if param.option != nil {
 		if !isExtendInline(param.option) {
 			name = param.option.Name
@@ -1730,14 +1725,14 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 		} else {
 			if params[0].Param.Type().PtrElemType().IsValid() {
 				if params[0].Param.Type().PtrElemType().IsMapType() {
-					io.WriteString(ctx.out, "\r\n\tvar "+varName+" = "+params[0].Param.Type().PtrElemType().ToLiteral() + "{}")
+					io.WriteString(ctx.out, "\r\n\tvar "+varName+" = "+params[0].Param.Type().PtrElemType().ToLiteral()+"{}")
 				} else {
 					io.WriteString(ctx.out, "\r\n\tvar "+varName+" "+params[0].Param.Type().PtrElemType().ToLiteral())
 				}
 				method.goArgumentLiterals[params[0].Index] = "&" + varName
 			} else {
 				if params[0].Param.Type().IsMapType() {
-					io.WriteString(ctx.out, "\r\n\tvar "+varName+" = "+params[0].Param.Type().ToLiteral() + "{}")
+					io.WriteString(ctx.out, "\r\n\tvar "+varName+" = "+params[0].Param.Type().ToLiteral()+"{}")
 				} else {
 					io.WriteString(ctx.out, "\r\n\tvar "+varName+" "+params[0].Param.Type().ToLiteral())
 				}
@@ -1884,7 +1879,7 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 	} else if len(method.Method.Results.List) == 1 {
 		resultDef := method.Method.Results.List[0]
 		if resultDef.Type().IsErrorType() {
-			io.WriteString(ctx.out, "\r\nif err != nil {\r\n")			
+			io.WriteString(ctx.out, "\r\nif err != nil {\r\n")
 			if hasResultWrap {
 				io.WriteString(ctx.out, "\r\n\tstatusCode, result := ")
 				io.WriteString(ctx.out, ctx.plugin.GetErrorResult("err"))
@@ -1935,12 +1930,12 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 
 		resultDef := method.Method.Results.List[0]
 		if hasResultWrap {
-				io.WriteString(ctx.out, "\r\n\tresult := ")
-				io.WriteString(ctx.out, ctx.plugin.GetOkResult())
-				io.WriteString(ctx.out, "\r\n\tresult.")
-				io.WriteString(ctx.out, CamelCase(resultDef.Name))
-				io.WriteString(ctx.out, " = data")
-				io.WriteString(ctx.out, "\r\n")
+			io.WriteString(ctx.out, "\r\n\tresult := ")
+			io.WriteString(ctx.out, ctx.plugin.GetOkResult())
+			io.WriteString(ctx.out, "\r\n\tresult.")
+			io.WriteString(ctx.out, CamelCase(resultDef.Name))
+			io.WriteString(ctx.out, " = data")
+			io.WriteString(ctx.out, "\r\n")
 			ctx.plugin.RenderReturnOK(ctx.out, method, "", "", "result")
 		} else {
 			ctx.plugin.RenderReturnOK(ctx.out, method, "", resultDef.Type().ToLiteral(), "result")

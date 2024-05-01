@@ -2,6 +2,7 @@ package gengen
 
 import (
 	"io"
+	"os"
 
 	"github.com/swaggo/swag"
 )
@@ -62,6 +63,13 @@ func (chi *chiPlugin) IsPartyFluentStyle() bool {
 }
 
 func (chi *chiPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
+	if typeStr == "context.Context" {
+		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		if ctx != "" {
+			return ctx, true
+		}
+	}
+
 	args := map[string]string{
 		"url.Values":          "r.URL.Query()",
 		"*http.Request":       "r",
@@ -106,7 +114,7 @@ func (chi *chiPlugin) GetErrorResult(err string) string {
 	if chi.cfg.ErrorResult != "" {
 		return chi.cfg.ErrorResult + "(" + err + ")"
 	}
-	return "NewErrorResult("+err+")"
+	return "NewErrorResult(" + err + ")"
 }
 
 func (chi *chiPlugin) GetOkResult() string {

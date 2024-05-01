@@ -2,6 +2,7 @@ package gengen
 
 import (
 	"io"
+	"os"
 
 	"github.com/swaggo/swag"
 )
@@ -18,6 +19,13 @@ type irisPlugin struct {
 }
 
 func (iris *irisPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
+	if typeStr == "context.Context" {
+		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		if ctx != "" {
+			return ctx, true
+		}
+	}
+
 	args := map[string]string{
 		"url.Values":          "ctx.Request().URL.Query()",
 		"*http.Request":       "ctx.Request()",
@@ -126,7 +134,7 @@ func (iris *irisPlugin) GetErrorResult(err string) string {
 	if iris.cfg.ErrorResult != "" {
 		return iris.cfg.ErrorResult + "(" + err + ")"
 	}
-	return "NewErrorResult("+err+")"
+	return "NewErrorResult(" + err + ")"
 }
 
 func (iris *irisPlugin) GetOkResult() string {

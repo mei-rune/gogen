@@ -9,8 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"testing"
 	"strings"
+	"testing"
 
 	"github.com/aryann/difflib"
 )
@@ -49,7 +49,7 @@ func TestGenerate(t *testing.T) {
 		Args []string
 	}
 
-	testCases := []TestCase {
+	testCases := []TestCase{
 		{
 			Name: "casetest",
 		},
@@ -61,7 +61,7 @@ func TestGenerate(t *testing.T) {
 			Args: []string{
 				"-httpCodeWith=errors.GetHttpCode",
 				"-badArgument=errors.NewBadArgument",
-				"-toEncodedError=errors.ToEncodedError", 
+				"-toEncodedError=errors.ToEncodedError",
 			},
 		},
 	}
@@ -218,7 +218,7 @@ func TestGenerate(t *testing.T) {
 					if result.Delta == difflib.Common {
 						continue
 					}
-						t.Error(result)
+					t.Error(result)
 				}
 			}
 		}
@@ -330,13 +330,13 @@ func TestGenerate(t *testing.T) {
 	})
 
 	t.Run("chi", func(t *testing.T) {
-		for _, test := range []struct{
-			Name string
+		for _, test := range []struct {
+			Name  string
 			Error string
-			Code string
-		} {
+			Code  string
+		}{
 			{
-				Name: "path fail",
+				Name:  "path fail",
 				Error: "param 'trigger_id' isnot exists in the url path",
 				Code: `package main
 
@@ -351,7 +351,7 @@ func TestGenerate(t *testing.T) {
 						}`,
 			},
 			{
-				Name: "query fail",
+				Name:  "query fail",
 				Error: "param 'abc' isnot exists in the method param list",
 				Code: `package main
 
@@ -378,8 +378,7 @@ func TestGenerate(t *testing.T) {
 
 			name := "test_error"
 
-
-			filename := filepath.Join(wd, "gentest", name + ".go")
+			filename := filepath.Join(wd, "gentest", name+".go")
 			ioutil.WriteFile(filename, []byte(test.Code), 0666)
 
 			if err := gen.Run([]string{filename}); err != nil {

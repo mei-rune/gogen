@@ -141,7 +141,7 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 	for _, pa := range file.Imports {
 		io.WriteString(out, "\r\n\t")
 
-		if pa.Name != nil && pa.Name.Name != "_"{
+		if pa.Name != nil && pa.Name.Name != "_" {
 			io.WriteString(out, astutil.ToString(pa.Name))
 			io.WriteString(out, " ")
 		}
@@ -152,7 +152,6 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 	io.WriteString(out, `"github.com/runner-mei/loong"`)
 	io.WriteString(out, "\r\n\t")
 	io.WriteString(out, `"github.com/runner-mei/resty"`)
-
 
 	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
 		for _, pa := range strings.Split(s, ",") {
@@ -211,25 +210,24 @@ func getClassName(doc *ast.CommentGroup) (name string, reference bool, ok bool) 
 }
 
 func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.Parser, ts *astutil.TypeSpec) error {
-		var optionalRoutePrefix string
-		var ignore bool
+	var optionalRoutePrefix string
+	var ignore bool
 
-		if doc := ts.Doc(); doc != nil {
-			for _, comment := range doc.List {
-				line := strings.TrimSpace(strings.TrimLeft(comment.Text, "/"))
+	if doc := ts.Doc(); doc != nil {
+		for _, comment := range doc.List {
+			line := strings.TrimSpace(strings.TrimLeft(comment.Text, "/"))
 
-				if strings.HasPrefix(line, "@gogen.optional_route_prefix") {
-					optionalRoutePrefix = strings.TrimSpace(strings.TrimPrefix(line, "@gogen.optional_route_prefix"))
-				} else if strings.HasPrefix(line, "@gogen.ignore") {
-					ignore = true
-				}
+			if strings.HasPrefix(line, "@gogen.optional_route_prefix") {
+				optionalRoutePrefix = strings.TrimSpace(strings.TrimPrefix(line, "@gogen.optional_route_prefix"))
+			} else if strings.HasPrefix(line, "@gogen.ignore") {
+				ignore = true
 			}
 		}
-		if ignore {
-			io.WriteString(out, "\r\n// "+ts.Name+" is skipped")
-			return nil
-		}
-
+	}
+	if ignore {
+		io.WriteString(out, "\r\n// "+ts.Name+" is skipped")
+		return nil
+	}
 
 	className := ts.Name + "Client"
 	recvClassName := className
@@ -249,12 +247,12 @@ func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.
 	if err != nil {
 		return err
 	}
-	count := 0 
+	count := 0
 	for idx := range methods {
 		if len(methods[idx].Operation.RouterProperties) == 0 {
 			continue
 		}
-		count ++
+		count++
 	}
 
 	if count == 0 {
@@ -267,7 +265,6 @@ func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.
 	io.WriteString(out, "\r\n\r\ntype ")
 	io.WriteString(out, className+" struct {")
 	io.WriteString(out, "\r\n\t"+cmd.config.RestyField+" "+cmd.config.RestyName)
-	
 
 	if optionalRoutePrefix != "" {
 		io.WriteString(out, "\r\n  NoRoutePrefix bool")
@@ -290,10 +287,9 @@ func (cmd *ClientGenerator) genInterfaceImpl(out io.Writer, swaggerParser *swag.
 		io.WriteString(out, "\r\n}\r\n")
 	}
 
-
 	for idx := range methods {
 		if len(methods[idx].Operation.RouterProperties) == 0 {
-			io.WriteString(out, "\r\n// " + methods[idx].Method.Name+": annotation is missing")
+			io.WriteString(out, "\r\n// "+methods[idx].Method.Name+": annotation is missing")
 			continue
 		}
 		err := cmd.genInterfaceMethod(out, recvClassName, methods[idx], optionalRoutePrefix)
@@ -356,7 +352,7 @@ func (cmd *ClientGenerator) genInterfaceMethodSignature(out io.Writer, recvClass
 		if param.Type().IsContextType() {
 			continue
 		}
-		
+
 		io.WriteString(out, ", "+formatParamName(param.Name)+" ")
 		if param.IsVariadic {
 			io.WriteString(out, "...")
@@ -455,7 +451,6 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			continue
 		}
 
-
 		switch param.Type().ToLiteral() {
 		case "map[string]string":
 			webPrefix := toSnakeCase(param.Name)
@@ -533,9 +528,8 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 			continue
 		}
 
-
 		foundIndex := searchParam(method.Operation, param.Name)
-		if foundIndex >=  0 {
+		if foundIndex >= 0 {
 			option := method.Operation.Parameters[foundIndex]
 
 			if option.In == "path" {
@@ -564,15 +558,11 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 				continue
 			}
 
-
-
 			webPrefix := parent.Name
 			if isExtendInline(parent) {
 				webPrefix = ""
 			}
 			param.Name = formatParamName(param.Name)
-
-
 
 			isPtrType := param.Type().IsPtrType()
 			if isPtrType {
@@ -737,7 +727,7 @@ func (cmd *ClientGenerator) genInterfaceMethodStructParam(out io.Writer, method 
 	if typ.IsPtrType() {
 		typ = typ.PtrElemType()
 	}
-	
+
 	ts, err := typ.ToTypeSpec(true)
 	if err != nil {
 		return errors.New("param '" + param.Name + "' of '" +
@@ -906,7 +896,7 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 				} else {
 					io.WriteString(out, ".\r\n")
 				}
-				io.WriteString(out, "SetParamArray(\""+option.Name+"\", "+  param.Name +")")
+				io.WriteString(out, "SetParamArray(\""+option.Name+"\", "+param.Name+")")
 				*needAssignment = false
 			} else {
 				io.WriteString(out, "\r\nfor idx := range "+param.Name+" {")
@@ -927,7 +917,7 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 			} else {
 				io.WriteString(out, "\r\nif "+param.Name+" != ")
 				io.WriteString(out, zeroValueLiteral(param.Type()))
-				io.WriteString(out," {")
+				io.WriteString(out, " {")
 			}
 			io.WriteString(out, "\r\n\trequest = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
 			io.WriteString(out, "\r\n}")
