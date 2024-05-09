@@ -15,6 +15,10 @@ func usage() {
 }
 
 func main() {
+	binary, _ := os.Executable()
+	if binary != "" {
+		fmt.Println(binary, os.Args)
+	}
 	flag.Usage = usage
 	flag.Parse()
 	args := flag.Args()
