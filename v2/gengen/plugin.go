@@ -11,11 +11,11 @@ import (
 )
 
 type Config struct {
-	HttpCodeWith string
-	NewBadArgument string
+	HttpCodeWith     string
+	NewBadArgument   string
 	ErrorToJSONError string
-	ErrorResult string
-	OkResult string
+	ErrorResult      string
+	OkResult         string
 	EnableResultWrap bool
 }
 

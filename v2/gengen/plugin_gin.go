@@ -2,6 +2,7 @@ package gengen
 
 import (
 	"io"
+	"os"
 	"strings"
 
 	"github.com/swaggo/swag"
@@ -14,6 +15,13 @@ type ginPlugin struct {
 }
 
 func (gin *ginPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
+	if typeStr == "context.Context" {
+		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		if ctx != "" {
+			return ctx, true
+		}
+	}
+
 	args := map[string]string{
 		"url.Values":          "ctx.Request.URL.Query()",
 		"*http.Request":       "ctx.Request",
@@ -101,7 +109,7 @@ func (gin *ginPlugin) RenderBodyError(out io.Writer, method *Method, bodyName, e
 }
 
 func (gin *ginPlugin) RenderCastError(out io.Writer, method *Method, accessFields, value, err string) error {
-	txt := getCastErrorText(gin.cfg.NewBadArgument,  method, accessFields, err, value)
+	txt := getCastErrorText(gin.cfg.NewBadArgument, method, accessFields, err, value)
 	return gin.RenderReturnError(out, method, "http.StatusBadRequest", txt, true)
 }
 
@@ -137,7 +145,7 @@ func (gin *ginPlugin) GetErrorResult(err string) string {
 	if gin.cfg.ErrorResult != "" {
 		return gin.cfg.ErrorResult + "(" + err + ")"
 	}
-	return "NewErrorResult("+err+")"
+	return "NewErrorResult(" + err + ")"
 }
 
 func (gin *ginPlugin) GetOkResult() string {

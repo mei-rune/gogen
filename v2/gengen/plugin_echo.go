@@ -2,6 +2,7 @@ package gengen
 
 import (
 	"io"
+	"os"
 	"strings"
 
 	"github.com/swaggo/swag"
@@ -14,6 +15,13 @@ type echoPlugin struct {
 }
 
 func (echo *echoPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
+	if typeStr == "context.Context" {
+		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		if ctx != "" {
+			return ctx, true
+		}
+	}
+
 	args := map[string]string{
 		"url.Values":          "ctx.QueryParams()",
 		"*http.Request":       "ctx.Request()",
@@ -136,7 +144,7 @@ func (echo *echoPlugin) GetErrorResult(err string) string {
 	if echo.cfg.ErrorResult != "" {
 		return echo.cfg.ErrorResult + "(" + err + ")"
 	}
-	return "NewErrorResult("+err+")"
+	return "NewErrorResult(" + err + ")"
 }
 
 func (echo *echoPlugin) GetOkResult() string {
