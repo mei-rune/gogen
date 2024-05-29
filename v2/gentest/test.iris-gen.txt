@@ -21,8 +21,8 @@ import (
 // TimeRange2 is skipped
 // QueryArgs is skipped
 
-func InitStringSvc(mux iris.Party, svc StringSvc) {
-	mux.Get("/files", func(ctx iris.Context) {
+func InitStringSvc(mux iris.Party, svc StringSvc, handlers ...iris.Handler) {
+	mux.Get("/files", append(handlers, func(ctx iris.Context) {
 		var filenames = ctx.URLParamSlice("filenames")
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
@@ -36,8 +36,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/times", func(ctx iris.Context) {
+	}))
+	mux.Get("/times", append(handlers, func(ctx iris.Context) {
 		var times []time.Time
 		if ss := ctx.URLParamSlice("times"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
@@ -60,8 +60,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/allfiles", func(ctx iris.Context) {
+	}))
+	mux.Get("/allfiles", append(handlers, func(ctx iris.Context) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -74,8 +74,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/test_by_key/:key", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_by_key/:key", append(handlers, func(ctx iris.Context) {
 		key, err := ctx.Params().GetInt64("key")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -90,8 +90,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_by_key2", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_by_key2", append(handlers, func(ctx iris.Context) {
 		var key Key
 		if s := ctx.URLParam("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
@@ -110,8 +110,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_by_key3", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_by_key3", append(handlers, func(ctx iris.Context) {
 		var key Key
 		if s := ctx.URLParam("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
@@ -130,8 +130,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_by_strkey/:key", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_by_strkey/:key", append(handlers, func(ctx iris.Context) {
 		var key = StrKey(ctx.Params().GetString("key"))
 		err := svc.TestByStrKey1(key)
 		if err != nil {
@@ -141,8 +141,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_by_strkey", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_by_strkey", append(handlers, func(ctx iris.Context) {
 		var key = StrKey(ctx.URLParam("key"))
 		err := svc.TestByStrKey2(key)
 		if err != nil {
@@ -152,8 +152,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test64/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/test64/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -168,8 +168,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test64", func(ctx iris.Context) {
+	}))
+	mux.Get("/test64", append(handlers, func(ctx iris.Context) {
 		var id int64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -188,8 +188,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_query_args1/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_query_args1/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -264,8 +264,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_query_args2/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_query_args2/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -369,8 +369,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_query_args3/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_query_args3/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -445,8 +445,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_query_args4/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_query_args4/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -550,8 +550,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/ping", func(ctx iris.Context) {
+	}))
+	mux.Get("/ping", append(handlers, func(ctx iris.Context) {
 		err := svc.Ping()
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -560,14 +560,14 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/echo", func(ctx iris.Context) {
+	}))
+	mux.Get("/echo", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		result := svc.Echo(a)
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/echo2", func(ctx iris.Context) {
+	}))
+	mux.Post("/echo2", append(handlers, func(ctx iris.Context) {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -576,8 +576,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/echo3", func(ctx iris.Context) {
+	}))
+	mux.Post("/echo3", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
@@ -594,8 +594,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/concat0_1", func(ctx iris.Context) {
+	}))
+	mux.Get("/concat0_1", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var b = ctx.URLParam("b")
 		result, err := svc.Concat0_1(a, b)
@@ -606,8 +606,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/concat0_2", func(ctx iris.Context) {
+	}))
+	mux.Get("/concat0_2", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var b = ctx.URLParam("b")
 		result, err := svc.Concat0_2(a, b)
@@ -618,8 +618,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/concat1", func(ctx iris.Context) {
+	}))
+	mux.Get("/concat1", append(handlers, func(ctx iris.Context) {
 		var a *string
 		if s := ctx.URLParam("a"); s != "" {
 			a = &s
@@ -636,8 +636,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/concat2/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/concat2/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b = ctx.Params().GetString("b")
 		result, err := svc.Concat2(a, b)
@@ -648,8 +648,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/concat3/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/concat3/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b = ctx.Params().GetString("b")
 		result, err := svc.Concat3(&a, &b)
@@ -660,8 +660,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/sub", func(ctx iris.Context) {
+	}))
+	mux.Get("/sub", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var start int64
 		if s := ctx.URLParam("start"); s != "" {
@@ -681,8 +681,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/save/:a", func(ctx iris.Context) {
+	}))
+	mux.Post("/save/:a", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
@@ -698,8 +698,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/save2/:a", func(ctx iris.Context) {
+	}))
+	mux.Post("/save2/:a", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
@@ -716,8 +716,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/save3", func(ctx iris.Context) {
+	}))
+	mux.Post("/save3", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -735,8 +735,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/save4", func(ctx iris.Context) {
+	}))
+	mux.Post("/save4", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -754,8 +754,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/save5", func(ctx iris.Context) {
+	}))
+	mux.Post("/save5", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -773,8 +773,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/add/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/add/:a/:b", append(handlers, func(ctx iris.Context) {
 		a, err := ctx.Params().GetInt("a")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -795,8 +795,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/add2/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/add2/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetInt("a")
 		var b = ctx.Params().GetInt("b")
 		result, err := svc.Add2(&a, &b)
@@ -807,8 +807,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/add3", func(ctx iris.Context) {
+	}))
+	mux.Get("/add3", append(handlers, func(ctx iris.Context) {
 		var a *int
 		if s := ctx.URLParam("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
@@ -837,8 +837,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/query1", func(ctx iris.Context) {
+	}))
+	mux.Get("/query1", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var beginAt time.Time
 		if s := ctx.URLParam("begin_at"); s != "" {
@@ -873,8 +873,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		result := svc.Query1(a, beginAt, endAt, isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/query2/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/query2/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var beginAt time.Time
 		if s := ctx.URLParam("begin_at"); s != "" {
@@ -905,8 +905,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/query3/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/query3/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var beginAt time.Time
 		if s := ctx.URLParam("begin_at"); s != "" {
@@ -932,8 +932,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/query4/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/query4/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var createdAt TimeRange
 		if s := ctx.URLParam("created_at.start"); s != "" {
@@ -958,8 +958,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		result := svc.Query4(a, createdAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/query5/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/query5/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var createdAt *TimeRange
 		if s := ctx.URLParam("created_at.start"); s != "" {
@@ -988,8 +988,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		result := svc.Query5(a, createdAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/query6/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/query6/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var createdAt TimeRange2
 		if s := ctx.URLParam("created_at.start"); s != "" {
@@ -1014,8 +1014,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		result := svc.Query6(a, createdAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/query7/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/query7/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var createdAt *TimeRange2
 		if s := ctx.URLParam("created_at.start"); s != "" {
@@ -1044,8 +1044,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		result := svc.Query7(a, createdAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/query8", func(ctx iris.Context) {
+	}))
+	mux.Get("/query8", append(handlers, func(ctx iris.Context) {
 		var itemID int64
 		if s := ctx.URLParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -1064,8 +1064,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Post("/", func(ctx iris.Context) {
+	}))
+	mux.Post("/", append(handlers, func(ctx iris.Context) {
 		err := svc.CreateWithNoReturn(ctx.Request().Context(), ctx.Request(), ctx.ResponseWriter())
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1073,8 +1073,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 			return
 		}
 		return
-	})
-	mux.Get("/query9", func(ctx iris.Context) {
+	}))
+	mux.Get("/query9", append(handlers, func(ctx iris.Context) {
 		var itemID sql.NullInt64
 		if s := ctx.URLParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -1094,8 +1094,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Get("/query10", func(ctx iris.Context) {
+	}))
+	mux.Get("/query10", append(handlers, func(ctx iris.Context) {
 		var itemID sql.NullString
 		if s := ctx.URLParam("item_id"); s != "" {
 			itemID.Valid = true
@@ -1109,8 +1109,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Get("/query11", func(ctx iris.Context) {
+	}))
+	mux.Get("/query11", append(handlers, func(ctx iris.Context) {
 		var itemID sql.NullBool
 		if s := ctx.URLParam("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
@@ -1130,8 +1130,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Get("/query12", func(ctx iris.Context) {
+	}))
+	mux.Get("/query12", append(handlers, func(ctx iris.Context) {
 		var Name = ctx.URLParam("Name")
 		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
 		if err != nil {
@@ -1141,8 +1141,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Post("/query12", func(ctx iris.Context) {
+	}))
+	mux.Post("/query12", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			Name string `json:"Name,omitempty"`
 		}
@@ -1159,8 +1159,8 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Post("/query13", func(ctx iris.Context) {
+	}))
+	mux.Post("/query13", append(handlers, func(ctx iris.Context) {
 		var names = ctx.URLParamSlice("names")
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
@@ -1170,12 +1170,12 @@ func InitStringSvc(mux iris.Party, svc StringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
+	}))
 	// Misc: annotation is missing
 }
 
-func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
-	mux.Get("/impl/files", func(ctx iris.Context) {
+func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl, handlers ...iris.Handler) {
+	mux.Get("/impl/files", append(handlers, func(ctx iris.Context) {
 		var filenames = ctx.URLParamSlice("filenames")
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
@@ -1189,8 +1189,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/times", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/times", append(handlers, func(ctx iris.Context) {
 		var times []time.Time
 		if ss := ctx.URLParamSlice("times"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
@@ -1213,8 +1213,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/allfiles", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/allfiles", append(handlers, func(ctx iris.Context) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1227,8 +1227,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/test_by_key/:key", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test_by_key/:key", append(handlers, func(ctx iris.Context) {
 		key, err := ctx.Params().GetInt64("key")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -1243,8 +1243,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test_by_key", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test_by_key", append(handlers, func(ctx iris.Context) {
 		var key Key
 		if s := ctx.URLParam("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
@@ -1263,8 +1263,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test_by_strkey/:key", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test_by_strkey/:key", append(handlers, func(ctx iris.Context) {
 		var key = StrKey(ctx.Params().GetString("key"))
 		err := svc.TestByStrKey1(key)
 		if err != nil {
@@ -1274,8 +1274,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test_by_strkey", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test_by_strkey", append(handlers, func(ctx iris.Context) {
 		var key = StrKey(ctx.URLParam("key"))
 		err := svc.TestByStrKey2(key)
 		if err != nil {
@@ -1285,8 +1285,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test64/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test64/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -1301,8 +1301,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test64", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test64", append(handlers, func(ctx iris.Context) {
 		var id int64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -1321,8 +1321,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test_query_args1/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test_query_args1/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -1397,8 +1397,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test_query_args2/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test_query_args2/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -1502,8 +1502,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test_query_args3/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test_query_args3/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -1578,8 +1578,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/test_query_args4/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/test_query_args4/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -1683,8 +1683,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/ping", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/ping", append(handlers, func(ctx iris.Context) {
 		err := svc.Ping()
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1693,14 +1693,14 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/impl/echo", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/echo", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		result := svc.Echo(a)
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/impl/echo2", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/echo2", append(handlers, func(ctx iris.Context) {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1709,8 +1709,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/impl/echo3", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/echo3", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
@@ -1727,8 +1727,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/concat", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/concat", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var b = ctx.URLParam("b")
 		result, err := svc.Concat0(a, b)
@@ -1739,8 +1739,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/concat1", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/concat1", append(handlers, func(ctx iris.Context) {
 		var a *string
 		if s := ctx.URLParam("a"); s != "" {
 			a = &s
@@ -1757,8 +1757,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/concat2/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/concat2/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b = ctx.Params().GetString("b")
 		result, err := svc.Concat2(a, b)
@@ -1769,8 +1769,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/concat3/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/concat3/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b = ctx.Params().GetString("b")
 		result, err := svc.Concat3(&a, &b)
@@ -1781,8 +1781,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/sub", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/sub", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var start int64
 		if s := ctx.URLParam("start"); s != "" {
@@ -1802,8 +1802,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/impl/save/:a", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/save/:a", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
@@ -1819,8 +1819,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/impl/save2/:a", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/save2/:a", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
@@ -1837,8 +1837,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/impl/save3", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/save3", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -1856,8 +1856,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/impl/save4", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/save4", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -1875,8 +1875,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/impl/save5", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/save5", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -1894,8 +1894,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/add/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/add/:a/:b", append(handlers, func(ctx iris.Context) {
 		a, err := ctx.Params().GetInt("a")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -1916,8 +1916,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/add2/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/add2/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetInt("a")
 		var b = ctx.Params().GetInt("b")
 		result, err := svc.Add2(&a, &b)
@@ -1928,8 +1928,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/add3", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/add3", append(handlers, func(ctx iris.Context) {
 		var a *int
 		if s := ctx.URLParam("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
@@ -1958,8 +1958,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/query1", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query1", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var beginAt time.Time
 		if s := ctx.URLParam("begin_at"); s != "" {
@@ -1994,8 +1994,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		result := svc.Query1(a, beginAt, endAt, isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/query2/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query2/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var beginAt time.Time
 		if s := ctx.URLParam("begin_at"); s != "" {
@@ -2026,8 +2026,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/query3/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query3/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var beginAt time.Time
 		if s := ctx.URLParam("begin_at"); s != "" {
@@ -2053,8 +2053,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/query4/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query4/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var createdAt TimeRange
 		if s := ctx.URLParam("created_at.start"); s != "" {
@@ -2079,8 +2079,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		result := svc.Query4(a, createdAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/query5/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query5/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var createdAt *TimeRange
 		if s := ctx.URLParam("created_at.start"); s != "" {
@@ -2109,8 +2109,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		result := svc.Query5(a, createdAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/query6/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query6/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var createdAt TimeRange2
 		if s := ctx.URLParam("created_at.start"); s != "" {
@@ -2135,8 +2135,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		result := svc.Query6(a, createdAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/query7/:is_raw", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query7/:is_raw", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var createdAt *TimeRange2
 		if s := ctx.URLParam("created_at.start"); s != "" {
@@ -2165,8 +2165,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		result := svc.Query7(a, createdAt, &isRaw)
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/impl/query8", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query8", append(handlers, func(ctx iris.Context) {
 		var itemID int64
 		if s := ctx.URLParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2185,8 +2185,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Post("/impl", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl", append(handlers, func(ctx iris.Context) {
 		err := svc.CreateWithNoReturn(ctx.Request().Context(), ctx.Request(), ctx.ResponseWriter())
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -2194,8 +2194,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 			return
 		}
 		return
-	})
-	mux.Get("/impl/query9", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query9", append(handlers, func(ctx iris.Context) {
 		var itemID sql.NullInt64
 		if s := ctx.URLParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2215,8 +2215,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Get("/impl/query10", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query10", append(handlers, func(ctx iris.Context) {
 		var itemID sql.NullString
 		if s := ctx.URLParam("item_id"); s != "" {
 			itemID.Valid = true
@@ -2230,8 +2230,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Get("/impl/query11", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query11", append(handlers, func(ctx iris.Context) {
 		var itemID sql.NullBool
 		if s := ctx.URLParam("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
@@ -2251,8 +2251,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Get("/impl/query12", func(ctx iris.Context) {
+	}))
+	mux.Get("/impl/query12", append(handlers, func(ctx iris.Context) {
 		var Name = ctx.URLParam("Name")
 		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
 		if err != nil {
@@ -2262,8 +2262,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.Text(result)
 		return
-	})
-	mux.Post("/impl/query12", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/query12", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			Name string `json:"Name,omitempty"`
 		}
@@ -2280,8 +2280,8 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Post("/impl/query13", func(ctx iris.Context) {
+	}))
+	mux.Post("/impl/query13", append(handlers, func(ctx iris.Context) {
 		var names = ctx.URLParamSlice("names")
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
@@ -2291,18 +2291,18 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl) {
 		}
 		ctx.JSON("OK")
 		return
-	})
+	}))
 	// Misc: annotation is missing
 }
 
-func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
-	mux.Get("/ctx/echo", func(ctx iris.Context) {
+func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext, handlers ...iris.Handler) {
+	mux.Get("/ctx/echo", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		result := svc.Echo(ctx.Request().Context(), a)
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/ctx/echo2", func(ctx iris.Context) {
+	}))
+	mux.Post("/ctx/echo2", append(handlers, func(ctx iris.Context) {
 		result, err := svc.EchoBody(ctx.Request().Context(), ctx.Request().Body)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -2311,8 +2311,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/ctx/concat", func(ctx iris.Context) {
+	}))
+	mux.Get("/ctx/concat", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var b = ctx.URLParam("b")
 		result, err := svc.Concat0(ctx.Request().Context(), a, b)
@@ -2323,8 +2323,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/ctx/concat1", func(ctx iris.Context) {
+	}))
+	mux.Get("/ctx/concat1", append(handlers, func(ctx iris.Context) {
 		var a *string
 		if s := ctx.URLParam("a"); s != "" {
 			a = &s
@@ -2341,8 +2341,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/ctx/concat2/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/ctx/concat2/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b = ctx.Params().GetString("b")
 		result, err := svc.Concat2(ctx.Request().Context(), a, b)
@@ -2353,8 +2353,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/ctx/concat3/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/ctx/concat3/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b = ctx.Params().GetString("b")
 		result, err := svc.Concat3(ctx.Request().Context(), &a, &b)
@@ -2365,8 +2365,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/ctx/sub", func(ctx iris.Context) {
+	}))
+	mux.Get("/ctx/sub", append(handlers, func(ctx iris.Context) {
 		var a = ctx.URLParam("a")
 		var start int64
 		if s := ctx.URLParam("start"); s != "" {
@@ -2386,8 +2386,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/ctx/save1/:a", func(ctx iris.Context) {
+	}))
+	mux.Post("/ctx/save1/:a", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request().Body); err != nil {
@@ -2403,8 +2403,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/ctx/save2/:a", func(ctx iris.Context) {
+	}))
+	mux.Post("/ctx/save2/:a", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetString("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request().Body); err != nil {
@@ -2421,8 +2421,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/ctx/save3", func(ctx iris.Context) {
+	}))
+	mux.Post("/ctx/save3", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -2440,8 +2440,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/ctx/add1/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/ctx/add1/:a/:b", append(handlers, func(ctx iris.Context) {
 		a, err := ctx.Params().GetInt("a")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -2462,8 +2462,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/ctx/add2/:a/:b", func(ctx iris.Context) {
+	}))
+	mux.Get("/ctx/add2/:a/:b", append(handlers, func(ctx iris.Context) {
 		var a = ctx.Params().GetInt("a")
 		var b = ctx.Params().GetInt("b")
 		result, err := svc.Add2(ctx.Request().Context(), &a, &b)
@@ -2474,8 +2474,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/ctx/add3", func(ctx iris.Context) {
+	}))
+	mux.Get("/ctx/add3", append(handlers, func(ctx iris.Context) {
 		var a *int
 		if s := ctx.URLParam("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
@@ -2504,8 +2504,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/ctx/query13", func(ctx iris.Context) {
+	}))
+	mux.Post("/ctx/query13", append(handlers, func(ctx iris.Context) {
 		var names = ctx.URLParamSlice("names")
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
@@ -2515,7 +2515,7 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 		}
 		ctx.JSON("OK")
 		return
-	})
+	}))
 	// Misc: annotation is missing
 }
 
@@ -2531,8 +2531,8 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext) {
 // SubTest3 is skipped
 // SubTest4 is skipped
 
-func InitRequests(mux iris.Party, svc Requests) {
-	mux.Get("/requests/query1", func(ctx iris.Context) {
+func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
+	mux.Get("/requests/query1", append(handlers, func(ctx iris.Context) {
 		var query *models.RequestQuery
 		if s := ctx.URLParam("query.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2783,8 +2783,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/query2", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/query2", append(handlers, func(ctx iris.Context) {
 		var query *models.RequestQuery
 		if s := ctx.URLParam("operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3027,8 +3027,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/query3", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/query3", append(handlers, func(ctx iris.Context) {
 		var query *AliasRequestQuery
 		if s := ctx.URLParam("operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3271,8 +3271,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/queryex1", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/queryex1", append(handlers, func(ctx iris.Context) {
 		var query *RequestQueryEx1
 		if s := ctx.URLParam("query.ex_arg"); s != "" {
 			query = new(RequestQueryEx1)
@@ -3530,8 +3530,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/queryex2", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/queryex2", append(handlers, func(ctx iris.Context) {
 		var query *RequestQueryEx2
 		if s := ctx.URLParam("query.ex_arg"); s != "" {
 			query = new(RequestQueryEx2)
@@ -3838,8 +3838,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/queryex3", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/queryex3", append(handlers, func(ctx iris.Context) {
 		var query *RequestQueryEx3
 		if s := ctx.URLParam("query.request.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4096,8 +4096,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/queryex4", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/queryex4", append(handlers, func(ctx iris.Context) {
 		var query *RequestQueryEx4
 		if s := ctx.URLParam("query.request.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4403,8 +4403,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/queryex3/NoPrefix", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/queryex3/NoPrefix", append(handlers, func(ctx iris.Context) {
 		var query *RequestQueryEx3
 		if s := ctx.URLParam("request.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4661,8 +4661,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/queryex4/NoPrefix", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/queryex4/NoPrefix", append(handlers, func(ctx iris.Context) {
 		var query *RequestQueryEx4
 		if s := ctx.URLParam("request.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4968,8 +4968,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests", append(handlers, func(ctx iris.Context) {
 		var query *models.RequestQuery
 		if s := ctx.URLParam("query.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -5213,8 +5213,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/requests/create1", func(ctx iris.Context) {
+	}))
+	mux.Post("/requests/create1", append(handlers, func(ctx iris.Context) {
 		var data models.Request
 		if err := ctx.UnmarshalBody(&data, nil); err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5229,8 +5229,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/requests/create2", func(ctx iris.Context) {
+	}))
+	mux.Post("/requests/create2", append(handlers, func(ctx iris.Context) {
 		var bindArgs struct {
 			Request *models.Request `json:"request,omitempty"`
 			Testarg int64           `json:"testarg,omitempty"`
@@ -5248,8 +5248,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Put("/requests/:id", func(ctx iris.Context) {
+	}))
+	mux.Put("/requests/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5270,8 +5270,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Patch("/requests/set1/:id", func(ctx iris.Context) {
+	}))
+	mux.Patch("/requests/set1/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5294,8 +5294,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Patch("/requests/set2/:id", func(ctx iris.Context) {
+	}))
+	mux.Patch("/requests/set2/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5316,8 +5316,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Put("/requests/set3/:id", func(ctx iris.Context) {
+	}))
+	mux.Put("/requests/set3/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5340,8 +5340,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Put("/requests/set4/:id", func(ctx iris.Context) {
+	}))
+	mux.Put("/requests/set4/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5362,8 +5362,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/requests/set5/:id", func(ctx iris.Context) {
+	}))
+	mux.Post("/requests/set5/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5386,8 +5386,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/requests/set6/:id", func(ctx iris.Context) {
+	}))
+	mux.Post("/requests/set6/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5408,8 +5408,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Post("/requests/set7/:id", func(ctx iris.Context) {
+	}))
+	mux.Post("/requests/set7/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -5430,8 +5430,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/querysub1", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/querysub1", append(handlers, func(ctx iris.Context) {
 		var query *SubTest1
 		if s := ctx.URLParam("query.sub1.a1"); s != "" {
 			query = new(SubTest1)
@@ -5469,8 +5469,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/querysub2", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/querysub2", append(handlers, func(ctx iris.Context) {
 		var query *SubTest2
 		if s := ctx.URLParam("query.sub1.a1"); s != "" {
 			query = new(SubTest2)
@@ -5516,8 +5516,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/querysub3", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/querysub3", append(handlers, func(ctx iris.Context) {
 		var query *SubTest3
 		if s := ctx.URLParam("query.ex_arg"); s != "" {
 			query = new(SubTest3)
@@ -5569,8 +5569,8 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/requests/querysub4", func(ctx iris.Context) {
+	}))
+	mux.Get("/requests/querysub4", append(handlers, func(ctx iris.Context) {
 		var query *SubTest4
 		if s := ctx.URLParam("query.ex_arg"); s != "" {
 			query = new(SubTest4)
@@ -5635,5 +5635,5 @@ func InitRequests(mux iris.Party, svc Requests) {
 		}
 		ctx.JSON(result)
 		return
-	})
+	}))
 }

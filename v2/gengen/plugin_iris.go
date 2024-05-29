@@ -105,6 +105,33 @@ func (iris *irisPlugin) IsPartyFluentStyle() bool {
 	return true
 }
 
+func (iris *irisPlugin) MiddlewaresDeclaration() string {
+	return "handlers ...iris.Handler"
+}
+
+func (iris *irisPlugin) MiddlewaresVar() string {
+	return "handlers..."
+}
+
+func (iris *irisPlugin) HasWithMiddlewares() bool {
+	return false
+}
+
+func (iris *irisPlugin) RenderWithMiddlewares(mux string) string {
+	return ""
+}
+
+func (iris *irisPlugin) RenderMiddlewares(out io.Writer, fn func(out io.Writer) error) error {
+	io.WriteString(out, "append(handlers,")
+	err := fn(out)
+	if err != nil {
+		return err
+	}
+
+	io.WriteString(out, ")")
+	return nil
+}
+
 func (iris *irisPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.UnmarshalBody(" + argName + ", nil)"
 }
@@ -117,7 +144,7 @@ func (iris *irisPlugin) ReadBodyFunc(argName string) string {
 // 	return getCastErrorText(iris.cfg.NewBadArgument, method, accessFields, err, value)
 // }
 
-func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
+func (iris *irisPlugin) RenderFunc(out io.Writer, method *Method, route swag.RouteProperties, fn func(out io.Writer) error) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {
 		return err
@@ -126,7 +153,14 @@ func (iris *irisPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 	// 	urlstr = ""
 	// }
 
-	_, err = io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx iris.Context) {")
+	_, err = io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", append(handlers, func(ctx iris.Context) {")
+	if err != nil {
+		return err
+	}
+	if err := fn(out); err != nil {
+		return err
+	}
+	_, err = io.WriteString(out, "\r\n}))")
 	return err
 }
 

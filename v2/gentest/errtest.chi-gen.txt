@@ -13,7 +13,8 @@ import (
 	"github.com/go-chi/render"
 )
 
-func InitErrStringSvc(mux chi.Router, svc ErrStringSvc) {
+func InitErrStringSvc(mux chi.Router, svc ErrStringSvc, handlers ...func(http.Handler) http.Handler) {
+	mux = mux.With(handlers...)
 	mux.Get("/files1", func(w http.ResponseWriter, r *http.Request) {
 		list, total, err := svc.Get1()
 		if err != nil {

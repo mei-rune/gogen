@@ -78,6 +78,14 @@ func (echo *echoPlugin) IsPartyFluentStyle() bool {
 	return true
 }
 
+func (echo *echoPlugin) MiddlewaresDeclaration() string {
+	return "handlers ...echo.MiddlewareFunc"
+}
+
+func (echo *echoPlugin) RenderWithMiddlewares(mux string) string {
+	return ""
+}
+
 func (echo *echoPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
@@ -90,7 +98,7 @@ func (echo *echoPlugin) ReadBodyFunc(argName string) string {
 // 	return getCastErrorText(echo.cfg.NewBadArgument, method, accessFields, err, value)
 // }
 
-func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
+func (echo *echoPlugin) RenderFunc(out io.Writer, method *Method, route swag.RouteProperties, fn func(out io.Writer) error) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {
 		return err
@@ -99,6 +107,13 @@ func (echo *echoPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 		urlstr = ""
 	}
 	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx echo.Context) error {")
+	if err != nil {
+		return err
+	}
+	if err := fn(out); err != nil {
+		return err
+	}
+	_, err = io.WriteString(out, "\r\n}, handlers...)")
 	return err
 }
 

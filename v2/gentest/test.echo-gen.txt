@@ -21,7 +21,7 @@ import (
 // TimeRange2 is skipped
 // QueryArgs is skipped
 
-func InitStringSvc(mux *echo.Group, svc StringSvc) {
+func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFunc) {
 	mux.GET("/files", func(ctx echo.Context) error {
 		var filenames = ctx.QueryParams()["filenames"]
 		list, total, err := svc.GetFiles(filenames)
@@ -33,7 +33,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			"total": total,
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/times", func(ctx echo.Context) error {
 		var times []time.Time
 		if ss := ctx.QueryParams()["times"]; len(ss) != 0 {
@@ -52,7 +52,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			"total": total,
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/allfiles", func(ctx echo.Context) error {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
@@ -63,7 +63,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			"total": total,
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/test_by_key/:key", func(ctx echo.Context) error {
 		keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64)
 		if err != nil {
@@ -75,7 +75,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test_by_key2", func(ctx echo.Context) error {
 		var key Key
 		if s := ctx.QueryParam("key"); s != "" {
@@ -90,7 +90,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test_by_key3", func(ctx echo.Context) error {
 		var key Key
 		if s := ctx.QueryParam("key"); s != "" {
@@ -105,7 +105,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test_by_strkey/:key", func(ctx echo.Context) error {
 		var key = StrKey(ctx.Param("key"))
 		err := svc.TestByStrKey1(key)
@@ -113,7 +113,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test_by_strkey", func(ctx echo.Context) error {
 		var key = StrKey(ctx.QueryParam("key"))
 		err := svc.TestByStrKey2(key)
@@ -121,7 +121,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test64/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -132,7 +132,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test64", func(ctx echo.Context) error {
 		var id int64
 		if s := ctx.QueryParam("id"); s != "" {
@@ -147,7 +147,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test_query_args1/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -206,7 +206,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test_query_args2/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -294,7 +294,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test_query_args3/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -353,7 +353,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/test_query_args4/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -441,26 +441,26 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/ping", func(ctx echo.Context) error {
 		err := svc.Ping()
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/echo", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		result := svc.Echo(a)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/echo2", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/echo3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
@@ -473,7 +473,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.GET("/concat0_1", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var b = ctx.QueryParam("b")
@@ -482,7 +482,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/concat0_2", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var b = ctx.QueryParam("b")
@@ -491,7 +491,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/concat1", func(ctx echo.Context) error {
 		var a *string
 		if s := ctx.QueryParam("a"); s != "" {
@@ -506,7 +506,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/concat2/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
@@ -515,7 +515,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/concat3/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
@@ -524,7 +524,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/sub", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var start int64
@@ -540,7 +540,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/save/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b strings.Builder
@@ -552,7 +552,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/save2/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
@@ -565,7 +565,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/save3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
@@ -579,7 +579,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/save4", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
@@ -593,7 +593,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/save5", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
@@ -607,7 +607,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.GET("/add/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
@@ -622,7 +622,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/add2/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
@@ -637,7 +637,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
@@ -660,7 +660,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query1", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
@@ -689,7 +689,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		result := svc.Query1(a, beginAt, endAt, isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query2/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
@@ -714,7 +714,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query3/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
@@ -739,7 +739,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query4/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange
@@ -763,7 +763,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		result := svc.Query4(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query5/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange
@@ -791,7 +791,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		result := svc.Query5(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query6/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange2
@@ -815,7 +815,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		result := svc.Query6(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query7/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange2
@@ -843,7 +843,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 		}
 		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query8", func(ctx echo.Context) error {
 		var itemID int64
 		if s := ctx.QueryParam("item_id"); s != "" {
@@ -858,14 +858,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("", func(ctx echo.Context) error {
 		err := svc.CreateWithNoReturn(ctx.Request().Context(), ctx.Request(), ctx.Response().Writer)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return nil
-	})
+	}, handlers...)
 	mux.GET("/query9", func(ctx echo.Context) error {
 		var itemID sql.NullInt64
 		if s := ctx.QueryParam("item_id"); s != "" {
@@ -881,7 +881,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query10", func(ctx echo.Context) error {
 		var itemID sql.NullString
 		if s := ctx.QueryParam("item_id"); s != "" {
@@ -893,7 +893,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query11", func(ctx echo.Context) error {
 		var itemID sql.NullBool
 		if s := ctx.QueryParam("item_id"); s != "" && s != "none" {
@@ -909,7 +909,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/query12", func(ctx echo.Context) error {
 		var Name = ctx.QueryParam("Name")
 		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
@@ -917,7 +917,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/query12", func(ctx echo.Context) error {
 		var bindArgs struct {
 			Name string `json:"Name,omitempty"`
@@ -930,7 +930,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, "OK")
-	})
+	}, handlers...)
 	mux.POST("/query13", func(ctx echo.Context) error {
 		var names = ctx.QueryParams()["names"]
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
@@ -938,11 +938,11 @@ func InitStringSvc(mux *echo.Group, svc StringSvc) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, "OK")
-	})
+	}, handlers...)
 	// Misc: annotation is missing
 }
 
-func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
+func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.MiddlewareFunc) {
 	mux.GET("/impl/files", func(ctx echo.Context) error {
 		var filenames = ctx.QueryParams()["filenames"]
 		list, total, err := svc.GetFiles(filenames)
@@ -954,7 +954,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			"total": total,
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/times", func(ctx echo.Context) error {
 		var times []time.Time
 		if ss := ctx.QueryParams()["times"]; len(ss) != 0 {
@@ -973,7 +973,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			"total": total,
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/allfiles", func(ctx echo.Context) error {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
@@ -984,7 +984,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			"total": total,
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/test_by_key/:key", func(ctx echo.Context) error {
 		keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64)
 		if err != nil {
@@ -996,7 +996,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test_by_key", func(ctx echo.Context) error {
 		var key Key
 		if s := ctx.QueryParam("key"); s != "" {
@@ -1011,7 +1011,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test_by_strkey/:key", func(ctx echo.Context) error {
 		var key = StrKey(ctx.Param("key"))
 		err := svc.TestByStrKey1(key)
@@ -1019,7 +1019,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test_by_strkey", func(ctx echo.Context) error {
 		var key = StrKey(ctx.QueryParam("key"))
 		err := svc.TestByStrKey2(key)
@@ -1027,7 +1027,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test64/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -1038,7 +1038,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test64", func(ctx echo.Context) error {
 		var id int64
 		if s := ctx.QueryParam("id"); s != "" {
@@ -1053,7 +1053,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test_query_args1/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -1112,7 +1112,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test_query_args2/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -1200,7 +1200,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test_query_args3/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -1259,7 +1259,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/test_query_args4/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -1347,26 +1347,26 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/ping", func(ctx echo.Context) error {
 		err := svc.Ping()
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/impl/echo", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		result := svc.Echo(a)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/impl/echo2", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/impl/echo3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
@@ -1379,7 +1379,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/concat", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var b = ctx.QueryParam("b")
@@ -1388,7 +1388,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/concat1", func(ctx echo.Context) error {
 		var a *string
 		if s := ctx.QueryParam("a"); s != "" {
@@ -1403,7 +1403,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/concat2/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
@@ -1412,7 +1412,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/concat3/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
@@ -1421,7 +1421,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/sub", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var start int64
@@ -1437,7 +1437,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/impl/save/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b strings.Builder
@@ -1449,7 +1449,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/impl/save2/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
@@ -1462,7 +1462,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/impl/save3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
@@ -1476,7 +1476,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/impl/save4", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
@@ -1490,7 +1490,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/impl/save5", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
@@ -1504,7 +1504,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/add/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
@@ -1519,7 +1519,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/add2/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
@@ -1534,7 +1534,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
@@ -1557,7 +1557,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query1", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
@@ -1586,7 +1586,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		result := svc.Query1(a, beginAt, endAt, isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query2/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
@@ -1611,7 +1611,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query3/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var beginAt time.Time
@@ -1636,7 +1636,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query4/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange
@@ -1660,7 +1660,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		result := svc.Query4(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query5/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange
@@ -1688,7 +1688,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		result := svc.Query5(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query6/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt TimeRange2
@@ -1712,7 +1712,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		result := svc.Query6(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query7/:is_raw", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var createdAt *TimeRange2
@@ -1740,7 +1740,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 		}
 		result := svc.Query7(a, createdAt, &isRaw)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query8", func(ctx echo.Context) error {
 		var itemID int64
 		if s := ctx.QueryParam("item_id"); s != "" {
@@ -1755,14 +1755,14 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/impl", func(ctx echo.Context) error {
 		err := svc.CreateWithNoReturn(ctx.Request().Context(), ctx.Request(), ctx.Response().Writer)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return nil
-	})
+	}, handlers...)
 	mux.GET("/impl/query9", func(ctx echo.Context) error {
 		var itemID sql.NullInt64
 		if s := ctx.QueryParam("item_id"); s != "" {
@@ -1778,7 +1778,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query10", func(ctx echo.Context) error {
 		var itemID sql.NullString
 		if s := ctx.QueryParam("item_id"); s != "" {
@@ -1790,7 +1790,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query11", func(ctx echo.Context) error {
 		var itemID sql.NullBool
 		if s := ctx.QueryParam("item_id"); s != "" && s != "none" {
@@ -1806,7 +1806,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/impl/query12", func(ctx echo.Context) error {
 		var Name = ctx.QueryParam("Name")
 		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
@@ -1814,7 +1814,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.String(httpCodeWith(err), err.Error())
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/impl/query12", func(ctx echo.Context) error {
 		var bindArgs struct {
 			Name string `json:"Name,omitempty"`
@@ -1827,7 +1827,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, "OK")
-	})
+	}, handlers...)
 	mux.POST("/impl/query13", func(ctx echo.Context) error {
 		var names = ctx.QueryParams()["names"]
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
@@ -1835,23 +1835,23 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, "OK")
-	})
+	}, handlers...)
 	// Misc: annotation is missing
 }
 
-func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
+func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handlers ...echo.MiddlewareFunc) {
 	mux.GET("/ctx/echo", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		result := svc.Echo(ctx.Request().Context(), a)
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/ctx/echo2", func(ctx echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Context(), ctx.Request().Body)
 		if err != nil {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.GET("/ctx/concat", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var b = ctx.QueryParam("b")
@@ -1860,7 +1860,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/ctx/concat1", func(ctx echo.Context) error {
 		var a *string
 		if s := ctx.QueryParam("a"); s != "" {
@@ -1875,7 +1875,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/ctx/concat2/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
@@ -1884,7 +1884,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/ctx/concat3/:a/:b", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
@@ -1893,7 +1893,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/ctx/sub", func(ctx echo.Context) error {
 		var a = ctx.QueryParam("a")
 		var start int64
@@ -1909,7 +1909,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/ctx/save1/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var b strings.Builder
@@ -1921,7 +1921,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/ctx/save2/:a", func(ctx echo.Context) error {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
@@ -1934,7 +1934,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/ctx/save3", func(ctx echo.Context) error {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
@@ -1948,7 +1948,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.GET("/ctx/add1/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
@@ -1963,7 +1963,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/ctx/add2/:a/:b", func(ctx echo.Context) error {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
@@ -1978,7 +1978,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/ctx/add3", func(ctx echo.Context) error {
 		var a *int
 		if s := ctx.QueryParam("a"); s != "" {
@@ -2001,7 +2001,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/ctx/query13", func(ctx echo.Context) error {
 		var names = ctx.QueryParams()["names"]
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
@@ -2009,7 +2009,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, "OK")
-	})
+	}, handlers...)
 	// Misc: annotation is missing
 }
 
@@ -2025,7 +2025,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext) {
 // SubTest3 is skipped
 // SubTest4 is skipped
 
-func InitRequests(mux *echo.Group, svc Requests) {
+func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc) {
 	mux.GET("/requests/query1", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
@@ -2246,7 +2246,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/query2", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("operator_id"); s != "" {
@@ -2459,7 +2459,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/query3", func(ctx echo.Context) error {
 		var query *AliasRequestQuery
 		if s := ctx.QueryParam("operator_id"); s != "" {
@@ -2672,7 +2672,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/queryex1", func(ctx echo.Context) error {
 		var query *RequestQueryEx1
 		if s := ctx.QueryParam("query.ex_arg"); s != "" {
@@ -2900,7 +2900,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/queryex2", func(ctx echo.Context) error {
 		var query *RequestQueryEx2
 		if s := ctx.QueryParam("query.ex_arg"); s != "" {
@@ -3177,7 +3177,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/queryex3", func(ctx echo.Context) error {
 		var query *RequestQueryEx3
 		if s := ctx.QueryParam("query.request.operator_id"); s != "" {
@@ -3404,7 +3404,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/queryex4", func(ctx echo.Context) error {
 		var query *RequestQueryEx4
 		if s := ctx.QueryParam("query.request.operator_id"); s != "" {
@@ -3680,7 +3680,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/queryex3/NoPrefix", func(ctx echo.Context) error {
 		var query *RequestQueryEx3
 		if s := ctx.QueryParam("request.operator_id"); s != "" {
@@ -3907,7 +3907,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/queryex4/NoPrefix", func(ctx echo.Context) error {
 		var query *RequestQueryEx4
 		if s := ctx.QueryParam("request.operator_id"); s != "" {
@@ -4183,7 +4183,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests", func(ctx echo.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("query.operator_id"); s != "" {
@@ -4397,7 +4397,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/requests/create1", func(ctx echo.Context) error {
 		var data models.Request
 		if err := ctx.Bind(&data); err != nil {
@@ -4408,7 +4408,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/requests/create2", func(ctx echo.Context) error {
 		var bindArgs struct {
 			Request *models.Request `json:"request,omitempty"`
@@ -4422,7 +4422,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.PUT("/requests/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -4437,7 +4437,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.PATCH("/requests/set1/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -4454,7 +4454,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.PATCH("/requests/set2/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -4469,7 +4469,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.PUT("/requests/set3/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -4486,7 +4486,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.PUT("/requests/set4/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -4501,7 +4501,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.POST("/requests/set5/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -4518,7 +4518,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/requests/set6/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -4533,7 +4533,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.POST("/requests/set7/:id", func(ctx echo.Context) error {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
@@ -4548,7 +4548,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusCreated, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/querysub1", func(ctx echo.Context) error {
 		var query *SubTest1
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
@@ -4584,7 +4584,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/querysub2", func(ctx echo.Context) error {
 		var query *SubTest2
 		if s := ctx.QueryParam("query.sub1.a1"); s != "" {
@@ -4628,7 +4628,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/querysub3", func(ctx echo.Context) error {
 		var query *SubTest3
 		if s := ctx.QueryParam("query.ex_arg"); s != "" {
@@ -4678,7 +4678,7 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/requests/querysub4", func(ctx echo.Context) error {
 		var query *SubTest4
 		if s := ctx.QueryParam("query.ex_arg"); s != "" {
@@ -4741,5 +4741,5 @@ func InitRequests(mux *echo.Group, svc Requests) {
 			return ctx.JSON(httpCodeWith(err), err)
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 }

@@ -16,8 +16,8 @@ import (
 
 // Options is skipped
 
-func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
-	mux.GET("/case1/by_name/:name", func(ctx *gin.Context) {
+func InitCaseSvc(mux gin.IRouter, svc CaseSvc, handlers ...gin.HandlerFunc) {
+	mux.GET("/case1/by_name/:name", append(handlers, func(ctx *gin.Context) {
 		var name = ctx.Param("name")
 		err := svc.TestCase1(name)
 		if err != nil {
@@ -26,8 +26,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case2_1/by_name", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case2_1/by_name", append(handlers, func(ctx *gin.Context) {
 		var name = ctx.Query("name")
 		err := svc.TestCase2_1(name)
 		if err != nil {
@@ -36,8 +36,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case2_2/by_names", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case2_2/by_names", append(handlers, func(ctx *gin.Context) {
 		var name = ctx.QueryArray("name")
 		err := svc.TestCase2_2(name)
 		if err != nil {
@@ -46,8 +46,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case2_3/by_name", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case2_3/by_name", append(handlers, func(ctx *gin.Context) {
 		var name = ctx.Query("name")
 		err := svc.TestCase2_3(name)
 		if err != nil {
@@ -56,8 +56,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case3_1/by_id/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case3_1/by_id/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_1", "id"))
@@ -70,8 +70,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case3_2/by_id/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case3_2/by_id/:id", append(handlers, func(ctx *gin.Context) {
 		idValue, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_2", "id"))
@@ -85,8 +85,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case3_3/by_id/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case3_3/by_id/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase3_3", "id"))
@@ -99,8 +99,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case4/by_id/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case4/by_id/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase4", "id"))
@@ -113,8 +113,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case5_1/by_id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case5_1/by_id", append(handlers, func(ctx *gin.Context) {
 		var id int64
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -131,8 +131,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case5_2/by_id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case5_2/by_id", append(handlers, func(ctx *gin.Context) {
 		var id int32
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -149,8 +149,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case5_3/by_id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case5_3/by_id", append(handlers, func(ctx *gin.Context) {
 		var idlist []int64
 		if ss := ctx.QueryArray("idlist"); len(ss) != 0 {
 			idlistValue, err := ToInt64Array(ss)
@@ -167,8 +167,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case6/by_id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case6/by_id", append(handlers, func(ctx *gin.Context) {
 		var id int64
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -185,8 +185,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case7_1/by_id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case7_1/by_id", append(handlers, func(ctx *gin.Context) {
 		var id sql.NullInt64
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -204,8 +204,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case7_2/by_id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case7_2/by_id", append(handlers, func(ctx *gin.Context) {
 		var id sql.NullInt32
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -223,8 +223,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case8/by_id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case8/by_id", append(handlers, func(ctx *gin.Context) {
 		var id sql.NullInt64
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -242,8 +242,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/cast_for_nullbool", func(ctx *gin.Context) {
+	}))
+	mux.GET("/cast_for_nullbool", append(handlers, func(ctx *gin.Context) {
 		var ok sql.NullBool
 		if s := ctx.Query("ok"); s != "" && s != "none" {
 			okValue, err := strconv.ParseBool(s)
@@ -261,8 +261,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case9/by_id/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case9/by_id/:id", append(handlers, func(ctx *gin.Context) {
 		var id = ctx.Param("id")
 		err := svc.TestCase9(&id)
 		if err != nil {
@@ -271,8 +271,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case10/by_name", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case10/by_name", append(handlers, func(ctx *gin.Context) {
 		var id *string
 		if s := ctx.Query("id"); s != "" {
 			id = &s
@@ -284,8 +284,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case12/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case12/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase12", "id"))
@@ -298,8 +298,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case13/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case13/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.Atoi(ctx.Param("id"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase13", "id"))
@@ -312,8 +312,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case14_1/by_id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case14_1/by_id", append(handlers, func(ctx *gin.Context) {
 		var id *int
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
@@ -330,8 +330,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case14_2/by_name", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case14_2/by_name", append(handlers, func(ctx *gin.Context) {
 		var id *int32
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -349,8 +349,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case14_3/by_name", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case14_3/by_name", append(handlers, func(ctx *gin.Context) {
 		var id *int
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
@@ -367,8 +367,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case14_3/by_name", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case14_3/by_name", append(handlers, func(ctx *gin.Context) {
 		var a bool
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.ParseBool(s)
@@ -385,8 +385,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case_map", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case_map", append(handlers, func(ctx *gin.Context) {
 		var otherValues = map[string]string{}
 		for key, values := range ctx.Request.URL.Query() {
 			if !strings.HasPrefix(key, "otherValues.") {
@@ -401,8 +401,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case_map_inline", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case_map_inline", append(handlers, func(ctx *gin.Context) {
 		var otherValues = map[string]string{}
 		for key, values := range ctx.Request.URL.Query() {
 			if key == "offset" ||
@@ -436,8 +436,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case_url_values", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case_url_values", append(handlers, func(ctx *gin.Context) {
 		var otherValues = url.Values{}
 		for key, values := range ctx.Request.URL.Query() {
 			if !strings.HasPrefix(key, "otherValues.") {
@@ -452,8 +452,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/case_url_values_inline", func(ctx *gin.Context) {
+	}))
+	mux.GET("/case_url_values_inline", append(handlers, func(ctx *gin.Context) {
 		var otherValues = url.Values{}
 		for key, values := range ctx.Request.URL.Query() {
 			if key == "offset" ||
@@ -487,8 +487,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_type1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_type1", append(handlers, func(ctx *gin.Context) {
 		var typ TypeInfo
 		typ.Name = ctx.Query("typ.name")
 		err := svc.TestType1(typ)
@@ -498,8 +498,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_type2", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_type2", append(handlers, func(ctx *gin.Context) {
 		var opts Options
 		err := svc.TestType2(opts)
 		if err != nil {
@@ -508,8 +508,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/TestResult1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/TestResult1", append(handlers, func(ctx *gin.Context) {
 		result, err := svc.TestResult1()
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -517,8 +517,8 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/TestResult2", func(ctx *gin.Context) {
+	}))
+	mux.GET("/TestResult2", append(handlers, func(ctx *gin.Context) {
 		code, data, err := svc.TestResult2()
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -530,14 +530,14 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
+	}))
 }
 
-func InitOptionalPrefixSvc(mux gin.IRouter, enabledPrefix bool, svc OptionalPrefixSvc) {
+func InitOptionalPrefixSvc(mux gin.IRouter, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...gin.HandlerFunc) {
 	if enabledPrefix {
 		mux = mux.Group("/optpre")
 	}
-	mux.GET("/get", func(ctx *gin.Context) {
+	mux.GET("/get", append(handlers, func(ctx *gin.Context) {
 		err := svc.Get()
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -545,7 +545,7 @@ func InitOptionalPrefixSvc(mux gin.IRouter, enabledPrefix bool, svc OptionalPref
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
+	}))
 }
 
 // JSONResult is skipped

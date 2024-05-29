@@ -78,6 +78,26 @@ func (lng *loongPlugin) IsPartyFluentStyle() bool {
 	return true
 }
 
+func (lng *loongPlugin) MiddlewaresDeclaration() string {
+	return "handlers ...loong.MiddlewareFunc"
+}
+
+func (lng *loongPlugin) MiddlewaresVar() string {
+	return "handlers..."
+}
+
+func (lng *loongPlugin) HasWithMiddlewares() bool {
+	return true
+}
+
+func (lng *loongPlugin) RenderWithMiddlewares(mux string) string {
+	return mux + " = "+mux+".With(handlers...)"
+}
+
+func (lng *loongPlugin) RenderMiddlewares(out io.Writer, fn func(out io.Writer) error) error {
+	return fn(out)
+}
+
 func (lng *loongPlugin) ReadBodyFunc(argName string) string {
 	return "ctx.Bind(" + argName + ")"
 }
@@ -90,7 +110,7 @@ func (lng *loongPlugin) GetCastErrorText(method *Method, accessFields, err, valu
 	return "loong.ErrBadArgument(\"" + accessFields + "\", " + value + ", " + err + ")"
 }
 
-func (lng *loongPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
+func (lng *loongPlugin) RenderFunc(out io.Writer, method *Method, route swag.RouteProperties, fn func(out io.Writer) error) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {
 		return err
@@ -99,6 +119,13 @@ func (lng *loongPlugin) RenderFuncHeader(out io.Writer, method *Method, route sw
 		urlstr = ""
 	}
 	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx *loong.Context) error {")
+	if err != nil {
+		return err
+	}
+	if err := fn(out); err != nil {
+		return err
+	}
+	_, err = io.WriteString(out, "\r\n})")
 	return err
 }
 

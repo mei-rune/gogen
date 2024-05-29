@@ -22,7 +22,8 @@ import (
 // TimeRange2 is skipped
 // QueryArgs is skipped
 
-func InitStringSvc(mux chi.Router, svc StringSvc) {
+func InitStringSvc(mux chi.Router, svc StringSvc, handlers ...func(http.Handler) http.Handler) {
+	mux = mux.With(handlers...)
 	mux.Get("/files", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var filenames = queryParams["filenames"]
@@ -1240,7 +1241,8 @@ func InitStringSvc(mux chi.Router, svc StringSvc) {
 	// Misc: annotation is missing
 }
 
-func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
+func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl, handlers ...func(http.Handler) http.Handler) {
+	mux = mux.With(handlers...)
 	mux.Get("/impl/files", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var filenames = queryParams["filenames"]
@@ -2424,7 +2426,8 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl) {
 	// Misc: annotation is missing
 }
 
-func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
+func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext, handlers ...func(http.Handler) http.Handler) {
+	mux = mux.With(handlers...)
 	mux.Get("/ctx/echo", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var a = queryParams.Get("a")
@@ -2676,7 +2679,8 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext) {
 // SubTest3 is skipped
 // SubTest4 is skipped
 
-func InitRequests(mux chi.Router, svc Requests) {
+func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) http.Handler) {
+	mux = mux.With(handlers...)
 	mux.Get("/requests/query1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *models.RequestQuery

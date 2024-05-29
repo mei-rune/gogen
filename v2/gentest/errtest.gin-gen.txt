@@ -12,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitErrStringSvc(mux gin.IRouter, svc ErrStringSvc) {
-	mux.GET("/files1", func(ctx *gin.Context) {
+func InitErrStringSvc(mux gin.IRouter, svc ErrStringSvc, handlers ...gin.HandlerFunc) {
+	mux.GET("/files1", append(handlers, func(ctx *gin.Context) {
 		list, total, err := svc.Get1()
 		if err != nil {
 			ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
@@ -25,8 +25,8 @@ func InitErrStringSvc(mux gin.IRouter, svc ErrStringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/files2", func(ctx *gin.Context) {
+	}))
+	mux.GET("/files2", append(handlers, func(ctx *gin.Context) {
 		list, total, err := svc.Get2()
 		if err != nil {
 			ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
@@ -38,8 +38,8 @@ func InitErrStringSvc(mux gin.IRouter, svc ErrStringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/files3", func(ctx *gin.Context) {
+	}))
+	mux.GET("/files3", append(handlers, func(ctx *gin.Context) {
 		err := svc.Get3()
 		if err != nil {
 			ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
@@ -47,8 +47,8 @@ func InitErrStringSvc(mux gin.IRouter, svc ErrStringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/files4", func(ctx *gin.Context) {
+	}))
+	mux.GET("/files4", append(handlers, func(ctx *gin.Context) {
 		var id int
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
@@ -65,5 +65,5 @@ func InitErrStringSvc(mux gin.IRouter, svc ErrStringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
+	}))
 }

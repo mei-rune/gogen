@@ -54,6 +54,7 @@ func (chi *chiPlugin) Imports() map[string]string {
 	}
 }
 
+
 func (chi *chiPlugin) PartyTypeName() string {
 	return "chi.Router"
 }
@@ -90,11 +91,24 @@ func (chi *chiPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 // 	return getCastErrorText(chi.cfg.NewBadArgument, method, accessFields, err, value)
 // }
 
+
+func (chi *chiPlugin) MiddlewaresDeclaration() string {
+	return "handlers ...func(http.Handler) http.Handler"
+}
+
+func (chi *chiPlugin) RenderWithMiddlewares(mux string) string {
+	return mux + " = "+mux+".With(handlers...)"
+}
+
+func (chi *chiPlugin) RenderMiddlewares(out io.Writer, fn func(out io.Writer) error) error {
+	return fn(out)
+}
+
 func (chi *chiPlugin) ReadBodyFunc(argName string) string {
 	return "render.Decode(r, " + argName + ")"
 }
 
-func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
+func (chi *chiPlugin) RenderFunc(out io.Writer, method *Method, route swag.RouteProperties, fn func(out io.Writer) error) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {
 		return err
@@ -104,9 +118,22 @@ func (chi *chiPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	// }
 
 	_, err = io.WriteString(out, "\r\nmux."+ConvertMethodNameToCamelCase(route.HTTPMethod)+"(\""+urlstr+"\", func(w http.ResponseWriter, r *http.Request) {")
+	if err != nil {
+		return err
+	}
+
 	if method.HasQueryParam() {
 		_, err = io.WriteString(out, "\r\n\tqueryParams := r.URL.Query()")
+		if err != nil {
+			return err
+		}
 	}
+
+	if err := fn(out); err != nil {
+		return err
+	}
+
+	_, err = io.WriteString(out, "\r\n})")
 	return err
 }
 

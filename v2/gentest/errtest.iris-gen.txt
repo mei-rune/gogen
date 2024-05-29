@@ -12,8 +12,8 @@ import (
 	iris "github.com/kataras/iris/v12"
 )
 
-func InitErrStringSvc(mux iris.Party, svc ErrStringSvc) {
-	mux.Get("/files1", func(ctx iris.Context) {
+func InitErrStringSvc(mux iris.Party, svc ErrStringSvc, handlers ...iris.Handler) {
+	mux.Get("/files1", append(handlers, func(ctx iris.Context) {
 		list, total, err := svc.Get1()
 		if err != nil {
 			ctx.StatusCode(errors.GetHttpCode(err))
@@ -26,8 +26,8 @@ func InitErrStringSvc(mux iris.Party, svc ErrStringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/files2", func(ctx iris.Context) {
+	}))
+	mux.Get("/files2", append(handlers, func(ctx iris.Context) {
 		list, total, err := svc.Get2()
 		if err != nil {
 			ctx.StatusCode(errors.GetHttpCode(err))
@@ -40,8 +40,8 @@ func InitErrStringSvc(mux iris.Party, svc ErrStringSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/files3", func(ctx iris.Context) {
+	}))
+	mux.Get("/files3", append(handlers, func(ctx iris.Context) {
 		err := svc.Get3()
 		if err != nil {
 			ctx.StatusCode(errors.GetHttpCode(err))
@@ -50,8 +50,8 @@ func InitErrStringSvc(mux iris.Party, svc ErrStringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/files4", func(ctx iris.Context) {
+	}))
+	mux.Get("/files4", append(handlers, func(ctx iris.Context) {
 		var id int
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
@@ -70,5 +70,5 @@ func InitErrStringSvc(mux iris.Party, svc ErrStringSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
+	}))
 }

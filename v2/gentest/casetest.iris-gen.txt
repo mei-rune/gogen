@@ -16,8 +16,8 @@ import (
 
 // Options is skipped
 
-func InitCaseSvc(mux iris.Party, svc CaseSvc) {
-	mux.Get("/case1/by_name/:name", func(ctx iris.Context) {
+func InitCaseSvc(mux iris.Party, svc CaseSvc, handlers ...iris.Handler) {
+	mux.Get("/case1/by_name/:name", append(handlers, func(ctx iris.Context) {
 		var name = ctx.Params().GetString("name")
 		err := svc.TestCase1(name)
 		if err != nil {
@@ -27,8 +27,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case2_1/by_name", func(ctx iris.Context) {
+	}))
+	mux.Get("/case2_1/by_name", append(handlers, func(ctx iris.Context) {
 		var name = ctx.URLParam("name")
 		err := svc.TestCase2_1(name)
 		if err != nil {
@@ -38,8 +38,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case2_2/by_names", func(ctx iris.Context) {
+	}))
+	mux.Get("/case2_2/by_names", append(handlers, func(ctx iris.Context) {
 		var name = ctx.URLParamSlice("name")
 		err := svc.TestCase2_2(name)
 		if err != nil {
@@ -49,8 +49,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case2_3/by_name", func(ctx iris.Context) {
+	}))
+	mux.Get("/case2_3/by_name", append(handlers, func(ctx iris.Context) {
 		var name = ctx.URLParam("name")
 		err := svc.TestCase2_3(name)
 		if err != nil {
@@ -60,8 +60,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case3_1/by_id/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case3_1/by_id/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt64("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -76,8 +76,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case3_2/by_id/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case3_2/by_id/:id", append(handlers, func(ctx iris.Context) {
 		idValue, err := strconv.ParseInt(ctx.Params().GetString("id"), 10, 32)
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -93,8 +93,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case3_3/by_id/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case3_3/by_id/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -109,8 +109,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case4/by_id/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case4/by_id/:id", append(handlers, func(ctx iris.Context) {
 		id, err := ctx.Params().GetInt("id")
 		if err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
@@ -125,8 +125,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case5_1/by_id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case5_1/by_id", append(handlers, func(ctx iris.Context) {
 		var id int64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -145,8 +145,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case5_2/by_id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case5_2/by_id", append(handlers, func(ctx iris.Context) {
 		var id int32
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -165,8 +165,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case5_3/by_id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case5_3/by_id", append(handlers, func(ctx iris.Context) {
 		var idlist []int64
 		if ss := ctx.URLParamSlice("idlist"); len(ss) != 0 {
 			idlistValue, err := ToInt64Array(ss)
@@ -185,8 +185,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case6/by_id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case6/by_id", append(handlers, func(ctx iris.Context) {
 		var id int64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -205,8 +205,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case7_1/by_id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case7_1/by_id", append(handlers, func(ctx iris.Context) {
 		var id sql.NullInt64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -226,8 +226,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case7_2/by_id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case7_2/by_id", append(handlers, func(ctx iris.Context) {
 		var id sql.NullInt32
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -247,8 +247,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case8/by_id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case8/by_id", append(handlers, func(ctx iris.Context) {
 		var id sql.NullInt64
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -268,8 +268,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/cast_for_nullbool", func(ctx iris.Context) {
+	}))
+	mux.Get("/cast_for_nullbool", append(handlers, func(ctx iris.Context) {
 		var ok sql.NullBool
 		if s := ctx.URLParam("ok"); s != "" && s != "none" {
 			okValue, err := strconv.ParseBool(s)
@@ -289,8 +289,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case9/by_id/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case9/by_id/:id", append(handlers, func(ctx iris.Context) {
 		var id = ctx.Params().GetString("id")
 		err := svc.TestCase9(&id)
 		if err != nil {
@@ -300,8 +300,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case10/by_name", func(ctx iris.Context) {
+	}))
+	mux.Get("/case10/by_name", append(handlers, func(ctx iris.Context) {
 		var id *string
 		if s := ctx.URLParam("id"); s != "" {
 			id = &s
@@ -314,8 +314,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case12/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case12/:id", append(handlers, func(ctx iris.Context) {
 		var id = ctx.Params().GetInt("id")
 		err := svc.TestCase12(&id)
 		if err != nil {
@@ -325,8 +325,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case13/:id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case13/:id", append(handlers, func(ctx iris.Context) {
 		var id = ctx.Params().GetInt("id")
 		err := svc.TestCase13(&id)
 		if err != nil {
@@ -336,8 +336,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case14_1/by_id", func(ctx iris.Context) {
+	}))
+	mux.Get("/case14_1/by_id", append(handlers, func(ctx iris.Context) {
 		var id *int
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
@@ -356,8 +356,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case14_2/by_name", func(ctx iris.Context) {
+	}))
+	mux.Get("/case14_2/by_name", append(handlers, func(ctx iris.Context) {
 		var id *int32
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 32)
@@ -377,8 +377,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case14_3/by_name", func(ctx iris.Context) {
+	}))
+	mux.Get("/case14_3/by_name", append(handlers, func(ctx iris.Context) {
 		var id *int
 		if s := ctx.URLParam("id"); s != "" {
 			idValue, err := strconv.Atoi(s)
@@ -397,8 +397,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case14_3/by_name", func(ctx iris.Context) {
+	}))
+	mux.Get("/case14_3/by_name", append(handlers, func(ctx iris.Context) {
 		var a bool
 		if s := ctx.URLParam("a"); s != "" {
 			aValue, err := strconv.ParseBool(s)
@@ -417,8 +417,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case_map", func(ctx iris.Context) {
+	}))
+	mux.Get("/case_map", append(handlers, func(ctx iris.Context) {
 		var otherValues = map[string]string{}
 		for key, values := range ctx.Request().URL.Query() {
 			if !strings.HasPrefix(key, "otherValues.") {
@@ -434,8 +434,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case_map_inline", func(ctx iris.Context) {
+	}))
+	mux.Get("/case_map_inline", append(handlers, func(ctx iris.Context) {
 		var otherValues = map[string]string{}
 		for key, values := range ctx.Request().URL.Query() {
 			if key == "offset" ||
@@ -472,8 +472,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case_url_values", func(ctx iris.Context) {
+	}))
+	mux.Get("/case_url_values", append(handlers, func(ctx iris.Context) {
 		var otherValues = url.Values{}
 		for key, values := range ctx.Request().URL.Query() {
 			if !strings.HasPrefix(key, "otherValues.") {
@@ -489,8 +489,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/case_url_values_inline", func(ctx iris.Context) {
+	}))
+	mux.Get("/case_url_values_inline", append(handlers, func(ctx iris.Context) {
 		var otherValues = url.Values{}
 		for key, values := range ctx.Request().URL.Query() {
 			if key == "offset" ||
@@ -527,8 +527,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_type1", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_type1", append(handlers, func(ctx iris.Context) {
 		var typ TypeInfo
 		typ.Name = ctx.URLParam("typ.name")
 		err := svc.TestType1(typ)
@@ -539,8 +539,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/test_type2", func(ctx iris.Context) {
+	}))
+	mux.Get("/test_type2", append(handlers, func(ctx iris.Context) {
 		var opts Options
 		err := svc.TestType2(opts)
 		if err != nil {
@@ -550,8 +550,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON("OK")
 		return
-	})
-	mux.Get("/TestResult1", func(ctx iris.Context) {
+	}))
+	mux.Get("/TestResult1", append(handlers, func(ctx iris.Context) {
 		result, err := svc.TestResult1()
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -560,8 +560,8 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
-	mux.Get("/TestResult2", func(ctx iris.Context) {
+	}))
+	mux.Get("/TestResult2", append(handlers, func(ctx iris.Context) {
 		code, data, err := svc.TestResult2()
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -574,14 +574,14 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc) {
 		}
 		ctx.JSON(result)
 		return
-	})
+	}))
 }
 
-func InitOptionalPrefixSvc(mux iris.Party, enabledPrefix bool, svc OptionalPrefixSvc) {
+func InitOptionalPrefixSvc(mux iris.Party, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...iris.Handler) {
 	if enabledPrefix {
 		mux = mux.Group("/optpre")
 	}
-	mux.Get("/get", func(ctx iris.Context) {
+	mux.Get("/get", append(handlers, func(ctx iris.Context) {
 		err := svc.Get()
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -590,7 +590,7 @@ func InitOptionalPrefixSvc(mux iris.Party, enabledPrefix bool, svc OptionalPrefi
 		}
 		ctx.JSON("OK")
 		return
-	})
+	}))
 }
 
 // JSONResult is skipped

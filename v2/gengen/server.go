@@ -247,7 +247,7 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 		}
 
 		if optionalRoutePrefix != "" {
-			io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", enabledPrefix bool, svc "+star+ts.Name+") {")
+			io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", enabledPrefix bool, svc "+star+ts.Name+", "+plugin.MiddlewaresDeclaration()+") {")
 			if !plugin.IsPartyFluentStyle() {
 				io.WriteString(out, "\r\ninitFunc := func(mux "+plugin.PartyTypeName()+") {")
 			} else {
@@ -256,8 +256,14 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 				io.WriteString(out, "\r\n\t}")
 			}
 		} else {
-			io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", svc "+star+ts.Name+") {")
+			io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", svc "+star+ts.Name+", "+plugin.MiddlewaresDeclaration()+") {")
 		}
+
+
+		if s := plugin.RenderWithMiddlewares("mux"); s != "" {
+			io.WriteString(out, "\r\n  " + s)
+		}
+
 
 		for _, method := range methods {
 			// RenderFuncHeader 将输出： mux.Get("/allfiles", func(w http.ResponseWriter, r *http.Request) {
@@ -282,22 +288,23 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			if err := checkUrlValid(method, routeProps); err != nil {
 				return err
 			}
-			err := plugin.RenderFuncHeader(out, method, routeProps)
+			fn := func(out io.Writer) error {
+				ctx := &GenContext{
+					enableResultWrap: cmd.enableResultWrap,
+					convertNS:        cmd.convertNamespace,
+					plugin:           plugin,
+					out:              out,
+				}
+				err = method.renderImpl(ctx)
+				if err != nil {
+					return err
+				}
+				return nil
+			}
+			err := plugin.RenderFunc(out, method, routeProps, fn)
 			if err != nil {
 				return err
 			}
-
-			ctx := &GenContext{
-				enableResultWrap: cmd.enableResultWrap,
-				convertNS:        cmd.convertNamespace,
-				plugin:           plugin,
-				out:              out,
-			}
-			err = method.renderImpl(ctx)
-			if err != nil {
-				return err
-			}
-			io.WriteString(out, "\r\n})")
 		}
 
 		if optionalRoutePrefix != "" && !plugin.IsPartyFluentStyle() {

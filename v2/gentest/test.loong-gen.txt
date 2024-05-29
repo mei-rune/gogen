@@ -21,7 +21,8 @@ import (
 // TimeRange2 is skipped
 // QueryArgs is skipped
 
-func InitStringSvc(mux loong.Party, svc StringSvc) {
+func InitStringSvc(mux loong.Party, svc StringSvc, handlers ...loong.MiddlewareFunc) {
+	mux = mux.With(handlers...)
 	mux.GET("/files", func(ctx *loong.Context) error {
 		var filenames = ctx.QueryParamArray("filenames")
 		list, total, err := svc.GetFiles(filenames)
@@ -942,7 +943,8 @@ func InitStringSvc(mux loong.Party, svc StringSvc) {
 	// Misc: annotation is missing
 }
 
-func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
+func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl, handlers ...loong.MiddlewareFunc) {
+	mux = mux.With(handlers...)
 	mux.GET("/impl/files", func(ctx *loong.Context) error {
 		var filenames = ctx.QueryParamArray("filenames")
 		list, total, err := svc.GetFiles(filenames)
@@ -1839,7 +1841,8 @@ func InitStringSvcImpl(mux loong.Party, svc *StringSvcImpl) {
 	// Misc: annotation is missing
 }
 
-func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
+func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext, handlers ...loong.MiddlewareFunc) {
+	mux = mux.With(handlers...)
 	mux.GET("/ctx/echo", func(ctx *loong.Context) error {
 		var a = ctx.QueryParam("a")
 		result := svc.Echo(ctx.StdContext, a)
@@ -2025,7 +2028,8 @@ func InitStringSvcWithContext(mux loong.Party, svc *StringSvcWithContext) {
 // SubTest3 is skipped
 // SubTest4 is skipped
 
-func InitRequests(mux loong.Party, svc Requests) {
+func InitRequests(mux loong.Party, svc Requests, handlers ...loong.MiddlewareFunc) {
+	mux = mux.With(handlers...)
 	mux.GET("/requests/query1", func(ctx *loong.Context) error {
 		var query *models.RequestQuery
 		if s := ctx.QueryParam("query.operator_id"); s != "" {

@@ -21,8 +21,8 @@ import (
 // TimeRange2 is skipped
 // QueryArgs is skipped
 
-func InitStringSvc(mux gin.IRouter, svc StringSvc) {
-	mux.GET("/files", func(ctx *gin.Context) {
+func InitStringSvc(mux gin.IRouter, svc StringSvc, handlers ...gin.HandlerFunc) {
+	mux.GET("/files", append(handlers, func(ctx *gin.Context) {
 		var filenames = ctx.QueryArray("filenames")
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
@@ -35,8 +35,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/times", func(ctx *gin.Context) {
+	}))
+	mux.GET("/times", append(handlers, func(ctx *gin.Context) {
 		var times []time.Time
 		if ss := ctx.QueryArray("times"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
@@ -57,8 +57,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/allfiles", func(ctx *gin.Context) {
+	}))
+	mux.GET("/allfiles", append(handlers, func(ctx *gin.Context) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -70,8 +70,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/test_by_key/:key", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_by_key/:key", append(handlers, func(ctx *gin.Context) {
 		keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestByKey1", "key"))
@@ -85,8 +85,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_by_key2", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_by_key2", append(handlers, func(ctx *gin.Context) {
 		var key Key
 		if s := ctx.Query("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
@@ -103,8 +103,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_by_key3", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_by_key3", append(handlers, func(ctx *gin.Context) {
 		var key Key
 		if s := ctx.Query("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
@@ -121,8 +121,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_by_strkey/:key", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_by_strkey/:key", append(handlers, func(ctx *gin.Context) {
 		var key = StrKey(ctx.Param("key"))
 		err := svc.TestByStrKey1(key)
 		if err != nil {
@@ -131,8 +131,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_by_strkey", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_by_strkey", append(handlers, func(ctx *gin.Context) {
 		var key = StrKey(ctx.Query("key"))
 		err := svc.TestByStrKey2(key)
 		if err != nil {
@@ -141,8 +141,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test64/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test64/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestInt64Path", "id"))
@@ -155,8 +155,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test64", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test64", append(handlers, func(ctx *gin.Context) {
 		var id int64
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -173,8 +173,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_query_args1/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_query_args1/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs1", "id"))
@@ -241,8 +241,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_query_args2/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_query_args2/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs2", "id"))
@@ -338,8 +338,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_query_args3/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_query_args3/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs3", "id"))
@@ -406,8 +406,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/test_query_args4/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/test_query_args4/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.TestQueryArgs4", "id"))
@@ -503,8 +503,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/ping", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ping", append(handlers, func(ctx *gin.Context) {
 		err := svc.Ping()
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -512,14 +512,14 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/echo", func(ctx *gin.Context) {
+	}))
+	mux.GET("/echo", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		result := svc.Echo(a)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/echo2", func(ctx *gin.Context) {
+	}))
+	mux.POST("/echo2", append(handlers, func(ctx *gin.Context) {
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -527,8 +527,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/echo3", func(ctx *gin.Context) {
+	}))
+	mux.POST("/echo3", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
@@ -543,8 +543,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.GET("/concat0_1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/concat0_1", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var b = ctx.Query("b")
 		result, err := svc.Concat0_1(a, b)
@@ -554,8 +554,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/concat0_2", func(ctx *gin.Context) {
+	}))
+	mux.GET("/concat0_2", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var b = ctx.Query("b")
 		result, err := svc.Concat0_2(a, b)
@@ -565,8 +565,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/concat1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/concat1", append(handlers, func(ctx *gin.Context) {
 		var a *string
 		if s := ctx.Query("a"); s != "" {
 			a = &s
@@ -582,8 +582,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/concat2/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/concat2/:a/:b", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 		result, err := svc.Concat2(a, b)
@@ -593,8 +593,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/concat3/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/concat3/:a/:b", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 		result, err := svc.Concat3(&a, &b)
@@ -604,8 +604,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/sub", func(ctx *gin.Context) {
+	}))
+	mux.GET("/sub", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var start int64
 		if s := ctx.Query("start"); s != "" {
@@ -623,8 +623,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/save/:a", func(ctx *gin.Context) {
+	}))
+	mux.POST("/save/:a", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -638,8 +638,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/save2/:a", func(ctx *gin.Context) {
+	}))
+	mux.POST("/save2/:a", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
@@ -654,8 +654,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/save3", func(ctx *gin.Context) {
+	}))
+	mux.POST("/save3", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -671,8 +671,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/save4", func(ctx *gin.Context) {
+	}))
+	mux.POST("/save4", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -688,8 +688,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/save5", func(ctx *gin.Context) {
+	}))
+	mux.POST("/save5", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -705,8 +705,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.GET("/add/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/add/:a/:b", append(handlers, func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.Add1", "a"))
@@ -724,8 +724,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/add2/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/add2/:a/:b", append(handlers, func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.Add2", "a"))
@@ -743,8 +743,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/add3", func(ctx *gin.Context) {
+	}))
+	mux.GET("/add3", append(handlers, func(ctx *gin.Context) {
 		var a *int
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
@@ -770,8 +770,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query1", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -803,8 +803,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		result := svc.Query1(a, beginAt, endAt, isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query2/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query2/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -832,8 +832,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query3/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query3/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -861,8 +861,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query4/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query4/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -889,8 +889,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		result := svc.Query4(a, createdAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query5/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query5/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -921,8 +921,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		result := svc.Query5(a, createdAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query6/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query6/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange2
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -949,8 +949,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		result := svc.Query6(a, createdAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query7/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query7/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange2
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -981,8 +981,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		result := svc.Query7(a, createdAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query8", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query8", append(handlers, func(ctx *gin.Context) {
 		var itemID int64
 		if s := ctx.Query("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -999,16 +999,16 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.POST("/", func(ctx *gin.Context) {
+	}))
+	mux.POST("/", append(handlers, func(ctx *gin.Context) {
 		err := svc.CreateWithNoReturn(ctx.Request.Context(), ctx.Request, ctx.Writer)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
 		}
 		return
-	})
-	mux.GET("/query9", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query9", append(handlers, func(ctx *gin.Context) {
 		var itemID sql.NullInt64
 		if s := ctx.Query("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -1026,8 +1026,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query10", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query10", append(handlers, func(ctx *gin.Context) {
 		var itemID sql.NullString
 		if s := ctx.Query("item_id"); s != "" {
 			itemID.Valid = true
@@ -1040,8 +1040,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query11", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query11", append(handlers, func(ctx *gin.Context) {
 		var itemID sql.NullBool
 		if s := ctx.Query("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
@@ -1059,8 +1059,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.GET("/query12", func(ctx *gin.Context) {
+	}))
+	mux.GET("/query12", append(handlers, func(ctx *gin.Context) {
 		var Name = ctx.Query("Name")
 		result, err := svc.Query1WithUpName(ctx.Request.Context(), Name)
 		if err != nil {
@@ -1069,8 +1069,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.POST("/query12", func(ctx *gin.Context) {
+	}))
+	mux.POST("/query12", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			Name string `json:"Name,omitempty"`
 		}
@@ -1085,8 +1085,8 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, "OK")
 		return
-	})
-	mux.POST("/query13", func(ctx *gin.Context) {
+	}))
+	mux.POST("/query13", append(handlers, func(ctx *gin.Context) {
 		var names = ctx.QueryArray("names")
 		err := svc.QueryVarArgs(ctx.Request.Context(), names...)
 		if err != nil {
@@ -1095,12 +1095,12 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc) {
 		}
 		ctx.JSON(http.StatusCreated, "OK")
 		return
-	})
+	}))
 	// Misc: annotation is missing
 }
 
-func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
-	mux.GET("/impl/files", func(ctx *gin.Context) {
+func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl, handlers ...gin.HandlerFunc) {
+	mux.GET("/impl/files", append(handlers, func(ctx *gin.Context) {
 		var filenames = ctx.QueryArray("filenames")
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
@@ -1113,8 +1113,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/times", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/times", append(handlers, func(ctx *gin.Context) {
 		var times []time.Time
 		if ss := ctx.QueryArray("times"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
@@ -1135,8 +1135,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/allfiles", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/allfiles", append(handlers, func(ctx *gin.Context) {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -1148,8 +1148,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/test_by_key/:key", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test_by_key/:key", append(handlers, func(ctx *gin.Context) {
 		keyValue, err := strconv.ParseInt(ctx.Param("key"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestByKey1", "key"))
@@ -1163,8 +1163,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test_by_key", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test_by_key", append(handlers, func(ctx *gin.Context) {
 		var key Key
 		if s := ctx.Query("key"); s != "" {
 			keyValue, err := strconv.ParseInt(s, 10, 64)
@@ -1181,8 +1181,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test_by_strkey/:key", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test_by_strkey/:key", append(handlers, func(ctx *gin.Context) {
 		var key = StrKey(ctx.Param("key"))
 		err := svc.TestByStrKey1(key)
 		if err != nil {
@@ -1191,8 +1191,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test_by_strkey", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test_by_strkey", append(handlers, func(ctx *gin.Context) {
 		var key = StrKey(ctx.Query("key"))
 		err := svc.TestByStrKey2(key)
 		if err != nil {
@@ -1201,8 +1201,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test64/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test64/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestInt64Path", "id"))
@@ -1215,8 +1215,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test64", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test64", append(handlers, func(ctx *gin.Context) {
 		var id int64
 		if s := ctx.Query("id"); s != "" {
 			idValue, err := strconv.ParseInt(s, 10, 64)
@@ -1233,8 +1233,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test_query_args1/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test_query_args1/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs1", "id"))
@@ -1301,8 +1301,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test_query_args2/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test_query_args2/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs2", "id"))
@@ -1398,8 +1398,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test_query_args3/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test_query_args3/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs3", "id"))
@@ -1466,8 +1466,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/test_query_args4/:id", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/test_query_args4/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.TestQueryArgs4", "id"))
@@ -1563,8 +1563,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/ping", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/ping", append(handlers, func(ctx *gin.Context) {
 		err := svc.Ping()
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -1572,14 +1572,14 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, "OK")
 		return
-	})
-	mux.GET("/impl/echo", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/echo", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		result := svc.Echo(a)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/impl/echo2", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/echo2", append(handlers, func(ctx *gin.Context) {
 		result, err := svc.EchoBody(ctx.Request.Body)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -1587,8 +1587,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/impl/echo3", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/echo3", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 		}
@@ -1603,8 +1603,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.GET("/impl/concat", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/concat", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var b = ctx.Query("b")
 		result, err := svc.Concat0(a, b)
@@ -1614,8 +1614,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/concat1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/concat1", append(handlers, func(ctx *gin.Context) {
 		var a *string
 		if s := ctx.Query("a"); s != "" {
 			a = &s
@@ -1631,8 +1631,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/concat2/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/concat2/:a/:b", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 		result, err := svc.Concat2(a, b)
@@ -1642,8 +1642,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/concat3/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/concat3/:a/:b", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 		result, err := svc.Concat3(&a, &b)
@@ -1653,8 +1653,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/sub", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/sub", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var start int64
 		if s := ctx.Query("start"); s != "" {
@@ -1672,8 +1672,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/impl/save/:a", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/save/:a", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -1687,8 +1687,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/impl/save2/:a", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/save2/:a", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
@@ -1703,8 +1703,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/impl/save3", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/save3", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -1720,8 +1720,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/impl/save4", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/save4", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -1737,8 +1737,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/impl/save5", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/save5", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A string `json:"a,omitempty"`
 			B string `json:"b,omitempty"`
@@ -1754,8 +1754,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.GET("/impl/add/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/add/:a/:b", append(handlers, func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.Add1", "a"))
@@ -1773,8 +1773,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/add2/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/add2/:a/:b", append(handlers, func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcImpl.Add2", "a"))
@@ -1792,8 +1792,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/add3", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/add3", append(handlers, func(ctx *gin.Context) {
 		var a *int
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
@@ -1819,8 +1819,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query1", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -1852,8 +1852,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		result := svc.Query1(a, beginAt, endAt, isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query2/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query2/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -1881,8 +1881,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		result := svc.Query2(a, beginAt, endAt, isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query3/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query3/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var beginAt time.Time
 		if s := ctx.Query("begin_at"); s != "" {
@@ -1910,8 +1910,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		result := svc.Query3(a, beginAt, endAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query4/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query4/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -1938,8 +1938,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		result := svc.Query4(a, createdAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query5/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query5/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -1970,8 +1970,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		result := svc.Query5(a, createdAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query6/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query6/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt TimeRange2
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -1998,8 +1998,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		result := svc.Query6(a, createdAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query7/:is_raw", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query7/:is_raw", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var createdAt *TimeRange2
 		if s := ctx.Query("created_at.start"); s != "" {
@@ -2030,8 +2030,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		result := svc.Query7(a, createdAt, &isRaw)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query8", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query8", append(handlers, func(ctx *gin.Context) {
 		var itemID int64
 		if s := ctx.Query("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2048,16 +2048,16 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.POST("/impl", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl", append(handlers, func(ctx *gin.Context) {
 		err := svc.CreateWithNoReturn(ctx.Request.Context(), ctx.Request, ctx.Writer)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
 		}
 		return
-	})
-	mux.GET("/impl/query9", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query9", append(handlers, func(ctx *gin.Context) {
 		var itemID sql.NullInt64
 		if s := ctx.Query("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2075,8 +2075,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query10", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query10", append(handlers, func(ctx *gin.Context) {
 		var itemID sql.NullString
 		if s := ctx.Query("item_id"); s != "" {
 			itemID.Valid = true
@@ -2089,8 +2089,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query11", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query11", append(handlers, func(ctx *gin.Context) {
 		var itemID sql.NullBool
 		if s := ctx.Query("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
@@ -2108,8 +2108,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.GET("/impl/query12", func(ctx *gin.Context) {
+	}))
+	mux.GET("/impl/query12", append(handlers, func(ctx *gin.Context) {
 		var Name = ctx.Query("Name")
 		result, err := svc.Query1WithUpName(ctx.Request.Context(), Name)
 		if err != nil {
@@ -2118,8 +2118,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.String(http.StatusOK, result)
 		return
-	})
-	mux.POST("/impl/query12", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/query12", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			Name string `json:"Name,omitempty"`
 		}
@@ -2134,8 +2134,8 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, "OK")
 		return
-	})
-	mux.POST("/impl/query13", func(ctx *gin.Context) {
+	}))
+	mux.POST("/impl/query13", append(handlers, func(ctx *gin.Context) {
 		var names = ctx.QueryArray("names")
 		err := svc.QueryVarArgs(ctx.Request.Context(), names...)
 		if err != nil {
@@ -2144,18 +2144,18 @@ func InitStringSvcImpl(mux gin.IRouter, svc *StringSvcImpl) {
 		}
 		ctx.JSON(http.StatusCreated, "OK")
 		return
-	})
+	}))
 	// Misc: annotation is missing
 }
 
-func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
-	mux.GET("/ctx/echo", func(ctx *gin.Context) {
+func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext, handlers ...gin.HandlerFunc) {
+	mux.GET("/ctx/echo", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		result := svc.Echo(ctx.Request.Context(), a)
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/ctx/echo2", func(ctx *gin.Context) {
+	}))
+	mux.POST("/ctx/echo2", append(handlers, func(ctx *gin.Context) {
 		result, err := svc.EchoBody(ctx.Request.Context(), ctx.Request.Body)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -2163,8 +2163,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.GET("/ctx/concat", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ctx/concat", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var b = ctx.Query("b")
 		result, err := svc.Concat0(ctx.Request.Context(), a, b)
@@ -2174,8 +2174,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/ctx/concat1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ctx/concat1", append(handlers, func(ctx *gin.Context) {
 		var a *string
 		if s := ctx.Query("a"); s != "" {
 			a = &s
@@ -2191,8 +2191,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/ctx/concat2/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ctx/concat2/:a/:b", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 		result, err := svc.Concat2(ctx.Request.Context(), a, b)
@@ -2202,8 +2202,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/ctx/concat3/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ctx/concat3/:a/:b", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b = ctx.Param("b")
 		result, err := svc.Concat3(ctx.Request.Context(), &a, &b)
@@ -2213,8 +2213,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/ctx/sub", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ctx/sub", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Query("a")
 		var start int64
 		if s := ctx.Query("start"); s != "" {
@@ -2232,8 +2232,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/ctx/save1/:a", func(ctx *gin.Context) {
+	}))
+	mux.POST("/ctx/save1/:a", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var b strings.Builder
 		if _, err := io.Copy(&b, ctx.Request.Body); err != nil {
@@ -2247,8 +2247,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/ctx/save2/:a", func(ctx *gin.Context) {
+	}))
+	mux.POST("/ctx/save2/:a", append(handlers, func(ctx *gin.Context) {
 		var a = ctx.Param("a")
 		var bBuilder strings.Builder
 		if _, err := io.Copy(&bBuilder, ctx.Request.Body); err != nil {
@@ -2263,8 +2263,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/ctx/save3", func(ctx *gin.Context) {
+	}))
+	mux.POST("/ctx/save3", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			A *string `json:"a,omitempty"`
 			B *string `json:"b,omitempty"`
@@ -2280,8 +2280,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.GET("/ctx/add1/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ctx/add1/:a/:b", append(handlers, func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcWithContext.Add1", "a"))
@@ -2299,8 +2299,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/ctx/add2/:a/:b", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ctx/add2/:a/:b", append(handlers, func(ctx *gin.Context) {
 		a, err := strconv.Atoi(ctx.Param("a"))
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvcWithContext.Add2", "a"))
@@ -2318,8 +2318,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/ctx/add3", func(ctx *gin.Context) {
+	}))
+	mux.GET("/ctx/add3", append(handlers, func(ctx *gin.Context) {
 		var a *int
 		if s := ctx.Query("a"); s != "" {
 			aValue, err := strconv.Atoi(s)
@@ -2345,8 +2345,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/ctx/query13", func(ctx *gin.Context) {
+	}))
+	mux.POST("/ctx/query13", append(handlers, func(ctx *gin.Context) {
 		var names = ctx.QueryArray("names")
 		err := svc.QueryVarArgs(ctx.Request.Context(), names...)
 		if err != nil {
@@ -2355,7 +2355,7 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 		}
 		ctx.JSON(http.StatusCreated, "OK")
 		return
-	})
+	}))
 	// Misc: annotation is missing
 }
 
@@ -2371,8 +2371,8 @@ func InitStringSvcWithContext(mux gin.IRouter, svc *StringSvcWithContext) {
 // SubTest3 is skipped
 // SubTest4 is skipped
 
-func InitRequests(mux gin.IRouter, svc Requests) {
-	mux.GET("/requests/query1", func(ctx *gin.Context) {
+func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
+	mux.GET("/requests/query1", append(handlers, func(ctx *gin.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Query("query.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2608,8 +2608,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/query2", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/query2", append(handlers, func(ctx *gin.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Query("operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -2837,8 +2837,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/query3", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/query3", append(handlers, func(ctx *gin.Context) {
 		var query *AliasRequestQuery
 		if s := ctx.Query("operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3066,8 +3066,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/queryex1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/queryex1", append(handlers, func(ctx *gin.Context) {
 		var query *RequestQueryEx1
 		if s := ctx.Query("query.ex_arg"); s != "" {
 			query = new(RequestQueryEx1)
@@ -3310,8 +3310,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/queryex2", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/queryex2", append(handlers, func(ctx *gin.Context) {
 		var query *RequestQueryEx2
 		if s := ctx.Query("query.ex_arg"); s != "" {
 			query = new(RequestQueryEx2)
@@ -3603,8 +3603,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/queryex3", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/queryex3", append(handlers, func(ctx *gin.Context) {
 		var query *RequestQueryEx3
 		if s := ctx.Query("query.request.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -3846,8 +3846,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/queryex4", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/queryex4", append(handlers, func(ctx *gin.Context) {
 		var query *RequestQueryEx4
 		if s := ctx.Query("query.request.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4138,8 +4138,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/queryex3/NoPrefix", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/queryex3/NoPrefix", append(handlers, func(ctx *gin.Context) {
 		var query *RequestQueryEx3
 		if s := ctx.Query("request.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4381,8 +4381,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/queryex4/NoPrefix", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/queryex4/NoPrefix", append(handlers, func(ctx *gin.Context) {
 		var query *RequestQueryEx4
 		if s := ctx.Query("request.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4673,8 +4673,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests", append(handlers, func(ctx *gin.Context) {
 		var query *models.RequestQuery
 		if s := ctx.Query("query.operator_id"); s != "" {
 			operatorIDValue, err := strconv.ParseInt(s, 10, 64)
@@ -4903,8 +4903,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/requests/create1", func(ctx *gin.Context) {
+	}))
+	mux.POST("/requests/create1", append(handlers, func(ctx *gin.Context) {
 		var data models.Request
 		if err := ctx.Bind(&data); err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Create1", "data"))
@@ -4917,8 +4917,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/requests/create2", func(ctx *gin.Context) {
+	}))
+	mux.POST("/requests/create2", append(handlers, func(ctx *gin.Context) {
 		var bindArgs struct {
 			Request *models.Request `json:"request,omitempty"`
 			Testarg int64           `json:"testarg,omitempty"`
@@ -4934,8 +4934,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.PUT("/requests/:id", func(ctx *gin.Context) {
+	}))
+	mux.PUT("/requests/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.UpdateByID", "id"))
@@ -4953,8 +4953,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.PATCH("/requests/set1/:id", func(ctx *gin.Context) {
+	}))
+	mux.PATCH("/requests/set1/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set1ByID", "id"))
@@ -4974,8 +4974,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.PATCH("/requests/set2/:id", func(ctx *gin.Context) {
+	}))
+	mux.PATCH("/requests/set2/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set2ByID", "id"))
@@ -4993,8 +4993,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.PUT("/requests/set3/:id", func(ctx *gin.Context) {
+	}))
+	mux.PUT("/requests/set3/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set3ByID", "id"))
@@ -5014,8 +5014,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.PUT("/requests/set4/:id", func(ctx *gin.Context) {
+	}))
+	mux.PUT("/requests/set4/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set4ByID", "id"))
@@ -5033,8 +5033,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.POST("/requests/set5/:id", func(ctx *gin.Context) {
+	}))
+	mux.POST("/requests/set5/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set5ByID", "id"))
@@ -5054,8 +5054,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/requests/set6/:id", func(ctx *gin.Context) {
+	}))
+	mux.POST("/requests/set6/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set6ByID", "id"))
@@ -5073,8 +5073,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.POST("/requests/set7/:id", func(ctx *gin.Context) {
+	}))
+	mux.POST("/requests/set7/:id", append(handlers, func(ctx *gin.Context) {
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set7ByID", "id"))
@@ -5092,8 +5092,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusCreated, result)
 		return
-	})
-	mux.GET("/requests/querysub1", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/querysub1", append(handlers, func(ctx *gin.Context) {
 		var query *SubTest1
 		if s := ctx.Query("query.sub1.a1"); s != "" {
 			query = new(SubTest1)
@@ -5130,8 +5130,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/querysub2", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/querysub2", append(handlers, func(ctx *gin.Context) {
 		var query *SubTest2
 		if s := ctx.Query("query.sub1.a1"); s != "" {
 			query = new(SubTest2)
@@ -5176,8 +5176,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/querysub3", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/querysub3", append(handlers, func(ctx *gin.Context) {
 		var query *SubTest3
 		if s := ctx.Query("query.ex_arg"); s != "" {
 			query = new(SubTest3)
@@ -5228,8 +5228,8 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
-	mux.GET("/requests/querysub4", func(ctx *gin.Context) {
+	}))
+	mux.GET("/requests/querysub4", append(handlers, func(ctx *gin.Context) {
 		var query *SubTest4
 		if s := ctx.Query("query.ex_arg"); s != "" {
 			query = new(SubTest4)
@@ -5293,5 +5293,5 @@ func InitRequests(mux gin.IRouter, svc Requests) {
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
-	})
+	}))
 }

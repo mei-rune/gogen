@@ -35,6 +35,22 @@ func (gin *ginPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	return s, ok
 }
 
+func (gin *ginPlugin) MiddlewaresDeclaration() string {
+	return "handlers ...gin.HandlerFunc"
+}
+
+func (gin *ginPlugin) MiddlewaresVar() string {
+	return "handlers..."
+}
+
+func (gin *ginPlugin) HasWithMiddlewares() bool {
+	return false
+}
+
+func (gin *ginPlugin) RenderWithMiddlewares(mux string) string {
+	return ""
+}
+
 func (gin *ginPlugin) Functions() []Function {
 	return []Function{
 		{
@@ -90,7 +106,7 @@ func (gin *ginPlugin) ReadBodyFunc(argName string) string {
 // 	return getCastErrorText(gin.cfg.NewBadArgument, method, accessFields, err, value)
 // }
 
-func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error {
+func (gin *ginPlugin) RenderFunc(out io.Writer, method *Method, route swag.RouteProperties, fn func(out io.Writer) error) error {
 	urlstr, err := ConvertURL(route.Path, false, Colon)
 	if err != nil {
 		return err
@@ -98,7 +114,14 @@ func (gin *ginPlugin) RenderFuncHeader(out io.Writer, method *Method, route swag
 	// if urlstr == "/" {
 	// 	urlstr = ""
 	// }
-	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx *gin.Context) {")
+	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", append(handlers, func(ctx *gin.Context) {")
+	if err != nil {
+		return err
+	}
+	if err := fn(out); err != nil {
+		return err
+	}
+	_, err = io.WriteString(out, "\r\n}))")
 	return err
 }
 

@@ -56,7 +56,7 @@ type Plugin interface {
 	Functions() []Function
 
 	ReadBodyFunc(argName string) string
-	RenderFuncHeader(out io.Writer, method *Method, route swag.RouteProperties) error
+	RenderFunc(out io.Writer, method *Method, route swag.RouteProperties, fn func(io.Writer) error) error
 	RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error
 	RenderReturnEmpty(out io.Writer, method *Method) error
 	RenderReturnError(out io.Writer, method *Method, errCode, err string, errwrapped ...bool) error
@@ -66,6 +66,11 @@ type Plugin interface {
 
 	GetErrorResult(err string) string
 	GetOkResult() string
+
+
+	MiddlewaresDeclaration() string
+	RenderWithMiddlewares(mux string) string
+	// RenderMiddlewares(out io.Writer, fn func(out io.Writer) error) error
 }
 
 func getBodyErrorText(badArg string, method *Method, bodyName, err string) string {

@@ -12,7 +12,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 )
 
-func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc) {
+func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc, handlers ...echo.MiddlewareFunc) {
 	mux.GET("/files1", func(ctx echo.Context) error {
 		list, total, err := svc.Get1()
 		if err != nil {
@@ -23,7 +23,7 @@ func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc) {
 			"total": total,
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/files2", func(ctx echo.Context) error {
 		list, total, err := svc.Get2()
 		if err != nil {
@@ -34,14 +34,14 @@ func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc) {
 			"total": total,
 		}
 		return ctx.JSON(http.StatusOK, result)
-	})
+	}, handlers...)
 	mux.GET("/files3", func(ctx echo.Context) error {
 		err := svc.Get3()
 		if err != nil {
 			return ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 	mux.GET("/files4", func(ctx echo.Context) error {
 		var id int
 		if s := ctx.QueryParam("id"); s != "" {
@@ -56,5 +56,5 @@ func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc) {
 			return ctx.JSON(errors.GetHttpCode(err), errors.ToEncodedError(err))
 		}
 		return ctx.JSON(http.StatusOK, "OK")
-	})
+	}, handlers...)
 }

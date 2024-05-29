@@ -11,7 +11,8 @@ import (
 	"github.com/runner-mei/loong"
 )
 
-func InitErrStringSvc(mux loong.Party, svc ErrStringSvc) {
+func InitErrStringSvc(mux loong.Party, svc ErrStringSvc, handlers ...loong.MiddlewareFunc) {
+	mux = mux.With(handlers...)
 	mux.GET("/files1", func(ctx *loong.Context) error {
 		list, total, err := svc.Get1()
 		if err != nil {

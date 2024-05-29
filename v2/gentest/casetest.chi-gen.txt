@@ -17,7 +17,8 @@ import (
 
 // Options is skipped
 
-func InitCaseSvc(mux chi.Router, svc CaseSvc) {
+func InitCaseSvc(mux chi.Router, svc CaseSvc, handlers ...func(http.Handler) http.Handler) {
+	mux = mux.With(handlers...)
 	mux.Get("/case1/by_name/:name", func(w http.ResponseWriter, r *http.Request) {
 		var name = chi.URLParam(r, "name")
 		err := svc.TestCase1(name)
@@ -608,8 +609,9 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc) {
 	})
 }
 
-func InitOptionalPrefixSvc(mux chi.Router, enabledPrefix bool, svc OptionalPrefixSvc) {
+func InitOptionalPrefixSvc(mux chi.Router, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...func(http.Handler) http.Handler) {
 	initFunc := func(mux chi.Router) {
+		mux = mux.With(handlers...)
 		mux.Get("/get", func(w http.ResponseWriter, r *http.Request) {
 			err := svc.Get()
 			if err != nil {

@@ -16,7 +16,8 @@ import (
 
 // Options is skipped
 
-func InitCaseSvc(mux loong.Party, svc CaseSvc) {
+func InitCaseSvc(mux loong.Party, svc CaseSvc, handlers ...loong.MiddlewareFunc) {
+	mux = mux.With(handlers...)
 	mux.GET("/case1/by_name/:name", func(ctx *loong.Context) error {
 		var name = ctx.Param("name")
 		err := svc.TestCase1(name)
@@ -447,10 +448,11 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc) {
 	})
 }
 
-func InitOptionalPrefixSvc(mux loong.Party, enabledPrefix bool, svc OptionalPrefixSvc) {
+func InitOptionalPrefixSvc(mux loong.Party, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...loong.MiddlewareFunc) {
 	if enabledPrefix {
 		mux = mux.Group("/optpre")
 	}
+	mux = mux.With(handlers...)
 	mux.GET("/get", func(ctx *loong.Context) error {
 		err := svc.Get()
 		if err != nil {
