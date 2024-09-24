@@ -782,7 +782,7 @@ func (client {{$.config.RecvClassName}}) {{$method.Name}}(ctx {{$.config.Context
           }
           {{- $needAssignment = true -}}
 	      {{- else if $param.HasOmitEmpty }}
-	        if {{isZeroExpr $param.Name.Name $typeName}} {
+	        if {{isNotZeroExpr $param.Name.Name $typeName}} {
 	        	request = request.SetParam("{{ $param.QueryParamName}}", {{convertToStringLiteral $param.Param}})
 	        }
 	        {{- $needAssignment = true -}}

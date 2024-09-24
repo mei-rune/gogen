@@ -175,7 +175,7 @@ func (client TestClient) TestQueryArgs1(ctx context.Context, id int64, args Quer
 	if args.Ostring != "" {
 		request = request.SetParam("args.ostring", args.Ostring)
 	}
-	if args.Otime.IsZero() {
+	if !args.Otime.IsZero() {
 		request = request.SetParam("args.otime", args.Otime.Format(client.Proxy.TimeFormat))
 	}
 
@@ -204,7 +204,7 @@ func (client TestClient) TestQueryArgs2(ctx context.Context, id int64, args *Que
 		if args.Ostring != "" {
 			request = request.SetParam("args.ostring", args.Ostring)
 		}
-		if args.Otime.IsZero() {
+		if !args.Otime.IsZero() {
 			request = request.SetParam("args.otime", args.Otime.Format(client.Proxy.TimeFormat))
 		}
 	}
@@ -233,7 +233,7 @@ func (client TestClient) TestQueryArgs3(ctx context.Context, id int64, args Quer
 	if args.Ostring != "" {
 		request = request.SetParam("ostring", args.Ostring)
 	}
-	if args.Otime.IsZero() {
+	if !args.Otime.IsZero() {
 		request = request.SetParam("otime", args.Otime.Format(client.Proxy.TimeFormat))
 	}
 
@@ -262,7 +262,7 @@ func (client TestClient) TestQueryArgs4(ctx context.Context, id int64, args *Que
 		if args.Ostring != "" {
 			request = request.SetParam("ostring", args.Ostring)
 		}
-		if args.Otime.IsZero() {
+		if !args.Otime.IsZero() {
 			request = request.SetParam("otime", args.Otime.Format(client.Proxy.TimeFormat))
 		}
 	}
@@ -1153,7 +1153,7 @@ func (client StringSvcImplClient) TestQueryArgs1(ctx context.Context, id int64, 
 	if args.Ostring != "" {
 		request = request.SetParam("args.ostring", args.Ostring)
 	}
-	if args.Otime.IsZero() {
+	if !args.Otime.IsZero() {
 		request = request.SetParam("args.otime", args.Otime.Format(client.Proxy.TimeFormat))
 	}
 
@@ -1182,7 +1182,7 @@ func (client StringSvcImplClient) TestQueryArgs2(ctx context.Context, id int64, 
 		if args.Ostring != "" {
 			request = request.SetParam("args.ostring", args.Ostring)
 		}
-		if args.Otime.IsZero() {
+		if !args.Otime.IsZero() {
 			request = request.SetParam("args.otime", args.Otime.Format(client.Proxy.TimeFormat))
 		}
 	}
@@ -1211,7 +1211,7 @@ func (client StringSvcImplClient) TestQueryArgs3(ctx context.Context, id int64, 
 	if args.Ostring != "" {
 		request = request.SetParam("ostring", args.Ostring)
 	}
-	if args.Otime.IsZero() {
+	if !args.Otime.IsZero() {
 		request = request.SetParam("otime", args.Otime.Format(client.Proxy.TimeFormat))
 	}
 
@@ -1240,7 +1240,7 @@ func (client StringSvcImplClient) TestQueryArgs4(ctx context.Context, id int64, 
 		if args.Ostring != "" {
 			request = request.SetParam("ostring", args.Ostring)
 		}
-		if args.Otime.IsZero() {
+		if !args.Otime.IsZero() {
 			request = request.SetParam("otime", args.Otime.Format(client.Proxy.TimeFormat))
 		}
 	}

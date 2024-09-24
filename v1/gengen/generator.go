@@ -216,18 +216,18 @@ var Funcs = template.FuncMap{
 	"convertToStringLiteral2": convertToStringLiteral2,
 	"goify":                   Goify,
 	"underscore":              Underscore,
-	"isZeroExpr":  func(fieldName string, typ interface{}) string {
+	"isNotZeroExpr":  func(fieldName string, typ interface{}) string {
 		if exp, ok := typ.(ast.Expr); ok {
 			s := typePrint(exp)
 			if s == "time.Time" {
-				return fieldName + ".IsZero()"
+				return "!" + fieldName + ".IsZero()"
 			}
 			if s == "bool" {
 				return fieldName
 			}
 		} else if s, ok := typ.(string); ok {
 			if s == "time.Time" {
-				return fieldName + ".IsZero()"
+				return "!" + fieldName + ".IsZero()"
 			}
 			if s == "bool" {
 				return fieldName
