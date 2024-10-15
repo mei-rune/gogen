@@ -300,6 +300,10 @@ func Underscore(name string) string {
 	return strings.Join(ss, ".")
 }
 
+func Singularize(word string) string {
+	return inflect.Singularize(word)
+}
+
 func toSnakeCase(in string) string {
 	return Underscore(in)
 }

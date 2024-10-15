@@ -372,6 +372,12 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 					found = true
 					break
 				}
+
+				singularizeParamName := Singularize(param.Name)
+				if strings.EqualFold(oname, singularizeParamName) {
+					found = true
+					break
+				}
 			}
 		}
 		if !found {
