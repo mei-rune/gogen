@@ -102,10 +102,12 @@ func searchParam(operation *swag.Operation, paramName string) int {
 	}
 
 	snakeParamName := toSnakeCase(paramName)
+	singularizeParamName := Singularize(paramName)
 	for i := range operation.Parameters {
 		oname := operation.Parameters[i].Name
 
-		if strings.EqualFold(oname, snakeParamName) {
+		if strings.EqualFold(oname, snakeParamName) ||
+		strings.EqualFold(oname, singularizeParamName) {
 			return i
 		}
 	}
@@ -114,6 +116,7 @@ func searchParam(operation *swag.Operation, paramName string) int {
 
 func searchStructParam(operation *swag.Operation, paramName string) *spec.Parameter {
 	snakeParamName := toSnakeCase(paramName)
+	singularizeParamName := Singularize(paramName)
 	for key, value := range operation.Extensions {
 		if !strings.HasPrefix(key, "x-gogen-param-") {
 			continue
@@ -121,7 +124,8 @@ func searchStructParam(operation *swag.Operation, paramName string) *spec.Parame
 
 		structargname := strings.TrimPrefix(key, "x-gogen-param-")
 		if !strings.EqualFold(structargname, paramName) &&
-			!strings.EqualFold(structargname, snakeParamName) {
+			!strings.EqualFold(structargname, snakeParamName) &&
+			!strings.EqualFold(structargname, singularizeParamName) {
 			continue
 		}
 
@@ -141,6 +145,7 @@ func searchStructFieldParam(operation *swag.Operation, structargname string, fie
 	}
 
 	snakeCaseStructArgName := toSnakeCase(structargname)
+	singularizeStructArgName := Singularize(structargname)
 	for idx := range operation.Parameters {
 		localstructargname, _ := operation.Parameters[idx].Extensions.GetString("x-gogen-extend-struct")
 		localname, _ := operation.Parameters[idx].Extensions.GetString("x-gogen-extend-field")
@@ -149,7 +154,8 @@ func searchStructFieldParam(operation *swag.Operation, structargname string, fie
 		if (strings.EqualFold(name, localname) ||
 			strings.EqualFold(jsonName, localname)) &&
 			(strings.EqualFold(structargname, localstructargname) ||
-				strings.EqualFold(snakeCaseStructArgName, localstructargname)) {
+				strings.EqualFold(snakeCaseStructArgName, localstructargname) ||
+				strings.EqualFold(singularizeStructArgName, localstructargname)) {
 			return idx
 		}
 	}

@@ -381,7 +381,7 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 			}
 		}
 		if !found {
-			return errors.New(method.Method.PostionString() + ": param '" + oname + "' isnot exists in the method param list")
+			return errors.New(method.Method.PostionString() + ": 1param '" + oname + "' isnot exists in the method param list")
 		}
 	}
 	return nil
