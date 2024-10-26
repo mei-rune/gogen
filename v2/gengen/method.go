@@ -770,16 +770,16 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 
 	var fn *Function
 	if isArray {
-		if elmUnderlying.IsValid() {
-			fn = selectFunction(ctx.plugin, required, isArray, elmUnderlying.ToLiteral())
-		} else if elmType.IsValid() {
+		if elmType.IsValid() {
 			fn = selectFunction(ctx.plugin, required, isArray, elmType.ToLiteral())
 		}
+		if fn == nil && elmUnderlying.IsValid() {
+			fn = selectFunction(ctx.plugin, required, isArray, elmUnderlying.ToLiteral())
+		}
 	} else {
-		if underlying.IsValid() {
+		fn = selectFunction(ctx.plugin, required, isArray, typ.ToLiteral())
+		if fn == nil && underlying.IsValid() {
 			fn = selectFunction(ctx.plugin, required, isArray, underlying.ToLiteral())
-		} else {
-			fn = selectFunction(ctx.plugin, required, isArray, typ.ToLiteral())
 		}
 	}
 	if fn != nil {

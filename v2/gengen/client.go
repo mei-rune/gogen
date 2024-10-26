@@ -20,6 +20,7 @@ type ClientGenerator struct {
 	buildTag string
 
 	config ClientConfig
+	convertParamTypes  string
 }
 
 func (cmd *ClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
@@ -40,10 +41,14 @@ func (cmd *ClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.config.WrapperType, "wrapper-type", "loong.Result", "")
 	fs.StringVar(&cmd.config.WrapperData, "wrapper-data", "Data", "")
 	fs.StringVar(&cmd.config.WrapperError, "wrapper-error", "Error", "")
+	fs.StringVar(&cmd.convertParamTypes, "convert_param_types", os.Getenv("GOGEN_CONVERT_PARAM_TYPES"), "自定义的转换类型，多个类型时以逗号分隔")
+
 	return fs
 }
 
 func (cmd *ClientGenerator) Run(args []string) error {
+	convertParamTypes = strings.Split(cmd.convertParamTypes, ",")
+
 	swaggerParser := swag.New()
 	swaggerParser.GoGenEnabled = true
 	swaggerParser.ParseVendor = true
@@ -1094,6 +1099,22 @@ retry:
 	case "sql.NullString":
 		return name + ".String"
 	default:
+		for  _, cpt := range convertParamTypes {
+			if cpt == typeStr {
+				return name+".String()"
+			}
+		}
+		dot := strings.IndexByte(typeStr, '.')
+		if dot > 0 {
+			// ns := typeStr[:dot]
+			typeName := typeStr[dot+1:]
+
+			for  _, cpt := range convertParamTypes {
+				if cpt == typeName {
+					return name+".String()"
+				}
+			}
+		}
 
 		underlying := typ.GetUnderlyingType()
 		if underlying.IsValid() {

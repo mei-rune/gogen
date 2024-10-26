@@ -171,6 +171,9 @@ type ConvertFunc struct {
 	HasRetError bool
 }
 
+
+var convertParamTypes []string
+
 var ConvertHook func(isArray bool, paramType string) *ConvertFunc
 
 func selectConvert(convertNS string, isArray bool, resultType, paramType string) (string, bool, bool, error) {
@@ -184,6 +187,29 @@ func selectConvert(convertNS string, isArray bool, resultType, paramType string)
 		r := ConvertHook(isArray, paramType)
 		if r != nil {
 			return r.Format, r.NeedCast, r.HasRetError, nil
+		}
+	}
+
+	for  _, name := range convertParamTypes {
+		if name == paramType {
+			if isArray {
+				return "Parse"+name+"(%s)", false, true, nil
+			}
+			return "Parse"+name+"(%s)", false, true, nil
+		}
+	}
+	dot := strings.IndexByte(paramType, '.')
+	if dot > 0 {
+		ns := paramType[:dot]
+		typeName := paramType[dot+1:]
+
+		for  _, name := range convertParamTypes {
+			if name == typeName {
+				if isArray {
+					return ns + ".Parse"+name+"(%s)", false, true, nil
+				}
+				return ns + ".Parse"+name+"(%s)", false, true, nil
+			}
 		}
 	}
 
