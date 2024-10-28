@@ -334,6 +334,12 @@ func toSnakeCase(in string) string {
 	return Underscore(in)
 }
 
+func FieldNameEqual(name1,  name2 string) bool {
+	return strings.EqualFold(name1, name2) ||
+				strings.EqualFold(toSnakeCase(name1), name2) ||
+				strings.EqualFold(Singularize(name1), name2) 
+}
+
 func toLowerCamelCase(in string) string {
 	runes := []rune(in)
 
