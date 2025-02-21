@@ -96,18 +96,7 @@ func WithCode(method *Method) string {
 func searchParam(operation *swag.Operation, paramName string) int {
 	for i := range operation.Parameters {
 		oname := operation.Parameters[i].Name
-		if strings.EqualFold(oname, paramName) {
-			return i
-		}
-	}
-
-	snakeParamName := toSnakeCase(paramName)
-	singularizeParamName := Singularize(paramName)
-	for i := range operation.Parameters {
-		oname := operation.Parameters[i].Name
-
-		if strings.EqualFold(oname, snakeParamName) ||
-		strings.EqualFold(oname, singularizeParamName) {
+		if FieldNameEqual(paramName, oname) {
 			return i
 		}
 	}
@@ -115,17 +104,13 @@ func searchParam(operation *swag.Operation, paramName string) int {
 }
 
 func searchStructParam(operation *swag.Operation, paramName string) *spec.Parameter {
-	snakeParamName := toSnakeCase(paramName)
-	singularizeParamName := Singularize(paramName)
 	for key, value := range operation.Extensions {
 		if !strings.HasPrefix(key, "x-gogen-param-") {
 			continue
 		}
 
 		structargname := strings.TrimPrefix(key, "x-gogen-param-")
-		if !strings.EqualFold(structargname, paramName) &&
-			!strings.EqualFold(structargname, snakeParamName) &&
-			!strings.EqualFold(structargname, singularizeParamName) {
+		if !FieldNameEqual(paramName, structargname) {
 			continue
 		}
 
@@ -144,8 +129,6 @@ func searchStructFieldParam(operation *swag.Operation, structargname string, fie
 		jsonName = getJSONName(s)
 	}
 
-	snakeCaseStructArgName := toSnakeCase(structargname)
-	singularizeStructArgName := Singularize(structargname)
 	for idx := range operation.Parameters {
 		localstructargname, _ := operation.Parameters[idx].Extensions.GetString("x-gogen-extend-struct")
 		localname, _ := operation.Parameters[idx].Extensions.GetString("x-gogen-extend-field")
@@ -153,9 +136,7 @@ func searchStructFieldParam(operation *swag.Operation, structargname string, fie
 		// fmt.Println("====",operation.Parameters[idx].Name, "|", localstructargname, "|", localname, "|", structargname, "|", name)
 		if (strings.EqualFold(name, localname) ||
 			strings.EqualFold(jsonName, localname)) &&
-			(strings.EqualFold(structargname, localstructargname) ||
-				strings.EqualFold(snakeCaseStructArgName, localstructargname) ||
-				strings.EqualFold(singularizeStructArgName, localstructargname)) {
+			FieldNameEqual(structargname, localstructargname) {
 			return idx
 		}
 	}

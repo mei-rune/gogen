@@ -362,26 +362,9 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 		for idx := range method.Method.Params.List {
 			param := &method.Method.Params.List[idx]
 
-			if strings.EqualFold(oname, param.Name) {
+				if FieldNameEqual(param.Name, oname) {
 				found = true
 				break
-			}
-		}
-		if !found {
-			for idx := range method.Method.Params.List {
-				param := &method.Method.Params.List[idx]
-
-				snakeParamName := toSnakeCase(param.Name)
-				if strings.EqualFold(oname, snakeParamName) {
-					found = true
-					break
-				}
-
-				singularizeParamName := Singularize(param.Name)
-				if strings.EqualFold(oname, singularizeParamName) {
-					found = true
-					break
-				}
 			}
 		}
 		if !found {

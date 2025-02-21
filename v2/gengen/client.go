@@ -143,6 +143,13 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 			io.WriteString(out, "\r\n\t\"errors\"")
 		}
 	}
+
+	isDefaultImport := func(s string) bool {
+		return s == "github.com/runner-mei/loong" ||
+				  strings.Contains(s, "\"github.com/runner-mei/loong\"") ||
+				  s == "github.com/runner-mei/resty" ||
+				  strings.Contains(s, "\"github.com/runner-mei/resty\"")
+	}
 	for _, pa := range file.Imports {
 		io.WriteString(out, "\r\n\t")
 
@@ -150,6 +157,9 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 			io.WriteString(out, astutil.ToString(pa.Name))
 			io.WriteString(out, " ")
 		}
+		if isDefaultImport(pa.Path.Value)  {
+	  	continue
+	  }
 		io.WriteString(out, pa.Path.Value)
 	}
 
@@ -161,6 +171,9 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
 		for _, pa := range strings.Split(s, ",") {
 			pa = strings.TrimSpace(pa)
+			if isDefaultImport(pa)  {
+		  	continue
+		  }
 			io.WriteString(out, "\r\n\t")
 			if strings.HasSuffix(pa, "\"") {
 				io.WriteString(out, pa)
@@ -1007,8 +1020,7 @@ func (c *ClientConfig) GetPath(optionalRoutePrefix string, method *Method) strin
 	rawurl := method.Operation.RouterProperties[0].Path
 	var replace = ReplaceFunc(func(segement PathSegement) string {
 		for idx := range method.Method.Params.List {
-			if strings.EqualFold(method.Method.Params.List[idx].Name, segement.Value) ||
-				strings.EqualFold(toSnakeCase(method.Method.Params.List[idx].Name), segement.Value) {
+			if FieldNameEqual(method.Method.Params.List[idx].Name, segement.Value) {
 				return "\" + " + convertToStringLiteral(&method.Method.Params.List[idx], "", c.ConvertNS, c.TimeFormat) + " + \""
 			}
 		}
