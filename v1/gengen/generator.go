@@ -6,10 +6,13 @@ import (
 	"go/ast"
 	"io"
 	"log"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
 )
 
 type Generator interface {
@@ -80,6 +83,34 @@ func (cmd *GeneratorBase) generateHeader(out io.Writer, file *SourceContext, cb 
 		io.WriteString(out, "\"")
 		io.WriteString(out, pa)
 		io.WriteString(out, "\"")
+	}
+
+	isFileImport := func(s string) bool {
+		for _, pa := range file.Imports {
+			io.WriteString(out, "\r\n\t")
+
+			importPa := strings.Trim(astutil.ToString(pa.Path), "\"")
+			if importPa == s || strings.HasSuffix(importPa, "/"+s) {
+				return true
+			}
+		}
+		return false
+	}
+
+	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
+		for _, pa := range strings.Split(s, ",") {
+			if isFileImport(pa) {
+				continue
+			}
+
+			io.WriteString(out, "\r\n\t")
+			pa = strings.TrimSpace(pa)
+			if strings.HasSuffix(pa, "\"") {
+				io.WriteString(out, pa)
+			} else {
+				io.WriteString(out, "\""+pa+"\"")
+			}
+		}
 	}
 
 	io.WriteString(out, "\r\n)\r\n")
@@ -216,7 +247,7 @@ var Funcs = template.FuncMap{
 	"convertToStringLiteral2": convertToStringLiteral2,
 	"goify":                   Goify,
 	"underscore":              Underscore,
-	"isNotZeroExpr":  func(fieldName string, typ interface{}) string {
+	"isNotZeroExpr": func(fieldName string, typ interface{}) string {
 		if exp, ok := typ.(ast.Expr); ok {
 			s := typePrint(exp)
 			if s == "time.Time" {
@@ -234,7 +265,7 @@ var Funcs = template.FuncMap{
 			}
 		}
 		return fieldName + " != " + zeroValue(typ)
-	},    
+	},
 	"zeroValue": zeroValue,
 	"isNull": func(typ ast.Expr) bool {
 		s := typePrint(typ)
