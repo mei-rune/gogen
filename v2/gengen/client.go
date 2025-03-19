@@ -149,7 +149,8 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 		for _, pa := range file.Imports {
 			io.WriteString(out, "\r\n\t")
 
-			if pa.Path.Value == s || strings.HasSuffix(pa.Path.Value, "/" + s) {
+			importPa := strings.Trim(astutil.ToString(pa.Path), "\"")
+			if importPa == s || strings.HasSuffix(importPa, "/" + s) {
 				return true
 			}
 		}
