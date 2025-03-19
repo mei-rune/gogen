@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"fmt"
 
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
 	"github.com/swaggo/swag"
@@ -192,6 +193,8 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		}
 		io.WriteString(out, "\""+pa+"\"")
 	}
+	fmt.Println("GOGEN_IMPORTS =", os.Getenv("GOGEN_IMPORTS"))
+
 	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
 		for _, pa := range strings.Split(s, ",") {
 		  if isFileImport(pa) {
