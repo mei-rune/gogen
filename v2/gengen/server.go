@@ -162,6 +162,18 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 			io.WriteString(out, "\r\n\t\"errors\"")
 		}
 	}
+
+	isFileImport := func(s string) bool {
+		for _, pa := range file.Imports {
+			io.WriteString(out, "\r\n\t")
+
+			if pa.Path.Value == s || strings.HasSuffix(pa.Path.Value, "/" + s) {
+				return true
+			}
+		}
+		return false
+	}
+
 	for _, pa := range file.Imports {
 		io.WriteString(out, "\r\n\t")
 
@@ -181,6 +193,10 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 	}
 	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
 		for _, pa := range strings.Split(s, ",") {
+		  if isFileImport(pa) {
+		  	continue
+		  }
+
 			io.WriteString(out, "\r\n\t")
 			pa = strings.TrimSpace(pa)
 			if strings.HasSuffix(pa, "\"") {

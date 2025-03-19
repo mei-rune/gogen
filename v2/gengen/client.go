@@ -144,6 +144,18 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 		}
 	}
 
+
+	isFileImport := func(s string) bool {
+		for _, pa := range file.Imports {
+			io.WriteString(out, "\r\n\t")
+
+			if pa.Path.Value == s || strings.HasSuffix(pa.Path.Value, "/" + s) {
+				return true
+			}
+		}
+		return false
+	}
+
 	isDefaultImport := func(s string) bool {
 		return s == "github.com/runner-mei/loong" ||
 				  strings.Contains(s, "\"github.com/runner-mei/loong\"") ||
@@ -174,6 +186,10 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 			if isDefaultImport(pa)  {
 		  	continue
 		  }
+		  if isFileImport(pa) {
+		  	continue
+		  }
+
 			io.WriteString(out, "\r\n\t")
 			if strings.HasSuffix(pa, "\"") {
 				io.WriteString(out, pa)
