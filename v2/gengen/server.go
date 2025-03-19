@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"fmt"
 
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
 	"github.com/swaggo/swag"
@@ -169,7 +168,7 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 			io.WriteString(out, "\r\n\t")
 
 			importPa := strings.Trim(astutil.ToString(pa.Path), "\"")
-			if importPa == s || strings.HasSuffix(importPa, "/" + s) {
+			if importPa == s || strings.HasSuffix(importPa, "/"+s) {
 				return true
 			}
 		}
@@ -193,13 +192,12 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		}
 		io.WriteString(out, "\""+pa+"\"")
 	}
-	fmt.Println("GOGEN_IMPORTS =", os.Getenv("GOGEN_IMPORTS"))
 
 	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
 		for _, pa := range strings.Split(s, ",") {
-		  if isFileImport(pa) {
-		  	continue
-		  }
+			if isFileImport(pa) {
+				continue
+			}
 
 			io.WriteString(out, "\r\n\t")
 			pa = strings.TrimSpace(pa)
@@ -283,11 +281,9 @@ func (cmd *ServerGenerator) genInitFunc(plugin Plugin, out io.Writer, swaggerPar
 			io.WriteString(out, "\r\n\r\nfunc Init"+ts.Name+"(mux "+plugin.PartyTypeName()+", svc "+star+ts.Name+", "+plugin.MiddlewaresDeclaration()+") {")
 		}
 
-
 		if s := plugin.RenderWithMiddlewares("mux"); s != "" {
-			io.WriteString(out, "\r\n  " + s)
+			io.WriteString(out, "\r\n  "+s)
 		}
-
 
 		for _, method := range methods {
 			// RenderFuncHeader 将输出： mux.Get("/allfiles", func(w http.ResponseWriter, r *http.Request) {
@@ -382,7 +378,7 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 		for idx := range method.Method.Params.List {
 			param := &method.Method.Params.List[idx]
 
-				if FieldNameEqual(param.Name, oname) {
+			if FieldNameEqual(param.Name, oname) {
 				found = true
 				break
 			}

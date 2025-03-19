@@ -19,8 +19,8 @@ type ClientGenerator struct {
 	ext      string
 	buildTag string
 
-	config ClientConfig
-	convertParamTypes  string
+	config            ClientConfig
+	convertParamTypes string
 }
 
 func (cmd *ClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
@@ -144,13 +144,12 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 		}
 	}
 
-
 	isFileImport := func(s string) bool {
 		for _, pa := range file.Imports {
 			io.WriteString(out, "\r\n\t")
 
 			importPa := strings.Trim(astutil.ToString(pa.Path), "\"")
-			if importPa == s || strings.HasSuffix(importPa, "/" + s) {
+			if importPa == s || strings.HasSuffix(importPa, "/"+s) {
 				return true
 			}
 		}
@@ -159,9 +158,9 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 
 	isDefaultImport := func(s string) bool {
 		return s == "github.com/runner-mei/loong" ||
-				  strings.Contains(s, "\"github.com/runner-mei/loong\"") ||
-				  s == "github.com/runner-mei/resty" ||
-				  strings.Contains(s, "\"github.com/runner-mei/resty\"")
+			strings.Contains(s, "\"github.com/runner-mei/loong\"") ||
+			s == "github.com/runner-mei/resty" ||
+			strings.Contains(s, "\"github.com/runner-mei/resty\"")
 	}
 	for _, pa := range file.Imports {
 		io.WriteString(out, "\r\n\t")
@@ -170,9 +169,9 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 			io.WriteString(out, astutil.ToString(pa.Name))
 			io.WriteString(out, " ")
 		}
-		if isDefaultImport(pa.Path.Value)  {
-	  	continue
-	  }
+		if isDefaultImport(pa.Path.Value) {
+			continue
+		}
 		io.WriteString(out, pa.Path.Value)
 	}
 
@@ -184,12 +183,12 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
 		for _, pa := range strings.Split(s, ",") {
 			pa = strings.TrimSpace(pa)
-			if isDefaultImport(pa)  {
-		  	continue
-		  }
-		  if isFileImport(pa) {
-		  	continue
-		  }
+			if isDefaultImport(pa) {
+				continue
+			}
+			if isFileImport(pa) {
+				continue
+			}
 
 			io.WriteString(out, "\r\n\t")
 			if strings.HasSuffix(pa, "\"") {
@@ -1128,9 +1127,9 @@ retry:
 	case "sql.NullString":
 		return name + ".String"
 	default:
-		for  _, cpt := range convertParamTypes {
+		for _, cpt := range convertParamTypes {
 			if cpt == typeStr {
-				return name+".String()"
+				return name + ".String()"
 			}
 		}
 		dot := strings.IndexByte(typeStr, '.')
@@ -1138,9 +1137,9 @@ retry:
 			// ns := typeStr[:dot]
 			typeName := typeStr[dot+1:]
 
-			for  _, cpt := range convertParamTypes {
+			for _, cpt := range convertParamTypes {
 				if cpt == typeName {
-					return name+".String()"
+					return name + ".String()"
 				}
 			}
 		}
