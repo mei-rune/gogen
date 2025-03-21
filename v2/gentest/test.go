@@ -521,6 +521,15 @@ type StringSvc interface {
 	// @Router /query12 [post]
 	Set1WithUpName(ctx context.Context, Name string) error
 
+	// @Summary Set2WithUpName Name is Upper
+	// @Description Set2WithUpName Name is Upper
+	// @ID Set2WithUpName
+	// @Param    value      query   string     true  "arg name"
+	// @Param    value      body   string     true  "arg value"
+	// @Accept   plain
+	// @Produce  json
+	// @Router /query14 [post]
+	Set2WithUpName(ctx context.Context, name, value string) error
 
 	// @Summary query12 Name is Upper
 	// @Description query12 Name is Upper

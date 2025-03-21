@@ -341,21 +341,17 @@ func FieldNameEqual(name1,  name2 string) bool {
 }
 
 func toLowerCamelCase(in string) string {
-	runes := []rune(in)
+	return toLowerFirst(CamelCase(in))
+}
 
-	var out []rune
-	flag := false
-	for i, curr := range runes {
-		if (i == 0 && unicode.IsUpper(curr)) || (flag && unicode.IsUpper(curr)) {
-			out = append(out, unicode.ToLower(curr))
-			flag = true
-		} else {
-			out = append(out, curr)
-			flag = false
-		}
+func toLowerFirst(in string) string {
+	if in == "" {
+		return in
 	}
 
-	return string(out)
+	runes := []rune(in)
+	runes[0] = unicode.ToLower(runes[0])
+	return string(runes)
 }
 
 func toUpperFirst(in string) string {

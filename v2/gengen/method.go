@@ -1372,10 +1372,18 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 }
 
 func fieldName(param *Param, parents []*Field) string {
+	name := param.Name
 	if len(parents) > 0 {
-		return toLowerCamelCase(parents[len(parents)-1].Name)
+		name = parents[len(parents)-1].Name
 	}
-	return toLowerCamelCase(param.Name)
+	if strings.ToLower(name) == "id" {
+		return "id"
+	}
+	if strings.ToLower(name) == "idlist" {
+		return "idlist"
+	}
+
+	return toLowerCamelCase(name)
 }
 
 func GetGoVarName(param *Param, parents []*Field, hideAnonymous ...bool) string {
@@ -1730,7 +1738,7 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 		varName = "bindArgs"
 		io.WriteString(ctx.out, "\r\n\tvar bindArgs struct{")
 		for idx := range params {
-			fieldName := toUpperFirst(params[idx].Param.Name)
+			fieldName := CamelCase(params[idx].Param.Name)
 			io.WriteString(ctx.out, "\r\n\t\t")
 			io.WriteString(ctx.out, fieldName)
 			io.WriteString(ctx.out, "\t")
