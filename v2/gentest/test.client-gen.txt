@@ -687,6 +687,15 @@ func (client TestClient) Set1WithUpName(ctx context.Context, Name string) error 
 	return request.POST(ctx)
 }
 
+func (client TestClient) Set2WithUpName(ctx context.Context, name string, value string) error {
+	request := resty.NewRequest(client.Proxy, "/query14").
+		SetParam("name", name).
+		SetBody(value)
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
 func (client TestClient) QueryVarArgs(ctx context.Context, names ...string) error {
 	request := resty.NewRequest(client.Proxy, "/query13").
 		SetParamArray("names", names)

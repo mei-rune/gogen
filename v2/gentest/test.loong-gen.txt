@@ -932,6 +932,18 @@ func InitStringSvc(mux loong.Party, svc StringSvc, handlers ...loong.MiddlewareF
 		}
 		return ctx.ReturnCreatedResult("OK")
 	})
+	mux.POST("/query14", func(ctx *loong.Context) error {
+		var name = ctx.QueryParam("name")
+		var value strings.Builder
+		if _, err := io.Copy(&value, ctx.Request().Body); err != nil {
+			return ctx.ReturnError(loong.ErrBadArgument("value", "body", err), http.StatusBadRequest)
+		}
+		err := svc.Set2WithUpName(ctx.StdContext, name, value.String())
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		return ctx.ReturnCreatedResult("OK")
+	})
 	mux.POST("/query13", func(ctx *loong.Context) error {
 		var names = ctx.QueryParamArray("names")
 		err := svc.QueryVarArgs(ctx.StdContext, names...)

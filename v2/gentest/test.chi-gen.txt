@@ -1226,6 +1226,24 @@ func InitStringSvc(mux chi.Router, svc StringSvc, handlers ...func(http.Handler)
 		render.JSON(w, r, "OK")
 		return
 	})
+	mux.Post("/query14", func(w http.ResponseWriter, r *http.Request) {
+		queryParams := r.URL.Query()
+		var name = queryParams.Get("name")
+		var value strings.Builder
+		if _, err := io.Copy(&value, r.Body); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "StringSvc.Set2WithUpName", "value"))
+			return
+		}
+		err := svc.Set2WithUpName(r.Context(), name, value.String())
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, "OK")
+		return
+	})
 	mux.Post("/query13", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var names = queryParams["names"]

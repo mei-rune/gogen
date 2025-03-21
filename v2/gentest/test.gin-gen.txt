@@ -1086,6 +1086,21 @@ func InitStringSvc(mux gin.IRouter, svc StringSvc, handlers ...gin.HandlerFunc) 
 		ctx.JSON(http.StatusCreated, "OK")
 		return
 	}))
+	mux.POST("/query14", append(handlers, func(ctx *gin.Context) {
+		var name = ctx.Query("name")
+		var value strings.Builder
+		if _, err := io.Copy(&value, ctx.Request.Body); err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.Set2WithUpName", "value"))
+			return
+		}
+		err := svc.Set2WithUpName(ctx.Request.Context(), name, value.String())
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusCreated, "OK")
+		return
+	}))
 	mux.POST("/query13", append(handlers, func(ctx *gin.Context) {
 		var names = ctx.QueryArray("names")
 		err := svc.QueryVarArgs(ctx.Request.Context(), names...)

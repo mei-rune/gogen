@@ -931,6 +931,18 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		return ctx.JSON(http.StatusCreated, "OK")
 	}, handlers...)
+	mux.POST("/query14", func(ctx echo.Context) error {
+		var name = ctx.QueryParam("name")
+		var value strings.Builder
+		if _, err := io.Copy(&value, ctx.Request().Body); err != nil {
+			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "StringSvc.Set2WithUpName", "value"))
+		}
+		err := svc.Set2WithUpName(ctx.Request().Context(), name, value.String())
+		if err != nil {
+			return ctx.JSON(httpCodeWith(err), err)
+		}
+		return ctx.JSON(http.StatusCreated, "OK")
+	}, handlers...)
 	mux.POST("/query13", func(ctx echo.Context) error {
 		var names = ctx.QueryParams()["names"]
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)

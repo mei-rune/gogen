@@ -1160,6 +1160,23 @@ func InitStringSvc(mux iris.Party, svc StringSvc, handlers ...iris.Handler) {
 		ctx.JSON("OK")
 		return
 	}))
+	mux.Post("/query14", append(handlers, func(ctx iris.Context) {
+		var name = ctx.URLParam("name")
+		var value strings.Builder
+		if _, err := io.Copy(&value, ctx.Request().Body); err != nil {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(NewBadArgument(err, "StringSvc.Set2WithUpName", "value"))
+			return
+		}
+		err := svc.Set2WithUpName(ctx.Request().Context(), name, value.String())
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON("OK")
+		return
+	}))
 	mux.Post("/query13", append(handlers, func(ctx iris.Context) {
 		var names = ctx.URLParamSlice("names")
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)

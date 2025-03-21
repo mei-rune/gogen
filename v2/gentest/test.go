@@ -524,7 +524,7 @@ type StringSvc interface {
 	// @Summary Set2WithUpName Name is Upper
 	// @Description Set2WithUpName Name is Upper
 	// @ID Set2WithUpName
-	// @Param    value      query   string     true  "arg name"
+	// @Param    name       query   string     true  "arg name"
 	// @Param    value      body   string     true  "arg value"
 	// @Accept   plain
 	// @Produce  json
