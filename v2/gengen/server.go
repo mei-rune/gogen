@@ -23,6 +23,7 @@ type ServerGenerator struct {
 	convertNamespace   string
 	outputHttpCodeWith bool
 	convertParamTypes  string
+	importList            string
 }
 
 func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
@@ -55,6 +56,8 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
 	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")
 	fs.StringVar(&cmd.convertParamTypes, "convert_param_types", os.Getenv("GOGEN_CONVERT_PARAM_TYPES"), "自定义的转换类型，多个类型时以逗号分隔")
+
+	fs.StringVar(&cmd.importList, "imports", "", "自定义的转换类型，多个类型时以逗号分隔")
 
 	return fs
 }
@@ -191,6 +194,22 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 			io.WriteString(out, " ")
 		}
 		io.WriteString(out, "\""+pa+"\"")
+	}
+
+	if cmd.importList != "" {
+		for _, pa := range strings.Split(cmd.importList, ",") {
+			if isFileImport(pa) {
+				continue
+			}
+
+			io.WriteString(out, "\r\n\t")
+			pa = strings.TrimSpace(pa)
+			if strings.HasSuffix(pa, "\"") {
+				io.WriteString(out, pa)
+			} else {
+				io.WriteString(out, "\""+pa+"\"")
+			}
+		}
 	}
 
 	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
