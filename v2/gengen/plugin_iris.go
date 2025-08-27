@@ -38,6 +38,36 @@ func (iris *irisPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	s, ok := args[typeStr]
 	return s, ok
 }
+
+func (chi *irisPlugin) HeaderFunctions() []Function {
+	return []Function{
+		{
+			Required:    true,
+			Format:      "ctx.Request().Header.Get(r, \"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "ctx.Request().Header.Get(\"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "ctx.Request().Header[\"%s\"]",
+			IsArray:     true,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+	}
+}
+
 func (iris *irisPlugin) Functions() []Function {
 	return []Function{
 		{

@@ -54,6 +54,7 @@ type Plugin interface {
 	GetSpecificTypeArgument(typeStr string) (string, bool)
 
 	Functions() []Function
+	HeaderFunctions() []Function
 
 	ReadBodyFunc(argName string) string
 	RenderFunc(out io.Writer, method *Method, route swag.RouteProperties, fn func(io.Writer) error) error

@@ -18,6 +18,37 @@ type chiPlugin struct {
 	cfg Config
 }
 
+
+func (chi *chiPlugin) HeaderFunctions() []Function {
+	return []Function{
+		{
+			Required:    true,
+			Format:      "r.Header.Get(r, \"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "r.Header.Get(\"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "r.Header[\"%s\"]",
+			IsArray:     true,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+	}
+}
+
+
 func (chi *chiPlugin) Functions() []Function {
 	return []Function{
 		{

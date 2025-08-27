@@ -35,6 +35,37 @@ func (echo *echoPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	return s, ok
 }
 
+
+
+func (chi *echoPlugin) HeaderFunctions() []Function {
+	return []Function{
+		{
+			Required:    true,
+			Format:      "ctx.Request().Header.Get(r, \"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "ctx.Request().Header.Get(\"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "ctx.Request().Header[\"%s\"]",
+			IsArray:     true,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+	}
+}
+
 func (echo *echoPlugin) Functions() []Function {
 	return []Function{
 		{

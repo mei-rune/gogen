@@ -655,8 +655,11 @@ func (method *Method) renderSimpleParam(ctx *GenContext, param *Param) error {
 	return method.renderPrimitiveTypeParam(ctx, param, nil)
 }
 
-func selectFunction(plugin Plugin, required, isArray bool, typeStr string) *Function {
+func selectFunction(plugin Plugin, required, isArray bool, typeStr, in string) *Function {
 	functions := plugin.Functions()
+	if in == "header" {
+		functions = plugin.HeaderFunctions()
+	}
 	for idx := range functions {
 		if required != functions[idx].Required {
 			continue
@@ -752,19 +755,20 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 	var fn *Function
 	if isArray {
 		if elmType.IsValid() {
-			fn = selectFunction(ctx.plugin, required, isArray, elmType.ToLiteral())
+			fn = selectFunction(ctx.plugin, required, isArray, elmType.ToLiteral(), param.option.In)
 		}
 		if fn == nil && elmUnderlying.IsValid() {
-			fn = selectFunction(ctx.plugin, required, isArray, elmUnderlying.ToLiteral())
+			fn = selectFunction(ctx.plugin, required, isArray, elmUnderlying.ToLiteral(), param.option.In)
 		}
 	} else {
-		fn = selectFunction(ctx.plugin, required, isArray, typ.ToLiteral())
+		fn = selectFunction(ctx.plugin, required, isArray, typ.ToLiteral(), param.option.In)
 		if fn == nil && underlying.IsValid() {
-			fn = selectFunction(ctx.plugin, required, isArray, underlying.ToLiteral())
+			fn = selectFunction(ctx.plugin, required, isArray, underlying.ToLiteral(), param.option.In)
 		}
 	}
 	if fn != nil {
 		webParamName := GetWebParamName(param, fields)
+
 		var valueReadText string
 		if fn.WithDefault {
 			valueReadText = fmt.Sprintf(fn.Format, webParamName,
@@ -772,6 +776,8 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		} else {
 			valueReadText = fmt.Sprintf(fn.Format, webParamName)
 		}
+
+
 
 		// 情况4, 6
 		if fn.ResultError || fn.ResultBool {
@@ -842,7 +848,7 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		return nil
 	}
 
-	fn = selectFunction(ctx.plugin, required, isArray, "string")
+	fn = selectFunction(ctx.plugin, required, isArray, "string", param.option.In)
 	if fn == nil {
 		return errors.New("param '" + goVarName + "' of '" +
 			method.FullName() +
@@ -1002,7 +1008,7 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 			"' is unsupported type - '..." + typ.ToLiteral() + "'")
 	}
 
-	fn := selectFunction(ctx.plugin, required, isArray, ElemTypeForNullable(typ))
+	fn := selectFunction(ctx.plugin, required, isArray, ElemTypeForNullable(typ), param.option.In)
 	if fn != nil {
 		webParamName := GetWebParamName(param, fields)
 		var valueReadText string
@@ -1059,7 +1065,7 @@ func (method *Method) renderNullableParam(ctx *GenContext, param *Param, fields 
 		return nil
 	}
 
-	fn = selectFunction(ctx.plugin, required, isArray, "string")
+	fn = selectFunction(ctx.plugin, required, isArray, "string", param.option.In)
 	if fn == nil {
 		return errors.New("param '" + goVarName + "' of '" +
 			method.FullName() +
@@ -1172,9 +1178,9 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 	// elemTypeStr := typ.ToLiteral()
 	var fn *Function
 	if underlying.IsValid() {
-		fn = selectFunction(ctx.plugin, required, isArray, underlying.ToLiteral())
+		fn = selectFunction(ctx.plugin, required, isArray, underlying.ToLiteral(), param.option.In)
 	} else {
-		fn = selectFunction(ctx.plugin, required, isArray, typ.ToLiteral())
+		fn = selectFunction(ctx.plugin, required, isArray, typ.ToLiteral(), param.option.In)
 	}
 	if fn != nil {
 		webParamName := GetWebParamName(param, fields)
@@ -1227,7 +1233,7 @@ func (method *Method) renderPtrTypeParam(ctx *GenContext, param *Param, fields [
 		return nil
 	}
 
-	fn = selectFunction(ctx.plugin, required, isArray, "string")
+	fn = selectFunction(ctx.plugin, required, isArray, "string", param.option.In)
 	if fn == nil {
 		return errors.New("param '" + goVarName + "' of '" +
 			method.FullName() +
@@ -1401,6 +1407,13 @@ func GetGoVarName(param *Param, parents []*Field, hideAnonymous ...bool) string 
 }
 
 func GetWebParamName(param *Param, parents []*Field) string {
+	if param.option.In == "header" {
+		header, _ := param.option.Extensions.GetString("x-gogen-header")
+		if header != "" {
+			return header
+		}
+	}
+
 	var name string
 	if param.option != nil {
 		if !isExtendInline(param.option) {

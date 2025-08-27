@@ -51,6 +51,35 @@ func (gin *ginPlugin) RenderWithMiddlewares(mux string) string {
 	return ""
 }
 
+func (chi *ginPlugin) HeaderFunctions() []Function {
+	return []Function{
+		{
+			Required:    true,
+			Format:      "ctx.Request().Header.Get(r, \"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "ctx.Request().Header.Get(\"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "ctx.Request().Header[\"%s\"]",
+			IsArray:     true,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+	}
+}
+
 func (gin *ginPlugin) Functions() []Function {
 	return []Function{
 		{

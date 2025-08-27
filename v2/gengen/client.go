@@ -570,7 +570,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 				continue
 			}
 
-			if option.In != "query" {
+			if option.In != "query" && option.In != "header" {
 				inBody = append(inBody, param)
 				inParameters = append(inParameters, option)
 				continue
@@ -586,7 +586,7 @@ func (cmd *ClientGenerator) genInterfaceMethod(out io.Writer, recvClassName stri
 
 		parent := searchStructParam(method.Operation, param.Name)
 		if parent != nil {
-			if parent.In != "query" {
+			if parent.In != "query" && parent.In != "header" {
 				inBody = append(inBody, param)
 				inParameters = append(inParameters, *parent)
 				continue
@@ -911,7 +911,16 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 	}
 	if strings.HasPrefix(typeName, "*") {
 		io.WriteString(out, "\r\nif "+param.Name+" != nil {")
-		io.WriteString(out, "\r\n\trequest = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+		if option.In == "header" {
+			header, _ := option.Extensions.GetString("x-gogen-header")
+			if header == "" {
+				header = option.Name
+			}
+
+			io.WriteString(out, "\r\n\trequest = request.SetHeader(\""+header+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+		} else {
+			io.WriteString(out, "\r\n\trequest = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+		}
 		io.WriteString(out, "\r\n}")
 		*needAssignment = true
 	} else {
@@ -924,7 +933,17 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 				}
 			}
 
-			if isStr {
+			if option.In == "header" {
+				header, _ := option.Extensions.GetString("x-gogen-header")
+				if header == "" {
+					header = option.Name
+				}
+
+				io.WriteString(out, "\r\nfor idx := range "+param.Name+" {")
+				io.WriteString(out, "\r\n  request = request.AddHeader(\""+header+"\", "+convertToStringLiteral(param, "[idx]", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+				io.WriteString(out, "\r\n}")
+				*needAssignment = true
+			} else if isStr {
 				if *needAssignment {
 					io.WriteString(out, "\r\nrequest = request.")
 				} else {
@@ -940,7 +959,15 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 			}
 		} else if param.Type().IsSqlNullableType() {
 			io.WriteString(out, "\r\nif "+param.Name+".Valid {")
-			io.WriteString(out, "\r\n  request = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			if option.In == "header" {
+				header, _ := option.Extensions.GetString("x-gogen-header")
+				if header == "" {
+					header = option.Name
+				}
+				io.WriteString(out, "\r\n  request = request.SetHeader(\""+header+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			} else {
+				io.WriteString(out, "\r\n  request = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			}
 			io.WriteString(out, "\r\n}")
 			*needAssignment = true
 		} else if !option.Required {
@@ -953,7 +980,16 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 				io.WriteString(out, zeroValueLiteral(param.Type()))
 				io.WriteString(out, " {")
 			}
-			io.WriteString(out, "\r\n\trequest = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+
+			if option.In == "header" {
+				header, _ := option.Extensions.GetString("x-gogen-header")
+				if header == "" {
+					header = option.Name
+				}
+				io.WriteString(out, "\r\n\trequest = request.SetHeader(\""+header+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			} else {
+				io.WriteString(out, "\r\n\trequest = request.SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			}
 			io.WriteString(out, "\r\n}")
 			*needAssignment = true
 		} else {
@@ -963,7 +999,15 @@ func (cmd *ClientGenerator) genInterfaceMethodParam(out io.Writer, method *Metho
 				io.WriteString(out, ".\r\n")
 			}
 
-			io.WriteString(out, "SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			if option.In == "header" {
+				header, _ := option.Extensions.GetString("x-gogen-header")
+				if header == "" {
+					header = option.Name
+				}
+				io.WriteString(out, "SetHeader(\""+header+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			} else {
+				io.WriteString(out, "SetParam(\""+option.Name+"\", "+convertToStringLiteral(param, "", cmd.config.ConvertNS, cmd.config.TimeFormat)+")")
+			}
 			*needAssignment = false
 		}
 	}

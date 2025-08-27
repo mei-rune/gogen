@@ -35,6 +35,36 @@ func (lng *loongPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	return s, ok
 }
 
+
+func (chi *loongPlugin) HeaderFunctions() []Function {
+	return []Function{
+		{
+			Required:    true,
+			Format:      "ctx.Request().Header.Get(r, \"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "ctx.Request().Header.Get(\"%s\")",
+			IsArray:     false,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+		{
+			Required:    false,
+			Format:      "ctx.Request().Header[\"%s\"]",
+			IsArray:     true,
+			ResultType:  "string",
+			ResultError: false,
+			ResultBool:  false,
+		},
+	}
+}
+
 func (lng *loongPlugin) Functions() []Function {
 	return []Function{
 		{
