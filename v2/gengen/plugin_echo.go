@@ -12,6 +12,7 @@ var _ Plugin = &echoPlugin{}
 
 type echoPlugin struct {
 	cfg Config
+	isV5 bool
 }
 
 func (echo *echoPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
@@ -26,16 +27,20 @@ func (echo *echoPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 		"url.Values":          "ctx.QueryParams()",
 		"*http.Request":       "ctx.Request()",
 		"io.Reader":           "ctx.Request().Body",
+
 		"http.ResponseWriter": "ctx.Response().Writer",
 		"io.Writer":           "ctx.Response().Writer",
 		"context.Context":     "ctx.Request().Context()",
 		"echo.Context":        "ctx",
+		"*echo.Context":        "ctx",
+	}
+	if echo.isV5 {
+		args["http.ResponseWriter"] = "ctx.Response()"
+		args["io.Writer"] =           "ctx.Response()"
 	}
 	s, ok := args[typeStr]
 	return s, ok
 }
-
-
 
 func (chi *echoPlugin) HeaderFunctions() []Function {
 	return []Function{
@@ -96,6 +101,12 @@ func (echo *echoPlugin) Functions() []Function {
 }
 
 func (echo *echoPlugin) Imports() map[string]string {
+	if echo.isV5 {
+		return map[string]string{
+			"github.com/labstack/echo/v5": "echo",
+		}
+	}
+
 	return map[string]string{
 		"github.com/labstack/echo/v4": "echo",
 	}
@@ -137,7 +148,15 @@ func (echo *echoPlugin) RenderFunc(out io.Writer, method *Method, route swag.Rou
 	if urlstr == "/" {
 		urlstr = ""
 	}
-	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", func(ctx echo.Context) error {")
+	_, err = io.WriteString(out, "\r\nmux."+strings.ToUpper(route.HTTPMethod)+"(\""+urlstr+"\", ")
+	if err != nil {
+		return err
+	}
+	if echo.isV5 {
+	_, err = io.WriteString(out, "func(ctx *echo.Context) error {")
+	} else {
+	_, err = io.WriteString(out, "func(ctx echo.Context) error {")
+	}
 	if err != nil {
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"log"
+	"os"
 	"strings"
 	"text/template"
 
@@ -36,10 +37,20 @@ func createPlugin(plugin string, cfg Config) (Plugin, error) {
 	case "chi":
 		return &chiPlugin{cfg: cfg}, nil
 	case "echo":
+		version := os.Getenv("GOGEN_ECHO_VERSION")
+		if version == "v5" {
+			return &echoPlugin{cfg: cfg,isV5: true}, nil
+		}
 		return &echoPlugin{cfg: cfg}, nil
+	case "echov5":
+		return &echoPlugin{cfg: cfg,isV5: true}, nil
 	case "iris":
 		return &irisPlugin{cfg: cfg}, nil
 	case "loong":
+		version := os.Getenv("GOGEN_ECHO_VERSION")
+		if version == "v5" {
+			return &echoPlugin{cfg: cfg,isV5: true}, nil
+		}
 		return &loongPlugin{cfg: cfg}, nil
 	default:
 		return nil, errors.New("plugin '" + plugin + "' is unsupported")

@@ -19,11 +19,6 @@ func main() {
 	if binary != "" {
 		fmt.Println(binary, os.Args)
 	}
-	wd, _ := os.Getwd()
-	if wd != "" {
-		fmt.Println("wd =", wd)
-	}
-
 	flag.Usage = usage
 	flag.Parse()
 	args := flag.Args()

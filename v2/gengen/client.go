@@ -47,6 +47,10 @@ func (cmd *ClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 }
 
 func (cmd *ClientGenerator) Run(args []string) error {
+	if ns := os.Getenv("GOGEN_CONVERT_NS"); ns != "" {
+		cmd.config.ConvertNS = ns
+	}
+	
 	convertParamTypes = strings.Split(cmd.convertParamTypes, ",")
 
 	swaggerParser := swag.New()

@@ -68,6 +68,9 @@ func (cmd *ServerGenerator) Run(args []string) error {
 		return errors.New("缺少 plugin 参数")
 	}
 
+	if ns := os.Getenv("GOGEN_CONVERT_NS"); ns != "" {
+		cmd.convertNamespace = ns
+	}
 	plugin, err := createPlugin(cmd.plugin, cmd.cfg)
 	if err != nil {
 		return err
