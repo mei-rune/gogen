@@ -16,7 +16,7 @@ func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc, handlers ...echo.Middle
 	mux.GET("/files1", func(ctx *echo.Context) error {
 		list, total, err := svc.Get1()
 		if err != nil {
-			return abc.ReturnError(ctx, errors.ToEncodedError(err), errors.GetHttpCode(err))
+			return abc.ReturnError(ctx, errors.ToEncodedError(err))
 		}
 		result := map[string]interface{}{
 			"list":  list,
@@ -27,7 +27,7 @@ func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc, handlers ...echo.Middle
 	mux.GET("/files2", func(ctx *echo.Context) error {
 		list, total, err := svc.Get2()
 		if err != nil {
-			return abc.ReturnError(ctx, errors.ToEncodedError(err), errors.GetHttpCode(err))
+			return abc.ReturnError(ctx, errors.ToEncodedError(err))
 		}
 		result := map[string]interface{}{
 			"list":  list,
@@ -38,7 +38,7 @@ func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc, handlers ...echo.Middle
 	mux.GET("/files3", func(ctx *echo.Context) error {
 		err := svc.Get3()
 		if err != nil {
-			return abc.ReturnError(ctx, errors.ToEncodedError(err), errors.GetHttpCode(err))
+			return abc.ReturnError(ctx, errors.ToEncodedError(err))
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -53,7 +53,7 @@ func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc, handlers ...echo.Middle
 		}
 		err := svc.Get4(id)
 		if err != nil {
-			return abc.ReturnError(ctx, errors.ToEncodedError(err), errors.GetHttpCode(err))
+			return abc.ReturnError(ctx, errors.ToEncodedError(err))
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)

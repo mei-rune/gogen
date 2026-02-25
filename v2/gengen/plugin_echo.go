@@ -197,6 +197,7 @@ func (echo *echoPlugin) RenderCastError(out io.Writer, method *Method, accessFie
 }
 
 func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode, err string, errwrapped ...bool) error {
+	hasRealErrorCode := errCode != ""
 	if errCode == "" && echo.cfg.HttpCodeWith != "" {
 		errCode = echo.cfg.HttpCodeWith + "(" + err + ")"
 	}
@@ -212,8 +213,11 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 
 	var text string
 	if echo.customReturnFunc {
+		// 前面当  method.Operation.Produces 为 text/plain 时添加了 ".Error()", 这里要删除
+		err = strings.TrimSuffix(err, ".Error()")
 		text = `return `+echo.returnErrorResultFuncName+`(ctx, {{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})`
 	} else {
+		hasRealErrorCode = true
 		text = `return ctx.`+renderFunc+`(`+
 			`{{if .hasRealErrorCode -}}{{.errCode}}{{else}}http.StatusInternalServerError{{end}},`+
 			` {{.err}})`
@@ -222,7 +226,7 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	s := renderString(text,
 			map[string]interface{}{
 			"err":              err,
-			"hasRealErrorCode": errCode != "",
+			"hasRealErrorCode": hasRealErrorCode,
 			"errCode":          errCode,
 		})
 	_, e := io.WriteString(out, s)

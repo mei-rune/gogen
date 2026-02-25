@@ -26,7 +26,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var filenames = ctx.QueryParams()["filenames"]
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		result := map[string]interface{}{
 			"list":  list,
@@ -45,7 +45,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		list, total, err := svc.GetTimes(times)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		result := map[string]interface{}{
 			"list":  list,
@@ -56,7 +56,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 	mux.GET("/allfiles", func(ctx *echo.Context) error {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		result := map[string]interface{}{
 			"list":  list,
@@ -72,7 +72,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var key = Key(keyValue)
 		err = svc.TestByKey1(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -87,7 +87,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err := svc.TestByKey2(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -102,7 +102,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err := svc.TestByKey3(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -110,7 +110,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var key = StrKey(ctx.Param("key"))
 		err := svc.TestByStrKey1(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -118,7 +118,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var key = StrKey(ctx.QueryParam("key"))
 		err := svc.TestByStrKey2(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -129,7 +129,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err = svc.TestInt64Path(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -144,7 +144,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err := svc.TestInt64Query(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -203,7 +203,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -291,7 +291,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -350,7 +350,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err = svc.TestQueryArgs3(id, args)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -438,14 +438,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err = svc.TestQueryArgs4(id, args)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
 	mux.GET("/ping", func(ctx *echo.Context) error {
 		err := svc.Ping()
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -457,7 +457,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 	mux.POST("/echo2", func(ctx *echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -470,7 +470,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Echo3(ctx.Request().Context(), bindArgs.A)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -479,7 +479,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var b = ctx.QueryParam("b")
 		result, err := svc.Concat0_1(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -488,7 +488,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var b = ctx.QueryParam("b")
 		result, err := svc.Concat0_2(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -503,7 +503,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Concat1(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -512,7 +512,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var b = ctx.Param("b")
 		result, err := svc.Concat2(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -521,7 +521,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var b = ctx.Param("b")
 		result, err := svc.Concat3(&a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -537,7 +537,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Sub(a, start)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -549,7 +549,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Save(a, b.String())
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -562,7 +562,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var b = bBuilder.String()
 		result, err := svc.Save2(&a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -576,7 +576,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Save3(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -590,7 +590,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Save4(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -604,7 +604,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Save5(ctx.Request().Context(), bindArgs.A, bindArgs.B)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -619,7 +619,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Add1(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -634,7 +634,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Add2(&a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -657,7 +657,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Add3(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -849,20 +849,20 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvc.Query8", "item_id").Error(), http.StatusBadRequest)
+				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvc.Query8", "item_id"), http.StatusBadRequest)
 			}
 			itemID = itemIDValue
 		}
 		result, err := svc.Query8(ctx.Request().Context(), itemID)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
 	mux.POST("", func(ctx *echo.Context) error {
 		err := svc.CreateWithNoReturn(ctx.Request().Context(), ctx.Request(), ctx.Response())
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return nil
 	}, handlers...)
@@ -871,14 +871,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvc.Query9", "item_id").Error(), http.StatusBadRequest)
+				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvc.Query9", "item_id"), http.StatusBadRequest)
 			}
 			itemID.Valid = true
 			itemID.Int64 = itemIDValue
 		}
 		result, err := svc.Query9(ctx.Request().Context(), itemID)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
@@ -890,7 +890,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		result, err := svc.Query10(ctx.Request().Context(), itemID)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
@@ -899,14 +899,14 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		if s := ctx.QueryParam("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
 			if err != nil {
-				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvc.Query11", "item_id").Error(), http.StatusBadRequest)
+				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvc.Query11", "item_id"), http.StatusBadRequest)
 			}
 			itemID.Valid = true
 			itemID.Bool = itemIDValue
 		}
 		result, err := svc.Query11(ctx.Request().Context(), itemID)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
@@ -914,7 +914,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var Name = ctx.QueryParam("Name")
 		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
@@ -927,7 +927,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err := svc.Set1WithUpName(ctx.Request().Context(), bindArgs.Name)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, "OK")
 	}, handlers...)
@@ -939,7 +939,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		}
 		err := svc.Set2WithUpName(ctx.Request().Context(), name, value.String())
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, "OK")
 	}, handlers...)
@@ -947,7 +947,7 @@ func InitStringSvc(mux *echo.Group, svc StringSvc, handlers ...echo.MiddlewareFu
 		var names = ctx.QueryParams()["names"]
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, "OK")
 	}, handlers...)
@@ -959,7 +959,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var filenames = ctx.QueryParams()["filenames"]
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		result := map[string]interface{}{
 			"list":  list,
@@ -978,7 +978,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		list, total, err := svc.GetTimes(times)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		result := map[string]interface{}{
 			"list":  list,
@@ -989,7 +989,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 	mux.GET("/impl/allfiles", func(ctx *echo.Context) error {
 		list, total, err := svc.GetAllFiles()
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		result := map[string]interface{}{
 			"list":  list,
@@ -1005,7 +1005,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var key = Key(keyValue)
 		err = svc.TestByKey1(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1020,7 +1020,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		err := svc.TestByKey2(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1028,7 +1028,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var key = StrKey(ctx.Param("key"))
 		err := svc.TestByStrKey1(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1036,7 +1036,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var key = StrKey(ctx.QueryParam("key"))
 		err := svc.TestByStrKey2(key)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1047,7 +1047,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		err = svc.TestInt64Path(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1062,7 +1062,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		err := svc.TestInt64Query(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1121,7 +1121,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		err = svc.TestQueryArgs1(id, args)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1209,7 +1209,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		err = svc.TestQueryArgs2(id, args)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1268,7 +1268,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		err = svc.TestQueryArgs3(id, args)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1356,14 +1356,14 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		err = svc.TestQueryArgs4(id, args)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
 	mux.GET("/impl/ping", func(ctx *echo.Context) error {
 		err := svc.Ping()
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -1375,7 +1375,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 	mux.POST("/impl/echo2", func(ctx *echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Body)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1388,7 +1388,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Echo3(ctx.Request().Context(), bindArgs.A)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1397,7 +1397,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var b = ctx.QueryParam("b")
 		result, err := svc.Concat0(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1412,7 +1412,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Concat1(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1421,7 +1421,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var b = ctx.Param("b")
 		result, err := svc.Concat2(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1430,7 +1430,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var b = ctx.Param("b")
 		result, err := svc.Concat3(&a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1446,7 +1446,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Sub(a, start)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1458,7 +1458,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Save(a, b.String())
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1471,7 +1471,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var b = bBuilder.String()
 		result, err := svc.Save2(&a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1485,7 +1485,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Save3(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1499,7 +1499,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Save4(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1513,7 +1513,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Save5(ctx.Request().Context(), bindArgs.A, bindArgs.B)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1528,7 +1528,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Add1(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1543,7 +1543,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Add2(&a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1566,7 +1566,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Add3(a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1758,20 +1758,20 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvcImpl.Query8", "item_id").Error(), http.StatusBadRequest)
+				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvcImpl.Query8", "item_id"), http.StatusBadRequest)
 			}
 			itemID = itemIDValue
 		}
 		result, err := svc.Query8(ctx.Request().Context(), itemID)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
 	mux.POST("/impl", func(ctx *echo.Context) error {
 		err := svc.CreateWithNoReturn(ctx.Request().Context(), ctx.Request(), ctx.Response())
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return nil
 	}, handlers...)
@@ -1780,14 +1780,14 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		if s := ctx.QueryParam("item_id"); s != "" {
 			itemIDValue, err := strconv.ParseInt(s, 10, 64)
 			if err != nil {
-				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvcImpl.Query9", "item_id").Error(), http.StatusBadRequest)
+				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvcImpl.Query9", "item_id"), http.StatusBadRequest)
 			}
 			itemID.Valid = true
 			itemID.Int64 = itemIDValue
 		}
 		result, err := svc.Query9(ctx.Request().Context(), itemID)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
@@ -1799,7 +1799,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		result, err := svc.Query10(ctx.Request().Context(), itemID)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
@@ -1808,14 +1808,14 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		if s := ctx.QueryParam("item_id"); s != "" && s != "none" {
 			itemIDValue, err := strconv.ParseBool(s)
 			if err != nil {
-				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvcImpl.Query11", "item_id").Error(), http.StatusBadRequest)
+				return abc.ReturnError(ctx, NewBadArgument(err, "StringSvcImpl.Query11", "item_id"), http.StatusBadRequest)
 			}
 			itemID.Valid = true
 			itemID.Bool = itemIDValue
 		}
 		result, err := svc.Query11(ctx.Request().Context(), itemID)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
@@ -1823,7 +1823,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var Name = ctx.QueryParam("Name")
 		result, err := svc.Query1WithUpName(ctx.Request().Context(), Name)
 		if err != nil {
-			return abc.ReturnError(ctx, err.Error(), httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return ctx.String(http.StatusOK, result)
 	}, handlers...)
@@ -1836,7 +1836,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		}
 		err := svc.Set1WithUpName(ctx.Request().Context(), bindArgs.Name)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, "OK")
 	}, handlers...)
@@ -1844,7 +1844,7 @@ func InitStringSvcImpl(mux *echo.Group, svc *StringSvcImpl, handlers ...echo.Mid
 		var names = ctx.QueryParams()["names"]
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, "OK")
 	}, handlers...)
@@ -1860,7 +1860,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 	mux.POST("/ctx/echo2", func(ctx *echo.Context) error {
 		result, err := svc.EchoBody(ctx.Request().Context(), ctx.Request().Body)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1869,7 +1869,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		var b = ctx.QueryParam("b")
 		result, err := svc.Concat0(ctx.Request().Context(), a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1884,7 +1884,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		}
 		result, err := svc.Concat1(ctx.Request().Context(), a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1893,7 +1893,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		var b = ctx.Param("b")
 		result, err := svc.Concat2(ctx.Request().Context(), a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1902,7 +1902,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		var b = ctx.Param("b")
 		result, err := svc.Concat3(ctx.Request().Context(), &a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1918,7 +1918,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		}
 		result, err := svc.Sub(ctx.Request().Context(), a, start)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1930,7 +1930,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		}
 		result, err := svc.Save1(ctx.Request().Context(), a, b.String())
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1943,7 +1943,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		var b = bBuilder.String()
 		result, err := svc.Save2(ctx.Request().Context(), &a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1957,7 +1957,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		}
 		result, err := svc.Save3(bindArgs.A, bindArgs.B)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -1972,7 +1972,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		}
 		result, err := svc.Add1(ctx.Request().Context(), a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -1987,7 +1987,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		}
 		result, err := svc.Add2(ctx.Request().Context(), &a, &b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -2010,7 +2010,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		}
 		result, err := svc.Add3(ctx.Request().Context(), a, b)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -2018,7 +2018,7 @@ func InitStringSvcWithContext(mux *echo.Group, svc *StringSvcWithContext, handle
 		var names = ctx.QueryParams()["names"]
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, "OK")
 	}, handlers...)
@@ -2255,7 +2255,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Query1(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -2468,7 +2468,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Query2(ctx.Request().Context(), query, offset, limit)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -2681,7 +2681,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Query3(ctx.Request().Context(), query, offset, limit)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -2909,7 +2909,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QueryEx1(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -3186,7 +3186,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QueryEx2(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -3413,7 +3413,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QueryEx3(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -3689,7 +3689,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QueryEx4(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -3916,7 +3916,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QueryEx3NoPrefix(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4192,7 +4192,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QueryEx4NoPrefix(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4406,7 +4406,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.List(ctx.Request().Context(), query, offset, limit)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4417,7 +4417,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Create1(ctx.Request().Context(), &data)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -4431,7 +4431,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Create2(ctx.Request().Context(), bindArgs.Request, bindArgs.Testarg)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -4446,7 +4446,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.UpdateByID(ctx.Request().Context(), id, &data)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnUpdatedResult(ctx, result)
 	}, handlers...)
@@ -4463,7 +4463,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Set1ByID(ctx.Request().Context(), id, bindArgs.Params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnResult(ctx, http.StatusOK, result)
 	}, handlers...)
@@ -4478,7 +4478,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Set2ByID(ctx.Request().Context(), id, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnResult(ctx, http.StatusOK, result)
 	}, handlers...)
@@ -4495,7 +4495,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Set3ByID(ctx.Request().Context(), id, bindArgs.Params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnUpdatedResult(ctx, result)
 	}, handlers...)
@@ -4510,7 +4510,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Set4ByID(ctx.Request().Context(), id, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnUpdatedResult(ctx, result)
 	}, handlers...)
@@ -4527,7 +4527,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Set5ByID(ctx.Request().Context(), id, bindArgs.Params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -4542,7 +4542,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Set6ByID(ctx.Request().Context(), id, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -4557,7 +4557,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.Set7ByID(ctx.Request().Context(), id, params)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnCreatedResult(ctx, result)
 	}, handlers...)
@@ -4593,7 +4593,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QuerySubTest1(ctx.Request().Context(), query)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4637,7 +4637,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QuerySubTest2(ctx.Request().Context(), query)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4687,7 +4687,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QuerySubTest3(ctx.Request().Context(), query)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4750,7 +4750,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		}
 		result, err := svc.QuerySubTest4(ctx.Request().Context(), query)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)

@@ -21,7 +21,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		var name = ctx.Param("name")
 		err := svc.TestCase1(name)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -29,7 +29,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		var name = ctx.QueryParam("name")
 		err := svc.TestCase2_1(name)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -37,7 +37,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		var name = ctx.QueryParams()["name"]
 		err := svc.TestCase2_2(name)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -45,7 +45,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		var name = ctx.QueryParam("name")
 		err := svc.TestCase2_3(name)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -56,7 +56,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err = svc.TestCase3_1(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -68,7 +68,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		var id = int32(idValue)
 		err = svc.TestCase3_2(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -79,7 +79,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err = svc.TestCase3_3(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -90,7 +90,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err = svc.TestCase4(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -105,7 +105,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase5_1(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -120,7 +120,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase5_2(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -135,7 +135,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase5_3(idlist)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -150,7 +150,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase6(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -166,7 +166,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase7_1(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -182,7 +182,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase7_2(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -198,7 +198,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase8(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -214,7 +214,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCastForNullBool(ok)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -222,7 +222,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		var id = ctx.Param("id")
 		err := svc.TestCase9(&id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -233,7 +233,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase10(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -244,7 +244,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err = svc.TestCase12(&id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -255,7 +255,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err = svc.TestCase13(&id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -270,7 +270,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase14_1(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -286,7 +286,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase14_2(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -301,7 +301,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase14_3(id)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -316,7 +316,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCase15_1(a)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -330,7 +330,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCaseOtherValuesForMap(otherValues)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -361,7 +361,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCaseOtherValuesForMapInline(otherValues, offset, limit)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -375,7 +375,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCaseOtherValuesForUrlValues(otherValues)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -406,7 +406,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		}
 		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -415,7 +415,7 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		typ.Name = ctx.QueryParam("typ.name")
 		err := svc.TestType1(typ)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
@@ -423,21 +423,21 @@ func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) 
 		var opts Options
 		err := svc.TestType2(opts)
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
 	mux.GET("/TestResult1", func(ctx *echo.Context) error {
 		result, err := svc.TestResult1()
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
 	mux.GET("/TestResult2", func(ctx *echo.Context) error {
 		code, data, err := svc.TestResult2()
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		result := map[string]interface{}{
 			"code": code,
@@ -454,7 +454,7 @@ func InitOptionalPrefixSvc(mux *echo.Group, enabledPrefix bool, svc OptionalPref
 	mux.GET("/get", func(ctx *echo.Context) error {
 		err := svc.Get()
 		if err != nil {
-			return abc.ReturnError(ctx, err, httpCodeWith(err))
+			return abc.ReturnError(ctx, err)
 		}
 		return abc.ReturnQueryResult(ctx, "OK")
 	}, handlers...)
