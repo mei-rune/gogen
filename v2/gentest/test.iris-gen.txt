@@ -5456,10 +5456,8 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			return
 		}
 		var bindArgs struct {
-			Params
-			bindArgs map[string]interface{} `json:"params,omitempty"`
-			Error
-			bindArgs Error `json:"error,omitempty"`
+			Params map[string]interface{} `json:"params,omitempty"`
+			Error  *Error                 `json:"error,omitempty"`
 		}
 		if err := ctx.UnmarshalBody(&bindArgs, nil); err != nil {
 			ctx.StatusCode(http.StatusBadRequest)

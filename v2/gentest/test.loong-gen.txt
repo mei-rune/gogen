@@ -4571,10 +4571,8 @@ func InitRequests(mux loong.Party, svc Requests, handlers ...loong.MiddlewareFun
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
 		}
 		var bindArgs struct {
-			Params
-			bindArgs map[string]interface{} `json:"params,omitempty"`
-			Error
-			bindArgs Error `json:"error,omitempty"`
+			Params map[string]interface{} `json:"params,omitempty"`
+			Error  *Error                 `json:"error,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)

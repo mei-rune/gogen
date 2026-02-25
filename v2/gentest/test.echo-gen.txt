@@ -4567,10 +4567,8 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set8ByID", "id"))
 		}
 		var bindArgs struct {
-			Params
-			bindArgs map[string]interface{} `json:"params,omitempty"`
-			Error
-			bindArgs Error `json:"error,omitempty"`
+			Params map[string]interface{} `json:"params,omitempty"`
+			Error  *Error                 `json:"error,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set8ByID", "bindArgs"))

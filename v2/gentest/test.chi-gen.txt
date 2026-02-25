@@ -5616,10 +5616,8 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			return
 		}
 		var bindArgs struct {
-			Params
-			bindArgs map[string]interface{} `json:"params,omitempty"`
-			Error
-			bindArgs Error `json:"error,omitempty"`
+			Params map[string]interface{} `json:"params,omitempty"`
+			Error  *Error                 `json:"error,omitempty"`
 		}
 		if err := render.Decode(r, &bindArgs); err != nil {
 			render.Status(r, http.StatusBadRequest)

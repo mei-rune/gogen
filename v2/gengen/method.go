@@ -1768,7 +1768,7 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 				typeStr == "any" ||
 				typeStr == "error" {
 					if params[idx].Option.Schema.Type.Contains("object") {
-						io.WriteString(ctx.out, "\r\n\t"+varName+" map[string]interface{}")
+						io.WriteString(ctx.out, " map[string]interface{}")
 					} else {
 						// fmt.Println(fmt.Sprintf("%#v", params[idx]))
 						// fmt.Println(fmt.Sprintf("%#v", params[idx].Param))
@@ -1788,8 +1788,7 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 							}
 						}
 
-
-						io.WriteString(ctx.out, "\r\n\t"+varName+" "+refType)
+						io.WriteString(ctx.out, "*"+refType)
 					}
 			} else {
 				io.WriteString(ctx.out, params[idx].Param.Type().ToLiteral())

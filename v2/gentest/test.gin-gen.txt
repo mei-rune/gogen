@@ -5115,10 +5115,8 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 			return
 		}
 		var bindArgs struct {
-			Params
-			bindArgs map[string]interface{} `json:"params,omitempty"`
-			Error
-			bindArgs Error `json:"error,omitempty"`
+			Params map[string]interface{} `json:"params,omitempty"`
+			Error  *Error                 `json:"error,omitempty"`
 		}
 		if err := ctx.Bind(&bindArgs); err != nil {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set8ByID", "bindArgs"))
