@@ -52,6 +52,7 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.BoolVar(&cmd.enableResultWrap, "enableResultWrap", os.Getenv("GOGEN_ENABLE_RESULT_WRAP") == "true", "默认启用 @x-gogen-result-wrap")
 	fs.StringVar(&cmd.cfg.OkResult, "okResult", os.Getenv("GOGEN_OK_RESULT"), "使用 NewOkResult 函数")
 	fs.StringVar(&cmd.cfg.ErrorResult, "errorResult", os.Getenv("GOGEN_ERROR_RESULT"), "使用 NewErrorResult 函数")
+	fs.StringVar(&cmd.cfg.CustomReturnFunc, "customReturn", os.Getenv("GOGEN_CUSTOM_RETURN_FUNC"), "")
 
 	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
 	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")
@@ -70,6 +71,11 @@ func (cmd *ServerGenerator) Run(args []string) error {
 
 	if ns := os.Getenv("GOGEN_CONVERT_NS"); ns != "" {
 		cmd.convertNamespace = ns
+	}
+
+	ns := os.Getenv("GOGEN_CUSTOM_RETURN_FUNC")
+	if ns != "" {
+		cmd.cfg.CustomReturnFunc = ns
 	}
 	plugin, err := createPlugin(cmd.plugin, cmd.cfg)
 	if err != nil {

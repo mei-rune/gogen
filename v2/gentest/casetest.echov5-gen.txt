@@ -1,0 +1,463 @@
+//go:build echov5
+// +build echov5
+
+// Please don't edit this file!
+package main
+
+import (
+	"database/sql"
+	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
+
+	echo "github.com/labstack/echo/v5"
+)
+
+// Options is skipped
+
+func InitCaseSvc(mux *echo.Group, svc CaseSvc, handlers ...echo.MiddlewareFunc) {
+	mux.GET("/case1/by_name/:name", func(ctx *echo.Context) error {
+		var name = ctx.Param("name")
+		err := svc.TestCase1(name)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case2_1/by_name", func(ctx *echo.Context) error {
+		var name = ctx.QueryParam("name")
+		err := svc.TestCase2_1(name)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case2_2/by_names", func(ctx *echo.Context) error {
+		var name = ctx.QueryParams()["name"]
+		err := svc.TestCase2_2(name)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case2_3/by_name", func(ctx *echo.Context) error {
+		var name = ctx.QueryParam("name")
+		err := svc.TestCase2_3(name)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case3_1/by_id/:id", func(ctx *echo.Context) error {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase3_1", "id"), http.StatusBadRequest)
+		}
+		err = svc.TestCase3_1(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case3_2/by_id/:id", func(ctx *echo.Context) error {
+		idValue, err := strconv.ParseInt(ctx.Param("id"), 10, 32)
+		if err != nil {
+			return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase3_2", "id"), http.StatusBadRequest)
+		}
+		var id = int32(idValue)
+		err = svc.TestCase3_2(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case3_3/by_id/:id", func(ctx *echo.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase3_3", "id"), http.StatusBadRequest)
+		}
+		err = svc.TestCase3_3(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case4/by_id/:id", func(ctx *echo.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase4", "id"), http.StatusBadRequest)
+		}
+		err = svc.TestCase4(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case5_1/by_id", func(ctx *echo.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase5_1", "id"), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		err := svc.TestCase5_1(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case5_2/by_id", func(ctx *echo.Context) error {
+		var id int32
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase5_2", "id"), http.StatusBadRequest)
+			}
+			id = int32(idValue)
+		}
+		err := svc.TestCase5_2(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case5_3/by_id", func(ctx *echo.Context) error {
+		var idlist []int64
+		if ss := ctx.QueryParams()["idlist"]; len(ss) != 0 {
+			idlistValue, err := ToInt64Array(ss)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase5_3", "idlist"), http.StatusBadRequest)
+			}
+			idlist = idlistValue
+		}
+		err := svc.TestCase5_3(idlist)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case6/by_id", func(ctx *echo.Context) error {
+		var id int64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase6", "id"), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		err := svc.TestCase6(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case7_1/by_id", func(ctx *echo.Context) error {
+		var id sql.NullInt64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase7_1", "id"), http.StatusBadRequest)
+			}
+			id.Valid = true
+			id.Int64 = idValue
+		}
+		err := svc.TestCase7_1(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case7_2/by_id", func(ctx *echo.Context) error {
+		var id sql.NullInt32
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase7_2", "id"), http.StatusBadRequest)
+			}
+			id.Valid = true
+			id.Int32 = int32(idValue)
+		}
+		err := svc.TestCase7_2(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case8/by_id", func(ctx *echo.Context) error {
+		var id sql.NullInt64
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 64)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase8", "id"), http.StatusBadRequest)
+			}
+			id.Valid = true
+			id.Int64 = idValue
+		}
+		err := svc.TestCase8(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/cast_for_nullbool", func(ctx *echo.Context) error {
+		var ok sql.NullBool
+		if s := ctx.QueryParam("ok"); s != "" && s != "none" {
+			okValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCastForNullBool", "ok"), http.StatusBadRequest)
+			}
+			ok.Valid = true
+			ok.Bool = okValue
+		}
+		err := svc.TestCastForNullBool(ok)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case9/by_id/:id", func(ctx *echo.Context) error {
+		var id = ctx.Param("id")
+		err := svc.TestCase9(&id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case10/by_name", func(ctx *echo.Context) error {
+		var id *string
+		if s := ctx.QueryParam("id"); s != "" {
+			id = &s
+		}
+		err := svc.TestCase10(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case12/:id", func(ctx *echo.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase12", "id"), http.StatusBadRequest)
+		}
+		err = svc.TestCase12(&id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case13/:id", func(ctx *echo.Context) error {
+		id, err := strconv.Atoi(ctx.Param("id"))
+		if err != nil {
+			return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase13", "id"), http.StatusBadRequest)
+		}
+		err = svc.TestCase13(&id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case14_1/by_id", func(ctx *echo.Context) error {
+		var id *int
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase14_1", "id"), http.StatusBadRequest)
+			}
+			id = &idValue
+		}
+		err := svc.TestCase14_1(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case14_2/by_name", func(ctx *echo.Context) error {
+		var id *int32
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.ParseInt(s, 10, 32)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase14_2", "id"), http.StatusBadRequest)
+			}
+			id = new(int32)
+			*id = int32(idValue)
+		}
+		err := svc.TestCase14_2(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case14_3/by_name", func(ctx *echo.Context) error {
+		var id *int
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase14_3", "id"), http.StatusBadRequest)
+			}
+			id = &idValue
+		}
+		err := svc.TestCase14_3(id)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case14_3/by_name", func(ctx *echo.Context) error {
+		var a bool
+		if s := ctx.QueryParam("a"); s != "" {
+			aValue, err := strconv.ParseBool(s)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCase15_1", "a"), http.StatusBadRequest)
+			}
+			a = aValue
+		}
+		err := svc.TestCase15_1(a)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case_map", func(ctx *echo.Context) error {
+		var otherValues = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "otherValues.") {
+				continue
+			}
+			otherValues[strings.TrimPrefix(key, "otherValues.")] = values[len(values)-1]
+		}
+		err := svc.TestCaseOtherValuesForMap(otherValues)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case_map_inline", func(ctx *echo.Context) error {
+		var otherValues = map[string]string{}
+		for key, values := range ctx.QueryParams() {
+			if key == "offset" ||
+				key == "limit" {
+				continue
+			}
+			otherValues[key] = values[len(values)-1]
+		}
+		var offset int
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.Atoi(s)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForMapInline", "offset"), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.Atoi(s)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForMapInline", "limit"), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		err := svc.TestCaseOtherValuesForMapInline(otherValues, offset, limit)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case_url_values", func(ctx *echo.Context) error {
+		var otherValues = url.Values{}
+		for key, values := range ctx.QueryParams() {
+			if !strings.HasPrefix(key, "otherValues.") {
+				continue
+			}
+			otherValues[strings.TrimPrefix(key, "otherValues.")] = values
+		}
+		err := svc.TestCaseOtherValuesForUrlValues(otherValues)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/case_url_values_inline", func(ctx *echo.Context) error {
+		var otherValues = url.Values{}
+		for key, values := range ctx.QueryParams() {
+			if key == "offset" ||
+				key == "limit" {
+				continue
+			}
+			otherValues[key] = values
+		}
+		var offset int
+		if s := ctx.QueryParam("offset"); s != "" {
+			offsetValue, err := strconv.Atoi(s)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForUrlValuesInline", "offset"), http.StatusBadRequest)
+			}
+			offset = offsetValue
+		}
+		var limit int
+		if s := ctx.QueryParam("limit"); s != "" {
+			limitValue, err := strconv.Atoi(s)
+			if err != nil {
+				return abc.ReturnError(ctx, NewBadArgument(err, "CaseSvc.TestCaseOtherValuesForUrlValuesInline", "limit"), http.StatusBadRequest)
+			}
+			limit = limitValue
+		}
+		err := svc.TestCaseOtherValuesForUrlValuesInline(otherValues, offset, limit)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/test_type1", func(ctx *echo.Context) error {
+		var typ TypeInfo
+		typ.Name = ctx.QueryParam("typ.name")
+		err := svc.TestType1(typ)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/test_type2", func(ctx *echo.Context) error {
+		var opts Options
+		err := svc.TestType2(opts)
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/TestResult1", func(ctx *echo.Context) error {
+		result, err := svc.TestResult1()
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, result)
+	}, handlers...)
+	mux.GET("/TestResult2", func(ctx *echo.Context) error {
+		code, data, err := svc.TestResult2()
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		result := map[string]interface{}{
+			"code": code,
+			"data": data,
+		}
+		return abc.ReturnQueryResult(ctx, result)
+	}, handlers...)
+}
+
+func InitOptionalPrefixSvc(mux *echo.Group, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...echo.MiddlewareFunc) {
+	if enabledPrefix {
+		mux = mux.Group("/optpre")
+	}
+	mux.GET("/get", func(ctx *echo.Context) error {
+		err := svc.Get()
+		if err != nil {
+			return abc.ReturnError(ctx, err, httpCodeWith(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+}
+
+// JSONResult is skipped

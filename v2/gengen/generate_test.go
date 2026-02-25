@@ -160,6 +160,38 @@ func TestGenerate(t *testing.T) {
 		}
 	})
 
+	t.Run("echov5", func(t *testing.T) {
+		for _, test := range testCases {
+			t.Log("=====================", test.Name)
+			os.Remove(filepath.Join(wd, "gentest", test.Name+".echov5-gen.go"))
+
+			var gen = &ServerGenerator{}
+			gen.Flags(flag.NewFlagSet("", flag.PanicOnError)).Parse(append([]string{
+				"-plugin=echov5",
+				"-build_tag=echov5",
+				"-customReturn=abc.",
+			}, test.Args...))
+
+			if err := gen.Run([]string{filepath.Join(wd, "gentest", test.Name+".go")}); err != nil {
+				fmt.Println(err)
+				t.Error(err)
+				continue
+			}
+
+			actual := readFile(filepath.Join(wd, "gentest", test.Name+".echov5-gen.go"))
+			excepted := readFile(filepath.Join(wd, "gentest", test.Name+".echov5-gen.txt"))
+			if !reflect.DeepEqual(actual, excepted) {
+				results := difflib.Diff(excepted, actual)
+				for _, result := range results {
+					if result.Delta == difflib.Common {
+						continue
+					}
+					t.Error(result)
+				}
+			}
+		}
+	})
+
 	t.Run("iris", func(t *testing.T) {
 		for _, test := range testCases {
 			t.Log("=====================", test.Name)

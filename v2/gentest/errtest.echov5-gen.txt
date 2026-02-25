@@ -1,0 +1,60 @@
+//go:build echov5
+// +build echov5
+
+// Please don't edit this file!
+package main
+
+import (
+	"errors"
+	"net/http"
+	"strconv"
+
+	echo "github.com/labstack/echo/v5"
+)
+
+func InitErrStringSvc(mux *echo.Group, svc ErrStringSvc, handlers ...echo.MiddlewareFunc) {
+	mux.GET("/files1", func(ctx *echo.Context) error {
+		list, total, err := svc.Get1()
+		if err != nil {
+			return abc.ReturnError(ctx, errors.ToEncodedError(err), errors.GetHttpCode(err))
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return abc.ReturnQueryResult(ctx, result)
+	}, handlers...)
+	mux.GET("/files2", func(ctx *echo.Context) error {
+		list, total, err := svc.Get2()
+		if err != nil {
+			return abc.ReturnError(ctx, errors.ToEncodedError(err), errors.GetHttpCode(err))
+		}
+		result := map[string]interface{}{
+			"list":  list,
+			"total": total,
+		}
+		return abc.ReturnQueryResult(ctx, result)
+	}, handlers...)
+	mux.GET("/files3", func(ctx *echo.Context) error {
+		err := svc.Get3()
+		if err != nil {
+			return abc.ReturnError(ctx, errors.ToEncodedError(err), errors.GetHttpCode(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+	mux.GET("/files4", func(ctx *echo.Context) error {
+		var id int
+		if s := ctx.QueryParam("id"); s != "" {
+			idValue, err := strconv.Atoi(s)
+			if err != nil {
+				return abc.ReturnError(ctx, errors.NewBadArgument(err, "ErrStringSvc.Get4", "id"), http.StatusBadRequest)
+			}
+			id = idValue
+		}
+		err := svc.Get4(id)
+		if err != nil {
+			return abc.ReturnError(ctx, errors.ToEncodedError(err), errors.GetHttpCode(err))
+		}
+		return abc.ReturnQueryResult(ctx, "OK")
+	}, handlers...)
+}

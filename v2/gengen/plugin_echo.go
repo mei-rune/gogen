@@ -13,6 +13,24 @@ var _ Plugin = &echoPlugin{}
 type echoPlugin struct {
 	cfg Config
 	isV5 bool
+
+	customReturnFunc bool
+	returnResultFuncName string
+	returnCreatedResultFuncName string
+	returnUpdatedResultFuncName  string
+	returnDeletedResultFuncName string
+	returnQueryResultFuncName string
+	returnErrorResultFuncName string
+}
+
+func (echo *echoPlugin) initCustomReturnFunc(ns string) {
+	echo.customReturnFunc = true
+	echo.returnResultFuncName = ns + "ReturnResult"
+	echo.returnCreatedResultFuncName = ns + "ReturnCreatedResult"
+	echo.returnUpdatedResultFuncName = ns + "ReturnUpdatedResult"
+	echo.returnDeletedResultFuncName = ns + "ReturnDeletedResult"
+	echo.returnQueryResultFuncName = ns + "ReturnQueryResult"
+	echo.returnErrorResultFuncName = ns + "ReturnError"
 }
 
 func (echo *echoPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
@@ -192,15 +210,21 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 		err = echo.cfg.ErrorToJSONError + "(" + err + ")"
 	}
 
-	s := renderString(`{{- if .hasRealErrorCode -}}
-    return ctx.`+renderFunc+`({{.errCode}}, {{.err}})
-  {{- else -}}
-    return ctx.`+renderFunc+`(http.StatusInternalServerError, {{.err}})
-  {{- end}}`, map[string]interface{}{
-		"err":              err,
-		"hasRealErrorCode": errCode != "",
-		"errCode":          errCode,
-	})
+	var text string
+	if echo.customReturnFunc {
+		text = `return `+echo.returnErrorResultFuncName+`(ctx, {{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})`
+	} else {
+		text = `return ctx.`+renderFunc+`(`+
+			`{{if .hasRealErrorCode -}}{{.errCode}}{{else}}http.StatusInternalServerError{{end}},`+
+			` {{.err}})`
+	}
+
+	s := renderString(text,
+			map[string]interface{}{
+			"err":              err,
+			"hasRealErrorCode": errCode != "",
+			"errCode":          errCode,
+		})
 	_, e := io.WriteString(out, s)
 	return e
 }
@@ -229,11 +253,68 @@ func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	} else {
 		args["statusCode"] = statusCodeLiteralByMethod(method.Operation.RouterProperties[0].HTTPMethod)
 	}
-	s := renderString(`{{- if .noreturn -}}
+
+	if withCode := WithCode(method); withCode != "" {
+			args["withCode"] = withCode
+	}
+
+	args["method"] = strings.ToUpper(method.Operation.RouterProperties[0].HTTPMethod)
+
+	if len(method.Operation.Produces) == 1 &&
+		method.Operation.Produces[0] == "text/plain" {
+
+		if dataType == "[]byte" {
+			s := renderString(`{{- if .noreturn -}}
+			return nil
+			{{- else if .withCode -}} 
+			return ctx.Blob({{.withCode}}, "text/plain", {{.data}})
+			{{- else -}}
+			return ctx.Blob({{.statusCode}}, "text/plain", {{.data}})
+			{{- end}}`, args)
+			_, e := io.WriteString(out, s)
+			return e
+		}
+
+		s := renderString(`{{- if .noreturn -}}
+		return nil
+		{{- else if .withCode -}} 
+		return ctx.String({{.withCode}}, {{.data}})
+		{{- else -}}
+		return ctx.String({{.statusCode}}, {{.data}})
+		{{- end}}`, args)
+		_, e := io.WriteString(out, s)
+		return e
+	}
+
+
+
+
+	text := `{{- if .noreturn -}}
   return nil
 {{- else -}}
   return ctx.JSON({{.statusCode}}, {{.data}})
-{{- end}}`, args)
+{{- end}}`
+
+
+	if echo.customReturnFunc {
+		text = `{{- if .noreturn -}}
+	return nil
+	{{- else if .withCode -}} 
+	return `+echo.returnResultFuncName + `(ctx, {{.withCode}}, {{.data}})
+	{{- else if eq .method "POST" -}} 
+	return `+echo.returnCreatedResultFuncName + `(ctx, {{.data}})
+	{{- else if eq .method "PUT" -}}
+	return `+echo.returnUpdatedResultFuncName + `(ctx, {{.data}})
+	{{- else if eq .method "DELETE" -}}
+	return `+echo.returnDeletedResultFuncName + `(ctx, {{.data}})
+	{{- else if eq .method "GET" -}}
+	return `+echo.returnQueryResultFuncName + `(ctx, {{.data}})
+	{{- else -}}
+	return `+echo.returnResultFuncName + `(ctx, {{.statusCode}}, {{.data}})
+	{{- end}}`
+	}
+
+	s := renderString(text, args)
 	_, e := io.WriteString(out, s)
 	return e
 }
