@@ -5448,6 +5448,33 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 		ctx.JSON(result)
 		return
 	}))
+	mux.Post("/requests/set8/:id", append(handlers, func(ctx iris.Context) {
+		id, err := ctx.Params().GetInt64("id")
+		if err != nil {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(NewBadArgument(err, "Requests.Set8ByID", "id"))
+			return
+		}
+		var bindArgs struct {
+			Params
+			bindArgs map[string]interface{} `json:"params,omitempty"`
+			Error
+			bindArgs Error `json:"error,omitempty"`
+		}
+		if err := ctx.UnmarshalBody(&bindArgs, nil); err != nil {
+			ctx.StatusCode(http.StatusBadRequest)
+			ctx.JSON(NewBadArgument(err, "Requests.Set8ByID", "bindArgs"))
+			return
+		}
+		result, err := svc.Set8ByID(ctx.Request().Context(), id, bindArgs.Params, bindArgs.Error)
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		ctx.JSON(result)
+		return
+	}))
 	mux.Get("/requests/querysub1", append(handlers, func(ctx iris.Context) {
 		var query *SubTest1
 		if s := ctx.URLParam("query.sub1.a1"); s != "" {
@@ -5654,3 +5681,5 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 		return
 	}))
 }
+
+// Error is skipped

@@ -5608,6 +5608,33 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 		render.JSON(w, r, result)
 		return
 	})
+	mux.Post("/requests/set8/:id", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "Requests.Set8ByID", "id"))
+			return
+		}
+		var bindArgs struct {
+			Params
+			bindArgs map[string]interface{} `json:"params,omitempty"`
+			Error
+			bindArgs Error `json:"error,omitempty"`
+		}
+		if err := render.Decode(r, &bindArgs); err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, NewBadArgument(err, "Requests.Set8ByID", "bindArgs"))
+			return
+		}
+		result, err := svc.Set8ByID(r.Context(), id, bindArgs.Params, bindArgs.Error)
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		render.JSON(w, r, result)
+		return
+	})
 	mux.Get("/requests/querysub1", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var query *SubTest1
@@ -5818,3 +5845,5 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 		return
 	})
 }
+
+// Error is skipped

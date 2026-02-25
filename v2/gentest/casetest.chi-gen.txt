@@ -607,6 +607,20 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc, handlers ...func(http.Handler) htt
 		render.JSON(w, r, result)
 		return
 	})
+	mux.Get("/TestResult3", func(w http.ResponseWriter, r *http.Request) {
+		code, data, err := svc.TestResult3()
+		if err != nil {
+			render.Status(r, httpCodeWith(err))
+			render.JSON(w, r, err)
+			return
+		}
+		result := map[string]interface{}{
+			"code": code,
+			"data": data,
+		}
+		render.JSON(w, r, result)
+		return
+	})
 }
 
 func InitOptionalPrefixSvc(mux chi.Router, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...func(http.Handler) http.Handler) {

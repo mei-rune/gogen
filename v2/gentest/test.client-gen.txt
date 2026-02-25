@@ -2123,6 +2123,17 @@ func (client RequestsClient) Set7ByID(ctx context.Context, id int64, params inte
 	return request.POST(ctx)
 }
 
+func (client RequestsClient) Set8ByID(ctx context.Context, id int64, params interface{}, error error) error {
+	request := resty.NewRequest(client.Proxy, "/requests/set8/"+strconv.FormatInt(id, 10)).
+		SetBody(map[string]interface{}{
+			"params": params,
+			"error":  error,
+		})
+
+	defer resty.ReleaseRequest(client.Proxy, request)
+	return request.POST(ctx)
+}
+
 func (client RequestsClient) QuerySubTest1(ctx context.Context, query *SubTest1) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
 
@@ -2210,3 +2221,5 @@ func (client RequestsClient) QuerySubTest4(ctx context.Context, query *SubTest4)
 	resty.ReleaseRequest(client.Proxy, request)
 	return result, err
 }
+
+// Erroris skipped

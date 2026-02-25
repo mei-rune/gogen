@@ -575,6 +575,20 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc, handlers ...iris.Handler) {
 		ctx.JSON(result)
 		return
 	}))
+	mux.Get("/TestResult3", append(handlers, func(ctx iris.Context) {
+		code, data, err := svc.TestResult3()
+		if err != nil {
+			ctx.StatusCode(httpCodeWith(err))
+			ctx.JSON(err)
+			return
+		}
+		result := map[string]interface{}{
+			"code": code,
+			"data": data,
+		}
+		ctx.JSON(result)
+		return
+	}))
 }
 
 func InitOptionalPrefixSvc(mux iris.Party, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...iris.Handler) {

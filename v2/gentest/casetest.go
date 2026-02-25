@@ -376,6 +376,14 @@ type CaseSvc interface {
 	// @Router /TestResult2 [get]
 	TestResult2() (code int, data string, err error)
 
+	// @Summary TestResult3
+	// @ID TestResult3
+	// @Accept  json
+	// @Produce  json
+    // @success 200 {object} JSONResult{count=int,data=string} "ok"
+	// @Router /TestResult3 [get]
+	TestResult3() (code *int, data *string, err error)
+
 	// Misc() string
 }
 

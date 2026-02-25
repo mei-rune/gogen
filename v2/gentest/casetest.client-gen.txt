@@ -304,6 +304,24 @@ func (client CaseSvcClient) TestResult2(ctx context.Context) (int, string, error
 	return result.Ecode, result.Edata, nil
 }
 
+func (client CaseSvcClient) TestResult3(ctx context.Context) (*int, *string, error) {
+	var result struct {
+		Ecode *int    `json:"code"`
+		Edata *string `json:"data"`
+	}
+
+	request := resty.NewRequest(client.Proxy, "/TestResult3").
+		Result(&result)
+
+	err := request.GET(ctx)
+	resty.ReleaseRequest(client.Proxy, request)
+
+	if err != nil {
+		return nil, nil, err
+	}
+	return result.Ecode, result.Edata, nil
+}
+
 type OptionalPrefixSvcClient struct {
 	Proxy         *resty.Proxy
 	NoRoutePrefix bool

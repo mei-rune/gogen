@@ -1532,6 +1532,17 @@ type Requests interface {
 	// @Router /requests/set7/{id} [post]
 	Set7ByID(ctx context.Context, id int64, params interface{}) (int64, err error)
 
+	// @Summary Set7ByID, dataType="map[string]string"
+	// @Description Set7ByID
+	// @ID Requests.Set7ByID
+	// @Param   id         path   int     false  "id"
+	// @Param   params     body   map[string]interface{}     false  "params"
+	// @Param   error      body   *Error     false  "error"
+	// @Accept  json
+	// @Produce  json
+	// @Router /requests/set8/{id} [post]
+	Set8ByID(ctx context.Context, id int64, params interface{}, error error) (int64, err error)
+
 	// @Summary QuerySubTest1
 	// @Description QuerySubTest1
 	// @ID Requests.QuerySubTest1
@@ -1567,4 +1578,13 @@ type Requests interface {
 	// @Produce  json
 	// @Router /requests/querysub4 [get]
 	QuerySubTest4(ctx context.Context, query *SubTest4) (requests []map[string]interface{}, err error)
+}
+
+
+type Error struct {
+  Msg string `json:"msg"`
+}
+
+func (e *Error) Error() string {
+	return e.Msg
 }

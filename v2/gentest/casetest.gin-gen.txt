@@ -531,6 +531,19 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc, handlers ...gin.HandlerFunc) {
 		ctx.JSON(http.StatusOK, result)
 		return
 	}))
+	mux.GET("/TestResult3", append(handlers, func(ctx *gin.Context) {
+		code, data, err := svc.TestResult3()
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		result := map[string]interface{}{
+			"code": code,
+			"data": data,
+		}
+		ctx.JSON(http.StatusOK, result)
+		return
+	}))
 }
 
 func InitOptionalPrefixSvc(mux gin.IRouter, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...gin.HandlerFunc) {

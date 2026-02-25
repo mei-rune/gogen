@@ -745,9 +745,9 @@ func (cmd *ClientGenerator) genInterfaceMethodInvokeAndReturn(out io.Writer, rec
 				continue
 			}
 
-			if result.Type().IsPtrType() {
-				io.WriteString(out, "&")
-			}
+			// if result.Type().IsPtrType() {
+			// 	io.WriteString(out, "&")
+			// }
 			io.WriteString(out, resultName)
 			io.WriteString(out, ".E"+result.Name)
 			io.WriteString(out, ", ")

@@ -1739,7 +1739,9 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 				}
 				method.goArgumentLiterals[params[0].Index] = "&" + varName
 			} else {
-				if typeStr := params[0].Param.Type().ToLiteral(); typeStr == "interface{}" || typeStr == "any" {
+				if typeStr := params[0].Param.Type().ToLiteral(); typeStr == "interface{}" ||
+				typeStr == "any" ||
+				typeStr == "error" {
 					if params[0].Option.Schema.Type.Contains("object") {
 						io.WriteString(ctx.out, "\r\n\tvar "+varName+" = map[string]interface{}{}")
 					} else {
@@ -1761,7 +1763,37 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 			io.WriteString(ctx.out, "\r\n\t\t")
 			io.WriteString(ctx.out, fieldName)
 			io.WriteString(ctx.out, "\t")
-			io.WriteString(ctx.out, params[idx].Param.Type().ToLiteral())
+
+			if typeStr := params[idx].Param.Type().ToLiteral(); typeStr == "interface{}" ||
+				typeStr == "any" ||
+				typeStr == "error" {
+					if params[idx].Option.Schema.Type.Contains("object") {
+						io.WriteString(ctx.out, "\r\n\t"+varName+" map[string]interface{}")
+					} else {
+						// fmt.Println(fmt.Sprintf("%#v", params[idx]))
+						// fmt.Println(fmt.Sprintf("%#v", params[idx].Param))
+						// fmt.Println(fmt.Sprintf("%#v", params[idx].Param.Expr))
+						// fmt.Println(fmt.Sprintf("%#v", params[idx].Option))
+						// fmt.Println(fmt.Sprintf("%#v", params[idx].Option.Schema))
+						// fmt.Println(fmt.Sprintf("%#v", params[idx].Option.Schema.Ref))
+
+						refType := swag.GetRefTypeFromRefSchema(params[idx].Option.Schema)
+						index := strings.LastIndexByte(refType, '.')
+						if index > 0 {
+							namespace := refType[:index]
+							if namespace == method.Method.Clazz.File.Pkg.String() {
+								refType = refType[index+1:]
+							} else {
+								fmt.Println("=========", method.Method.Clazz.File.Pkg.String(), namespace)
+							}
+						}
+
+
+						io.WriteString(ctx.out, "\r\n\t"+varName+" "+refType)
+					}
+			} else {
+				io.WriteString(ctx.out, params[idx].Param.Type().ToLiteral())
+			}
 			io.WriteString(ctx.out, "\t`json:\"")
 			if params[idx].Option.Name != "" {
 				io.WriteString(ctx.out, params[idx].Option.Name)

@@ -5108,6 +5108,30 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		ctx.JSON(http.StatusCreated, result)
 		return
 	}))
+	mux.POST("/requests/set8/:id", append(handlers, func(ctx *gin.Context) {
+		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set8ByID", "id"))
+			return
+		}
+		var bindArgs struct {
+			Params
+			bindArgs map[string]interface{} `json:"params,omitempty"`
+			Error
+			bindArgs Error `json:"error,omitempty"`
+		}
+		if err := ctx.Bind(&bindArgs); err != nil {
+			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set8ByID", "bindArgs"))
+			return
+		}
+		result, err := svc.Set8ByID(ctx.Request.Context(), id, bindArgs.Params, bindArgs.Error)
+		if err != nil {
+			ctx.JSON(httpCodeWith(err), err)
+			return
+		}
+		ctx.JSON(http.StatusCreated, result)
+		return
+	}))
 	mux.GET("/requests/querysub1", append(handlers, func(ctx *gin.Context) {
 		var query *SubTest1
 		if s := ctx.Query("query.sub1.a1"); s != "" {
@@ -5310,3 +5334,5 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		return
 	}))
 }
+
+// Error is skipped

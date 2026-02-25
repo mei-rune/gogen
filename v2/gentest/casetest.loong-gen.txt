@@ -446,6 +446,17 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc, handlers ...loong.MiddlewareFunc)
 		}
 		return ctx.ReturnQueryResult(result)
 	})
+	mux.GET("/TestResult3", func(ctx *loong.Context) error {
+		code, data, err := svc.TestResult3()
+		if err != nil {
+			return ctx.ReturnError(err)
+		}
+		result := map[string]interface{}{
+			"code": code,
+			"data": data,
+		}
+		return ctx.ReturnQueryResult(result)
+	})
 }
 
 func InitOptionalPrefixSvc(mux loong.Party, enabledPrefix bool, svc OptionalPrefixSvc, handlers ...loong.MiddlewareFunc) {
