@@ -4551,7 +4551,7 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		if err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set7ByID", "id"))
 		}
-		var params interface{}
+		var params = map[string]interface{}{}
 		if err := ctx.Bind(&params); err != nil {
 			return ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set7ByID", "params"))
 		}

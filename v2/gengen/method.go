@@ -1739,7 +1739,13 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 				}
 				method.goArgumentLiterals[params[0].Index] = "&" + varName
 			} else {
-				if params[0].Param.Type().IsMapType() {
+				if typeStr := params[0].Param.Type().ToLiteral(); typeStr == "interface{}" || typeStr == "any" {
+					if params[0].Option.Schema.Type.Contains("object") {
+						io.WriteString(ctx.out, "\r\n\tvar "+varName+" = map[string]interface{}{}")
+					} else {
+						io.WriteString(ctx.out, "\r\n\tvar "+varName+" "+params[0].Option.Schema.Type[0])
+					}
+				} else if params[0].Param.Type().IsMapType() {
 					io.WriteString(ctx.out, "\r\n\tvar "+varName+" = "+params[0].Param.Type().ToLiteral()+"{}")
 				} else {
 					io.WriteString(ctx.out, "\r\n\tvar "+varName+" "+params[0].Param.Type().ToLiteral())

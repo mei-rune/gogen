@@ -5433,7 +5433,7 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.JSON(NewBadArgument(err, "Requests.Set7ByID", "id"))
 			return
 		}
-		var params interface{}
+		var params = map[string]interface{}{}
 		if err := ctx.UnmarshalBody(&params, nil); err != nil {
 			ctx.StatusCode(http.StatusBadRequest)
 			ctx.JSON(NewBadArgument(err, "Requests.Set7ByID", "params"))

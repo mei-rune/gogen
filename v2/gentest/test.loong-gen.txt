@@ -4555,7 +4555,7 @@ func InitRequests(mux loong.Party, svc Requests, handlers ...loong.MiddlewareFun
 		if err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("id", ctx.Param("id"), err), http.StatusBadRequest)
 		}
-		var params interface{}
+		var params = map[string]interface{}{}
 		if err := ctx.Bind(&params); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("params", "body", err), http.StatusBadRequest)
 		}
