@@ -777,8 +777,6 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 			valueReadText = fmt.Sprintf(fn.Format, webParamName)
 		}
 
-
-
 		// 情况4, 6
 		if fn.ResultError || fn.ResultBool {
 			io.WriteString(ctx.out, goVarName)
@@ -1740,8 +1738,8 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 				method.goArgumentLiterals[params[0].Index] = "&" + varName
 			} else {
 				if typeStr := params[0].Param.Type().ToLiteral(); typeStr == "interface{}" ||
-				typeStr == "any" ||
-				typeStr == "error" {
+					typeStr == "any" ||
+					typeStr == "error" {
 					if params[0].Option.Schema.Type.Contains("object") {
 						io.WriteString(ctx.out, "\r\n\tvar "+varName+" = map[string]interface{}{}")
 					} else {
@@ -1767,29 +1765,30 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 			if typeStr := params[idx].Param.Type().ToLiteral(); typeStr == "interface{}" ||
 				typeStr == "any" ||
 				typeStr == "error" {
-					if params[idx].Option.Schema.Type.Contains("object") {
-						io.WriteString(ctx.out, " map[string]interface{}")
-					} else {
-						// fmt.Println(fmt.Sprintf("%#v", params[idx]))
-						// fmt.Println(fmt.Sprintf("%#v", params[idx].Param))
-						// fmt.Println(fmt.Sprintf("%#v", params[idx].Param.Expr))
-						// fmt.Println(fmt.Sprintf("%#v", params[idx].Option))
-						// fmt.Println(fmt.Sprintf("%#v", params[idx].Option.Schema))
-						// fmt.Println(fmt.Sprintf("%#v", params[idx].Option.Schema.Ref))
+				if params[idx].Option.Schema.Type.Contains("object") {
+					io.WriteString(ctx.out, " map[string]interface{}")
+				} else {
+					// fmt.Println(fmt.Sprintf("%#v", params[idx]))
+					// fmt.Println(fmt.Sprintf("%#v", params[idx].Param))
+					// fmt.Println(fmt.Sprintf("%#v", params[idx].Param.Expr))
+					// fmt.Println(fmt.Sprintf("%#v", params[idx].Option))
+					// fmt.Println(fmt.Sprintf("%#v", params[idx].Option.Schema))
+					// fmt.Println(fmt.Sprintf("%#v", params[idx].Option.Schema.Ref))
 
-						refType := swag.GetRefTypeFromRefSchema(params[idx].Option.Schema)
-						index := strings.LastIndexByte(refType, '.')
-						if index > 0 {
-							namespace := refType[:index]
-							if namespace == method.Method.Clazz.File.Pkg.String() {
-								refType = refType[index+1:]
-							} else {
-								fmt.Println("=========", method.Method.Clazz.File.Pkg.String(), namespace)
-							}
+					refType := swag.GetRefTypeFromRefSchema(params[idx].Option.Schema)
+					index := strings.LastIndexByte(refType, '.')
+					if index > 0 {
+						namespace := refType[:index]
+						if namespace == method.Method.Clazz.File.Pkg.String() {
+							refType = refType[index+1:]
 						}
-
+					}
+					if refType == "" {
+						io.WriteString(ctx.out, typeStr)
+					} else {
 						io.WriteString(ctx.out, "*"+refType)
 					}
+				}
 			} else {
 				io.WriteString(ctx.out, params[idx].Param.Type().ToLiteral())
 			}
