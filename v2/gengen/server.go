@@ -177,8 +177,6 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 
 	isFileImport := func(s string) bool {
 		for _, pa := range file.Imports {
-			io.WriteString(out, "\r\n\t")
-
 			importPa := strings.Trim(astutil.ToString(pa.Path), "\"")
 			if importPa == s || strings.HasSuffix(importPa, "/"+s) {
 				return true
