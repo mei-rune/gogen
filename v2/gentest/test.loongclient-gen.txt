@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -447,7 +448,7 @@ func (client TestClient) Concat2(ctx context.Context, a string, b string) (strin
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/concat2/"+a+"/"+b).
+	request := resty.NewRequest(client.Proxy, "/concat2/"+url.PathEscape(a)+"/"+url.PathEscape(b)).
 		Result(&resultWrap)
 
 	err := request.GET(ctx)
@@ -469,7 +470,7 @@ func (client TestClient) Concat3(ctx context.Context, a *string, b *string) (str
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/concat3/"+*a+"/"+*b).
+	request := resty.NewRequest(client.Proxy, "/concat3/"+url.PathEscape(*a)+"/"+url.PathEscape(*b)).
 		Result(&resultWrap)
 
 	err := request.GET(ctx)
@@ -515,7 +516,7 @@ func (client TestClient) Save(ctx context.Context, a string, b string) (string, 
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/save/"+a).
+	request := resty.NewRequest(client.Proxy, "/save/"+url.PathEscape(a)).
 		SetBody(b).
 		Result(&resultWrap)
 
@@ -538,7 +539,7 @@ func (client TestClient) Save2(ctx context.Context, a *string, b *string) (strin
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/save2/"+*a).
+	request := resty.NewRequest(client.Proxy, "/save2/"+url.PathEscape(*a)).
 		SetBody(b).
 		Result(&resultWrap)
 
@@ -1443,7 +1444,7 @@ func (client StringSvcImplClient) Concat2(ctx context.Context, a string, b strin
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/concat2/"+a+"/"+b).
+	request := resty.NewRequest(client.Proxy, "/impl/concat2/"+url.PathEscape(a)+"/"+url.PathEscape(b)).
 		Result(&resultWrap)
 
 	err := request.GET(ctx)
@@ -1465,7 +1466,7 @@ func (client StringSvcImplClient) Concat3(ctx context.Context, a *string, b *str
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/concat3/"+*a+"/"+*b).
+	request := resty.NewRequest(client.Proxy, "/impl/concat3/"+url.PathEscape(*a)+"/"+url.PathEscape(*b)).
 		Result(&resultWrap)
 
 	err := request.GET(ctx)
@@ -1511,7 +1512,7 @@ func (client StringSvcImplClient) Save(ctx context.Context, a string, b string) 
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/save/"+a).
+	request := resty.NewRequest(client.Proxy, "/impl/save/"+url.PathEscape(a)).
 		SetBody(b).
 		Result(&resultWrap)
 
@@ -1534,7 +1535,7 @@ func (client StringSvcImplClient) Save2(ctx context.Context, a *string, b *strin
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/impl/save2/"+*a).
+	request := resty.NewRequest(client.Proxy, "/impl/save2/"+url.PathEscape(*a)).
 		SetBody(b).
 		Result(&resultWrap)
 
@@ -2151,7 +2152,7 @@ func (client StringSvcWithContextClient) Concat2(ctx context.Context, a string, 
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/concat2/"+a+"/"+b).
+	request := resty.NewRequest(client.Proxy, "/ctx/concat2/"+url.PathEscape(a)+"/"+url.PathEscape(b)).
 		Result(&resultWrap)
 
 	err := request.GET(ctx)
@@ -2173,7 +2174,7 @@ func (client StringSvcWithContextClient) Concat3(ctx context.Context, a *string,
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/concat3/"+*a+"/"+*b).
+	request := resty.NewRequest(client.Proxy, "/ctx/concat3/"+url.PathEscape(*a)+"/"+url.PathEscape(*b)).
 		Result(&resultWrap)
 
 	err := request.GET(ctx)
@@ -2219,7 +2220,7 @@ func (client StringSvcWithContextClient) Save1(ctx context.Context, a string, b 
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/save1/"+a).
+	request := resty.NewRequest(client.Proxy, "/ctx/save1/"+url.PathEscape(a)).
 		SetBody(b).
 		Result(&resultWrap)
 
@@ -2242,7 +2243,7 @@ func (client StringSvcWithContextClient) Save2(ctx context.Context, a *string, b
 	var resultWrap loong.Result
 	resultWrap.Data = &result
 
-	request := resty.NewRequest(client.Proxy, "/ctx/save2/"+*a).
+	request := resty.NewRequest(client.Proxy, "/ctx/save2/"+url.PathEscape(*a)).
 		SetBody(b).
 		Result(&resultWrap)
 

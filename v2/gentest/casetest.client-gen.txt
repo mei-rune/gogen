@@ -21,7 +21,7 @@ type CaseSvcClient struct {
 }
 
 func (client CaseSvcClient) TestCase1(ctx context.Context, name string) error {
-	request := resty.NewRequest(client.Proxy, "/case1/by_name/"+name)
+	request := resty.NewRequest(client.Proxy, "/case1/by_name/"+url.PathEscape(name))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)
@@ -154,7 +154,7 @@ func (client CaseSvcClient) TestCastForNullBool(ctx context.Context, ok sql.Null
 }
 
 func (client CaseSvcClient) TestCase9(ctx context.Context, id *string) error {
-	request := resty.NewRequest(client.Proxy, "/case9/by_id/"+*id)
+	request := resty.NewRequest(client.Proxy, "/case9/by_id/"+url.PathEscape(*id))
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)

@@ -50,7 +50,7 @@ func (cmd *ClientGenerator) Run(args []string) error {
 	if ns := os.Getenv("GOGEN_CONVERT_NS"); ns != "" {
 		cmd.config.ConvertNS = ns
 	}
-	
+
 	convertParamTypes = strings.Split(cmd.convertParamTypes, ",")
 
 	swaggerParser := swag.New()
@@ -1081,7 +1081,16 @@ func (c *ClientConfig) GetPath(optionalRoutePrefix string, method *Method) strin
 	var replace = ReplaceFunc(func(segement PathSegement) string {
 		for idx := range method.Method.Params.List {
 			if FieldNameEqual(method.Method.Params.List[idx].Name, segement.Value) {
-				return "\" + " + convertToStringLiteral(&method.Method.Params.List[idx], "", c.ConvertNS, c.TimeFormat) + " + \""
+				param := method.Method.Params.List[idx]
+				value := convertToStringLiteral(&method.Method.Params.List[idx], "", c.ConvertNS, c.TimeFormat)
+				var typeStr = param.Type().ToLiteral()
+				if typeStr == "string" {
+					return "\" + url.PathEscape(" + value + ") + \""
+				}
+				if typeStr == "*string" {
+					return "\" + url.PathEscape(" + value + ") + \""
+				}
+				return "\" + " + value + " + \""
 			}
 		}
 		err := errors.New(method.Method.Clazz.File.PostionFor(method.Method.Node.Pos()).String() + ": param.Typ '" + segement.Value + "' isnot found")
