@@ -1693,6 +1693,8 @@ func (method *Method) renderMapParam(ctx *GenContext, param *Param, parents []*F
 }
 
 func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) error {
+	var writeBodyError = ""
+
 	varName := params[0].Param.Name
 	if len(params) == 1 && isExtendEntire(params[0].Option) {
 		isString := params[0].Param.Type().IsStringType(false)
@@ -1757,6 +1759,8 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 		varName = "bindArgs"
 		io.WriteString(ctx.out, "\r\n\tvar bindArgs struct{")
 		for idx := range params {
+			bodyErrorName := ""
+
 			fieldName := CamelCase(params[idx].Param.Name)
 			io.WriteString(ctx.out, "\r\n\t\t")
 			io.WriteString(ctx.out, fieldName)
@@ -1787,6 +1791,15 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 						io.WriteString(ctx.out, typeStr)
 					} else {
 						io.WriteString(ctx.out, "*"+refType)
+
+						if typeStr == "error" {
+							bodyErrorName = toLowerFirst(fieldName) + "InBodyErr"
+							writeBodyError = writeBodyError + `var `+bodyErrorName+` error
+							if bindArgs.Error != nil {
+							   `+bodyErrorName+` = bindArgs.Error
+							}
+							`
+						}
 					}
 				}
 			} else {
@@ -1800,7 +1813,11 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 			}
 			io.WriteString(ctx.out, ",omitempty\"`")
 
-			method.goArgumentLiterals[params[idx].Index] = "bindArgs." + fieldName
+			if bodyErrorName != "" {
+				method.goArgumentLiterals[params[idx].Index] = bodyErrorName
+			} else {
+				method.goArgumentLiterals[params[idx].Index] = "bindArgs." + fieldName
+			}
 		}
 		io.WriteString(ctx.out, "\r\n\t}")
 	}
@@ -1813,6 +1830,12 @@ func (method *Method) renderBodyParams(ctx *GenContext, params []BodyParam) erro
 
 	ctx.plugin.RenderBodyError(ctx.out, method, varName, "err")
 	io.WriteString(ctx.out, "\r\n\t}")
+
+
+	if writeBodyError != "" {
+		io.WriteString(ctx.out, "\r\n")
+		io.WriteString(ctx.out, writeBodyError)
+	}
 
 	return nil
 }
@@ -1867,6 +1890,7 @@ func (method *Method) renderInvokeAndReturn(ctx *GenContext) error {
 		if idx > 0 {
 			io.WriteString(ctx.out, ", ")
 		}
+
 		io.WriteString(ctx.out, param)
 
 		if method.Method.Params.List[idx].IsVariadic {

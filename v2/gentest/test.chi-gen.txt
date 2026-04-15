@@ -5624,7 +5624,12 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.JSON(w, r, NewBadArgument(err, "Requests.Set8ByID", "bindArgs"))
 			return
 		}
-		result, err := svc.Set8ByID(r.Context(), id, bindArgs.Params, bindArgs.Error)
+		var errorInBodyErr error
+		if bindArgs.Error != nil {
+			errorInBodyErr = bindArgs.Error
+		}
+
+		result, err := svc.Set8ByID(r.Context(), id, bindArgs.Params, errorInBodyErr)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)

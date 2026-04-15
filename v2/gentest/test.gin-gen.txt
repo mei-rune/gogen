@@ -5122,7 +5122,12 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 			ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "Requests.Set8ByID", "bindArgs"))
 			return
 		}
-		result, err := svc.Set8ByID(ctx.Request.Context(), id, bindArgs.Params, bindArgs.Error)
+		var errorInBodyErr error
+		if bindArgs.Error != nil {
+			errorInBodyErr = bindArgs.Error
+		}
+
+		result, err := svc.Set8ByID(ctx.Request.Context(), id, bindArgs.Params, errorInBodyErr)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return

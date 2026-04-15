@@ -4577,7 +4577,12 @@ func InitRequests(mux loong.Party, svc Requests, handlers ...loong.MiddlewareFun
 		if err := ctx.Bind(&bindArgs); err != nil {
 			return ctx.ReturnError(loong.ErrBadArgument("bindArgs", "body", err), http.StatusBadRequest)
 		}
-		result, err := svc.Set8ByID(ctx.StdContext, id, bindArgs.Params, bindArgs.Error)
+		var errorInBodyErr error
+		if bindArgs.Error != nil {
+			errorInBodyErr = bindArgs.Error
+		}
+
+		result, err := svc.Set8ByID(ctx.StdContext, id, bindArgs.Params, errorInBodyErr)
 		if err != nil {
 			return ctx.ReturnError(err)
 		}
