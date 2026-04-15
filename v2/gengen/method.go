@@ -766,15 +766,21 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 			fn = selectFunction(ctx.plugin, required, isArray, underlying.ToLiteral(), param.option.In)
 		}
 	}
-	if fn != nil {
-		webParamName := GetWebParamName(param, fields)
 
+
+	webParamName := GetWebParamName(param, fields)
+
+
+	if fn != nil {
 		var valueReadText string
+		var valueReadTextForArray string
 		if fn.WithDefault {
-			valueReadText = fmt.Sprintf(fn.Format, webParamName,
-				defaultValue(fn.ResultType, param, fields))
+			var defaultValueLit = defaultValue(fn.ResultType, param, fields)
+			valueReadText = fmt.Sprintf(fn.Format, webParamName, defaultValueLit)
+			valueReadTextForArray = fmt.Sprintf(fn.Format, webParamName+"[]", defaultValueLit)
 		} else {
 			valueReadText = fmt.Sprintf(fn.Format, webParamName)
+			valueReadTextForArray = fmt.Sprintf(fn.Format, webParamName+"[]")
 		}
 
 		// 情况4, 6
@@ -784,13 +790,35 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 				io.WriteString(ctx.out, ", ok := ")
 				io.WriteString(ctx.out, valueReadText)
 				io.WriteString(ctx.out, "\r\n\tif !ok {\r\n")
-				ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "nil")
+				if fn.IsArray {
+					io.WriteString(ctx.out, goVarName)
+					io.WriteString(ctx.out, ", ok = ")
+					io.WriteString(ctx.out, valueReadTextForArray)
+					io.WriteString(ctx.out, "\r\n\tif !ok {\r\n")
+					ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "nil")
+					io.WriteString(ctx.out, "\r\n\t}")
+				} else {
+					ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "nil")
+				}
 				io.WriteString(ctx.out, "\r\n\t}")
+				
+
 			} else {
 				io.WriteString(ctx.out, ", err := ")
 				io.WriteString(ctx.out, valueReadText)
 				io.WriteString(ctx.out, "\r\n\tif err != nil {\r\n")
-				ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "err")
+
+				if fn.IsArray {
+					io.WriteString(ctx.out, goVarName)
+					io.WriteString(ctx.out, ", err = ")
+					io.WriteString(ctx.out, valueReadTextForArray)
+					io.WriteString(ctx.out, "\r\n\tif err != nil {\r\n")
+					ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "err")
+					io.WriteString(ctx.out, "\r\n\t}")
+				} else {
+					ctx.plugin.RenderCastError(ctx.out, method, webParamName, "\"\"", "err")
+				}
+
 				io.WriteString(ctx.out, "\r\n\t}")
 
 				method.SetErrorDeclared()
@@ -820,6 +848,7 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 					return err
 				}
 				isOptional = true
+
 			} else {
 				if err := renderParentInit(ctx, param, fields, true); err != nil {
 					return err
@@ -827,22 +856,43 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 				setParentInitialized(param, fields)
 			}
 		}
-		io.WriteString(ctx.out, goVarName+" = ")
 
-		if underlying.IsValid() {
-			io.WriteString(ctx.out, typ.ToLiteral())
-			io.WriteString(ctx.out, "(")
+		renderCurrent := func(valueReadText string) {
+			io.WriteString(ctx.out, goVarName+" = ")
+
+			if underlying.IsValid() {
+				io.WriteString(ctx.out, typ.ToLiteral())
+				io.WriteString(ctx.out, "(")
+			}
+
+			io.WriteString(ctx.out, valueReadText)
+
+			if underlying.IsValid() {
+				io.WriteString(ctx.out, ")")
+			}
+
+			if isOptional {
+				io.WriteString(ctx.out, "}")
+			}
+		}
+		renderCurrent(valueReadText)
+		if fn.IsArray {
+
+			if len(fields) == 0 {
+				io.WriteString(ctx.out, "\r\n if len("+goVarName+") == 0 {")
+				isOptional = true
+			} else {
+				if !fn.Required && needParentInitialize(param, fields) {
+					io.WriteString(ctx.out, "\t else if ss := "+valueReadTextForArray+"; len(ss) != 0 {")
+					if err := renderParentInit(ctx, param, fields, true); err != nil {
+						return err
+					}
+				}
+			}
+
+			renderCurrent(valueReadTextForArray)
 		}
 
-		io.WriteString(ctx.out, valueReadText)
-
-		if underlying.IsValid() {
-			io.WriteString(ctx.out, ")")
-		}
-
-		if isOptional {
-			io.WriteString(ctx.out, "}")
-		}
 		return nil
 	}
 
@@ -853,13 +903,15 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 			"' cannot determine a function")
 	}
 
-	webParamName := GetWebParamName(param, fields)
 	var valueReadText string
+	var valueReadTextForArray string
 	if fn.WithDefault {
-		valueReadText = fmt.Sprintf(fn.Format, webParamName,
-			defaultValue(fn.ResultType, param, fields))
+		var defaultValueLit = defaultValue(fn.ResultType, param, fields)
+		valueReadText = fmt.Sprintf(fn.Format, webParamName, defaultValueLit)
+		valueReadTextForArray = fmt.Sprintf(fn.Format, webParamName+"[]", defaultValueLit)
 	} else {
 		valueReadText = fmt.Sprintf(fn.Format, webParamName)
+		valueReadTextForArray = fmt.Sprintf(fn.Format, webParamName+"[]")
 	}
 
 	convertFmt, needCast, retError, err := selectConvert(ctx.convertNS, fn.IsArray, fn.ResultType, typ.ToLiteral())
@@ -877,6 +929,8 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 	}
 
 	if fn.Required {
+		// 这一段没有处理读 query 参数时，keyxxx 不存在时，用 keyxxx[] 去读的情况
+
 		// 情况3
 
 		if retError {
@@ -943,42 +997,55 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 		tmpVarName = "ss"
 	}
 
-	io.WriteString(ctx.out, "if "+tmpVarName+" := "+valueReadText)
-	if fn.IsArray {
-		io.WriteString(ctx.out, "; len("+tmpVarName+") != 0 {")
-	} else {
-		io.WriteString(ctx.out, "; "+tmpVarName+" != \"\" {")
+	renderCurrent := func(valueReadText string) error {
+		io.WriteString(ctx.out, "if "+tmpVarName+" := "+valueReadText)
+		if fn.IsArray {
+			io.WriteString(ctx.out, "; len("+tmpVarName+") != 0 {")
+		} else {
+			io.WriteString(ctx.out, "; "+tmpVarName+" != \"\" {")
+		}
+
+		if retError {
+			io.WriteString(ctx.out, "\r\n\t\t"+fieldName(param, fields)+"Value")
+			io.WriteString(ctx.out, ", err :="+fmt.Sprintf(convertFmt, tmpVarName))
+
+			io.WriteString(ctx.out, "\r\n\t\tif err != nil {\r\n")
+			ctx.plugin.RenderCastError(ctx.out, method, webParamName, tmpVarName, "err")
+			io.WriteString(ctx.out, "\r\n\t\t}")
+
+			if err := renderParentInit(ctx, param, fields, false); err != nil {
+				return err
+			}
+			if needCast {
+				io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = "+typ.ToLiteral()+"("+fieldName(param, fields)+"Value)")
+			} else {
+				io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = "+fieldName(param, fields)+"Value")
+			}
+		} else {
+			if err := renderParentInit(ctx, param, fields, false); err != nil {
+				return err
+			}
+
+			if needCast {
+				io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = "+typ.ToLiteral()+"("+fmt.Sprintf(convertFmt, tmpVarName)+")")
+			} else {
+				io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = "+fmt.Sprintf(convertFmt, tmpVarName))
+			}
+		}
+
+		io.WriteString(ctx.out, "\r\n\t}")
+		return nil
 	}
 
-	if retError {
-		io.WriteString(ctx.out, "\r\n\t\t"+fieldName(param, fields)+"Value")
-		io.WriteString(ctx.out, ", err :="+fmt.Sprintf(convertFmt, tmpVarName))
-
-		io.WriteString(ctx.out, "\r\n\t\tif err != nil {\r\n")
-		ctx.plugin.RenderCastError(ctx.out, method, webParamName, tmpVarName, "err")
-		io.WriteString(ctx.out, "\r\n\t\t}")
-
-		if err := renderParentInit(ctx, param, fields, false); err != nil {
-			return err
-		}
-		if needCast {
-			io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = "+typ.ToLiteral()+"("+fieldName(param, fields)+"Value)")
-		} else {
-			io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = "+fieldName(param, fields)+"Value")
-		}
-	} else {
-		if err := renderParentInit(ctx, param, fields, false); err != nil {
-			return err
-		}
-
-		if needCast {
-			io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = "+typ.ToLiteral()+"("+fmt.Sprintf(convertFmt, tmpVarName)+")")
-		} else {
-			io.WriteString(ctx.out, "\r\n\t\t"+goVarName+" = "+fmt.Sprintf(convertFmt, tmpVarName))
-		}
+	err = renderCurrent( valueReadText )
+	if err != nil {
+		return err
+	}
+	if fn.IsArray {	
+		io.WriteString(ctx.out, "else ")
+		return renderCurrent( valueReadTextForArray )
 	}
 
-	io.WriteString(ctx.out, "\r\n\t}")
 	return nil
 }
 

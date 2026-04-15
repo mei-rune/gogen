@@ -36,6 +36,9 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc, handlers ...loong.MiddlewareFunc)
 	})
 	mux.GET("/case2_2/by_names", func(ctx *loong.Context) error {
 		var name = ctx.QueryParamArray("name")
+		if len(name) == 0 {
+			name = ctx.QueryParamArray("name[]")
+		}
 		err := svc.TestCase2_2(name)
 		if err != nil {
 			return ctx.ReturnError(err)
@@ -128,6 +131,12 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc, handlers ...loong.MiddlewareFunc)
 	mux.GET("/case5_3/by_id", func(ctx *loong.Context) error {
 		var idlist []int64
 		if ss := ctx.QueryParamArray("idlist"); len(ss) != 0 {
+			idlistValue, err := ToInt64Array(ss)
+			if err != nil {
+				return ctx.ReturnError(loong.ErrBadArgument("idlist", ss, err), http.StatusBadRequest)
+			}
+			idlist = idlistValue
+		} else if ss := ctx.QueryParamArray("idlist[]"); len(ss) != 0 {
 			idlistValue, err := ToInt64Array(ss)
 			if err != nil {
 				return ctx.ReturnError(loong.ErrBadArgument("idlist", ss, err), http.StatusBadRequest)

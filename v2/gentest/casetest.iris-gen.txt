@@ -41,6 +41,9 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc, handlers ...iris.Handler) {
 	}))
 	mux.Get("/case2_2/by_names", append(handlers, func(ctx iris.Context) {
 		var name = ctx.URLParamSlice("name")
+		if len(name) == 0 {
+			name = ctx.URLParamSlice("name[]")
+		}
 		err := svc.TestCase2_2(name)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -169,6 +172,14 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc, handlers ...iris.Handler) {
 	mux.Get("/case5_3/by_id", append(handlers, func(ctx iris.Context) {
 		var idlist []int64
 		if ss := ctx.URLParamSlice("idlist"); len(ss) != 0 {
+			idlistValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "CaseSvc.TestCase5_3", "idlist"))
+				return
+			}
+			idlist = idlistValue
+		} else if ss := ctx.URLParamSlice("idlist[]"); len(ss) != 0 {
 			idlistValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)

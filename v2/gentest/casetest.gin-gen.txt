@@ -39,6 +39,9 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc, handlers ...gin.HandlerFunc) {
 	}))
 	mux.GET("/case2_2/by_names", append(handlers, func(ctx *gin.Context) {
 		var name = ctx.QueryArray("name")
+		if len(name) == 0 {
+			name = ctx.QueryArray("name[]")
+		}
 		err := svc.TestCase2_2(name)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
@@ -153,6 +156,13 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc, handlers ...gin.HandlerFunc) {
 	mux.GET("/case5_3/by_id", append(handlers, func(ctx *gin.Context) {
 		var idlist []int64
 		if ss := ctx.QueryArray("idlist"); len(ss) != 0 {
+			idlistValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase5_3", "idlist"))
+				return
+			}
+			idlist = idlistValue
+		} else if ss := ctx.QueryArray("idlist[]"); len(ss) != 0 {
 			idlistValue, err := ToInt64Array(ss)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, NewBadArgument(err, "CaseSvc.TestCase5_3", "idlist"))

@@ -45,6 +45,9 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc, handlers ...func(http.Handler) htt
 	mux.Get("/case2_2/by_names", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var name = queryParams["name"]
+		if len(name) == 0 {
+			name = queryParams["name[]"]
+		}
 		err := svc.TestCase2_2(name)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
@@ -177,6 +180,14 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc, handlers ...func(http.Handler) htt
 		queryParams := r.URL.Query()
 		var idlist []int64
 		if ss := queryParams["idlist"]; len(ss) != 0 {
+			idlistValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "CaseSvc.TestCase5_3", "idlist"))
+				return
+			}
+			idlist = idlistValue
+		} else if ss := queryParams["idlist[]"]; len(ss) != 0 {
 			idlistValue, err := ToInt64Array(ss)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)

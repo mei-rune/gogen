@@ -27,7 +27,11 @@ type Function struct {
 	Format      string
 	IsArray     bool
 	ResultType  string
+
+	// 针对 i64, err := ctx.ReadIntParam("abc") 的情况，读参数时会返回一个 error
 	ResultError bool
+
+	// 针对 i64, ok := ctx.ReadIntParam("abc") 的情况，读参数时会返回一个 bool
 	ResultBool  bool
 }
 

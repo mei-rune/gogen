@@ -27,6 +27,9 @@ func InitStringSvc(mux chi.Router, svc StringSvc, handlers ...func(http.Handler)
 	mux.Get("/files", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var filenames = queryParams["filenames"]
+		if len(filenames) == 0 {
+			filenames = queryParams["filenames[]"]
+		}
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
@@ -44,6 +47,14 @@ func InitStringSvc(mux chi.Router, svc StringSvc, handlers ...func(http.Handler)
 		queryParams := r.URL.Query()
 		var times []time.Time
 		if ss := queryParams["times"]; len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvc.GetTimes", "times"))
+				return
+			}
+			times = timesValue
+		} else if ss := queryParams["times[]"]; len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
@@ -1247,6 +1258,9 @@ func InitStringSvc(mux chi.Router, svc StringSvc, handlers ...func(http.Handler)
 	mux.Post("/query13", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var names = queryParams["names"]
+		if len(names) == 0 {
+			names = queryParams["names[]"]
+		}
 		err := svc.QueryVarArgs(r.Context(), names...)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
@@ -1264,6 +1278,9 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl, handlers ...func(http
 	mux.Get("/impl/files", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var filenames = queryParams["filenames"]
+		if len(filenames) == 0 {
+			filenames = queryParams["filenames[]"]
+		}
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
@@ -1281,6 +1298,14 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl, handlers ...func(http
 		queryParams := r.URL.Query()
 		var times []time.Time
 		if ss := queryParams["times"]; len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "StringSvcImpl.GetTimes", "times"))
+				return
+			}
+			times = timesValue
+		} else if ss := queryParams["times[]"]; len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
 				render.Status(r, http.StatusBadRequest)
@@ -2432,6 +2457,9 @@ func InitStringSvcImpl(mux chi.Router, svc *StringSvcImpl, handlers ...func(http
 	mux.Post("/impl/query13", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var names = queryParams["names"]
+		if len(names) == 0 {
+			names = queryParams["names[]"]
+		}
 		err := svc.QueryVarArgs(r.Context(), names...)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
@@ -2673,6 +2701,9 @@ func InitStringSvcWithContext(mux chi.Router, svc *StringSvcWithContext, handler
 	mux.Post("/ctx/query13", func(w http.ResponseWriter, r *http.Request) {
 		queryParams := r.URL.Query()
 		var names = queryParams["names"]
+		if len(names) == 0 {
+			names = queryParams["names[]"]
+		}
 		err := svc.QueryVarArgs(r.Context(), names...)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
@@ -2747,12 +2778,28 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["query.request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query1", "query.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["query.request_type_names"]; len(ss) != 0 {
 			if query == nil {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeNames = queryParams["query.request_type_names"]
+		} else if ss := queryParams["query.request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = queryParams["query.request_type_names[]"]
 		}
 		if s := queryParams.Get("query.name_like"); s != "" {
 			if query == nil {
@@ -3000,12 +3047,28 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query2", "request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["request_type_names"]; len(ss) != 0 {
 			if query == nil {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeNames = queryParams["request_type_names"]
+		} else if ss := queryParams["request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = queryParams["request_type_names[]"]
 		}
 		if s := queryParams.Get("name_like"); s != "" {
 			if query == nil {
@@ -3245,12 +3308,28 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query = new(AliasRequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.Query3", "request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["request_type_names"]; len(ss) != 0 {
 			if query == nil {
 				query = new(AliasRequestQuery)
 			}
 			query.RequestTypeNames = queryParams["request_type_names"]
+		} else if ss := queryParams["request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.RequestTypeNames = queryParams["request_type_names[]"]
 		}
 		if s := queryParams.Get("name_like"); s != "" {
 			if query == nil {
@@ -3496,12 +3575,28 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query = new(RequestQueryEx1)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["query.request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.QueryEx1", "query.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["query.request_type_names"]; len(ss) != 0 {
 			if query == nil {
 				query = new(RequestQueryEx1)
 			}
 			query.RequestTypeNames = queryParams["query.request_type_names"]
+		} else if ss := queryParams["query.request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
+			query.RequestTypeNames = queryParams["query.request_type_names[]"]
 		}
 		if s := queryParams.Get("query.name_like"); s != "" {
 			if query == nil {
@@ -3766,6 +3861,20 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["query.request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.QueryEx2", "query.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["query.request_type_names"]; len(ss) != 0 {
 			if query == nil {
@@ -3775,6 +3884,14 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestTypeNames = queryParams["query.request_type_names"]
+		} else if ss := queryParams["query.request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = queryParams["query.request_type_names[]"]
 		}
 		if s := queryParams.Get("query.name_like"); s != "" {
 			if query == nil {
@@ -4059,12 +4176,28 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query = new(RequestQueryEx3)
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["query.request.request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.QueryEx3", "query.request.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["query.request.request_type_names"]; len(ss) != 0 {
 			if query == nil {
 				query = new(RequestQueryEx3)
 			}
 			query.Request.RequestTypeNames = queryParams["query.request.request_type_names"]
+		} else if ss := queryParams["query.request.request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeNames = queryParams["query.request.request_type_names[]"]
 		}
 		if s := queryParams.Get("query.request.name_like"); s != "" {
 			if query == nil {
@@ -4328,6 +4461,20 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query.Request = new(models.RequestQuery)
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["query.request.request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.QueryEx4", "query.request.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["query.request.request_type_names"]; len(ss) != 0 {
 			if query == nil {
@@ -4337,6 +4484,14 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query.Request = new(models.RequestQuery)
 			}
 			query.Request.RequestTypeNames = queryParams["query.request.request_type_names"]
+		} else if ss := queryParams["query.request.request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeNames = queryParams["query.request.request_type_names[]"]
 		}
 		if s := queryParams.Get("query.request.name_like"); s != "" {
 			if query == nil {
@@ -4626,12 +4781,28 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query = new(RequestQueryEx3)
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["request.request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["request.request_type_names"]; len(ss) != 0 {
 			if query == nil {
 				query = new(RequestQueryEx3)
 			}
 			query.Request.RequestTypeNames = queryParams["request.request_type_names"]
+		} else if ss := queryParams["request.request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeNames = queryParams["request.request_type_names[]"]
 		}
 		if s := queryParams.Get("request.name_like"); s != "" {
 			if query == nil {
@@ -4895,6 +5066,20 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query.Request = new(models.RequestQuery)
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["request.request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["request.request_type_names"]; len(ss) != 0 {
 			if query == nil {
@@ -4904,6 +5089,14 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query.Request = new(models.RequestQuery)
 			}
 			query.Request.RequestTypeNames = queryParams["request.request_type_names"]
+		} else if ss := queryParams["request.request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeNames = queryParams["request.request_type_names[]"]
 		}
 		if s := queryParams.Get("request.name_like"); s != "" {
 			if query == nil {
@@ -5193,12 +5386,28 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := queryParams["query.request_type_ids[]"]; len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.JSON(w, r, NewBadArgument(err, "Requests.List", "query.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := queryParams["query.request_type_names"]; len(ss) != 0 {
 			if query == nil {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeNames = queryParams["query.request_type_names"]
+		} else if ss := queryParams["query.request_type_names[]"]; len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = queryParams["query.request_type_names[]"]
 		}
 		if s := queryParams.Get("query.name_like"); s != "" {
 			if query == nil {

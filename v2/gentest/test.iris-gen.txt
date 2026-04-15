@@ -24,6 +24,9 @@ import (
 func InitStringSvc(mux iris.Party, svc StringSvc, handlers ...iris.Handler) {
 	mux.Get("/files", append(handlers, func(ctx iris.Context) {
 		var filenames = ctx.URLParamSlice("filenames")
+		if len(filenames) == 0 {
+			filenames = ctx.URLParamSlice("filenames[]")
+		}
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -40,6 +43,14 @@ func InitStringSvc(mux iris.Party, svc StringSvc, handlers ...iris.Handler) {
 	mux.Get("/times", append(handlers, func(ctx iris.Context) {
 		var times []time.Time
 		if ss := ctx.URLParamSlice("times"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvc.GetTimes", "times"))
+				return
+			}
+			times = timesValue
+		} else if ss := ctx.URLParamSlice("times[]"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -1179,6 +1190,9 @@ func InitStringSvc(mux iris.Party, svc StringSvc, handlers ...iris.Handler) {
 	}))
 	mux.Post("/query13", append(handlers, func(ctx iris.Context) {
 		var names = ctx.URLParamSlice("names")
+		if len(names) == 0 {
+			names = ctx.URLParamSlice("names[]")
+		}
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1194,6 +1208,9 @@ func InitStringSvc(mux iris.Party, svc StringSvc, handlers ...iris.Handler) {
 func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl, handlers ...iris.Handler) {
 	mux.Get("/impl/files", append(handlers, func(ctx iris.Context) {
 		var filenames = ctx.URLParamSlice("filenames")
+		if len(filenames) == 0 {
+			filenames = ctx.URLParamSlice("filenames[]")
+		}
 		list, total, err := svc.GetFiles(filenames)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -1210,6 +1227,14 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl, handlers ...iris.Hand
 	mux.Get("/impl/times", append(handlers, func(ctx iris.Context) {
 		var times []time.Time
 		if ss := ctx.URLParamSlice("times"); len(ss) != 0 {
+			timesValue, err := ToDatetimes(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "StringSvcImpl.GetTimes", "times"))
+				return
+			}
+			times = timesValue
+		} else if ss := ctx.URLParamSlice("times[]"); len(ss) != 0 {
 			timesValue, err := ToDatetimes(ss)
 			if err != nil {
 				ctx.StatusCode(http.StatusBadRequest)
@@ -2300,6 +2325,9 @@ func InitStringSvcImpl(mux iris.Party, svc *StringSvcImpl, handlers ...iris.Hand
 	}))
 	mux.Post("/impl/query13", append(handlers, func(ctx iris.Context) {
 		var names = ctx.URLParamSlice("names")
+		if len(names) == 0 {
+			names = ctx.URLParamSlice("names[]")
+		}
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -2524,6 +2552,9 @@ func InitStringSvcWithContext(mux iris.Party, svc *StringSvcWithContext, handler
 	}))
 	mux.Post("/ctx/query13", append(handlers, func(ctx iris.Context) {
 		var names = ctx.URLParamSlice("names")
+		if len(names) == 0 {
+			names = ctx.URLParamSlice("names[]")
+		}
 		err := svc.QueryVarArgs(ctx.Request().Context(), names...)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))
@@ -2596,12 +2627,28 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("query.request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.Query1", "query.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("query.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names")
+		} else if ss := ctx.URLParamSlice("query.request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names[]")
 		}
 		if s := ctx.URLParam("query.name_like"); s != "" {
 			if query == nil {
@@ -2848,12 +2895,28 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.Query2", "request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeNames = ctx.URLParamSlice("request_type_names")
+		} else if ss := ctx.URLParamSlice("request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = ctx.URLParamSlice("request_type_names[]")
 		}
 		if s := ctx.URLParam("name_like"); s != "" {
 			if query == nil {
@@ -3092,12 +3155,28 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query = new(AliasRequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.Query3", "request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = new(AliasRequestQuery)
 			}
 			query.RequestTypeNames = ctx.URLParamSlice("request_type_names")
+		} else if ss := ctx.URLParamSlice("request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(AliasRequestQuery)
+			}
+			query.RequestTypeNames = ctx.URLParamSlice("request_type_names[]")
 		}
 		if s := ctx.URLParam("name_like"); s != "" {
 			if query == nil {
@@ -3342,12 +3421,28 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query = new(RequestQueryEx1)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("query.request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.QueryEx1", "query.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("query.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = new(RequestQueryEx1)
 			}
 			query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names")
+		} else if ss := ctx.URLParamSlice("query.request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx1)
+			}
+			query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names[]")
 		}
 		if s := ctx.URLParam("query.name_like"); s != "" {
 			if query == nil {
@@ -3611,6 +3706,20 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("query.request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.QueryEx2", "query.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("query.request_type_names"); len(ss) != 0 {
 			if query == nil {
@@ -3620,6 +3729,14 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query.RequestQuery = new(models.RequestQuery)
 			}
 			query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names")
+		} else if ss := ctx.URLParamSlice("query.request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx2)
+			}
+			if query.RequestQuery == nil {
+				query.RequestQuery = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names[]")
 		}
 		if s := ctx.URLParam("query.name_like"); s != "" {
 			if query == nil {
@@ -3903,12 +4020,28 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query = new(RequestQueryEx3)
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("query.request.request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.QueryEx3", "query.request.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("query.request.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = new(RequestQueryEx3)
 			}
 			query.Request.RequestTypeNames = ctx.URLParamSlice("query.request.request_type_names")
+		} else if ss := ctx.URLParamSlice("query.request.request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeNames = ctx.URLParamSlice("query.request.request_type_names[]")
 		}
 		if s := ctx.URLParam("query.request.name_like"); s != "" {
 			if query == nil {
@@ -4171,6 +4304,20 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query.Request = new(models.RequestQuery)
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("query.request.request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.QueryEx4", "query.request.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("query.request.request_type_names"); len(ss) != 0 {
 			if query == nil {
@@ -4180,6 +4327,14 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query.Request = new(models.RequestQuery)
 			}
 			query.Request.RequestTypeNames = ctx.URLParamSlice("query.request.request_type_names")
+		} else if ss := ctx.URLParamSlice("query.request.request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeNames = ctx.URLParamSlice("query.request.request_type_names[]")
 		}
 		if s := ctx.URLParam("query.request.name_like"); s != "" {
 			if query == nil {
@@ -4468,12 +4623,28 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query = new(RequestQueryEx3)
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("request.request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.QueryEx3NoPrefix", "request.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("request.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = new(RequestQueryEx3)
 			}
 			query.Request.RequestTypeNames = ctx.URLParamSlice("request.request_type_names")
+		} else if ss := ctx.URLParamSlice("request.request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx3)
+			}
+			query.Request.RequestTypeNames = ctx.URLParamSlice("request.request_type_names[]")
 		}
 		if s := ctx.URLParam("request.name_like"); s != "" {
 			if query == nil {
@@ -4736,6 +4907,20 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query.Request = new(models.RequestQuery)
 			}
 			query.Request.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("request.request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.QueryEx4NoPrefix", "request.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("request.request_type_names"); len(ss) != 0 {
 			if query == nil {
@@ -4745,6 +4930,14 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query.Request = new(models.RequestQuery)
 			}
 			query.Request.RequestTypeNames = ctx.URLParamSlice("request.request_type_names")
+		} else if ss := ctx.URLParamSlice("request.request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(RequestQueryEx4)
+			}
+			if query.Request == nil {
+				query.Request = new(models.RequestQuery)
+			}
+			query.Request.RequestTypeNames = ctx.URLParamSlice("request.request_type_names[]")
 		}
 		if s := ctx.URLParam("request.name_like"); s != "" {
 			if query == nil {
@@ -5033,12 +5226,28 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeIDs = requestTypeIDsValue
+		} else if ss := ctx.URLParamSlice("query.request_type_ids[]"); len(ss) != 0 {
+			requestTypeIDsValue, err := ToInt64Array(ss)
+			if err != nil {
+				ctx.StatusCode(http.StatusBadRequest)
+				ctx.JSON(NewBadArgument(err, "Requests.List", "query.request_type_ids"))
+				return
+			}
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeIDs = requestTypeIDsValue
 		}
 		if ss := ctx.URLParamSlice("query.request_type_names"); len(ss) != 0 {
 			if query == nil {
 				query = new(models.RequestQuery)
 			}
 			query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names")
+		} else if ss := ctx.URLParamSlice("query.request_type_names[]"); len(ss) != 0 {
+			if query == nil {
+				query = new(models.RequestQuery)
+			}
+			query.RequestTypeNames = ctx.URLParamSlice("query.request_type_names[]")
 		}
 		if s := ctx.URLParam("query.name_like"); s != "" {
 			if query == nil {
