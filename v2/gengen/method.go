@@ -887,6 +887,9 @@ func (method *Method) renderPrimitiveTypeParam(ctx *GenContext, param *Param, fi
 					if err := renderParentInit(ctx, param, fields, true); err != nil {
 						return err
 					}
+				} else {
+					io.WriteString(ctx.out, "\r\n if len("+goVarName+") == 0 {")
+					isOptional = true
 				}
 			}
 

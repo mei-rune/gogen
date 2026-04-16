@@ -262,7 +262,8 @@ func (client CaseSvcClient) TestCaseOtherValuesForUrlValuesInline(ctx context.Co
 
 func (client CaseSvcClient) TestType1(ctx context.Context, typ TypeInfo) error {
 	request := resty.NewRequest(client.Proxy, "/test_type1").
-		SetParam("typ.name", typ.Name)
+		SetParam("typ.name", typ.Name).
+		SetParamArray("typ.names", typ.Names)
 
 	defer resty.ReleaseRequest(client.Proxy, request)
 	return request.GET(ctx)

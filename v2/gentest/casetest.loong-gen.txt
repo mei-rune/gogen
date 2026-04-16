@@ -423,6 +423,10 @@ func InitCaseSvc(mux loong.Party, svc CaseSvc, handlers ...loong.MiddlewareFunc)
 	mux.GET("/test_type1", func(ctx *loong.Context) error {
 		var typ TypeInfo
 		typ.Name = ctx.QueryParam("typ.name")
+		typ.Names = ctx.QueryParamArray("typ.names")
+		if len(typ.Names) == 0 {
+			typ.Names = ctx.QueryParamArray("typ.names[]")
+		}
 		err := svc.TestType1(typ)
 		if err != nil {
 			return ctx.ReturnError(err)

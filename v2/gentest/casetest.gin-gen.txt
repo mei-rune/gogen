@@ -501,6 +501,10 @@ func InitCaseSvc(mux gin.IRouter, svc CaseSvc, handlers ...gin.HandlerFunc) {
 	mux.GET("/test_type1", append(handlers, func(ctx *gin.Context) {
 		var typ TypeInfo
 		typ.Name = ctx.Query("typ.name")
+		typ.Names = ctx.QueryArray("typ.names")
+		if len(typ.Names) == 0 {
+			typ.Names = ctx.QueryArray("typ.names[]")
+		}
 		err := svc.TestType1(typ)
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)

@@ -542,6 +542,10 @@ func InitCaseSvc(mux iris.Party, svc CaseSvc, handlers ...iris.Handler) {
 	mux.Get("/test_type1", append(handlers, func(ctx iris.Context) {
 		var typ TypeInfo
 		typ.Name = ctx.URLParam("typ.name")
+		typ.Names = ctx.URLParamSlice("typ.names")
+		if len(typ.Names) == 0 {
+			typ.Names = ctx.URLParamSlice("typ.names[]")
+		}
 		err := svc.TestType1(typ)
 		if err != nil {
 			ctx.StatusCode(httpCodeWith(err))

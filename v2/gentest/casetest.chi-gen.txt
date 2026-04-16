@@ -573,6 +573,10 @@ func InitCaseSvc(mux chi.Router, svc CaseSvc, handlers ...func(http.Handler) htt
 		queryParams := r.URL.Query()
 		var typ TypeInfo
 		typ.Name = queryParams.Get("typ.name")
+		typ.Names = queryParams["typ.names"]
+		if len(typ.Names) == 0 {
+			typ.Names = queryParams["typ.names[]"]
+		}
 		err := svc.TestType1(typ)
 		if err != nil {
 			render.Status(r, httpCodeWith(err))
