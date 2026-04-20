@@ -88,7 +88,7 @@ require (
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/schollz/closestmatch v2.1.0+incompatible // indirect
 	github.com/shiena/ansicolor v0.0.0-20151119151921-a422bbe96644 // indirect
-	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/sirupsen/logrus v1.8.3 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
 	github.com/tdewolff/minify/v2 v2.11.2 // indirect
 	github.com/tdewolff/parse/v2 v2.5.29 // indirect
