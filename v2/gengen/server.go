@@ -149,7 +149,7 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		io.WriteString(out, "\r\n")
 		io.WriteString(out, "\r\n")
 	}
-	io.WriteString(out, "// Please don't edit this file!\r\npackage ")
+	io.WriteString(out, "// Please don't edit this file, it generate by gogen!\r\npackage ")
 	io.WriteString(out, file.Pkg.Name)
 	io.WriteString(out, "\r\n\r\nimport (")
 

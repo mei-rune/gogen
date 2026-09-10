@@ -1,7 +1,7 @@
 //go:build chi
 // +build chi
 
-// Please don't edit this file!
+// Please don't edit this file, it generate by gogen!
 package main
 
 import (
