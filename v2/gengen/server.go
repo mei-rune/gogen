@@ -384,6 +384,10 @@ func checkUrlValid(method *Method, routeProps swag.RouteProperties) error {
 		if !strings.Contains(routeProps.Path, "{"+param.Name+"}") {
 			return errors.New(method.Method.PostionString() + ": param '" + param.Name + "' isnot exists in the url path")
 		}
+
+		if !param.Required {
+			return errors.New(method.Method.PostionString() + ": param '" + param.Name + "' isnot required")
+		}
 	}
 
 	for idx := range method.Operation.Parameters {

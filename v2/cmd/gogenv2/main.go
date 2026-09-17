@@ -49,7 +49,7 @@ func main() {
 		os.Exit(1)
 	}
 	if err := gen.Run(fset.Args()); err != nil {
-		fmt.Println(err)
+		fmt.Println("[gogen-error]", err)
 		os.Exit(1)
 	}
 }
