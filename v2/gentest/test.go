@@ -1456,7 +1456,7 @@ type Requests interface {
 	// @Description UpdateByID
 	// @ID Requests.UpdateByID
 	// @Param   data    body   models.Request     false  "request query param"
-	// @Param   id  path   int     false  "id"
+	// @Param   id  path   int     true  "id"
 	// @Accept  json
 	// @Produce  json
 	// @Router /requests/{id} [put]
@@ -1466,7 +1466,7 @@ type Requests interface {
 	// @Description Set1ByID
 	// @ID Requests.Set1ByID
 	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=false)
-	// @Param   id  path   int     false  "id"
+	// @Param   id  path   int     true  "id"
 	// @Accept  json
 	// @Produce  json
 	// @Router /requests/set1/{id} [patch]
@@ -1475,7 +1475,7 @@ type Requests interface {
 	// @Summary Set2ByID
 	// @Description Set2ByID
 	// @ID Requests.Set2ByID
-	// @Param   id         path   int     false  "id"
+	// @Param   id         path   int     true  "id"
 	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=true)
 	// @Accept  json
 	// @Produce  json
@@ -1485,7 +1485,7 @@ type Requests interface {
 	// @Summary Set3ByID
 	// @Description Set3ByID
 	// @ID Requests.Set3ByID
-	// @Param   id         path   int     false  "id"
+	// @Param   id         path   int     true  "id"
 	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=false)
 	// @Accept  json
 	// @Produce  json
@@ -1495,7 +1495,7 @@ type Requests interface {
 	// @Summary Set4ByID
 	// @Description Set4ByID
 	// @ID Requests.Set4ByID
-	// @Param   id         path   int     false  "id"
+	// @Param   id         path   int     true  "id"
 	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=true)
 	// @Accept  json
 	// @Produce  json
@@ -1505,7 +1505,7 @@ type Requests interface {
 	// @Summary Set5ByID
 	// @Description Set5ByID
 	// @ID Requests.Set5ByID
-	// @Param   id         path   int     false  "id"
+	// @Param   id         path   int     true  "id"
 	// @Param   params     body   map[string]string     false  "params" extensions(x-gogen-entire-body=false)
 	// @Accept  json
 	// @Produce  json
@@ -1515,7 +1515,7 @@ type Requests interface {
 	// @Summary Set6ByID
 	// @Description Set6ByID
 	// @ID Requests.Set6ByID
-	// @Param   id         path   int     false  "id"
+	// @Param   id         path   int     true  "id"
 	// @Param   params     body   map[string]string    false  "params" extensions(x-gogen-entire-body=true)
 	// @Accept  json
 	// @Produce  json
@@ -1525,7 +1525,7 @@ type Requests interface {
 	// @Summary Set7ByID, dataType="map[string]string"
 	// @Description Set7ByID
 	// @ID Requests.Set7ByID
-	// @Param   id         path   int     false  "id"
+	// @Param   id         path   int     true  "id"
 	// @Param   params     body   map[string]interface{}     false  "params" extensions(x-gogen-entire-body=true)
 	// @Accept  json
 	// @Produce  json
@@ -1535,7 +1535,7 @@ type Requests interface {
 	// @Summary Set7ByID, dataType="map[string]string"
 	// @Description Set7ByID
 	// @ID Requests.Set7ByID
-	// @Param   id         path   int     false  "id"
+	// @Param   id         path   int     true  "id"
 	// @Param   params     body   map[string]interface{}     false  "params"
 	// @Param   error      body   *Error     false  "error"
 	// @Accept  json

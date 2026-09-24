@@ -2298,6 +2298,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		if err != nil {
 			return abc.ReturnError(ctx, err)
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
 	mux.GET("/requests/query2", func(ctx *echo.Context) error {
@@ -2525,6 +2528,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		if err != nil {
 			return abc.ReturnError(ctx, err)
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
 	mux.GET("/requests/query3", func(ctx *echo.Context) error {
@@ -2751,6 +2757,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		result, err := svc.Query3(ctx.Request().Context(), query, offset, limit)
 		if err != nil {
 			return abc.ReturnError(ctx, err)
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -2993,6 +3002,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		result, err := svc.QueryEx1(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
 			return abc.ReturnError(ctx, err)
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -3291,6 +3303,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		if err != nil {
 			return abc.ReturnError(ctx, err)
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
 	mux.GET("/requests/queryex3", func(ctx *echo.Context) error {
@@ -3531,6 +3546,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		result, err := svc.QueryEx3(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
 			return abc.ReturnError(ctx, err)
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -3828,6 +3846,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		if err != nil {
 			return abc.ReturnError(ctx, err)
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
 	mux.GET("/requests/queryex3/NoPrefix", func(ctx *echo.Context) error {
@@ -4068,6 +4089,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		result, err := svc.QueryEx3NoPrefix(ctx.Request().Context(), query, offset, limit, params)
 		if err != nil {
 			return abc.ReturnError(ctx, err)
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4365,6 +4389,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		if err != nil {
 			return abc.ReturnError(ctx, err)
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
 	mux.GET("/requests", func(ctx *echo.Context) error {
@@ -4593,6 +4620,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		if err != nil {
 			return abc.ReturnError(ctx, err)
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
 	mux.POST("/requests/create1", func(ctx *echo.Context) error {
@@ -4803,6 +4833,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		if err != nil {
 			return abc.ReturnError(ctx, err)
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
 	mux.GET("/requests/querysub2", func(ctx *echo.Context) error {
@@ -4846,6 +4879,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		result, err := svc.QuerySubTest2(ctx.Request().Context(), query)
 		if err != nil {
 			return abc.ReturnError(ctx, err)
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4896,6 +4932,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		result, err := svc.QuerySubTest3(ctx.Request().Context(), query)
 		if err != nil {
 			return abc.ReturnError(ctx, err)
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)
@@ -4959,6 +4998,9 @@ func InitRequests(mux *echo.Group, svc Requests, handlers ...echo.MiddlewareFunc
 		result, err := svc.QuerySubTest4(ctx.Request().Context(), query)
 		if err != nil {
 			return abc.ReturnError(ctx, err)
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		return abc.ReturnQueryResult(ctx, result)
 	}, handlers...)

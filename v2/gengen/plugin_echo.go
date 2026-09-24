@@ -248,9 +248,13 @@ func (echo *echoPlugin) GetOkResult() string {
 }
 
 func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
+	isArray := strings.HasPrefix(dataType, "[]")
+
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
 		"data":     data,
+		"isArray":  isArray,
+		"dataType": dataType,
 	}
 	if statusCode != "" {
 		args["statusCode"] = statusCode
@@ -281,21 +285,33 @@ func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 
 		s := renderString(`{{- if .noreturn -}}
 		return nil
-		{{- else if .withCode -}} 
+		{{- else if .withCode -}}
+		{{- if .isArray -}}
+		if {{.data}} == nil {
+			{{.data}} = make({{.dataType}}, 0)
+		}
+		{{- end}}
 		return ctx.String({{.withCode}}, {{.data}})
 		{{- else -}}
+		{{- if .isArray -}}
+		if {{.data}} == nil {
+			{{.data}} = make({{.dataType}}, 0)
+		}
+		{{end -}}
 		return ctx.String({{.statusCode}}, {{.data}})
 		{{- end}}`, args)
 		_, e := io.WriteString(out, s)
 		return e
 	}
 
-
-
-
 	text := `{{- if .noreturn -}}
   return nil
 {{- else -}}
+	{{- if .isArray -}}
+	if {{.data}} == nil {
+		{{.data}} = make({{.dataType}}, 0)
+	}
+	{{end -}}
   return ctx.JSON({{.statusCode}}, {{.data}})
 {{- end}}`
 
@@ -305,13 +321,23 @@ func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	return nil
 	{{- else if .withCode -}} 
 	return `+echo.returnResultFuncName + `(ctx, {{.withCode}}, {{.data}})
-	{{- else if eq .method "POST" -}} 
+	{{- else if eq .method "POST" -}}
+	{{- if .isArray -}}
+	if {{.data}} == nil {
+		{{.data}} = make({{.dataType}}, 0)
+	}
+	{{end -}}
 	return `+echo.returnCreatedResultFuncName + `(ctx, {{.data}})
 	{{- else if eq .method "PUT" -}}
 	return `+echo.returnUpdatedResultFuncName + `(ctx, {{.data}})
 	{{- else if eq .method "DELETE" -}}
 	return `+echo.returnDeletedResultFuncName + `(ctx, {{.data}})
 	{{- else if eq .method "GET" -}}
+	{{- if .isArray -}}
+	if {{.data}} == nil {
+		{{.data}} = make({{.dataType}}, 0)
+	}
+	{{end -}}
 	return `+echo.returnQueryResultFuncName + `(ctx, {{.data}})
 	{{- else -}}
 	return `+echo.returnResultFuncName + `(ctx, {{.statusCode}}, {{.data}})

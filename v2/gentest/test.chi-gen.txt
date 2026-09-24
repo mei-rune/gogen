@@ -2996,6 +2996,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.JSON(w, r, err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		render.JSON(w, r, result)
 		return
 	})
@@ -3257,6 +3260,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.JSON(w, r, err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		render.JSON(w, r, result)
 		return
 	})
@@ -3517,6 +3523,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		render.JSON(w, r, result)
 		return
@@ -3793,6 +3802,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		render.JSON(w, r, result)
 		return
@@ -4125,6 +4137,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.JSON(w, r, err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		render.JSON(w, r, result)
 		return
 	})
@@ -4399,6 +4414,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		render.JSON(w, r, result)
 		return
@@ -4730,6 +4748,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.JSON(w, r, err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		render.JSON(w, r, result)
 		return
 	})
@@ -5004,6 +5025,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		render.JSON(w, r, result)
 		return
@@ -5335,6 +5359,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.JSON(w, r, err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		render.JSON(w, r, result)
 		return
 	})
@@ -5596,6 +5623,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		render.JSON(w, r, result)
 		return
@@ -5884,6 +5914,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.JSON(w, r, err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		render.JSON(w, r, result)
 		return
 	})
@@ -5931,6 +5964,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		render.JSON(w, r, result)
 		return
@@ -5985,6 +6021,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		render.JSON(w, r, result)
 		return
@@ -6052,6 +6091,9 @@ func InitRequests(mux chi.Router, svc Requests, handlers ...func(http.Handler) h
 			render.Status(r, httpCodeWith(err))
 			render.JSON(w, r, err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		render.JSON(w, r, result)
 		return

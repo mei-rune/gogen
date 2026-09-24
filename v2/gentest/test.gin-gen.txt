@@ -2665,6 +2665,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 			ctx.JSON(httpCodeWith(err), err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(http.StatusOK, result)
 		return
 	}))
@@ -2909,6 +2912,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 			ctx.JSON(httpCodeWith(err), err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(http.StatusOK, result)
 		return
 	}))
@@ -3152,6 +3158,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
@@ -3411,6 +3420,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
@@ -3726,6 +3738,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 			ctx.JSON(httpCodeWith(err), err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(http.StatusOK, result)
 		return
 	}))
@@ -3983,6 +3998,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
@@ -4297,6 +4315,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 			ctx.JSON(httpCodeWith(err), err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(http.StatusOK, result)
 		return
 	}))
@@ -4554,6 +4575,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
@@ -4868,6 +4892,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 			ctx.JSON(httpCodeWith(err), err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(http.StatusOK, result)
 		return
 	}))
@@ -5112,6 +5139,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
@@ -5367,6 +5397,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 			ctx.JSON(httpCodeWith(err), err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(http.StatusOK, result)
 		return
 	}))
@@ -5412,6 +5445,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
@@ -5464,6 +5500,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(http.StatusOK, result)
 		return
@@ -5529,6 +5568,9 @@ func InitRequests(mux gin.IRouter, svc Requests, handlers ...gin.HandlerFunc) {
 		if err != nil {
 			ctx.JSON(httpCodeWith(err), err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(http.StatusOK, result)
 		return

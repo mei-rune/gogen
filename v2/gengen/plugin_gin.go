@@ -208,9 +208,12 @@ func (gin *ginPlugin) GetOkResult() string {
 }
 
 func (gin *ginPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
+	isArray := strings.HasPrefix(dataType, "[]")
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
 		"data":     data,
+		"isArray":  isArray,
+		"dataType": dataType,
 	}
 	if statusCode != "" {
 		args["statusCode"] = statusCode
@@ -226,6 +229,11 @@ func (gin *ginPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, 
 	s := renderString(`{{- if .noreturn -}}
   return
 {{- else -}}
+		{{- if .isArray -}}
+		if {{.data}} == nil {
+			{{.data}} = make({{.dataType}}, 0)
+		}
+		{{end -}}
   ctx.`+renderFunc+`({{.statusCode}}, {{.data}})
   return
 {{- end}}`, args)

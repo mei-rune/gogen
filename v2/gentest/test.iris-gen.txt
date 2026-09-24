@@ -2845,6 +2845,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.JSON(err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(result)
 		return
 	}))
@@ -3105,6 +3108,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.JSON(err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(result)
 		return
 	}))
@@ -3364,6 +3370,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(result)
 		return
@@ -3639,6 +3648,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(result)
 		return
@@ -3970,6 +3982,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.JSON(err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(result)
 		return
 	}))
@@ -4243,6 +4258,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(result)
 		return
@@ -4573,6 +4591,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.JSON(err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(result)
 		return
 	}))
@@ -4846,6 +4867,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(result)
 		return
@@ -5176,6 +5200,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.JSON(err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(result)
 		return
 	}))
@@ -5436,6 +5463,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(result)
 		return
@@ -5723,6 +5753,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.JSON(err)
 			return
 		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
+		}
 		ctx.JSON(result)
 		return
 	}))
@@ -5769,6 +5802,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(result)
 		return
@@ -5822,6 +5858,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(result)
 		return
@@ -5888,6 +5927,9 @@ func InitRequests(mux iris.Party, svc Requests, handlers ...iris.Handler) {
 			ctx.StatusCode(httpCodeWith(err))
 			ctx.JSON(err)
 			return
+		}
+		if result == nil {
+			result = make([]map[string]interface{}, 0)
 		}
 		ctx.JSON(result)
 		return

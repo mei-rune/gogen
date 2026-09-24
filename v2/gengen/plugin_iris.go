@@ -3,6 +3,7 @@ package gengen
 import (
 	"io"
 	"os"
+	"strings"
 
 	"github.com/swaggo/swag"
 )
@@ -209,9 +210,12 @@ func (iris *irisPlugin) GetOkResult() string {
 }
 
 func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode, dataType, data string) error {
+	isArray := strings.HasPrefix(dataType, "[]")
 	args := map[string]interface{}{
 		"noreturn": method.NoReturn(),
 		"data":     data,
+		"isArray":  isArray,
+		"dataType": dataType,
 	}
 	if statusCode != "" {
 		args["statusCode"] = statusCode
@@ -229,7 +233,12 @@ func (iris *irisPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 {{- else -}}
   {{- if .statusCode -}}
 	ctx.StatusCode(r, {{.statusCode}})
-  {{- end -}}
+  {{end -}}
+	{{- if .isArray -}}
+	if {{.data}} == nil {
+		{{.data}} = make({{.dataType}}, 0)
+	}
+	{{end -}}
 	ctx.`+renderFunc+`({{.data}})
   return
 {{- end}}`, args)
