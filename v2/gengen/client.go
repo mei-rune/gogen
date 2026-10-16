@@ -1076,6 +1076,18 @@ func (c *ClientConfig) RouteFunc(method *Method) string {
 	return method.Operation.RouterProperties[0].HTTPMethod
 }
 
+// isPathEscape 路径参数默认不转义，原值直接拼进路径
+// （resty 会把这整段当成未转义的 Path 再转义一次），
+// 参数上写 extensions(x-gogen-path-escape=true) 时才做 url.PathEscape。
+func isPathEscape(operation *swag.Operation, paramName string) bool {
+	idx := searchParam(operation, paramName)
+	if idx < 0 {
+		return false
+	}
+	s, _ := operation.Parameters[idx].Extensions.GetString("x-gogen-path-escape")
+	return strings.EqualFold(strings.TrimSpace(s), "true")
+}
+
 func (c *ClientConfig) GetPath(optionalRoutePrefix string, method *Method) string {
 	rawurl := method.Operation.RouterProperties[0].Path
 	var replace = ReplaceFunc(func(segement PathSegement) string {
@@ -1084,11 +1096,10 @@ func (c *ClientConfig) GetPath(optionalRoutePrefix string, method *Method) strin
 				param := method.Method.Params.List[idx]
 				value := convertToStringLiteral(&method.Method.Params.List[idx], "", c.ConvertNS, c.TimeFormat)
 				var typeStr = param.Type().ToLiteral()
-				if typeStr == "string" {
-					return "\" + url.PathEscape(" + value + ") + \""
-				}
-				if typeStr == "*string" {
-					return "\" + url.PathEscape(" + value + ") + \""
+				if typeStr == "string" || typeStr == "*string" {
+					if isPathEscape(method.Operation, param.Name) {
+						return "\" + url.PathEscape(" + value + ") + \""
+					}
 				}
 				return "\" + " + value + " + \""
 			}

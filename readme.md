@@ -219,6 +219,39 @@ gogen client domains.go
      }
      ````
 
+##### 路径参数与 extensions(x-gogen-path-escape)
+
+    生成的客户端里，path 参数默认**不做** `url.PathEscape`，原值直接拼进路径：
+
+    ```golang
+    // @Param  name  path  string  true  "名称"
+    // @Router /case1/by_name/{name} [get]
+    ByName(name string) error
+    ```
+
+    ```golang
+    // 生成的客户端代码
+    request := resty.NewRequest(client.Proxy, "/case1/by_name/"+name)
+    ```
+
+    需要转义时，在参数上加 `extensions(x-gogen-path-escape=true)`：
+
+    ```golang
+    // @Param  name  path  string  true  "名称" extensions(x-gogen-path-escape=true)
+    // @Router /case1/by_name/{name} [get]
+    ByName(name string) error
+    ```
+
+    ```golang
+    // 生成的客户端代码
+    request := resty.NewRequest(client.Proxy, "/case1/by_name/"+url.PathEscape(name))
+    ```
+
+    参数值里可能带 `/`、`?`、`#` 时建议打开，免得把路径切坏。
+
+    另外，参数在 [swag](https://github.com/swaggo/swag) 的 `@Param` 里找不到时（`searchParam` 匹配不上）也不转义。
+
+
 
 #### 方法中的返回参数
 
@@ -302,7 +335,6 @@ gogen client domains.go
     }
     return nil
   ````
-
 
 ######  @x-gogen-result-wrap
 
