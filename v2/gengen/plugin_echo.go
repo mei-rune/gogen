@@ -2,7 +2,6 @@ package gengen
 
 import (
 	"io"
-	"os"
 	"strings"
 
 	"github.com/swaggo/swag"
@@ -11,16 +10,16 @@ import (
 var _ Plugin = &echoPlugin{}
 
 type echoPlugin struct {
-	cfg Config
+	cfg  Config
 	isV5 bool
 
-	customReturnFunc bool
-	returnResultFuncName string
+	customReturnFunc            bool
+	returnResultFuncName        string
 	returnCreatedResultFuncName string
-	returnUpdatedResultFuncName  string
+	returnUpdatedResultFuncName string
 	returnDeletedResultFuncName string
-	returnQueryResultFuncName string
-	returnErrorResultFuncName string
+	returnQueryResultFuncName   string
+	returnErrorResultFuncName   string
 }
 
 func (echo *echoPlugin) initCustomReturnFunc(ns string) {
@@ -35,26 +34,26 @@ func (echo *echoPlugin) initCustomReturnFunc(ns string) {
 
 func (echo *echoPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	if typeStr == "context.Context" {
-		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		ctx := echo.cfg.ContextGetter
 		if ctx != "" {
 			return ctx, true
 		}
 	}
 
 	args := map[string]string{
-		"url.Values":          "ctx.QueryParams()",
-		"*http.Request":       "ctx.Request()",
-		"io.Reader":           "ctx.Request().Body",
+		"url.Values":    "ctx.QueryParams()",
+		"*http.Request": "ctx.Request()",
+		"io.Reader":     "ctx.Request().Body",
 
 		"http.ResponseWriter": "ctx.Response().Writer",
 		"io.Writer":           "ctx.Response().Writer",
 		"context.Context":     "ctx.Request().Context()",
 		"echo.Context":        "ctx",
-		"*echo.Context":        "ctx",
+		"*echo.Context":       "ctx",
 	}
 	if echo.isV5 {
 		args["http.ResponseWriter"] = "ctx.Response()"
-		args["io.Writer"] =           "ctx.Response()"
+		args["io.Writer"] = "ctx.Response()"
 	}
 	s, ok := args[typeStr]
 	return s, ok
@@ -171,9 +170,9 @@ func (echo *echoPlugin) RenderFunc(out io.Writer, method *Method, route swag.Rou
 		return err
 	}
 	if echo.isV5 {
-	_, err = io.WriteString(out, "func(ctx *echo.Context) error {")
+		_, err = io.WriteString(out, "func(ctx *echo.Context) error {")
 	} else {
-	_, err = io.WriteString(out, "func(ctx echo.Context) error {")
+		_, err = io.WriteString(out, "func(ctx echo.Context) error {")
 	}
 	if err != nil {
 		return err
@@ -215,16 +214,16 @@ func (echo *echoPlugin) RenderReturnError(out io.Writer, method *Method, errCode
 	if echo.customReturnFunc {
 		// 前面当  method.Operation.Produces 为 text/plain 时添加了 ".Error()", 这里要删除
 		err = strings.TrimSuffix(err, ".Error()")
-		text = `return `+echo.returnErrorResultFuncName+`(ctx, {{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})`
+		text = `return ` + echo.returnErrorResultFuncName + `(ctx, {{.err}}{{if and .errCode .hasRealErrorCode}},{{.errCode}}{{end}})`
 	} else {
 		hasRealErrorCode = true
-		text = `return ctx.`+renderFunc+`(`+
-			`{{if .hasRealErrorCode -}}{{.errCode}}{{else}}http.StatusInternalServerError{{end}},`+
+		text = `return ctx.` + renderFunc + `(` +
+			`{{if .hasRealErrorCode -}}{{.errCode}}{{else}}http.StatusInternalServerError{{end}},` +
 			` {{.err}})`
 	}
 
 	s := renderString(text,
-			map[string]interface{}{
+		map[string]interface{}{
 			"err":              err,
 			"hasRealErrorCode": hasRealErrorCode,
 			"errCode":          errCode,
@@ -263,7 +262,7 @@ func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 	}
 
 	if withCode := WithCode(method); withCode != "" {
-			args["withCode"] = withCode
+		args["withCode"] = withCode
 	}
 
 	args["method"] = strings.ToUpper(method.Operation.RouterProperties[0].HTTPMethod)
@@ -274,7 +273,7 @@ func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 		if dataType == "[]byte" {
 			s := renderString(`{{- if .noreturn -}}
 			return nil
-			{{- else if .withCode -}} 
+			{{- else if .withCode -}}
 			return ctx.Blob({{.withCode}}, "text/plain", {{.data}})
 			{{- else -}}
 			return ctx.Blob({{.statusCode}}, "text/plain", {{.data}})
@@ -315,32 +314,31 @@ func (echo *echoPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
   return ctx.JSON({{.statusCode}}, {{.data}})
 {{- end}}`
 
-
 	if echo.customReturnFunc {
 		text = `{{- if .noreturn -}}
 	return nil
-	{{- else if .withCode -}} 
-	return `+echo.returnResultFuncName + `(ctx, {{.withCode}}, {{.data}})
+	{{- else if .withCode -}}
+	return ` + echo.returnResultFuncName + `(ctx, {{.withCode}}, {{.data}})
 	{{- else if eq .method "POST" -}}
 	{{- if .isArray -}}
 	if {{.data}} == nil {
 		{{.data}} = make({{.dataType}}, 0)
 	}
 	{{end -}}
-	return `+echo.returnCreatedResultFuncName + `(ctx, {{.data}})
+	return ` + echo.returnCreatedResultFuncName + `(ctx, {{.data}})
 	{{- else if eq .method "PUT" -}}
-	return `+echo.returnUpdatedResultFuncName + `(ctx, {{.data}})
+	return ` + echo.returnUpdatedResultFuncName + `(ctx, {{.data}})
 	{{- else if eq .method "DELETE" -}}
-	return `+echo.returnDeletedResultFuncName + `(ctx, {{.data}})
+	return ` + echo.returnDeletedResultFuncName + `(ctx, {{.data}})
 	{{- else if eq .method "GET" -}}
 	{{- if .isArray -}}
 	if {{.data}} == nil {
 		{{.data}} = make({{.dataType}}, 0)
 	}
 	{{end -}}
-	return `+echo.returnQueryResultFuncName + `(ctx, {{.data}})
+	return ` + echo.returnQueryResultFuncName + `(ctx, {{.data}})
 	{{- else -}}
-	return `+echo.returnResultFuncName + `(ctx, {{.statusCode}}, {{.data}})
+	return ` + echo.returnResultFuncName + `(ctx, {{.statusCode}}, {{.data}})
 	{{- end}}`
 	}
 

@@ -18,6 +18,7 @@ require (
 	github.com/runner-mei/loong v1.1.22
 	github.com/swaggo/echo-swagger v1.4.0
 	github.com/swaggo/swag v1.16.7-0.20260429065727-fa1d2c801b35
+	golang.org/x/text v0.36.0
 )
 
 require (
@@ -114,7 +115,6 @@ require (
 	golang.org/x/mod v0.35.0 // indirect
 	golang.org/x/net v0.53.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect

@@ -23,10 +23,16 @@ type ServerGenerator struct {
 	convertNamespace   string
 	outputHttpCodeWith bool
 	convertParamTypes  string
-	importList            string
+	importList         string
+
+	configFile string
+	fs         *flag.FlagSet
 }
 
 func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
+	cmd.fs = fs
+
+	fs.StringVar(&cmd.configFile, "config", "", "配置文件路径（properties 格式，相对路径基于 GOGEN_ROOT_DIRECTORY）")
 	fs.StringVar(&cmd.ext, "ext", "", "文件后缀名")
 	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 
@@ -55,28 +61,63 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.cfg.CustomReturnFunc, "customReturn", os.Getenv("GOGEN_CUSTOM_RETURN_FUNC"), "")
 
 	fs.BoolVar(&cmd.outputHttpCodeWith, "outputHttpCodeWith", false, "生成 httpCodeWith 函数")
-	fs.StringVar(&cmd.convertNamespace, "convert_ns", "", "转换函数的前缀")
+	fs.StringVar(&cmd.convertNamespace, "convert_ns", os.Getenv("GOGEN_CONVERT_NS"), "转换函数的前缀")
 	fs.StringVar(&cmd.convertParamTypes, "convert_param_types", os.Getenv("GOGEN_CONVERT_PARAM_TYPES"), "自定义的转换类型，多个类型时以逗号分隔")
 
-	fs.StringVar(&cmd.importList, "imports", "", "自定义的转换类型，多个类型时以逗号分隔")
+	fs.StringVar(&cmd.importList, "imports", os.Getenv("GOGEN_IMPORTS"), "额外导入的包，多个包时以逗号分隔")
+	fs.StringVar(&cmd.cfg.Errors, "errors", os.Getenv("GOGEN_ERRORS"), "errors 包的导入路径")
+	fs.StringVar(&cmd.cfg.ContextGetter, "contextGetter", os.Getenv("GOGEN_CONTEXT_GETTER"), "context.Context 参数的取值表达式")
+	fs.StringVar(&cmd.cfg.EchoVersion, "echoVersion", os.Getenv("GOGEN_ECHO_VERSION"), "echo 插件的版本，v5 时使用 echo v5")
 
 	return fs
 }
 
+func (cmd *ServerGenerator) applyConfigFile() error {
+	filename, err := resolveConfigFile(cmd.configFile)
+	if err != nil {
+		return err
+	}
+	if filename == "" {
+		return nil
+	}
+
+	fileCfg, err := LoadConfigFile(filename)
+	if err != nil {
+		return err
+	}
+
+	applyString(cmd.fs, "plugin", &cmd.plugin, fileCfg.Plugin)
+	applyString(cmd.fs, "ext", &cmd.ext, fileCfg.ServerExt)
+	applyString(cmd.fs, "build_tag", &cmd.buildTag, fileCfg.BuildTag)
+	applyString(cmd.fs, "httpCodeWith", &cmd.cfg.HttpCodeWith, fileCfg.HttpCodeWith)
+	applyString(cmd.fs, "badArgument", &cmd.cfg.NewBadArgument, fileCfg.BadArgument)
+	applyString(cmd.fs, "toEncodedError", &cmd.cfg.ErrorToJSONError, fileCfg.ToEncodedError)
+	applyBool(cmd.fs, "enableResultWrap", &cmd.enableResultWrap, fileCfg.EnableResultWrap)
+	applyString(cmd.fs, "okResult", &cmd.cfg.OkResult, fileCfg.OkResult)
+	applyString(cmd.fs, "errorResult", &cmd.cfg.ErrorResult, fileCfg.ErrorResult)
+	applyString(cmd.fs, "customReturn", &cmd.cfg.CustomReturnFunc, fileCfg.CustomReturn)
+	applyBool(cmd.fs, "outputHttpCodeWith", &cmd.outputHttpCodeWith, fileCfg.OutputHttpCodeWith)
+	applyString(cmd.fs, "convert_ns", &cmd.convertNamespace, fileCfg.ConvertNS)
+	applyString(cmd.fs, "convert_param_types", &cmd.convertParamTypes, fileCfg.ConvertParamTypes)
+	applyString(cmd.fs, "errors", &cmd.cfg.Errors, fileCfg.Errors)
+	applyString(cmd.fs, "contextGetter", &cmd.cfg.ContextGetter, fileCfg.ContextGetter)
+	applyString(cmd.fs, "echoVersion", &cmd.cfg.EchoVersion, fileCfg.EchoVersion)
+	if len(fileCfg.Imports) > 0 && !flagSet(cmd.fs, "imports") {
+		cmd.importList = strings.Join(fileCfg.Imports, ",")
+	}
+	return nil
+}
+
 func (cmd *ServerGenerator) Run(args []string) error {
+	if err := cmd.applyConfigFile(); err != nil {
+		return err
+	}
+
 	convertParamTypes = strings.Split(cmd.convertParamTypes, ",")
 	if cmd.plugin == "" {
 		return errors.New("缺少 plugin 参数")
 	}
 
-	if ns := os.Getenv("GOGEN_CONVERT_NS"); ns != "" {
-		cmd.convertNamespace = ns
-	}
-
-	ns := os.Getenv("GOGEN_CUSTOM_RETURN_FUNC")
-	if ns != "" {
-		cmd.cfg.CustomReturnFunc = ns
-	}
 	plugin, err := createPlugin(cmd.plugin, cmd.cfg)
 	if err != nil {
 		return err
@@ -168,7 +209,7 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		}
 	}
 	if !found {
-		if s := os.Getenv("GOGEN_ERRORS"); s != "" {
+		if s := cmd.cfg.Errors; s != "" {
 			io.WriteString(out, "\r\n\t\""+s+"\"")
 		} else {
 			io.WriteString(out, "\r\n\t\"errors\"")
@@ -203,35 +244,16 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		io.WriteString(out, "\""+pa+"\"")
 	}
 
-	if cmd.importList != "" {
-		for _, pa := range strings.Split(cmd.importList, ",") {
-			if isFileImport(pa) {
-				continue
-			}
-
-			io.WriteString(out, "\r\n\t")
-			pa = strings.TrimSpace(pa)
-			if strings.HasSuffix(pa, "\"") {
-				io.WriteString(out, pa)
-			} else {
-				io.WriteString(out, "\""+pa+"\"")
-			}
+	for _, pa := range SplitList(cmd.importList) {
+		if isFileImport(pa) {
+			continue
 		}
-	}
 
-	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
-		for _, pa := range strings.Split(s, ",") {
-			if isFileImport(pa) {
-				continue
-			}
-
-			io.WriteString(out, "\r\n\t")
-			pa = strings.TrimSpace(pa)
-			if strings.HasSuffix(pa, "\"") {
-				io.WriteString(out, pa)
-			} else {
-				io.WriteString(out, "\""+pa+"\"")
-			}
+		io.WriteString(out, "\r\n\t")
+		if strings.HasSuffix(pa, "\"") {
+			io.WriteString(out, pa)
+		} else {
+			io.WriteString(out, "\""+pa+"\"")
 		}
 	}
 	io.WriteString(out, "\r\n)\r\n")

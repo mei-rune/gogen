@@ -2,7 +2,6 @@ package gengen
 
 import (
 	"io"
-	"os"
 	"strings"
 
 	"github.com/swaggo/swag"
@@ -18,7 +17,6 @@ var _ Plugin = &chiPlugin{}
 type chiPlugin struct {
 	cfg Config
 }
-
 
 func (chi *chiPlugin) HeaderFunctions() []Function {
 	return []Function{
@@ -48,7 +46,6 @@ func (chi *chiPlugin) HeaderFunctions() []Function {
 		},
 	}
 }
-
 
 func (chi *chiPlugin) Functions() []Function {
 	return []Function{
@@ -86,7 +83,6 @@ func (chi *chiPlugin) Imports() map[string]string {
 	}
 }
 
-
 func (chi *chiPlugin) PartyTypeName() string {
 	return "chi.Router"
 }
@@ -97,7 +93,7 @@ func (chi *chiPlugin) IsPartyFluentStyle() bool {
 
 func (chi *chiPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	if typeStr == "context.Context" {
-		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		ctx := chi.cfg.ContextGetter
 		if ctx != "" {
 			return ctx, true
 		}
@@ -123,13 +119,12 @@ func (chi *chiPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 // 	return getCastErrorText(chi.cfg.NewBadArgument, method, accessFields, err, value)
 // }
 
-
 func (chi *chiPlugin) MiddlewaresDeclaration() string {
 	return "handlers ...func(http.Handler) http.Handler"
 }
 
 func (chi *chiPlugin) RenderWithMiddlewares(mux string) string {
-	return mux + " = "+mux+".With(handlers...)"
+	return mux + " = " + mux + ".With(handlers...)"
 }
 
 func (chi *chiPlugin) RenderMiddlewares(out io.Writer, fn func(out io.Writer) error) error {

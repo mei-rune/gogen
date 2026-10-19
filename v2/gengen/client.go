@@ -21,9 +21,17 @@ type ClientGenerator struct {
 
 	config            ClientConfig
 	convertParamTypes string
+	importList        string
+	errors            string
+
+	configFile string
+	fs         *flag.FlagSet
 }
 
 func (cmd *ClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
+	cmd.fs = fs
+
+	fs.StringVar(&cmd.configFile, "config", "", "配置文件路径（properties 格式，相对路径基于 GOGEN_ROOT_DIRECTORY）")
 	fs.StringVar(&cmd.ext, "ext", ".client-gen.go", "文件后缀名")
 	fs.StringVar(&cmd.buildTag, "build_tag", "", "生成 go build tag")
 
@@ -34,7 +42,7 @@ func (cmd *ClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.config.newRequest, "new-request", "resty.NewRequest({{.proxy}},{{.url}})", "")
 	fs.StringVar(&cmd.config.releaseRequest, "free-request", "resty.ReleaseRequest({{.proxy}},{{.request}})", "")
 
-	fs.StringVar(&cmd.config.ConvertNS, "convert_ns", "", "")
+	fs.StringVar(&cmd.config.ConvertNS, "convert_ns", os.Getenv("GOGEN_CONVERT_NS"), "")
 	fs.StringVar(&cmd.config.TimeFormat, "timeFormat", "client.Proxy.TimeFormat", "")
 
 	fs.BoolVar(&cmd.config.HasWrapper, "has-wrapper", false, "")
@@ -42,13 +50,51 @@ func (cmd *ClientGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.config.WrapperData, "wrapper-data", "Data", "")
 	fs.StringVar(&cmd.config.WrapperError, "wrapper-error", "Error", "")
 	fs.StringVar(&cmd.convertParamTypes, "convert_param_types", os.Getenv("GOGEN_CONVERT_PARAM_TYPES"), "自定义的转换类型，多个类型时以逗号分隔")
+	fs.StringVar(&cmd.importList, "imports", os.Getenv("GOGEN_IMPORTS"), "额外导入的包，多个包时以逗号分隔")
+	fs.StringVar(&cmd.errors, "errors", os.Getenv("GOGEN_ERRORS"), "errors 包的导入路径")
 
 	return fs
 }
 
+func (cmd *ClientGenerator) applyConfigFile() error {
+	filename, err := resolveConfigFile(cmd.configFile)
+	if err != nil {
+		return err
+	}
+	if filename == "" {
+		return nil
+	}
+
+	fileCfg, err := LoadConfigFile(filename)
+	if err != nil {
+		return err
+	}
+
+	applyString(cmd.fs, "ext", &cmd.ext, fileCfg.ClientExt)
+	applyString(cmd.fs, "build_tag", &cmd.buildTag, fileCfg.BuildTag)
+	applyString(cmd.fs, "tag", &cmd.config.TagName, fileCfg.Tag)
+	applyString(cmd.fs, "field", &cmd.config.RestyField, fileCfg.Field)
+	applyString(cmd.fs, "resty", &cmd.config.RestyName, fileCfg.Resty)
+	applyString(cmd.fs, "context", &cmd.config.ContextClassName, fileCfg.Context)
+	applyString(cmd.fs, "new-request", &cmd.config.newRequest, fileCfg.NewRequest)
+	applyString(cmd.fs, "free-request", &cmd.config.releaseRequest, fileCfg.FreeRequest)
+	applyString(cmd.fs, "convert_ns", &cmd.config.ConvertNS, fileCfg.ConvertNS)
+	applyString(cmd.fs, "timeFormat", &cmd.config.TimeFormat, fileCfg.TimeFormat)
+	applyBool(cmd.fs, "has-wrapper", &cmd.config.HasWrapper, fileCfg.HasWrapper)
+	applyString(cmd.fs, "wrapper-type", &cmd.config.WrapperType, fileCfg.WrapperType)
+	applyString(cmd.fs, "wrapper-data", &cmd.config.WrapperData, fileCfg.WrapperData)
+	applyString(cmd.fs, "wrapper-error", &cmd.config.WrapperError, fileCfg.WrapperError)
+	applyString(cmd.fs, "convert_param_types", &cmd.convertParamTypes, fileCfg.ConvertParamTypes)
+	applyString(cmd.fs, "errors", &cmd.errors, fileCfg.Errors)
+	if len(fileCfg.Imports) > 0 && !flagSet(cmd.fs, "imports") {
+		cmd.importList = strings.Join(fileCfg.Imports, ",")
+	}
+	return nil
+}
+
 func (cmd *ClientGenerator) Run(args []string) error {
-	if ns := os.Getenv("GOGEN_CONVERT_NS"); ns != "" {
-		cmd.config.ConvertNS = ns
+	if err := cmd.applyConfigFile(); err != nil {
+		return err
 	}
 
 	convertParamTypes = strings.Split(cmd.convertParamTypes, ",")
@@ -141,7 +187,7 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 		}
 	}
 	if !found {
-		if s := os.Getenv("GOGEN_ERRORS"); s != "" {
+		if s := cmd.errors; s != "" {
 			io.WriteString(out, "\r\n\t\""+s+"\"")
 		} else {
 			io.WriteString(out, "\r\n\t\"errors\"")
@@ -180,22 +226,19 @@ func (cmd *ClientGenerator) genHeader(out io.Writer, swaggerParser *swag.Parser,
 	io.WriteString(out, "\r\n\t")
 	io.WriteString(out, `"github.com/runner-mei/resty"`)
 
-	if s := os.Getenv("GOGEN_IMPORTS"); s != "" {
-		for _, pa := range strings.Split(s, ",") {
-			pa = strings.TrimSpace(pa)
-			if isDefaultImport(pa) {
-				continue
-			}
-			if isFileImport(pa) {
-				continue
-			}
+	for _, pa := range SplitList(cmd.importList) {
+		if isDefaultImport(pa) {
+			continue
+		}
+		if isFileImport(pa) {
+			continue
+		}
 
-			io.WriteString(out, "\r\n\t")
-			if strings.HasSuffix(pa, "\"") {
-				io.WriteString(out, pa)
-			} else {
-				io.WriteString(out, "\""+pa+"\"")
-			}
+		io.WriteString(out, "\r\n\t")
+		if strings.HasSuffix(pa, "\"") {
+			io.WriteString(out, pa)
+		} else {
+			io.WriteString(out, "\""+pa+"\"")
 		}
 	}
 

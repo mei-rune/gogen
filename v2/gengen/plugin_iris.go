@@ -2,7 +2,6 @@ package gengen
 
 import (
 	"io"
-	"os"
 	"strings"
 
 	"github.com/swaggo/swag"
@@ -21,7 +20,7 @@ type irisPlugin struct {
 
 func (iris *irisPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	if typeStr == "context.Context" {
-		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		ctx := iris.cfg.ContextGetter
 		if ctx != "" {
 			return ctx, true
 		}

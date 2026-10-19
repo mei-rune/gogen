@@ -2,7 +2,6 @@ package gengen
 
 import (
 	"io"
-	"os"
 	"strings"
 
 	"github.com/swaggo/swag"
@@ -16,7 +15,7 @@ type loongPlugin struct {
 
 func (lng *loongPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	if typeStr == "context.Context" {
-		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		ctx := lng.cfg.ContextGetter
 		if ctx != "" {
 			return ctx, true
 		}
@@ -34,7 +33,6 @@ func (lng *loongPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	s, ok := args[typeStr]
 	return s, ok
 }
-
 
 func (chi *loongPlugin) HeaderFunctions() []Function {
 	return []Function{
@@ -121,7 +119,7 @@ func (lng *loongPlugin) HasWithMiddlewares() bool {
 }
 
 func (lng *loongPlugin) RenderWithMiddlewares(mux string) string {
-	return mux + " = "+mux+".With(handlers...)"
+	return mux + " = " + mux + ".With(handlers...)"
 }
 
 func (lng *loongPlugin) RenderMiddlewares(out io.Writer, fn func(out io.Writer) error) error {
@@ -217,7 +215,7 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 		if dataType == "[]byte" {
 			s := renderString(`{{- if .noreturn -}}
 			return nil
-			{{- else if .withCode -}} 
+			{{- else if .withCode -}}
 			return ctx.Blob({{.withCode}}, "text/plain", {{.data}})
 			{{- else -}}
 			return ctx.Blob({{.statusCode}}, "text/plain", {{.data}})
@@ -228,7 +226,7 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 
 		s := renderString(`{{- if .noreturn -}}
 		return nil
-		{{- else if .withCode -}} 
+		{{- else if .withCode -}}
 		return ctx.String({{.withCode}}, {{.data}})
 		{{- else -}}
 		return ctx.String({{.statusCode}}, {{.data}})
@@ -239,9 +237,9 @@ func (lng *loongPlugin) RenderReturnOK(out io.Writer, method *Method, statusCode
 
 	s := renderString(`{{- if .noreturn -}}
 	return nil
-	{{- else if .withCode -}} 
+	{{- else if .withCode -}}
 	return ctx.ReturnResult({{.withCode}}, {{.data}})
-	{{- else if eq .method "POST" -}} 
+	{{- else if eq .method "POST" -}}
 	return ctx.ReturnCreatedResult({{.data}})
 	{{- else if eq .method "PUT" -}}
 	return ctx.ReturnUpdatedResult({{.data}})

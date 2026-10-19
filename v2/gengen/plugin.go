@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"log"
-	"os"
 	"strings"
 	"text/template"
 
@@ -19,6 +18,17 @@ type Config struct {
 	OkResult         string
 	EnableResultWrap bool
 	CustomReturnFunc string
+
+	// ContextGetter 是 context.Context 参数从请求中取值时使用的表达式。
+	// 对应 -contextGetter 参数、配置文件中的 contextGetter 以及
+	// GOGEN_CONTEXT_GETTER 环境变量。
+	ContextGetter string
+
+	// Errors 是生成代码时导入的 errors 包的路径。
+	Errors string
+
+	// EchoVersion 是 echo 插件的版本，值为 "v5" 时使用 echo v5。
+	EchoVersion string
 }
 
 type Function struct {
@@ -32,7 +42,7 @@ type Function struct {
 	ResultError bool
 
 	// 针对 i64, ok := ctx.ReadIntParam("abc") 的情况，读参数时会返回一个 bool
-	ResultBool  bool
+	ResultBool bool
 }
 
 func createPlugin(plugin string, cfg Config) (Plugin, error) {
@@ -43,17 +53,16 @@ func createPlugin(plugin string, cfg Config) (Plugin, error) {
 		return &chiPlugin{cfg: cfg}, nil
 	case "echo":
 		echo := &echoPlugin{cfg: cfg}
-		version := os.Getenv("GOGEN_ECHO_VERSION")
-		if version == "v5" {
-			echo.isV5  = true
+		if cfg.EchoVersion == "v5" {
+			echo.isV5 = true
 		}
-		
+
 		if cfg.CustomReturnFunc != "" {
 			echo.initCustomReturnFunc(cfg.CustomReturnFunc)
 		}
 		return echo, nil
 	case "echov5":
-		echo := &echoPlugin{cfg: cfg,isV5: true}
+		echo := &echoPlugin{cfg: cfg, isV5: true}
 		if cfg.CustomReturnFunc != "" {
 			echo.initCustomReturnFunc(cfg.CustomReturnFunc)
 		}
@@ -61,9 +70,8 @@ func createPlugin(plugin string, cfg Config) (Plugin, error) {
 	case "iris":
 		return &irisPlugin{cfg: cfg}, nil
 	case "loong":
-		version := os.Getenv("GOGEN_ECHO_VERSION")
-		if version == "v5" {
-			echo := &echoPlugin{cfg: cfg,isV5: true}
+		if cfg.EchoVersion == "v5" {
+			echo := &echoPlugin{cfg: cfg, isV5: true}
 			if cfg.CustomReturnFunc != "" {
 				echo.initCustomReturnFunc(cfg.CustomReturnFunc)
 			}
@@ -96,7 +104,6 @@ type Plugin interface {
 
 	GetErrorResult(err string) string
 	GetOkResult() string
-
 
 	MiddlewaresDeclaration() string
 	RenderWithMiddlewares(mux string) string

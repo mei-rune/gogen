@@ -65,6 +65,95 @@ gogen client domains.go
 
 ### 4. 生成文档, 请看 [github.com/swaggo/swag](https://github.com/swaggo/swag)，
 
+### 5. 使用配置文件
+
+控制代码生成的参数比较多，除了用命令行参数和 `GOGEN_` 开头的环境变量，还可以写在一个配置文件里，
+然后用 `-config` 指定：
+
+````shell
+gogen server -config=gogen.properties file.go
+gogen client -config=gogen.properties file.go
+````
+
+因为我们一般把它放在 `go generate` 中运行，为每个源文件写不同的 `-config` 相对路径很不方便，
+可以用 `GOGEN_ROOT_DIRECTORY` 环境变量指定项目根目录：
+
+````shell
+export GOGEN_ROOT_DIRECTORY=/path/to/project
+# 此时 -config 的相对路径会相对 $GOGEN_ROOT_DIRECTORY 解析
+gogen server -config=conf/gogen.properties file.go
+# 也支持省略 .properties 后缀
+gogen server -config=conf/gogen file.go
+# 也可以用 GOGEN_CONFIG 指定默认配置文件名
+export GOGEN_CONFIG=gogen_echov5.properties
+gogen server file.go
+# 都不指定时，自动查找 $GOGEN_ROOT_DIRECTORY/gogen.properties
+gogen server file.go
+````
+
+查找规则：
+
+- `-config` 是绝对路径时直接使用；
+- `-config` 是相对路径且设置了 `GOGEN_ROOT_DIRECTORY` 时，相对该目录解析；
+- `-config` 省略 `.properties` 后缀时，自动尝试加上该后缀；
+- 未指定 `-config` 时，使用 `GOGEN_CONFIG` 环境变量指定的文件名；
+- 两者都没有且设置了 `GOGEN_ROOT_DIRECTORY` 时，自动查找
+  `gogen.properties`、`gogen_default.properties`、`.gogen.properties`；
+- 未设置 `GOGEN_ROOT_DIRECTORY` 时，行为与以前一致，相对路径相对当前工作目录。
+
+配置文件使用 properties 格式，空行以及以 `#` 或 `!` 开头的行会被忽略，
+键和值可以用 `=` 或 `:` 分隔，`imports` 的多个包用逗号分隔。
+文件编码支持 UTF-8（带或不带 BOM）、UTF-16 LE/BE、UTF-32 LE/BE，会根据 BOM 自动识别。
+下面的例子只写了 server 常用的参数：
+
+````properties
+plugin=echo
+server_ext=.echo-gen.go
+build_tag=echo
+httpCodeWith=errors.GetHttpCode
+badArgument=errors.NewBadArgument
+toEncodedError=errors.ToEncodedError
+enableResultWrap=true
+okResult=NewOkResult
+errorResult=NewErrorResult
+customReturn=
+outputHttpCodeWith=true
+convert_ns=convert_
+convert_param_types=int64,int
+imports=example.com/project/errors,example.com/project/model
+errors=example.com/project/errors
+contextGetter=ctx.Value(contextKey).(context.Context)
+echoVersion=v5
+````
+
+client 使用的参数：
+
+````properties
+client_ext=.client-gen.go
+build_tag=client
+tag=json
+field=Proxy
+resty=*resty.Proxy
+context=context.Context
+new-request=resty.NewRequest({{.proxy}},{{.url}})
+free-request=resty.ReleaseRequest({{.proxy}},{{.request}})
+convert_ns=convert_
+convert_param_types=int64,int
+timeFormat=client.Proxy.TimeFormat
+has-wrapper=true
+wrapper-type=loong.Result
+wrapper-data=Data
+wrapper-error=Error
+imports=example.com/project/model
+errors=example.com/project/errors
+````
+
+配置项的优先级为：**命令行参数 > `GOGEN_` 环境变量 > 配置文件 > 默认值**。
+环境变量优先是为了让构建脚本仍可以用 `GOGEN_IMPORTS` 等临时覆盖配置文件中的某一项。
+`server` 和 `client` 只会读取各自相关的配置项，其余的会被忽略，所以也可以把两者的配置写在同一个文件里。
+
+完整的配置项和示例见 [gogen.example.properties](gogen.example.properties)。
+
 
 ## 文档
 

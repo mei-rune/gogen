@@ -2,7 +2,6 @@ package gengen
 
 import (
 	"io"
-	"os"
 	"strings"
 
 	"github.com/swaggo/swag"
@@ -16,7 +15,7 @@ type ginPlugin struct {
 
 func (gin *ginPlugin) GetSpecificTypeArgument(typeStr string) (string, bool) {
 	if typeStr == "context.Context" {
-		ctx := os.Getenv("GOGEN_CONTEXT_GETTER")
+		ctx := gin.cfg.ContextGetter
 		if ctx != "" {
 			return ctx, true
 		}
