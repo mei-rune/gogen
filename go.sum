@@ -741,3 +741,5 @@ rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
 sigs.k8s.io/yaml v1.3.0/go.mod h1:GeOyir5tyXNByN85N/dRIT9es5UQNerPYEKK56eTBm8=
 tech.hengwei.com.cn/mirrors/swaggo-swag v0.0.0-20260225114719-28bef103a7ed h1:lgLa7bor60x26Ow2AQh+8swXQ3tU+9zwxQI/uOX1VFY=
 tech.hengwei.com.cn/mirrors/swaggo-swag v0.0.0-20260225114719-28bef103a7ed/go.mod h1:ugemnJsPZm/kRwFUnzBlbHRd0JY9zE1M4F+uy2pAaPQ=
+tech.hengwei.com.cn/mirrors/swaggo-swag v0.0.0-20261101150154-983e6e65dc81 h1:4lJWH4nHkiXftpweJnW4R6yFmz0gzQBvYC76OkTx99I=
+tech.hengwei.com.cn/mirrors/swaggo-swag v0.0.0-20261101150154-983e6e65dc81/go.mod h1:OiA69asHtlh01UKheyNBr0+NsZuoyasEmajvPgauxys=

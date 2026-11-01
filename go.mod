@@ -125,7 +125,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/swaggo/swag => ../../swaggo/swag
+replace github.com/swaggo/swag => tech.hengwei.com.cn/mirrors/swaggo-swag v0.0.0-20261101150154-983e6e65dc81
 
 exclude github.com/dgrijalva/jwt-go v3.2.0+incompatible
 
