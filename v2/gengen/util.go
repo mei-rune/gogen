@@ -11,9 +11,19 @@ import (
 	"github.com/go-openapi/spec"
 	"github.com/grsmv/inflect"
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
+	"github.com/swaggo/swag"
 )
 
 var TimeFormat = "TimeFormat"
+
+func collectAstFile(parser *swag.Parser, file *astutil.File) error {
+	fileSet := token.NewFileSet()
+	if file.Ctx != nil && file.Ctx.FileSet != nil {
+		fileSet = file.Ctx.FileSet
+	}
+
+	return parser.Packages().CollectAstFile(fileSet, file.Package.ImportPath, file.Filename, file.AstFile, swag.ParseAll)
+}
 
 type PathSegement struct {
 	IsArgument bool
@@ -171,7 +181,6 @@ type ConvertFunc struct {
 	HasRetError bool
 }
 
-
 var convertParamTypes []string
 
 var ConvertHook func(isArray bool, paramType string) *ConvertFunc
@@ -190,12 +199,12 @@ func selectConvert(convertNS string, isArray bool, resultType, paramType string)
 		}
 	}
 
-	for  _, name := range convertParamTypes {
+	for _, name := range convertParamTypes {
 		if name == paramType {
 			if isArray {
-				return "Parse"+name+"(%s)", false, true, nil
+				return "Parse" + name + "(%s)", false, true, nil
 			}
-			return "Parse"+name+"(%s)", false, true, nil
+			return "Parse" + name + "(%s)", false, true, nil
 		}
 	}
 	dot := strings.IndexByte(paramType, '.')
@@ -203,12 +212,12 @@ func selectConvert(convertNS string, isArray bool, resultType, paramType string)
 		ns := paramType[:dot]
 		typeName := paramType[dot+1:]
 
-		for  _, name := range convertParamTypes {
+		for _, name := range convertParamTypes {
 			if name == typeName {
 				if isArray {
-					return ns + ".Parse"+name+"(%s)", false, true, nil
+					return ns + ".Parse" + name + "(%s)", false, true, nil
 				}
-				return ns + ".Parse"+name+"(%s)", false, true, nil
+				return ns + ".Parse" + name + "(%s)", false, true, nil
 			}
 		}
 	}
@@ -334,10 +343,10 @@ func toSnakeCase(in string) string {
 	return Underscore(in)
 }
 
-func FieldNameEqual(name1,  name2 string) bool {
+func FieldNameEqual(name1, name2 string) bool {
 	return strings.EqualFold(name1, name2) ||
-				strings.EqualFold(toSnakeCase(name1), name2) ||
-				strings.EqualFold(Singularize(name1), name2) 
+		strings.EqualFold(toSnakeCase(name1), name2) ||
+		strings.EqualFold(Singularize(name1), name2)
 }
 
 func toLowerCamelCase(in string) string {

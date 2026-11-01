@@ -102,7 +102,7 @@ func (cmd *ClientGenerator) Run(args []string) error {
 	swaggerParser := swag.New()
 	swaggerParser.GoGenEnabled = true
 	swaggerParser.ParseVendor = true
-	swaggerParser.ParseDependency = true
+	swaggerParser.ParseDependency = swag.ParseAll
 	swaggerParser.ParseInternal = true
 
 	var files []*astutil.File
@@ -111,7 +111,7 @@ func (cmd *ClientGenerator) Run(args []string) error {
 		if err != nil {
 			return err
 		}
-		err = swaggerParser.Packages().CollectAstFile(file.Package.ImportPath, file.Filename, file.AstFile)
+		err = collectAstFile(swaggerParser, file)
 		if err != nil {
 			return errors.New("collect astFile: " + err.Error())
 		}
