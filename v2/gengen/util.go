@@ -1,10 +1,15 @@
 package gengen
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/token"
+	"os"
+	"os/exec"
 	"reflect"
+	"runtime/debug"
 	"strings"
 	"unicode"
 
@@ -449,4 +454,99 @@ func castToExceptedParamType(param *Param, pos token.Pos) ast.Expr {
 			Name:    "string",
 		}
 	}
+}
+
+// GeneratorVersion 是生成器版本，编译期可用
+// -ldflags "-X github.com/runner-mei/gogen/v2/gengen.GeneratorVersion=<版本>" 注入。
+var GeneratorVersion = ""
+
+// ToolVersion 返回写入生成文件的工具版本号。
+func ToolVersion() string {
+	if GeneratorVersion != "" {
+		return GeneratorVersion
+	}
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "unknown"
+	}
+	version := info.Main.Version
+	if version == "" {
+		version = "unknown"
+	}
+	for _, setting := range info.Settings {
+		if setting.Key == "vcs.revision" && setting.Value != "" {
+			revision := setting.Value
+			if len(revision) > 12 {
+				revision = revision[:12]
+			}
+			return version + "+" + revision
+		}
+	}
+	return version
+}
+
+func generatedVersionComment() string {
+	return "// gogen version: " + ToolVersion() + "\r\n"
+}
+
+// writeGeneratedFile 把内容写入同目录临时文件并用 goimports 格式化，
+// 再与上一次生成的文件比较，相同则不动，不同则报错，skipCompare 时覆盖。
+func writeGeneratedFile(targetFile string, content []byte, skipCompare bool) error {
+	workFile := targetFile + ".tmp"
+	if err := os.WriteFile(workFile, content, 0644); err != nil {
+		return err
+	}
+	defer os.Remove(workFile)
+
+	exec.Command("goimports", "-w", workFile).Run()
+	exec.Command("goimports", "-w", workFile).Run()
+
+	newContent, err := os.ReadFile(workFile)
+	if err != nil {
+		return err
+	}
+	return compareAndWrite(targetFile, newContent, skipCompare)
+}
+
+func compareAndWrite(targetFile string, newContent []byte, skipCompare bool) error {
+	oldContent, err := os.ReadFile(targetFile)
+	if err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	exists := err == nil
+	if exists && bytes.Equal(oldContent, newContent) {
+		return nil
+	}
+	if exists && !skipCompare {
+		line, oldText, newText := firstDifference(oldContent, newContent)
+		return fmt.Errorf("%s: generated content differs from the existing file at line %d (existing: %q, generated: %q); file is unchanged, rerun with -skip_compare, GOGEN_SKIP_COMPARE=true or skip_compare=true in the config to accept it", targetFile, line, oldText, newText)
+	}
+	return os.WriteFile(targetFile, newContent, 0644)
+}
+
+func firstDifference(a, b []byte) (int, string, string) {
+	idx := 0
+	for idx < len(a) && idx < len(b) && a[idx] == b[idx] {
+		idx++
+	}
+	line := 1 + bytes.Count(b[:idx], []byte{'\n'})
+	return line, lineAt(a, line), lineAt(b, line)
+}
+
+func lineAt(content []byte, line int) string {
+	start := 0
+	for i := 1; i < line; i++ {
+		pos := bytes.IndexByte(content[start:], '\n')
+		if pos < 0 {
+			return ""
+		}
+		start += pos + 1
+	}
+	end := bytes.IndexByte(content[start:], '\n')
+	if end < 0 {
+		end = len(content)
+	} else {
+		end += start
+	}
+	return strings.TrimSpace(string(content[start:end]))
 }
