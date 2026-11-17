@@ -424,6 +424,51 @@ func TestGenerate(t *testing.T) {
 	})
 }
 
+func TestMain(m *testing.M) {
+	GeneratorVersion = "test"
+	os.Exit(m.Run())
+}
+
+func TestWriteGeneratedFile(t *testing.T) {
+	dir := t.TempDir()
+	target := filepath.Join(dir, "generated.go")
+
+	if err := compareAndWrite(target, []byte("line1\nline2\n"), false); err != nil {
+		t.Fatal(err)
+	}
+	if bs, _ := ioutil.ReadFile(target); string(bs) != "line1\nline2\n" {
+		t.Fatalf("unexpected content: %q", string(bs))
+	}
+
+	if err := compareAndWrite(target, []byte("line1\nline2\n"), false); err != nil {
+		t.Fatal(err)
+	}
+
+	err := compareAndWrite(target, []byte("line1\nCHANGED\n"), false)
+	if err == nil {
+		t.Fatal("want error when generated content differs")
+	}
+	for _, part := range []string{target, "line 2", "line2", "CHANGED", "skip_compare"} {
+		if !strings.Contains(err.Error(), part) {
+			t.Errorf("error %q should contain %q", err, part)
+		}
+	}
+	if bs, _ := ioutil.ReadFile(target); string(bs) != "line1\nline2\n" {
+		t.Fatalf("existing file was modified: %q", string(bs))
+	}
+
+	if err := compareAndWrite(target, []byte("line1\nCHANGED\n"), true); err != nil {
+		t.Fatal(err)
+	}
+	if bs, _ := ioutil.ReadFile(target); string(bs) != "line1\nCHANGED\n" {
+		t.Fatalf("file was not overwritten: %q", string(bs))
+	}
+
+	if got := generatedVersionComment(); !strings.Contains(got, "gogen version: test") {
+		t.Errorf("unexpected version comment: %q", got)
+	}
+}
+
 func readFile(pa string) []string {
 	bs, err := ioutil.ReadFile(pa)
 	if err != nil {
