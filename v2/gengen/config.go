@@ -43,6 +43,7 @@ type FileConfig struct {
 	ConvertParamTypes string
 	ContextGetter     string
 	EchoVersion       string
+	SkipCompare       *bool
 
 	// server 配置
 	Plugin             string
@@ -307,6 +308,12 @@ func (cfg *FileConfig) load(props []property) error {
 			cfg.ContextGetter = prop.value
 		case "echoVersion":
 			cfg.EchoVersion = prop.value
+		case "skip_compare", "skipCompare":
+			value, err := parsePropertyBool(prop)
+			if err != nil {
+				return err
+			}
+			cfg.SkipCompare = &value
 
 		case "plugin":
 			cfg.Plugin = prop.value
@@ -415,6 +422,7 @@ var configEnvNames = map[string]string{
 	"errors":              "GOGEN_ERRORS",
 	"contextGetter":       "GOGEN_CONTEXT_GETTER",
 	"echoVersion":         "GOGEN_ECHO_VERSION",
+	"skip_compare":        "GOGEN_SKIP_COMPARE",
 }
 
 func envWasSet(name string) bool {

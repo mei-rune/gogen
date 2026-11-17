@@ -1,11 +1,11 @@
 package gengen
 
 import (
+	"bytes"
 	"errors"
 	"flag"
 	"io"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/runner-mei/GoBatis/cmd/gobatis/goparser2/astutil"
@@ -20,8 +20,9 @@ type ServerGenerator struct {
 	cfg Config
 
 	enableResultWrap   bool
-	convertNamespace   string
 	outputHttpCodeWith bool
+	skipCompare        bool
+	convertNamespace   string
 	convertParamTypes  string
 	importList         string
 
@@ -68,6 +69,7 @@ func (cmd *ServerGenerator) Flags(fs *flag.FlagSet) *flag.FlagSet {
 	fs.StringVar(&cmd.cfg.Errors, "errors", os.Getenv("GOGEN_ERRORS"), "errors 包的导入路径")
 	fs.StringVar(&cmd.cfg.ContextGetter, "contextGetter", os.Getenv("GOGEN_CONTEXT_GETTER"), "context.Context 参数的取值表达式")
 	fs.StringVar(&cmd.cfg.EchoVersion, "echoVersion", os.Getenv("GOGEN_ECHO_VERSION"), "echo 插件的版本，v5 时使用 echo v5")
+	fs.BoolVar(&cmd.skipCompare, "skip_compare", os.Getenv("GOGEN_SKIP_COMPARE") == "true", "跳过生成内容与已有文件的比较")
 
 	return fs
 }
@@ -102,6 +104,7 @@ func (cmd *ServerGenerator) applyConfigFile() error {
 	applyString(cmd.fs, "errors", &cmd.cfg.Errors, fileCfg.Errors)
 	applyString(cmd.fs, "contextGetter", &cmd.cfg.ContextGetter, fileCfg.ContextGetter)
 	applyString(cmd.fs, "echoVersion", &cmd.cfg.EchoVersion, fileCfg.EchoVersion)
+	applyBool(cmd.fs, "skip_compare", &cmd.skipCompare, fileCfg.SkipCompare)
 	if len(fileCfg.Imports) > 0 && !flagSet(cmd.fs, "imports") {
 		cmd.importList = strings.Join(fileCfg.Imports, ",")
 	}
@@ -154,28 +157,18 @@ func (cmd *ServerGenerator) Run(args []string) error {
 		filename := args[idx]
 
 		targetFile := strings.TrimSuffix(filename, ".go") + cmd.ext
-		out, err := os.Create(targetFile)
-		if err != nil {
+		var buf bytes.Buffer
+		if err := cmd.genHeader(plugin, &buf, swaggerParser, file); err != nil {
 			return err
 		}
 
-		err = cmd.genHeader(plugin, out, swaggerParser, file)
-		if err != nil {
+		if err := cmd.genInitFunc(plugin, &buf, swaggerParser, file); err != nil {
 			return err
 		}
 
-		err = cmd.genInitFunc(plugin, out, swaggerParser, file)
-		if err != nil {
+		if err := writeGeneratedFile(targetFile, buf.Bytes(), cmd.skipCompare); err != nil {
 			return err
 		}
-
-		err = out.Close()
-		if err != nil {
-			return err
-		}
-
-		exec.Command("goimports", "-w", targetFile).Run()
-		exec.Command("goimports", "-w", targetFile).Run()
 	}
 	return nil
 }
@@ -190,7 +183,9 @@ func (cmd *ServerGenerator) genHeader(cfg Plugin, out io.Writer, swaggerParser *
 		io.WriteString(out, "\r\n")
 		io.WriteString(out, "\r\n")
 	}
-	io.WriteString(out, "// Please don't edit this file, it generate by gogen!\r\npackage ")
+	io.WriteString(out, "// Please don't edit this file, it generate by gogen!\r\n")
+	io.WriteString(out, generatedVersionComment())
+	io.WriteString(out, "package ")
 	io.WriteString(out, file.Pkg.Name)
 	io.WriteString(out, "\r\n\r\nimport (")
 

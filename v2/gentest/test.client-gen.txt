@@ -2,6 +2,7 @@
 // +build !loong
 
 // Please don't edit this file, it generate by gogen!
+// gogen version: test
 package main
 
 import (
