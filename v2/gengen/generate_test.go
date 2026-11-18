@@ -426,6 +426,18 @@ func TestGenerate(t *testing.T) {
 
 func TestMain(m *testing.M) {
 	GeneratorVersion = "test"
+
+	// 清掉开发者环境里的 GOGEN_* 变量，保证用例不依赖本机配置。
+	// 例如 GOGEN_ROOT_DIRECTORY 会让 ServerGenerator 自动加载该目录下的
+	// gogen.properties，其中的 server_ext/plugin 等会覆盖用例传的参数，
+	// 导致生成的文件名与用例读取的文件名不一致。
+	for _, kv := range os.Environ() {
+		idx := strings.Index(kv, "=")
+		if idx > 0 && strings.HasPrefix(kv[:idx], "GOGEN_") {
+			os.Unsetenv(kv[:idx])
+		}
+	}
+
 	os.Exit(m.Run())
 }
 
